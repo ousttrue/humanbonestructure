@@ -16,6 +16,7 @@
     <script src="_static/translations.js"></script>
     <link rel="index" title="索引" href="genindex.html" />
     <link rel="search" title="検索" href="search.html" />
+    <link rel="next" title="用語集" href="grossary.html" />
     <link rel="prev" title="vrm0" href="vrm0.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
@@ -24,6 +25,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="総合索引"
              accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="grossary.html" title="用語集"
+             accesskey="N">次へ</a> |</li>
         <li class="right" >
           <a href="vrm0.html" title="vrm0"
              accesskey="P">前へ</a> |</li>
@@ -39,6 +43,61 @@
             
   <section class="tex2jax_ignore mathjax_ignore" id="vrm1">
 <h1>vrm1<a class="headerlink" href="#vrm1" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">glTF</span></code> の <code class="docutils literal notranslate"><span class="pre">node</span></code> に含まれる回転がボーン座標系を表すことにして、
+<code class="docutils literal notranslate"><span class="pre">vrm0</span></code> の <code class="docutils literal notranslate"><span class="pre">node</span></code> が回転を含まないという制限を緩和する。</p>
+<p>ただし、<code class="docutils literal notranslate"><span class="pre">node</span></code> は以下の新しい制約を満たさなければならない。</p>
+<ul class="simple">
+<li><p>tail を示すノードが必用</p></li>
+<li><p>node の主軸を tail と直交する軸から選択する</p></li>
+</ul>
+<p>Humanoid ボーンに関しては主軸の指定により、人体内での位置づけが分かるので、
+モデルエクスポート時の <code class="docutils literal notranslate"><span class="pre">T-Pose</span></code> は不要となる。
+<code class="docutils literal notranslate"><span class="pre">vrm0</span></code> では <code class="docutils literal notranslate"><span class="pre">T-Pose</span></code> からヒューマノイドボーンの座標系を決めていたが、
+<code class="docutils literal notranslate"><span class="pre">vrm1</span></code> ではボーンの座標系から <code class="docutils literal notranslate"><span class="pre">T-Pose</span></code> を作ることができる。</p>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="bone">
+<h1>Bone座標系<a class="headerlink" href="#bone" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p>以下の３軸を定義する。</p>
+<ul class="simple">
+<li><p>主軸</p></li>
+<li><p>副軸</p></li>
+<li><p>ロール軸</p></li>
+</ul>
+<p>XYZ軸の具体的な割り当てはしないが、</p>
+<p>Blenderでは</p>
+<ul class="simple">
+<li><p>X</p></li>
+<li><p>Z</p></li>
+<li><p>Y</p></li>
+</ul>
+<p>となる。</p>
+<p>humanoid の LeftLowerArm では、</p>
+<ul class="simple">
+<li><p>主軸(肘の曲がる軸)</p></li>
+<li><p>副軸(未使用)</p></li>
+<li><p>ロール軸(肘のロールする軸)</p></li>
+</ul>
+<p>というように意味を固定する。</p>
+<div class="admonition note">
+<p class="admonition-title">注釈</p>
+<p>左右の対称性の問題もここで記述する予定。
++の回転方向</p>
+</div>
+<p>T-Pose を基準ポーズとした、
+右手系の ZXY Euler 角によるポーズを共有できるようにする。</p>
+<div class="admonition note">
+<p class="admonition-title">注釈</p>
+<p>スキニングとリギングを切り離す。
+glTFに格納され inverseMatrices は用いない。
+import 時に 用途に応じたヒエラルキーを生成しそれにあわせて生成する。
+(vrm0互換、nodeに格納されている回転、tail-axisから求められるもの)</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>warningの例です</p>
+</div>
+<p>右手系座標系 Y</p>
+<p>これにより各ボーンの</p>
 <div><svg height="200" viewBox="0 0 640 200" width="640" xmlns="http://www.w3.org/2000/svg" xmlns:inkspace="http://www.inkscape.org/namespaces/inkscape" xmlns:xlink="http://www.w3.org/1999/xlink">
   <defs id="defs_block">
     <filter height="1.504" id="filter_blur" inkspace:collect="always" width="1.1575" x="-0.07875" y="-0.252">
@@ -83,9 +142,18 @@
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">目次</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">vrm1</a></li>
+<li><a class="reference internal" href="#bone">Bone座標系</a></li>
+</ul>
+
   <h4>前のトピックへ</h4>
   <p class="topless"><a href="vrm0.html"
                         title="前の章へ">vrm0</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="grossary.html"
+                        title="次の章へ">用語集</a></p>
   <div role="note" aria-label="source link">
     <h3>このページ</h3>
     <ul class="this-page-menu">
@@ -113,6 +181,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="総合索引"
              >索引</a></li>
+        <li class="right" >
+          <a href="grossary.html" title="用語集"
+             >次へ</a> |</li>
         <li class="right" >
           <a href="vrm0.html" title="vrm0"
              >前へ</a> |</li>
