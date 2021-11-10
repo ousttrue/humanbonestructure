@@ -1,8 +1,13 @@
 # 実装実験
 
-* BVH => Pose化
 
 ```{toctree}
 armature_unity
 ```
+
+## ToDo
+
+* BVH => Pose化
+* FBXモデルの実験
+* Aスタンスモデル
 

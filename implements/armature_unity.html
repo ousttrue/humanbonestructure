@@ -45,6 +45,49 @@
   <section class="tex2jax_ignore mathjax_ignore" id="armature-to-unity">
 <h1>Armature to Unity<a class="headerlink" href="#armature-to-unity" title="このヘッドラインへのパーマリンク">¶</a></h1>
 <p>Blender の Armature のポーズを Unity 骨格に転送する実験</p>
+<section id="blender">
+<h2>Blender<a class="headerlink" href="#blender" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<img alt="../_images/blender_euler.jpg" src="../_images/blender_euler.jpg" />
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">bpy</span>
+<span class="kn">import</span> <span class="nn">json</span>
+
+<span class="n">pose</span> <span class="o">=</span> <span class="n">bpy</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">active_object</span><span class="o">.</span><span class="n">pose</span>
+<span class="k">print</span><span class="p">(</span><span class="n">pose</span><span class="p">)</span>
+<span class="n">eulers</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">pose</span><span class="o">.</span><span class="n">bones</span><span class="p">:</span>
+    <span class="c1">#print(b, b.rotation_euler)</span>
+    <span class="n">e</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">rotation_euler</span>
+    <span class="n">eulers</span><span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">eulers</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>これが、bvhと同じになるかと思っていたのだが違う。
+bvhから <a class="reference internal" href="../appendix/glossary.html#term-Euler"><span class="xref std std-term">ボーンローカルEuler角</span></a>にする。</p>
+</section>
+<section id="unity">
+<h2>Unity<a class="headerlink" href="#unity" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>euler角を右手系から左手系に変換する。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="n">y</span><span class="p">,</span> <span class="o">-</span><span class="n">z</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>local軸のベクトルを得る。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Vector3</span> <span class="n">x_axis</span><span class="p">;</span>
+<span class="n">Vector3</span> <span class="n">y_axis</span><span class="p">;</span>
+<span class="n">Vector3</span> <span class="n">z_axis</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>回転を作る。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">var</span> <span class="n">Rx</span> <span class="o">=</span> <span class="n">Quaternion</span><span class="o">.</span><span class="n">AngleAxis</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">x_axis</span><span class="p">)</span>
+<span class="n">var</span> <span class="n">Ry</span> <span class="o">=</span> <span class="n">Quaternion</span><span class="o">.</span><span class="n">AngleAxis</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">y_axis</span><span class="p">)</span>
+<span class="n">var</span> <span class="n">Rz</span> <span class="o">=</span> <span class="n">Quaternion</span><span class="o">.</span><span class="n">AngleAxis</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">z_axis</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>YZXの順に乗算する。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">var</span> <span class="n">transofrm</span><span class="o">.</span><span class="n">localRotation</span> <span class="o">=</span> <span class="n">toTPose</span> <span class="o">*</span> <span class="n">Ry</span> <span class="o">*</span> <span class="n">Rz</span> <span class="o">*</span> <span class="n">Rx</span><span class="p">;</span>
+</pre></div>
+</div>
+<img alt="../_images/bl_to_uni.jpg" src="../_images/bl_to_uni.jpg" />
+</section>
 </section>
 
 
@@ -54,6 +97,15 @@
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">目次</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Armature to Unity</a><ul>
+<li><a class="reference internal" href="#blender">Blender</a></li>
+<li><a class="reference internal" href="#unity">Unity</a></li>
+</ul>
+</li>
+</ul>
+
   <h4>前のトピックへ</h4>
   <p class="topless"><a href="index.html"
                         title="前の章へ">実装実験</a></p>
@@ -100,7 +152,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021, ousttrue.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.0.
     </div>
   </body>
 </html>
