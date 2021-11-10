@@ -2,13 +2,12 @@
 
 ```{toctree}
 :maxdepth: 2
-vrm0
-vrm1
-grossary
+bone_local/vrm1
+pose/index
+implements/index
+appendix/vrm0
+appendix/glossary
 ```
-
-* a
-* b
 
 # Indices and tables
 
