@@ -1,3 +1,6 @@
+```{index} vrm0
+```
+
 # vrm0
 
 * T-Pose

@@ -7,31 +7,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
     <title>vrm1 &#8212; PoseCompatibilityPlan  ドキュメント</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/nature.css" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/doctools.js"></script>
-    <script src="_static/translations.js"></script>
-    <link rel="index" title="索引" href="genindex.html" />
-    <link rel="search" title="検索" href="search.html" />
-    <link rel="next" title="用語集" href="grossary.html" />
-    <link rel="prev" title="vrm0" href="vrm0.html" /> 
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/nature.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/translations.js"></script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="next" title="標準ポーズ仕様(案)" href="../pose/index.html" />
+    <link rel="prev" title="PoseCompatibilityPlan" href="../index.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>ナビゲーション</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="総合索引"
+          <a href="../genindex.html" title="総合索引"
              accesskey="I">索引</a></li>
         <li class="right" >
-          <a href="grossary.html" title="用語集"
+          <a href="../pose/index.html" title="標準ポーズ仕様(案)"
              accesskey="N">次へ</a> |</li>
         <li class="right" >
-          <a href="vrm0.html" title="vrm0"
+          <a href="../index.html" title="PoseCompatibilityPlan"
              accesskey="P">前へ</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">PoseCompatibilityPlan  ドキュメント</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PoseCompatibilityPlan  ドキュメント</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">vrm1</a></li> 
       </ul>
     </div>  
@@ -42,21 +42,47 @@
           <div class="body" role="main">
             
   <section class="tex2jax_ignore mathjax_ignore" id="vrm1">
-<h1>vrm1<a class="headerlink" href="#vrm1" title="このヘッドラインへのパーマリンク">¶</a></h1>
-<p><code class="docutils literal notranslate"><span class="pre">glTF</span></code> の <code class="docutils literal notranslate"><span class="pre">node</span></code> に含まれる回転がボーン座標系を表すことにして、
-<code class="docutils literal notranslate"><span class="pre">vrm0</span></code> の <code class="docutils literal notranslate"><span class="pre">node</span></code> が回転を含まないという制限を緩和する。</p>
-<p>ただし、<code class="docutils literal notranslate"><span class="pre">node</span></code> は以下の新しい制約を満たさなければならない。</p>
+<span id="index-0"></span><h1>vrm1<a class="headerlink" href="#vrm1" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p>スキニングとポーズの分離のための試案。
+別のモデル(スキニング)に対して、同じポーズを適用する。</p>
+<div class="admonition note">
+<p class="admonition-title">注釈</p>
+<p>vrm0 では すべてのボーンがワールド座標と同じ向きの T-Pose からの local quaternion でこれを実現していた。</p>
+</div>
+<p>vrm1 では、T-Pose からの local euler 角でこれを実現するのを目標に
+ボーンローカル回転を一定のルールの下で導入する。</p>
+<section id="id1">
+<h2>メリット<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<ul class="simple">
+<li><p>親指などあいまいだった部分が明確になる(予定)</p></li>
+<li><p>euler角でポーズがつけられる(予定)</p></li>
+</ul>
+</section>
+<section id="id2">
+<h2>デメリット<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<ul class="simple">
+<li><p>初期セットアップが難しくなる</p></li>
+<li><p>importer を書くのが難しくなる</p></li>
+<li><p>export できるように前処理するのが難しくなる</p></li>
+<li><p>仕様が長くなる</p></li>
+<li><p>runtime もポーズ変換機能が必要かも</p></li>
+<li><p>既存の importer (Three-js, babylon, blender, unreal...etc も追随できるか？)</p></li>
+</ul>
+</section>
+<section id="t-pose">
+<h2>概要(T-Pose と ボーンローカル軸のトレードオフ)<a class="headerlink" href="#t-pose" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">node</span></code> は以下の新しい制約を満たさなければならない。</p>
 <ul class="simple">
 <li><p>tail を示すノードが必用</p></li>
 <li><p>node の主軸を tail と直交する軸から選択する</p></li>
 </ul>
 <p>Humanoid ボーンに関しては主軸の指定により、人体内での位置づけが分かるので、
-モデルエクスポート時の <code class="docutils literal notranslate"><span class="pre">T-Pose</span></code> は不要となる。
-<code class="docutils literal notranslate"><span class="pre">vrm0</span></code> では <code class="docutils literal notranslate"><span class="pre">T-Pose</span></code> からヒューマノイドボーンの座標系を決めていたが、
+モデルエクスポート時の <code class="docutils literal notranslate"><span class="pre">T-Pose</span></code> は不要となる。</p>
+<p><code class="docutils literal notranslate"><span class="pre">vrm0</span></code> では <code class="docutils literal notranslate"><span class="pre">T-Pose</span></code> からヒューマノイドボーンの座標系を決めていたが、
 <code class="docutils literal notranslate"><span class="pre">vrm1</span></code> ではボーンの座標系から <code class="docutils literal notranslate"><span class="pre">T-Pose</span></code> を作ることができる。</p>
 </section>
-<section class="tex2jax_ignore mathjax_ignore" id="bone">
-<h1>Bone座標系<a class="headerlink" href="#bone" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<section id="bone">
+<h2>Bone座標系<a class="headerlink" href="#bone" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p>以下の３軸を定義する。</p>
 <ul class="simple">
 <li><p>主軸</p></li>
@@ -134,6 +160,7 @@ import 時に 用途に応じたヒエラルキーを生成しそれにあわせ
 </svg>
 </div>
 </section>
+</section>
 
 
             <div class="clearer"></div>
@@ -142,29 +169,34 @@ import 時に 用途に応じたヒエラルキーを生成しそれにあわせ
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">目次</a></h3>
+  <h3><a href="../index.html">目次</a></h3>
   <ul>
-<li><a class="reference internal" href="#">vrm1</a></li>
+<li><a class="reference internal" href="#">vrm1</a><ul>
+<li><a class="reference internal" href="#id1">メリット</a></li>
+<li><a class="reference internal" href="#id2">デメリット</a></li>
+<li><a class="reference internal" href="#t-pose">概要(T-Pose と ボーンローカル軸のトレードオフ)</a></li>
 <li><a class="reference internal" href="#bone">Bone座標系</a></li>
+</ul>
+</li>
 </ul>
 
   <h4>前のトピックへ</h4>
-  <p class="topless"><a href="vrm0.html"
-                        title="前の章へ">vrm0</a></p>
+  <p class="topless"><a href="../index.html"
+                        title="前の章へ">PoseCompatibilityPlan</a></p>
   <h4>次のトピックへ</h4>
-  <p class="topless"><a href="grossary.html"
-                        title="次の章へ">用語集</a></p>
+  <p class="topless"><a href="../pose/index.html"
+                        title="次の章へ">標準ポーズ仕様(案)</a></p>
   <div role="note" aria-label="source link">
     <h3>このページ</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/vrm1.md.txt"
+      <li><a href="../_sources/bone_local/vrm1.md.txt"
             rel="nofollow">ソースコードを表示</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">クイック検索</h3>
     <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
+    <form class="search" action="../search.html" method="get">
       <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="検索" />
     </form>
@@ -179,15 +211,15 @@ import 時に 用途に応じたヒエラルキーを生成しそれにあわせ
       <h3>ナビゲーション</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="総合索引"
+          <a href="../genindex.html" title="総合索引"
              >索引</a></li>
         <li class="right" >
-          <a href="grossary.html" title="用語集"
+          <a href="../pose/index.html" title="標準ポーズ仕様(案)"
              >次へ</a> |</li>
         <li class="right" >
-          <a href="vrm0.html" title="vrm0"
+          <a href="../index.html" title="PoseCompatibilityPlan"
              >前へ</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">PoseCompatibilityPlan  ドキュメント</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PoseCompatibilityPlan  ドキュメント</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">vrm1</a></li> 
       </ul>
     </div>
