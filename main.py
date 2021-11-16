@@ -14,19 +14,20 @@ def print_bvh(node: bvh_parser.Node, indent=''):
 class MyWidget(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setCentralWidget(self.create_central())
+
+        self.tree = QtWidgets.QTreeWidget()
+        self.tree.setColumnCount(3)
+        self.tree.setHeaderLabels(["Name", "Offset", "Channels"])
+
+        self.dock = QtWidgets.QDockWidget('left', self)
+        self.dock.setWidget(self.tree)
+        self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.dock)
 
         menu = self.menuBar()
         file_menu = menu.addMenu("&File")
         open_action = QtGui.QAction("&Open", self)
         open_action.triggered.connect(self.open_dialog)  # type: ignore
         file_menu.addAction(open_action)
-
-    def create_central(self) -> QtWidgets.QWidget:
-        self.tree = QtWidgets.QTreeWidget()
-        self.tree.setColumnCount(3)
-        self.tree.setHeaderLabels(["Name", "Offset", "Channels"])
-        return self.tree
 
     def open(self, path: pathlib.Path):
         if not path.exists():
