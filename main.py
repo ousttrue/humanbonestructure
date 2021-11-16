@@ -5,6 +5,13 @@ from PySide6 import QtCore, QtWidgets, QtGui
 import bvh
 
 
+def print_bvh(node: bvh.Node, indent=''):
+    print(f'{indent}{node}')
+    indent += '  '
+    for child in node.children:
+        print_bvh(child, indent)
+
+
 class MyWidget(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
@@ -43,7 +50,8 @@ class MyWidget(QtWidgets.QMainWindow):
         if not path.exists():
             return
         print(path)
-        bvh.parse(path.read_text(encoding='utf-8'))
+        root = bvh.parse(path.read_text(encoding='utf-8'))
+        print_bvh(root)
 
     @QtCore.Slot()  # type: ignore
     def open_dialog(self):
