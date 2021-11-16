@@ -1,5 +1,5 @@
 import unittest
-import bvh
+import bvh_parser
 import pathlib
 import os
 
@@ -8,7 +8,7 @@ TEST_DATA = pathlib.Path(os.environ['USERPROFILE']) / 'Desktop/test_motion.bvh'
 
 class Test_BVH(unittest.TestCase):
     def test_parse(self):
-        root, frametime, frames, data = bvh.parse(
+        root, frametime, frames, data = bvh_parser.parse(
             TEST_DATA.read_text(encoding='utf-8'))
         self.assertEqual('Hips', root.name)
         self.assertEqual('Spine', root.children[0].name)

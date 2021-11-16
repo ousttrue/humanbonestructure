@@ -2,10 +2,10 @@ import sys
 import random
 import pathlib
 from PySide6 import QtCore, QtWidgets, QtGui
-import bvh
+import bvh_parser
 
 
-def print_bvh(node: bvh.Node, indent=''):
+def print_bvh(node: bvh_parser.Node, indent=''):
     print(f'{indent}{node}')
     indent += '  '
     for child in node.children:
@@ -50,8 +50,8 @@ class MyWidget(QtWidgets.QMainWindow):
         if not path.exists():
             return
         print(path)
-        motion = bvh.parse(path.read_text(encoding='utf-8'))
-        print_bvh(motion.root)
+        bvh = bvh_parser.parse(path.read_text(encoding='utf-8'))
+        print_bvh(bvh.root)
 
     @QtCore.Slot()  # type: ignore
     def open_dialog(self):
