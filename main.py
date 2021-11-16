@@ -50,8 +50,8 @@ class MyWidget(QtWidgets.QMainWindow):
         if not path.exists():
             return
         print(path)
-        root = bvh.parse(path.read_text(encoding='utf-8'))
-        print_bvh(root)
+        motion = bvh.parse(path.read_text(encoding='utf-8'))
+        print_bvh(motion.root)
 
     @QtCore.Slot()  # type: ignore
     def open_dialog(self):
