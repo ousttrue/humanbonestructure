@@ -109,6 +109,10 @@ class Bvh(NamedTuple):
     frames: int
     data: ctypes.Array
 
+    def get_seconds(self):
+        return self.frametime * self.frames
+
+
 def parse(src: str) -> Bvh:
     it = iter(src.splitlines())
     if next(it) != 'HIERARCHY':
