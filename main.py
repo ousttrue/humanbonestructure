@@ -1,6 +1,8 @@
 import sys
 import random
+import pathlib
 from PySide6 import QtCore, QtWidgets, QtGui
+import bvh
 
 
 class MyWidget(QtWidgets.QMainWindow):
@@ -37,15 +39,23 @@ class MyWidget(QtWidgets.QMainWindow):
         widget.setLayout(layout)
         return widget
 
+    def open(self, path: pathlib.Path):
+        if not path.exists():
+            return
+        print(path)
+        bvh.parse(path.read_text(encoding='utf-8'))
+
     @QtCore.Slot()  # type: ignore
     def open_dialog(self):
-        dialog = QtWidgets.QFileDialog(self)
-        # dialog.setFileMode(QtWidgets.QFileDialog.AnyFile)
-        dialog.setNameFilter("Images (*.png *.xpm *.jpg)")
+        dialog = QtWidgets.QFileDialog(self, caption="open bvh")
+        dialog.setFileMode(QtWidgets.QFileDialog.AnyFile)
+        dialog.setNameFilters(["bvh files (*.bvh)", "Any files (*)"])
         if not dialog.exec():
             return
-        fileNames = dialog.selectedFiles()
-        print(type(fileNames), fileNames)
+        files = dialog.selectedFiles()
+        if not files:
+            return
+        self.open(pathlib.Path(files[0]))
 
     @QtCore.Slot()  # type: ignore
     def magic(self):
