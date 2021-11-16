@@ -1,5 +1,4 @@
 import sys
-import random
 import pathlib
 from PySide6 import QtCore, QtWidgets, QtGui
 import bvh_parser
@@ -23,35 +22,38 @@ class MyWidget(QtWidgets.QMainWindow):
         open_action.triggered.connect(self.open_dialog)  # type: ignore
         file_menu.addAction(open_action)
 
-        toolbar = QtWidgets.QToolBar("My main toolbar")
-        self.addToolBar(toolbar)
-        button_action = QtGui.QAction("Click me!", self)
-        button_action.setStatusTip("rundom text")
-        button_action.triggered.connect(self.magic)  # type: ignore
-        toolbar.addAction(button_action)
-
     def create_central(self) -> QtWidgets.QWidget:
-        layout = QtWidgets.QVBoxLayout()
-
-        self.text = QtWidgets.QLabel(
-            "Hello World", alignment=QtCore.Qt.AlignCenter)  # type: ignore
-        self.hello = ["Hallo Welt", "Hei maailma", "Hola Mundo", "Привет мир"]
-        layout.addWidget(self.text)
-
-        self.button = QtWidgets.QPushButton("Click me!")
-        self.button.clicked.connect(self.magic)  # type: ignore
-        layout.addWidget(self.button)
-
-        widget = QtWidgets.QWidget()
-        widget.setLayout(layout)
-        return widget
+        self.tree = QtWidgets.QTreeWidget()
+        self.tree.setColumnCount(3)
+        self.tree.setHeaderLabels(["Name", "Offset", "Channels"])
+        return self.tree
 
     def open(self, path: pathlib.Path):
         if not path.exists():
             return
         print(path)
         bvh = bvh_parser.parse(path.read_text(encoding='utf-8'))
-        print_bvh(bvh.root)
+
+        def build_tree(items, node: bvh_parser.Node):
+            item = QtWidgets.QTreeWidgetItem(
+                [node.name, str(node.offset),
+                 str(node.channels)])
+            for child in node.children:
+                if (child.name):
+                    child_item = build_tree(items, child)
+                    item.addChild(child_item)
+
+            items.append(item)
+            return item
+
+        items = []
+        build_tree(items, bvh.root)
+        self.tree.clear()
+        self.tree.insertTopLevelItems(0, items)
+        self.tree.expandAll()
+        self.tree.resizeColumnToContents(0)
+        self.tree.resizeColumnToContents(1)
+        self.tree.resizeColumnToContents(2)
 
     @QtCore.Slot()  # type: ignore
     def open_dialog(self):
@@ -64,10 +66,6 @@ class MyWidget(QtWidgets.QMainWindow):
         if not files:
             return
         self.open(pathlib.Path(files[0]))
-
-    @QtCore.Slot()  # type: ignore
-    def magic(self):
-        self.text.setText(random.choice(self.hello))
 
 
 if __name__ == "__main__":
