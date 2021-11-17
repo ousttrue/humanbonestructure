@@ -3,6 +3,7 @@ import sys
 import pathlib
 from PySide6 import QtCore, QtWidgets, QtGui, QtCharts
 import bvh_parser
+import bvh_controller
 
 
 class BvhFrameTableModel(QtCore.QAbstractTableModel):
@@ -57,14 +58,10 @@ class BvhView(QtWidgets.QMainWindow):
         self.setWindowTitle('bvh view')
 
         # OpenGL
-        import glglue.gl3
-        self.controller = glglue.gl3.SampleController()
+        self.controller = bvh_controller.BvhController()
         import glglue.pyside6
         self.glwidget = glglue.pyside6.Widget(self, self.controller)
-        # self.setCentralWidget(self.glwidget)
-        self.gl_dock = QtWidgets.QDockWidget('OpenGL', self)
-        self.gl_dock.setWidget(self.glwidget)
-        self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.gl_dock)
+        self.setCentralWidget(self.glwidget)
 
         # BvhNodeTree
         self.tree = QtWidgets.QTreeWidget()
@@ -81,10 +78,10 @@ class BvhView(QtWidgets.QMainWindow):
         self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.table_dock)
 
         # FrameChart
-        self.chart = QtCharts.QChart()
-        self.chart_view = QtCharts.QChartView(self.chart)        
-        self.setCentralWidget(self.chart_view)
-        self.serieses = []
+        # self.chart = QtCharts.QChart()
+        # self.chart_view = QtCharts.QChartView(self.chart)        
+        # self.setCentralWidget(self.chart_view)
+        # self.serieses = []
 
         # menu
         menu = self.menuBar()
@@ -127,42 +124,43 @@ class BvhView(QtWidgets.QMainWindow):
         self.table.setModel(self.model)
 
         # chart
-        for s in self.serieses:
-            self.chart.removeSeries(s)
-        self.serieses.clear()
-        channel_count = bvh.root.get_channel_count()
-        def add_seriese(name: str, index: int):
-            series = QtCharts.QLineSeries()
-            series.setName(name)
-            for i in range(bvh.frames):
-                value = bvh.data[i * channel_count + index]
-                series.append(i, value)
-            self.serieses.append(series)
-            self.chart.addSeries(series)
-        i = 0
-        for node in bvh.root.traverse():
-            match node.channels:
-                case bvh_parser.Channels.PosXYZ_RotZXY:
-                    add_seriese(f'{node.name}.pos.x', i)
-                    i+=1
-                    add_seriese(f'{node.name}.pos.y', i)
-                    i+=1
-                    add_seriese(f'{node.name}.pos.z', i)
-                    i+=1
-                    add_seriese(f'{node.name}.rot.z', i)
-                    i+=1
-                    add_seriese(f'{node.name}.rot.x', i)
-                    i+=1
-                    add_seriese(f'{node.name}.rot.y', i)
-                    i+=1
-                case bvh_parser.Channels.RotZXY:
-                    add_seriese(f'{node.name}.rot.z', i)
-                    i+=1
-                    add_seriese(f'{node.name}.rot.x', i)
-                    i+=1
-                    add_seriese(f'{node.name}.rot.y', i)
-                    i+=1
-                
+        # for s in self.serieses:
+        #     self.chart.removeSeries(s)
+        # self.serieses.clear()
+        # channel_count = bvh.root.get_channel_count()
+        # def add_seriese(name: str, index: int):
+        #     series = QtCharts.QLineSeries()
+        #     series.setName(name)
+        #     for i in range(bvh.frames):
+        #         value = bvh.data[i * channel_count + index]
+        #         series.append(i, value)
+        #     self.serieses.append(series)
+        #     self.chart.addSeries(series)
+        # i = 0
+        # for node in bvh.root.traverse():
+        #     match node.channels:
+        #         case bvh_parser.Channels.PosXYZ_RotZXY:
+        #             add_seriese(f'{node.name}.pos.x', i)
+        #             i+=1
+        #             add_seriese(f'{node.name}.pos.y', i)
+        #             i+=1
+        #             add_seriese(f'{node.name}.pos.z', i)
+        #             i+=1
+        #             add_seriese(f'{node.name}.rot.z', i)
+        #             i+=1
+        #             add_seriese(f'{node.name}.rot.x', i)
+        #             i+=1
+        #             add_seriese(f'{node.name}.rot.y', i)
+        #             i+=1
+        #         case bvh_parser.Channels.RotZXY:
+        #             add_seriese(f'{node.name}.rot.z', i)
+        #             i+=1
+        #             add_seriese(f'{node.name}.rot.x', i)
+        #             i+=1
+        #             add_seriese(f'{node.name}.rot.y', i)
+        #             i+=1
+
+        self.controller.load(bvh)
 
     @QtCore.Slot()  # type: ignore
     def open_dialog(self):
