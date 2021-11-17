@@ -9,13 +9,19 @@ import bvh_parser
 class BvhController(glglue.basecontroller.BaseController):
     def __init__(self):
         self.clear_color = (0.6, 0.6, 0.4, 0.0)
-        self.axis = Axis(1.0)
+        self.axis = Axis(1.0 * 100)
         self.camera = glglue.ctypesmath.Camera()
+        self.camera.projection.z_far *= 100
+        self.camera.view.distance *= 100
         self.isInitialized = False
         self.skeleton = None
 
     def load(self, bvh: bvh_parser.Bvh):
-        self.skeleton = bvh_skeleton.BvhSkeleton(bvh, 0.01)
+        self.skeleton = bvh_skeleton.BvhSkeleton(bvh)
+
+    def set_frame(self, frame: int):
+        if self.skeleton:
+            self.skeleton.set_frame(frame)
 
     def onResize(self, w: int, h: int) -> bool:
         GL.glViewport(0, 0, w, h)
@@ -74,6 +80,7 @@ class BvhController(glglue.basecontroller.BaseController):
 
         self.axis.draw(self.camera.projection.matrix, self.camera.view.matrix)
         if self.skeleton:
-            self.skeleton.draw(self.camera.projection.matrix, self.camera.view.matrix)
+            self.skeleton.draw(self.camera.projection.matrix,
+                               self.camera.view.matrix)
 
         GL.glFlush()

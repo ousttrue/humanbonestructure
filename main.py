@@ -52,6 +52,32 @@ class BvhFrameTableModel(QtCore.QAbstractTableModel):
         return None
 
 
+class Playback(QtWidgets.QWidget):
+    '''
+    [play][stop][time][progress bar]
+    '''
+    frame_changed = QtCore.Signal(int)
+
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.start = QtWidgets.QPushButton("Start", self)
+        self.progressBar = QtWidgets.QProgressBar(self)
+        layout = QtWidgets.QHBoxLayout(self)
+        layout.addWidget(self.start)
+        layout.addWidget(self.progressBar)
+        self.setLayout(layout)
+
+    def set_bvh(self, bvh: bvh_parser.Bvh):
+        self.progressBar.setRange(0, bvh.frames)
+        # Construct a 1-second timeline with a frame range of 0 - 100
+        timeLine = QtCore.QTimeLine(int(bvh.get_seconds() * 1000), self)
+        timeLine.setFrameRange(0, bvh.frames)
+        timeLine.frameChanged.connect(self.progressBar.setValue)
+        timeLine.frameChanged.connect(self.frame_changed)
+        # Clicking the push button will start the progress bar animation
+        self.start.clicked.connect(timeLine.start)
+
+
 class BvhView(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
@@ -71,15 +97,14 @@ class BvhView(QtWidgets.QMainWindow):
         self.tree_dock.setWidget(self.tree)
         self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.tree_dock)
 
-        # BvhFrameList
-        self.table = QtWidgets.QTableView()
+        w = self._create_bottom()
         self.table_dock = QtWidgets.QDockWidget('bvh frames', self)
-        self.table_dock.setWidget(self.table)
+        self.table_dock.setWidget(w)
         self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.table_dock)
 
         # FrameChart
         # self.chart = QtCharts.QChart()
-        # self.chart_view = QtCharts.QChartView(self.chart)        
+        # self.chart_view = QtCharts.QChartView(self.chart)
         # self.setCentralWidget(self.chart_view)
         # self.serieses = []
 
@@ -89,6 +114,17 @@ class BvhView(QtWidgets.QMainWindow):
         open_action = QtGui.QAction("&Open", self)
         open_action.triggered.connect(self.open_dialog)  # type: ignore
         file_menu.addAction(open_action)
+
+    def _create_bottom(self) -> QtWidgets.QWidget:
+        # BvhFrameList
+        self.playback = Playback(self)
+        self.table = QtWidgets.QTableView()
+        w = QtWidgets.QWidget(self)
+        layout = QtWidgets.QVBoxLayout(w)
+        layout.addWidget(self.playback)
+        layout.addWidget(self.table)
+        w.setLayout(layout)
+        return w
 
     def open(self, path: pathlib.Path):
         if not path.exists():
@@ -161,6 +197,12 @@ class BvhView(QtWidgets.QMainWindow):
         #             i+=1
 
         self.controller.load(bvh)
+        self.playback.set_bvh(bvh)
+        self.glwidget.repaint()
+        self.playback.frame_changed.connect(self.set_frame)
+
+    def set_frame(self, frame: int):
+        self.controller.set_frame(frame)
         self.glwidget.repaint()
 
     @QtCore.Slot()  # type: ignore
