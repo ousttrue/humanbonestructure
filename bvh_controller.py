@@ -15,7 +15,7 @@ class BvhController(glglue.basecontroller.BaseController):
         self.skeleton = None
 
     def load(self, bvh: bvh_parser.Bvh):
-        self.skeleton = bvh_skeleton.BvhSkeleton(bvh)
+        self.skeleton = bvh_skeleton.BvhSkeleton(bvh, 0.01)
 
     def onResize(self, w: int, h: int) -> bool:
         GL.glViewport(0, 0, w, h)

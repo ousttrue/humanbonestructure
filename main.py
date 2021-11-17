@@ -161,6 +161,7 @@ class BvhView(QtWidgets.QMainWindow):
         #             i+=1
 
         self.controller.load(bvh)
+        self.glwidget.repaint()
 
     @QtCore.Slot()  # type: ignore
     def open_dialog(self):

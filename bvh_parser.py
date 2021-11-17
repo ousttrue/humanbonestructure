@@ -21,22 +21,31 @@ def channel_count(channels: Optional[Channels]):
 class BvhExceptin(RuntimeError):
     pass
 
-class Float3(NamedTuple):
-    x: float
-    y: float
-    z: float
 
-    def __str__(self)->str:
+class Float3(ctypes.Structure):
+    _fields_ = [
+        ('x', ctypes.c_float),
+        ('y', ctypes.c_float),
+        ('z', ctypes.c_float),
+    ]
+
+    def __str__(self) -> str:
         return f'[{self.x}, {self.y}, {self.z}]'
+
+    def __add__(self, rhs: 'Float3') -> 'Float3':
+        return Float3(self.x + rhs.x, self.y + rhs.y, self.z + rhs.z)
+
+    def __mul__(self, f: float) -> 'Float3':
+        return Float3(self.x * f, self.y * f, self.z * f)
 
 
 class Node(NamedTuple):
-    name: Optional[str] # End site has no name
+    name: Optional[str]  # End site has no name
     offset: Float3
     channels: Optional[Channels]
     children: List['Node']
 
-    def __str__(self)->str:
+    def __str__(self) -> str:
         if self.name:
             return f'{self.name}:{self.offset}:{self.channels}'
         else:
@@ -48,14 +57,14 @@ class Node(NamedTuple):
             for x in child.traverse():
                 yield x
 
-    def get_channel_count(self)->int:
+    def get_channel_count(self) -> int:
         count = 0
         for node in self.traverse():
             count += channel_count(node.channels)
         return count
 
 
-def parse_offset_channels(it: Iterator[str], name: Optional[str])->Node:
+def parse_offset_channels(it: Iterator[str], name: Optional[str]) -> Node:
     if next(it).strip() != '{':
         raise BvhExceptin()
     offset = next(it).strip()
@@ -82,7 +91,7 @@ def parse_offset_channels(it: Iterator[str], name: Optional[str])->Node:
                     node.children.append(child)
             else:
                 # End Site
-                node= Node(name, offset, None, [])
+                node = Node(name, offset, None, [])
                 close = next(it).strip()
                 if close != '}':
                     raise BvhExceptin()
@@ -93,7 +102,7 @@ def parse_offset_channels(it: Iterator[str], name: Optional[str])->Node:
 
 def parse_recursive(it: Iterator[str], head: str) -> Node:
     match head.split():
-        case 'ROOT', name:            
+        case 'ROOT', name:
             return parse_offset_channels(it, name)
         case 'JOINT', name:
             return parse_offset_channels(it, name)
@@ -142,6 +151,6 @@ def parse(src: str) -> Bvh:
     for _ in range(frames):
         for x in next(it).strip().split():
             data[i] = float(x)
-            i+=1
+            i += 1
 
     return Bvh(root, frametime, frames, data)
