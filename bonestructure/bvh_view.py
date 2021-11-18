@@ -78,35 +78,34 @@ class Playback(QtWidgets.QWidget):
         self.start.clicked.connect(timeLine.start)  # type: ignore
 
 
+class HumanoidWiget(QtWidgets.QTabWidget):
+    def __init__(self, parent):
+        super().__init__(parent)
+
+
 class BvhView(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle('bvh view')
 
-        # OpenGL
-        self.controller = bvh_controller.BvhController()
-        import glglue.pyside6
-        self.glwidget = glglue.pyside6.Widget(self, self.controller)
-        self.setCentralWidget(self.glwidget)
+        # humanoid
+        self.humanoid = HumanoidWiget(self)
+        self.setCentralWidget(self.humanoid)
 
-        # BvhNodeTree
-        self.tree = QtWidgets.QTreeWidget()
-        self.tree.setColumnCount(3)
-        self.tree.setHeaderLabels(["Name", "Offset", "Channels"])
-        self.tree_dock = QtWidgets.QDockWidget('bvh hierarchy', self)
-        self.tree_dock.setWidget(self.tree)
-        self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.tree_dock)
+        #
+        # Left
+        #
+        left = self._create_left()
+        self.left_dock = self._create_dock(
+            QtCore.Qt.LeftDockWidgetArea, 'bvh', left)
 
-        w = self._create_bottom()
-        self.table_dock = QtWidgets.QDockWidget('bvh frames', self)
-        self.table_dock.setWidget(w)
-        self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.table_dock)
-
-        # FrameChart
-        # self.chart = QtCharts.QChart()
-        # self.chart_view = QtCharts.QChartView(self.chart)
-        # self.setCentralWidget(self.chart_view)
-        # self.serieses = []
+        #
+        # Bottom
+        #
+        bottom = self._create_bottom()
+        self.bottom_dock = self._create_dock(
+            QtCore.Qt.BottomDockWidgetArea, 'timeline', bottom
+        )
 
         # menu
         menu = self.menuBar()
@@ -115,14 +114,37 @@ class BvhView(QtWidgets.QMainWindow):
         open_action.triggered.connect(self.open_dialog)  # type: ignore
         file_menu.addAction(open_action)
 
+    def _create_dock(self, area, name, widget):
+        dock = QtWidgets.QDockWidget(name, self)
+        dock.setWidget(widget)
+        self.addDockWidget(area, dock)
+        return dock
+
+    def _create_left(self) -> QtWidgets.QWidget:
+        splitter = QtWidgets.QSplitter(self)
+
+        # OpenGL
+        self.bvh_controller = bvh_controller.BvhController()
+        import glglue.pyside6
+        self.glwidget = glglue.pyside6.Widget(self, self.bvh_controller)
+        splitter.insertWidget(0, self.glwidget)
+
+        # BvhNodeTree
+        self.tree = QtWidgets.QTreeWidget()
+        self.tree.setColumnCount(3)
+        self.tree.setHeaderLabels(["Name", "Offset", "Channels"])
+        splitter.insertWidget(0, self.tree)
+
+        return splitter
+
     def _create_bottom(self) -> QtWidgets.QWidget:
         # BvhFrameList
         self.playback = Playback(self)
-        self.table = QtWidgets.QTableView()
+        # self.table = QtWidgets.QTableView()
         w = QtWidgets.QWidget(self)
         layout = QtWidgets.QVBoxLayout(w)
         layout.addWidget(self.playback)
-        layout.addWidget(self.table)
+        # layout.addWidget(self.table)
         w.setLayout(layout)
         return w
 
@@ -156,8 +178,8 @@ class BvhView(QtWidgets.QMainWindow):
         self.tree.resizeColumnToContents(2)
 
         # frames
-        self.model = BvhFrameTableModel(bvh)
-        self.table.setModel(self.model)
+        # self.model = BvhFrameTableModel(bvh)
+        # self.table.setModel(self.model)
 
         # chart
         # for s in self.serieses:
@@ -196,13 +218,13 @@ class BvhView(QtWidgets.QMainWindow):
         #             add_seriese(f'{node.name}.rot.y', i)
         #             i+=1
 
-        self.controller.load(bvh)
+        self.bvh_controller.load(bvh)
         self.playback.set_bvh(bvh)
         self.glwidget.repaint()
         self.playback.frame_changed.connect(self.set_frame)  # type: ignore
 
     def set_frame(self, frame: int):
-        self.controller.set_frame(frame)
+        self.bvh_controller.set_frame(frame)
         self.glwidget.repaint()
 
     @QtCore.Slot()  # type: ignore
