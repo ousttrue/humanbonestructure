@@ -3,7 +3,7 @@ import array
 import glglue
 import glglue.ctypesmath
 import bvh_parser
-from typing import List, NamedTuple, Iterator
+from typing import List, NamedTuple, Iterator, Optional
 from OpenGL import GL
 
 
@@ -37,7 +37,7 @@ def to_radian(degree):
 class Bone(NamedTuple):
     offset: bvh_parser.Float3
     head: bvh_parser.Node
-    tail: bvh_parser.Node
+    tail: Optional[bvh_parser.Node] = None
 
 
 class BvhSkeleton:
@@ -48,46 +48,46 @@ class BvhSkeleton:
         self._build(bvh.root, bvh_parser.Float3(0, 0, 0))
         self.is_initialized = False
         self.channels = []
-        for node in bvh.root.traverse():
-            match node.channels:
-                case bvh_parser.Channels.PosXYZ_RotZXY:
-                    pass
-                case bvh_parser.Channels.RotZXY:
-                    pass
 
     def _build(self, head: bvh_parser.Node, offset):
-        if head.children:
-            if len(head.children) == 1:
-                tail = head.children[0]
-                # self._push_bone(offset, head, tail)
-                self.bones.append(Bone(offset, head, tail))
-                self._build(tail, offset + head.offset)
-            else:
-                for child in head.children:
-                    if child.offset.x == 0:
-                        self.bones.append(Bone(offset, head, child))
-                    self._build(child, offset + head.offset)
+        def get_tail(node: bvh_parser.Node) -> Optional[bvh_parser.Node]:
+            match len(node.children):
+                case 0:
+                    pass
 
-    # def _push_bone(
-    #     self, offset: bvh_parser.Float3, head: bvh_parser.Node, tail: bvh_parser.Node
-    # ):
-    #     v0 = offset + head.offset
-    #     self.vertices.append(v0)
-    #     v1 = v0 + tail.offset
-    #     self.vertices.append(v1)
+                case 1:
+                    return node.children[0]
+
+                case _:
+                    for child in node.children:
+                        if child.offset.x == 0:
+                            return child
+
+        tail = get_tail(head)
+        self.bones.append(Bone(offset, head, tail))
+        if head.children:
+            for child in head.children:
+                self._build(child, offset + head.offset)
 
     def initialize(self):
-        vertices = (bvh_parser.Float3 * (len(self.bones) * 2))()
-        i = 0
-        for bone in self.bones:
+        vertices = (bvh_parser.Float3 * len(self.bones))()
+        indices = array.array('H')
+
+        def get_index(node: bvh_parser.Node):
+            for i, bone in enumerate(self.bones):
+                if bone.head == node:
+                    return i
+            raise Exception()
+
+        for i, bone in enumerate(self.bones):
             head = bone.offset + bone.head.offset
             vertices[i] = head
-            i += 1
-            vertices[i] = head + bone.tail.offset
-            i += 1
+            if bone.tail:
+                indices.append(i)
+                indices.append(get_index(bone.tail))
+
         self.vbo = glglue.gl3.vbo.create_vbo_from(vertices, is_dynamic=True)
-        self.ibo = glglue.gl3.vbo.create_ibo_from(
-            array.array('H', range(len(vertices))))
+        self.ibo = glglue.gl3.vbo.create_ibo_from(indices)
         self.ibo.topology = GL.GL_LINES
         self.shader = glglue.gl3.shader.create_from(VS, FS)
         self.is_initialized = True
@@ -123,7 +123,7 @@ class BvhSkeleton:
                 y = glglue.ctypesmath.Mat4.new_rotation_y(to_radian(next(it)))
                 m = y * x * z * offset * parent
             case _:
-                return
+                m = offset * parent
 
         self.matrices.append(m)
         for child in node.children:
@@ -136,17 +136,8 @@ class BvhSkeleton:
         self._set_frame(iter(data), self.bvh.root,
                         glglue.ctypesmath.Mat4.new_identity())
 
-        vertices = (bvh_parser.Float3 * (len(self.bones) * 2))()
-        j = 0
-        for i, bone in enumerate(self.bones):
-            m = self.matrices[i]
-            # head
-            vertices[j] = bvh_parser.Float3(m._41, m._42, m._43)
-            j += 1
-            # tail
-            x, y, z = m.apply(bone.tail.offset.x,
-                              bone.tail.offset.y, bone.tail.offset.z)
-            vertices[j] = bvh_parser.Float3(x, y, z)
-            j += 1
+        vertices = (bvh_parser.Float3 * len(self.matrices))()
+        for i, m in enumerate(self.matrices):
+            vertices[i] = bvh_parser.Float3(m._41, m._42, m._43)
         if self.vbo:
             self.vbo.update(memoryview(vertices).cast('B').tobytes())

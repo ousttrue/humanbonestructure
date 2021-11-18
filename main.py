@@ -1,7 +1,6 @@
-import enum
 import sys
 import pathlib
-from PySide6 import QtCore, QtWidgets, QtGui, QtCharts
+from PySide6 import QtCore, QtWidgets, QtGui
 import bvh_parser
 import bvh_controller
 
@@ -72,10 +71,11 @@ class Playback(QtWidgets.QWidget):
         # Construct a 1-second timeline with a frame range of 0 - 100
         timeLine = QtCore.QTimeLine(int(bvh.get_seconds() * 1000), self)
         timeLine.setFrameRange(0, bvh.frames)
-        timeLine.frameChanged.connect(self.progressBar.setValue)
-        timeLine.frameChanged.connect(self.frame_changed)
+        timeLine.frameChanged.connect(  # type: ignore
+            self.progressBar.setValue)
+        timeLine.frameChanged.connect(self.frame_changed)  # type: ignore
         # Clicking the push button will start the progress bar animation
-        self.start.clicked.connect(timeLine.start)
+        self.start.clicked.connect(timeLine.start)  # type: ignore
 
 
 class BvhView(QtWidgets.QMainWindow):
@@ -199,7 +199,7 @@ class BvhView(QtWidgets.QMainWindow):
         self.controller.load(bvh)
         self.playback.set_bvh(bvh)
         self.glwidget.repaint()
-        self.playback.frame_changed.connect(self.set_frame)
+        self.playback.frame_changed.connect(self.set_frame)  # type: ignore
 
     def set_frame(self, frame: int):
         self.controller.set_frame(frame)
