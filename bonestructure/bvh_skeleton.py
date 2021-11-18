@@ -2,7 +2,7 @@ import math
 import array
 import glglue
 import glglue.ctypesmath
-import bvh_parser
+from . import bvh_parser
 from typing import List, NamedTuple, Iterator, Optional
 from OpenGL import GL
 

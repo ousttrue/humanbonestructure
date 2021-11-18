@@ -1,8 +1,8 @@
 import sys
 import pathlib
 from PySide6 import QtCore, QtWidgets, QtGui
-import bvh_parser
-import bvh_controller
+from . import bvh_parser
+from . import bvh_controller
 
 
 class BvhFrameTableModel(QtCore.QAbstractTableModel):
@@ -218,7 +218,7 @@ class BvhView(QtWidgets.QMainWindow):
         self.open(pathlib.Path(files[0]))
 
 
-if __name__ == "__main__":
+def run():
     app = QtWidgets.QApplication([])
 
     widget = BvhView()

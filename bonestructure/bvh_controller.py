@@ -2,8 +2,8 @@ import glglue.basecontroller
 from glglue.gl3.axis import Axis
 import glglue.ctypesmath
 from OpenGL import GL
-import bvh_skeleton
-import bvh_parser
+from . import bvh_skeleton
+from . import bvh_parser
 
 
 class BvhController(glglue.basecontroller.BaseController):

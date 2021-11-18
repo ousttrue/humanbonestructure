@@ -5,18 +5,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Current File",
+            "name": "bvh_view",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/main.py",
-            "console": "integratedTerminal",
-            "justMyCode": false
-        },
-        {
-            "name": "Python: Test",
-            "type": "python",
-            "request": "launch",
-            "program": "${workspaceFolder}/tests/test_bvh.py",
+            "module": "bonestructure",
             "console": "integratedTerminal",
             "justMyCode": false
         },
