@@ -3,7 +3,7 @@ import pathlib
 from PySide6 import QtCore, QtWidgets, QtGui
 from . import bvh_parser
 from . import bvh_controller
-from . import humanoid
+from . import humanoid_widget
 
 class BvhFrameTableModel(QtCore.QAbstractTableModel):
     def __init__(self, bvh: bvh_parser.Bvh):
@@ -84,7 +84,7 @@ class BvhView(QtWidgets.QMainWindow):
         self.setWindowTitle('bvh view')
 
         # humanoid
-        self.humanoid = humanoid.HumanoidWiget(self)
+        self.humanoid = humanoid_widget.HumanoidWiget(self)
         self.setCentralWidget(self.humanoid)
 
         #
