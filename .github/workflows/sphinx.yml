@@ -16,7 +16,7 @@ jobs:
       - run: pip install sphinx
       - run: pip install myst-parser
       - run: pip install sphinxcontrib-actdiag sphinxcontrib-blockdiag sphinxcontrib-nwdiag sphinxcontrib-seqdiag
-      - run: sphinx-build source build
+      - run: sphinx-build docs build
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
