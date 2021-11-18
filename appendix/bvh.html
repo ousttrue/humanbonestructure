@@ -1,0 +1,200 @@
+
+<!DOCTYPE html>
+
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>BVH形式 &#8212; BoneStructure  ドキュメント</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/nature.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/translations.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="next" title="用語集" href="glossary.html" />
+    <link rel="prev" title="vrm0" href="vrm0.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="glossary.html" title="用語集"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="vrm0.html" title="vrm0"
+             accesskey="P">前へ</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">BoneStructure  ドキュメント</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">参考</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">BVH形式</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section class="tex2jax_ignore mathjax_ignore" id="bvh">
+<h1>BVH形式<a class="headerlink" href="#bvh" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<ul class="simple">
+<li><p>ヒエラルキー(初期ポーズ)</p>
+<ul>
+<li><p><a class="reference internal" href="glossary.html#term-T-Pose"><span class="xref std std-term">T-Pose</span></a> であることが多いがそうでないこともある。</p></li>
+<li><p>距離の単位が不統一(cm, inch... etc)。</p></li>
+<li><p>Z+, Z- どっち向きかも決まりなし(つま先の進行方向や、joint名の left, rightから類推できることが多い)。</p></li>
+<li><p>ボーンに初期回転は無い。この状態に対する Euler角で ポーズが定義される。</p></li>
+</ul>
+</li>
+<li><p>各Jointのフレームごとの回転(Euler角)を記録。</p>
+<ul>
+<li><p>Euler角の乗算順は自由。Hierarchy の Channels の順番に従う。</p></li>
+</ul>
+</li>
+<li><p>Rootのみ移動も記録。</p></li>
+<li><p>指は扱わない(フォーマット上、記録することは可能)</p></li>
+</ul>
+<section id="hierarchy">
+<h2>Hierarchy<a class="headerlink" href="#hierarchy" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<ul class="simple">
+<li><p>Joint の木構造。</p>
+<ul>
+<li><p>各Jointは親に対する相対位置を記録する。</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="joint">
+<h2>Joint の計算式<a class="headerlink" href="#joint" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">Root</span> <span class="pre">-</span> <span class="pre">joint_1</span> <span class="pre">...</span> <span class="pre">joint_n</span></code> のときの joint_n の姿勢行列。</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}R = E_z \cdot E_x \cdot E_y\\(Offset_0 \cdot T_0 \cdot R_0) (Offset_1 \cdot R_1) ... (Offset_n \cdot R_n)
+\end{aligned}\end{align} \]</div>
+</section>
+<section id="frames">
+<h2>Frames<a class="headerlink" href="#frames" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<ul class="simple">
+<li><p>各フレームの回転(Euler角YXZ)を記録</p></li>
+</ul>
+</section>
+<section id="download">
+<h2>Download できるサイト<a class="headerlink" href="#download" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<section id="github">
+<h3>github<a class="headerlink" href="#github" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/wspr/bvh-matlab">https://github.com/wspr/bvh-matlab</a></p></li>
+<li><p><a class="reference external" href="https://github.com/perfume-dev/example-openFrameworks/tree/master/example-bvh/bin/data">https://github.com/perfume-dev/example-openFrameworks/tree/master/example-bvh/bin/data</a></p></li>
+</ul>
+</section>
+<section id="cgspeed">
+<h3>CGSpeed<a class="headerlink" href="#cgspeed" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<ul class="simple">
+<li><p><a class="reference external" href="https://sites.google.com/a/cgspeed.com/cgspeed/motion-capture">https://sites.google.com/a/cgspeed.com/cgspeed/motion-capture</a></p></li>
+<li><p>スケールが違う</p></li>
+</ul>
+<section id="daz-friendly">
+<h4>Daz-friendly<a class="headerlink" href="#daz-friendly" title="このヘッドラインへのパーマリンク">¶</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">Zrotation</span> <span class="pre">Yrotation</span> <span class="pre">Xrotation</span></code></p>
+</section>
+<section id="dsmax-friendly">
+<h4>3dsMax-friendly<a class="headerlink" href="#dsmax-friendly" title="このヘッドラインへのパーマリンク">¶</a></h4>
+</section>
+<section id="motionbuilder-friendly">
+<h4>MotionBuilder-friendly<a class="headerlink" href="#motionbuilder-friendly" title="このヘッドラインへのパーマリンク">¶</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">Zrotation</span> <span class="pre">Yrotation</span> <span class="pre">Xrotation</span></code></p>
+</section>
+</section>
+</section>
+<section id="id1">
+<h2>BVH を作る<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>TODO:</p>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">目次</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">BVH形式</a><ul>
+<li><a class="reference internal" href="#hierarchy">Hierarchy</a></li>
+<li><a class="reference internal" href="#joint">Joint の計算式</a></li>
+<li><a class="reference internal" href="#frames">Frames</a></li>
+<li><a class="reference internal" href="#download">Download できるサイト</a><ul>
+<li><a class="reference internal" href="#github">github</a></li>
+<li><a class="reference internal" href="#cgspeed">CGSpeed</a><ul>
+<li><a class="reference internal" href="#daz-friendly">Daz-friendly</a></li>
+<li><a class="reference internal" href="#dsmax-friendly">3dsMax-friendly</a></li>
+<li><a class="reference internal" href="#motionbuilder-friendly">MotionBuilder-friendly</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id1">BVH を作る</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="vrm0.html"
+                        title="前の章へ">vrm0</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="glossary.html"
+                        title="次の章へ">用語集</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/appendix/bvh.md.txt"
+            rel="nofollow">ソースコードを表示</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">クイック検索</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="検索" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="glossary.html" title="用語集"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="vrm0.html" title="vrm0"
+             >前へ</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">BoneStructure  ドキュメント</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >参考</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">BVH形式</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, ousttrue.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.0.
+    </div>
+  </body>
+</html>

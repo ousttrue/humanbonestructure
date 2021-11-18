@@ -1,17 +1,12 @@
-# PoseCompatibilityPlan
+# BoneStructure
 
 ```{toctree}
 :maxdepth: 2
-bone_local/vrm1
-pose/index
-implements/index
-appendix/vrm0
-appendix/glossary
+appendix/index
 ```
 
 # Indices and tables
 
--   {ref}`genindex`
--   {ref}`modindex`
--   {ref}`search`
-
+* {ref}`genindex`
+* {ref}`modindex`
+* {ref}`search`

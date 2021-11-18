@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>用語集 &#8212; BoneStructure  ドキュメント</title>
+    <title>参考 &#8212; BoneStructure  ドキュメント</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/nature.css" />
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
@@ -16,7 +16,8 @@
     <script src="../_static/translations.js"></script>
     <link rel="index" title="索引" href="../genindex.html" />
     <link rel="search" title="検索" href="../search.html" />
-    <link rel="prev" title="BVH形式" href="bvh.html" /> 
+    <link rel="next" title="vrm0" href="vrm0.html" />
+    <link rel="prev" title="BoneStructure" href="../index.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>ナビゲーション</h3>
@@ -25,11 +26,13 @@
           <a href="../genindex.html" title="総合索引"
              accesskey="I">索引</a></li>
         <li class="right" >
-          <a href="bvh.html" title="BVH形式"
+          <a href="vrm0.html" title="vrm0"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="../index.html" title="BoneStructure"
              accesskey="P">前へ</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">BoneStructure  ドキュメント</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">参考</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">用語集</a></li> 
+        <li class="nav-item nav-item-this"><a href="">参考</a></li> 
       </ul>
     </div>  
 
@@ -39,25 +42,30 @@
           <div class="body" role="main">
             
   <section class="tex2jax_ignore mathjax_ignore" id="id1">
-<h1>用語集<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h1>
-<dl class="glossary simple">
-<dt id="term-0">スキニング<a class="headerlink" href="#term-0" title="Permalink to this term">¶</a></dt><dd><p>Mesh の頂点を複数のノードでかさみ付けして移動回転変形させる。</p>
-</dd>
-<dt id="term-1">ジョイント<a class="headerlink" href="#term-1" title="Permalink to this term">¶</a></dt><dd><p>位置だけ。スキニングするときのノードを呼ぶ</p>
-</dd>
-<dt id="term-2">ボーン<a class="headerlink" href="#term-2" title="Permalink to this term">¶</a></dt><dd><p>位置 + 方向(初期姿勢でのスケールは不許可)</p>
-</dd>
-<dt id="term-3">ボーンローカル座標<a class="headerlink" href="#term-3" title="Permalink to this term">¶</a></dt><dd><p>ボーンのXYZ軸が作る空間。
-スキニングに必要なJoint位置を原点に持ち任意の方向を持つ。
-VRM1 ではヒューマノイドボーンは T-Pose にしたとき 一定のルールに従うことを要求する(予定)。</p>
-</dd>
-<dt id="term-Euler">ボーンローカルEuler角<a class="headerlink" href="#term-Euler" title="Permalink to this term">¶</a></dt><dd><p>ボーンローカル座標に対するZXYEuler角。</p>
-</dd>
-<dt id="term-T-Pose">T-Pose<a class="headerlink" href="#term-T-Pose" title="Permalink to this term">¶</a></dt><dd><p>モーションキャプチャーの初期ポーズとして使われることが多い。
-直立して、両腕を水平にして、手の平を下向きにする。
-以上。</p>
-</dd>
-</dl>
+<h1>参考<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="vrm0.html">vrm0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bvh.html">BVH形式</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bvh.html#hierarchy">Hierarchy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bvh.html#joint">Joint の計算式</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bvh.html#frames">Frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bvh.html#download">Download できるサイト</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bvh.html#github">github</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bvh.html#cgspeed">CGSpeed</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bvh.html#daz-friendly">Daz-friendly</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bvh.html#dsmax-friendly">3dsMax-friendly</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bvh.html#motionbuilder-friendly">MotionBuilder-friendly</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bvh.html#id1">BVH を作る</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">用語集</a></li>
+</ul>
+</div>
 </section>
 
 
@@ -68,12 +76,15 @@ VRM1 ではヒューマノイドボーンは T-Pose にしたとき 一定のル
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h4>前のトピックへ</h4>
-  <p class="topless"><a href="bvh.html"
-                        title="前の章へ">BVH形式</a></p>
+  <p class="topless"><a href="../index.html"
+                        title="前の章へ">BoneStructure</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="vrm0.html"
+                        title="次の章へ">vrm0</a></p>
   <div role="note" aria-label="source link">
     <h3>このページ</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/appendix/glossary.md.txt"
+      <li><a href="../_sources/appendix/index.md.txt"
             rel="nofollow">ソースコードを表示</a></li>
     </ul>
    </div>
@@ -98,11 +109,13 @@ VRM1 ではヒューマノイドボーンは T-Pose にしたとき 一定のル
           <a href="../genindex.html" title="総合索引"
              >索引</a></li>
         <li class="right" >
-          <a href="bvh.html" title="BVH形式"
+          <a href="vrm0.html" title="vrm0"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="../index.html" title="BoneStructure"
              >前へ</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">BoneStructure  ドキュメント</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="index.html" >参考</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">用語集</a></li> 
+        <li class="nav-item nav-item-this"><a href="">参考</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
