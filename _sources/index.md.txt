@@ -48,6 +48,8 @@ blockdiag {
   * SpringBone
   * Constraint
     * LookAt
+    * ねじり分散
+    * 衣装連動
   * Cloth
   * Physics
 ```
