@@ -1,6 +1,6 @@
 # HumanBoneStructure
 
-<https://github.com/ousttrue/bonestructure>
+<https://github.com/ousttrue/humanbonestructure>
 
 ```{blockdiag}
 blockdiag {

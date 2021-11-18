@@ -1,6 +1,6 @@
 # HumanBoneStructure
 
-<https://ousttrue.github.io/bonestructure/>
+<https://ousttrue.github.io/humanbonestructure/>
 
 ## pip
 
