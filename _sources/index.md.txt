@@ -4,22 +4,52 @@
 
 ```{blockdiag}
 blockdiag {
-  MoCap -> Pose-Euler -> Pose;
-  PoseEstimation -> Pose-Euler;
-  Blender -> Pose-Euler;
-  AnimationClip -> Pose-Quaternion -> Pose;
+  orientation = portrait
 
-  Pose[color = pink];
+  // before  
+  MoCap -> FK-T-Pose[label = retarget];
+  Dedicated-Motion -> Rig -> Bone-Quaternion;
+  Bone-Quaternion -> FK-T-Pose
+  FK-T-Pose[color = pink];
+
+  // after
+  FK-T-Pose -> Hierarchy[label = retarget];
+  Hierarchy -> Secondary;
+  Secondary -> Skinning[label = "bind mat"];
+
+  //
+  Bone-Quaternion -> Hierarchy[color = red, style = dashed]
+
+  group {
+      Dedicated-Motion; Rig; Bone-Quaternion
+      label = "bone local axis";
+      color = "#DDFFDD";
+  }
+
+  FK-T-Pose[color = pink];
+
+  group {
+      Hierarchy; Secondary; Skinning;
+      label = "bone local axis";
+      color = "#DDFFDD";
+  }
 }
 ```
 
-```{blockdiag}
-blockdiag {
-  Pose[color = pink];
+```{note}
+* bone local axis
+  * モデル間の互換性は無い
 
-  Pose -> Pose-Quaternion -> Hierarchy;
-  Hierarchy -> Skinning[label = matrix];
-}
+* Rig
+  * IK
+  * Constraint
+
+* Secondary
+  * SpringBone
+  * Constraint
+    * LookAt
+  * Cloth
+  * Physics
 ```
 
 ```{toctree}
