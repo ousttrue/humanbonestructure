@@ -3,5 +3,5 @@
 
 # vrm0
 
-* T-Pose
+* {term}`T-Pose`
 * すべての bone がワールドと同じ座標系
