@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Joint Hierarchy &#8212; HumanBoneStructure  ドキュメント</title>
+    <title>Hand Pose Estimation &#8212; HumanBoneStructure  ドキュメント</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/nature.css" />
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
@@ -16,8 +16,8 @@
     <script src="../_static/translations.js"></script>
     <link rel="index" title="索引" href="../genindex.html" />
     <link rel="search" title="検索" href="../search.html" />
-    <link rel="next" title="Human Pose Estimation" href="human_pose_estimation.html" />
-    <link rel="prev" title="BVH形式" href="bvh.html" /> 
+    <link rel="next" title="用語集" href="../glossary.html" />
+    <link rel="prev" title="Human Pose Estimation" href="human_pose_estimation.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>ナビゲーション</h3>
@@ -26,14 +26,14 @@
           <a href="../genindex.html" title="総合索引"
              accesskey="I">索引</a></li>
         <li class="right" >
-          <a href="human_pose_estimation.html" title="Human Pose Estimation"
+          <a href="../glossary.html" title="用語集"
              accesskey="N">次へ</a> |</li>
         <li class="right" >
-          <a href="bvh.html" title="BVH形式"
+          <a href="human_pose_estimation.html" title="Human Pose Estimation"
              accesskey="P">前へ</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">HumanBoneStructure  ドキュメント</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">参考</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Joint Hierarchy</a></li> 
+        <li class="nav-item nav-item-this"><a href="">Hand Pose Estimation</a></li> 
       </ul>
     </div>  
 
@@ -42,25 +42,23 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <section class="tex2jax_ignore mathjax_ignore" id="joint-hierarchy">
-<h1>Joint Hierarchy<a class="headerlink" href="#joint-hierarchy" title="このヘッドラインへのパーマリンク">¶</a></h1>
-<section id="humanik">
-<h2>HumanIK<a class="headerlink" href="#humanik" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<p>setup 次第で向きが変わるので標準の向きを仮定することはできない。</p>
+  <section class="tex2jax_ignore mathjax_ignore" id="hand-pose-estimation">
+<h1>Hand Pose Estimation<a class="headerlink" href="#hand-pose-estimation" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<section id="interhand2-6m">
+<h2>InterHand2.6M<a class="headerlink" href="#interhand2-6m" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <ul class="simple">
-<li><p><a class="reference external" href="https://forums.autodesk.com/t5/maya-animation-and-rigging/humanik-not-working-with-motion-capture/td-p/5452144">https://forums.autodesk.com/t5/maya-animation-and-rigging/humanik-not-working-with-motion-capture/td-p/5452144</a></p></li>
+<li><p><a class="reference external" href="https://github.com/facebookresearch/InterHand2.6M">https://github.com/facebookresearch/InterHand2.6M</a></p>
+<ul>
+<li><p>skeleton.txt <a class="reference external" href="https://github.com/facebookresearch/InterHand2.6M/issues/27#issuecomment-731902900">https://github.com/facebookresearch/InterHand2.6M/issues/27#issuecomment-731902900</a></p></li>
 </ul>
-<p><img alt="1" src="https://forums.autodesk.com/t5/image/serverpage/image-id/146750iD28CD973182C3B9B/image-size/large?v=mpbl-1&amp;px=-1" /></p>
-<ul class="simple">
-<li><p><a class="reference external" href="https://togetter.com/li/1230523">https://togetter.com/li/1230523</a></p></li>
+</li>
 </ul>
-<p><img alt="2" src="https://pbs.twimg.com/media/Dd83maMVMAAXMbZ.jpg:medium" /></p>
-<p><img alt="3" src="https://pbs.twimg.com/media/Dd85mWIVQAEhHb1.jpg:medium" /></p>
 </section>
-<section id="kinect">
-<h2>Kinect<a class="headerlink" href="#kinect" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<p><a class="reference external" href="https://docs.microsoft.com/en-us/azure/kinect-dk/body-joints">https://docs.microsoft.com/en-us/azure/kinect-dk/body-joints</a></p>
-<p><img alt="kinect_hierarchy" src="https://docs.microsoft.com/en-us/azure/kinect-dk/media/concepts/joint-coordinates.png" /></p>
+<section id="nyu-hand-pose-dataset">
+<h2>NYU Hand Pose Dataset<a class="headerlink" href="#nyu-hand-pose-dataset" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://jonathantompson.github.io/NYU_Hand_Pose_Dataset.htm">https://jonathantompson.github.io/NYU_Hand_Pose_Dataset.htm</a></p></li>
+</ul>
 </section>
 </section>
 
@@ -73,23 +71,23 @@
         <div class="sphinxsidebarwrapper">
   <h3><a href="../index.html">目次</a></h3>
   <ul>
-<li><a class="reference internal" href="#">Joint Hierarchy</a><ul>
-<li><a class="reference internal" href="#humanik">HumanIK</a></li>
-<li><a class="reference internal" href="#kinect">Kinect</a></li>
+<li><a class="reference internal" href="#">Hand Pose Estimation</a><ul>
+<li><a class="reference internal" href="#interhand2-6m">InterHand2.6M</a></li>
+<li><a class="reference internal" href="#nyu-hand-pose-dataset">NYU Hand Pose Dataset</a></li>
 </ul>
 </li>
 </ul>
 
   <h4>前のトピックへ</h4>
-  <p class="topless"><a href="bvh.html"
-                        title="前の章へ">BVH形式</a></p>
-  <h4>次のトピックへ</h4>
   <p class="topless"><a href="human_pose_estimation.html"
-                        title="次の章へ">Human Pose Estimation</a></p>
+                        title="前の章へ">Human Pose Estimation</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="../glossary.html"
+                        title="次の章へ">用語集</a></p>
   <div role="note" aria-label="source link">
     <h3>このページ</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/appendix/hierarchy.md.txt"
+      <li><a href="../_sources/appendix/hand_pose_estimation.md.txt"
             rel="nofollow">ソースコードを表示</a></li>
     </ul>
    </div>
@@ -114,14 +112,14 @@
           <a href="../genindex.html" title="総合索引"
              >索引</a></li>
         <li class="right" >
-          <a href="human_pose_estimation.html" title="Human Pose Estimation"
+          <a href="../glossary.html" title="用語集"
              >次へ</a> |</li>
         <li class="right" >
-          <a href="bvh.html" title="BVH形式"
+          <a href="human_pose_estimation.html" title="Human Pose Estimation"
              >前へ</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">HumanBoneStructure  ドキュメント</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" >参考</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Joint Hierarchy</a></li> 
+        <li class="nav-item nav-item-this"><a href="">Hand Pose Estimation</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
