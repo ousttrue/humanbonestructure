@@ -7,15 +7,15 @@ blockdiag {
   orientation = portrait
 
   // before  
-  MoCap -> FK-T-Pose[label = retarget];
+  MoCap -> FK-T-Pose;
   Dedicated-Motion -> Rig -> Bone-Quaternion;
   Bone-Quaternion -> FK-T-Pose
   FK-T-Pose[color = pink];
 
   // after
-  FK-T-Pose -> Hierarchy[label = retarget];
+  FK-T-Pose -> Hierarchy;
   Hierarchy -> Secondary;
-  Secondary -> Skinning[label = "bind mat"];
+  Secondary -> Skinning;
 
   //
   Bone-Quaternion -> Hierarchy[color = red, style = dashed]
