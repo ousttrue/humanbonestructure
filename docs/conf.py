@@ -17,7 +17,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'BoneStructure'
+project = 'HumanBoneStructure'
 copyright = '2021, ousttrue'
 author = 'ousttrue'
 

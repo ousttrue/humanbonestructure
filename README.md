@@ -1,4 +1,4 @@
-# BoneStructure
+# HumanBoneStructure
 
 <https://ousttrue.github.io/bonestructure/>
 
