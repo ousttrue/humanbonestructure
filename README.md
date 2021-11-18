@@ -1,4 +1,6 @@
-# PoseCompatibilityPlan
+# BoneStructure
+
+<https://ousttrue.github.io/bonestructure/>
 
 ## pip
 

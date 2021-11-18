@@ -1,5 +1,7 @@
 # BoneStructure
 
+<https://github.com/ousttrue/bonestructure>
+
 ```{blockdiag}
 blockdiag {
   MoCap -> Pose-Euler -> Pose;
