@@ -1,5 +1,6 @@
 import sys
 import pathlib
+from typing import Optional
 from PySide6 import QtCore, QtWidgets, QtGui
 from .bvh import bvh_parser, bvh_scene
 from .humanoid import humanoid_widget
@@ -38,12 +39,8 @@ class MainWidget(QtWidgets.QMainWindow):
         super().__init__()
         self.setWindowTitle('bvh view')
         self.docks = {}
-
-        #
-        # Left
-        #
-        self._create_dock(
-            QtCore.Qt.LeftDockWidgetArea, 'bvh', self._create_left())
+        self.tree: Optional[QtWidgets.QTreeWidget] = None
+        self.playback: Optional[Playback] = None
 
         #
         # Right
@@ -53,25 +50,15 @@ class MainWidget(QtWidgets.QMainWindow):
             QtCore.Qt.RightDockWidgetArea, 'humanoid', self.humanoid)
 
         #
-        # Bottom
-        #
-        self.bottom_dock = self._create_dock(
-            QtCore.Qt.BottomDockWidgetArea, 'timeline', self._create_bottom()
-        )
-
-        #
         # Central
         #
         self.gl_controller = gl_multiview.MultiViewController(gui_scale)
         import glglue.pyside6
         self.glwidget = glglue.pyside6.Widget(self, self.gl_controller)
         self.setCentralWidget(self.glwidget)
-
-        self.bvh_scene = bvh_scene.BvhScene()
-        view = self.gl_controller.pushScene(self.bvh_scene)
-        view.camera.projection.z_far *= 100
-        view.camera.view.distance *= 100
-        self.gl_controller.pushScene(self.humanoid.humanoid_scene)
+        self.gl_controller.pushScene(
+            0, self.humanoid.humanoid_scene, (0.2, 0.2, 0.2, 0))
+        self.bvh_scene: Optional[bvh_scene.BvhScene] = None
 
         # menu
         menu = self.menuBar()
@@ -86,23 +73,33 @@ class MainWidget(QtWidgets.QMainWindow):
         self.addDockWidget(area, dock)
         self.docks[area] = dock
 
-    def _create_left(self) -> QtWidgets.QWidget:
+    def _get_or_create_tree(self) -> QtWidgets.QTreeWidget:
         # BvhNodeTree
-        self.tree = QtWidgets.QTreeWidget()
-        self.tree.setColumnCount(3)
-        self.tree.setHeaderLabels(["Name", "Offset", "Channels"])
+        if not self.tree:
+            self.tree = QtWidgets.QTreeWidget()
+            self.tree.setColumnCount(3)
+            self.tree.setHeaderLabels(["Name", "Offset", "Channels"])
+            self._create_dock(QtCore.Qt.LeftDockWidgetArea,
+                              'bvh', self.tree)
         return self.tree
 
-    def _create_bottom(self) -> QtWidgets.QWidget:
-        # BvhFrameList
-        self.playback = Playback(self)
-        # self.table = QtWidgets.QTableView()
-        w = QtWidgets.QWidget(self)
-        layout = QtWidgets.QVBoxLayout(w)
-        layout.addWidget(self.playback)
-        # layout.addWidget(self.table)
-        w.setLayout(layout)
-        return w
+    def _get_or_create_playback(self) -> Playback:
+        if not self.playback:
+            # BvhFrameList
+            self.playback = Playback(self)
+            # self.table = QtWidgets.QTableView()
+            w = QtWidgets.QWidget(self)
+            layout = QtWidgets.QVBoxLayout(w)
+            layout.addWidget(self.playback)
+            # layout.addWidget(self.table)
+            w.setLayout(layout)
+            #
+            # Bottom
+            #
+            self._create_dock(QtCore.Qt.BottomDockWidgetArea,
+                              'timeline', self.playback)
+
+        return self.playback
 
     def open(self, path: pathlib.Path):
         if not path.exists():
@@ -126,20 +123,32 @@ class MainWidget(QtWidgets.QMainWindow):
 
         items = []
         build_tree(items, bvh.root)
-        self.tree.clear()
-        self.tree.insertTopLevelItems(0, items)
-        self.tree.expandAll()
-        self.tree.resizeColumnToContents(0)
-        self.tree.resizeColumnToContents(1)
-        self.tree.resizeColumnToContents(2)
+
+        tree = self._get_or_create_tree()
+        tree.clear()
+        tree.insertTopLevelItems(0, items)
+        tree.expandAll()
+        tree.resizeColumnToContents(0)
+        tree.resizeColumnToContents(1)
+        tree.resizeColumnToContents(2)
+
+        if not self.bvh_scene:
+            self.bvh_scene = bvh_scene.BvhScene()
+            view = self.gl_controller.pushScene(
+                0, self.bvh_scene, (0.4, 0.3, 0.2, 0))
+            view.camera.projection.z_far *= 100
+            view.camera.view.distance *= 100
+
+        playback = self._get_or_create_playback()
+        playback.set_bvh(bvh)
+        playback.frame_changed.connect(self.set_frame)  # type: ignore
 
         self.bvh_scene.load(bvh)
-        self.playback.set_bvh(bvh)
         self.glwidget.repaint()
-        self.playback.frame_changed.connect(self.set_frame)  # type: ignore
 
     def set_frame(self, frame: int):
-        self.bvh_scene.set_frame(frame)
+        if self.bvh_scene:
+            self.bvh_scene.set_frame(frame)
         self.glwidget.repaint()
 
     @QtCore.Slot()  # type: ignore

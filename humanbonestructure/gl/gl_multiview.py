@@ -27,12 +27,12 @@ class Rect(NamedTuple):
 
 
 class ScreenView:
-    def __init__(self, scene):
+    def __init__(self, scene, clear_color):
         self.scene = scene
         self.rect = Rect(0, 0, 1, 1)
         self.camera = glglue.ctypesmath.Camera()
         self.isInitialized = False
-        self.clear_color = [0.6, 0.4, 0.2, 0]
+        self.clear_color = clear_color
 
     def setViewport(self, x, y, w, h):
         self.rect = Rect(int(x), int(y), int(w), int(h))
@@ -92,9 +92,9 @@ class MultiViewController(glglue.basecontroller.BaseController):
 
         return repaint
 
-    def pushScene(self, scene: gl_scene.Scene) -> ScreenView:
-        view = ScreenView(scene)
-        self.views.append(view)
+    def pushScene(self, pos: int, scene: gl_scene.Scene, clear_color) -> ScreenView:
+        view = ScreenView(scene, clear_color)
+        self.views.insert(pos, view)
         self.onResize(self.rect.width, self.rect.height)
         return view
 
