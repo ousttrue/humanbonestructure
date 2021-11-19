@@ -1,9 +1,8 @@
 from glglue.gl3.axis import Axis
 import glglue.ctypesmath
 from OpenGL import GL
-from . import bvh_skeleton
-from . import bvh_parser
-from . import gl_scene
+from ..gl import gl_scene
+from . import bvh_skeleton, bvh_parser
 
 
 class BvhScene(gl_scene.Scene):

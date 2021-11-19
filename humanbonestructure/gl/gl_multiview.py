@@ -1,10 +1,9 @@
 from dataclasses import dataclass
 from typing import List, NamedTuple, Optional, Tuple
+from OpenGL import GL
 import glglue.basecontroller
 import glglue.ctypesmath
-from OpenGL import GL
-
-from humanbonestructure import gl_scene
+from . import gl_scene
 
 
 class Rect(NamedTuple):

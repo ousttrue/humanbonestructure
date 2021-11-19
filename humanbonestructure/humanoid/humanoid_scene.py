@@ -2,9 +2,9 @@ import glglue.basecontroller
 import glglue.ctypesmath
 import glglue.gl3.axis
 from OpenGL import GL
-from . import humanoid
-from . import gl_scene
 from dataclasses import dataclass
+from ..gl import gl_scene
+from . import humanoid
 
 
 @dataclass

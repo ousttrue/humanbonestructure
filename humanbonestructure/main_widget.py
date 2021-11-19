@@ -1,10 +1,9 @@
 import sys
 import pathlib
 from PySide6 import QtCore, QtWidgets, QtGui
-from . import bvh_parser
-from . import bvh_scene
-from . import humanoid_widget
-from . import gl_multiview
+from .bvh import bvh_parser, bvh_scene
+from .humanoid import humanoid_widget
+from .gl import gl_multiview
 
 
 class Playback(QtWidgets.QWidget):
@@ -34,7 +33,7 @@ class Playback(QtWidgets.QWidget):
         self.start.clicked.connect(timeLine.start)  # type: ignore
 
 
-class BvhView(QtWidgets.QMainWindow):
+class MainWidget(QtWidgets.QMainWindow):
     def __init__(self, gui_scale: float = 1.0):
         super().__init__()
         self.setWindowTitle('bvh view')
@@ -159,7 +158,7 @@ class BvhView(QtWidgets.QMainWindow):
 def run():
     app = QtWidgets.QApplication(sys.argv)
 
-    widget = BvhView(1.5)
+    widget = MainWidget(1.5)
     widget.resize(1024, 768)
     widget.show()
 

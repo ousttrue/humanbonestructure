@@ -1,3 +1,3 @@
 if __name__ == "__main__":
-    from . import bvh_view
-    bvh_view.run()
+    from . import main_widget
+    main_widget.run()
