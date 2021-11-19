@@ -2,53 +2,9 @@ import sys
 import pathlib
 from PySide6 import QtCore, QtWidgets, QtGui
 from . import bvh_parser
-from . import bvh_controller
+from . import bvh_scene
 from . import humanoid_widget
-
-class BvhFrameTableModel(QtCore.QAbstractTableModel):
-    def __init__(self, bvh: bvh_parser.Bvh):
-        super().__init__()
-        self.bvh = bvh
-        self.channels = []
-        for node in self.bvh.root.traverse():
-            match node.channels:
-                case bvh_parser.Channels.PosXYZ_RotZXY:
-                    self.channels.append(f'{node.name}.pos.x')
-                    self.channels.append(f'{node.name}.pos.y')
-                    self.channels.append(f'{node.name}.pos.z')
-                    self.channels.append(f'{node.name}.rot.z')
-                    self.channels.append(f'{node.name}.rot.x')
-                    self.channels.append(f'{node.name}.rot.y')
-                case bvh_parser.Channels.RotZXY:
-                    self.channels.append(f'{node.name}.rot.z')
-                    self.channels.append(f'{node.name}.rot.x')
-                    self.channels.append(f'{node.name}.rot.y')
-
-    def rowCount(self, parent=QtCore.QModelIndex()):
-        return len(self.channels)
-
-    def columnCount(self, parent=QtCore.QModelIndex()):
-        return self.bvh.frames
-
-    def headerData(self, section, orientation, role):
-        match orientation, role:
-            case QtCore.Qt.Horizontal, QtCore.Qt.DisplayRole:
-                return f'{section}'
-            case QtCore.Qt.Vertical, QtCore.Qt.DisplayRole:
-                return self.channels[section]
-
-    def data(self, index, role=QtCore.Qt.DisplayRole):
-        column = index.column()
-        row = index.row()
-
-        if role == QtCore.Qt.DisplayRole:
-            return self.bvh.data[row * len(self.channels) + column]
-        elif role == QtCore.Qt.BackgroundRole:
-            return QtGui.QColor(QtCore.Qt.white)
-        elif role == QtCore.Qt.TextAlignmentRole:
-            return QtCore.Qt.AlignRight
-
-        return None
+from . import gl_multiview
 
 
 class Playback(QtWidgets.QWidget):
@@ -79,28 +35,44 @@ class Playback(QtWidgets.QWidget):
 
 
 class BvhView(QtWidgets.QMainWindow):
-    def __init__(self):
+    def __init__(self, gui_scale: float = 1.0):
         super().__init__()
         self.setWindowTitle('bvh view')
-
-        # humanoid
-        self.humanoid = humanoid_widget.HumanoidWiget(self)
-        self.setCentralWidget(self.humanoid)
+        self.docks = {}
 
         #
         # Left
         #
-        left = self._create_left()
-        self.left_dock = self._create_dock(
-            QtCore.Qt.LeftDockWidgetArea, 'bvh', left)
+        self._create_dock(
+            QtCore.Qt.LeftDockWidgetArea, 'bvh', self._create_left())
+
+        #
+        # Right
+        #
+        self.humanoid = humanoid_widget.HumanoidWiget(self)
+        self._create_dock(
+            QtCore.Qt.RightDockWidgetArea, 'humanoid', self.humanoid)
 
         #
         # Bottom
         #
-        bottom = self._create_bottom()
         self.bottom_dock = self._create_dock(
-            QtCore.Qt.BottomDockWidgetArea, 'timeline', bottom
+            QtCore.Qt.BottomDockWidgetArea, 'timeline', self._create_bottom()
         )
+
+        #
+        # Central
+        #
+        self.gl_controller = gl_multiview.MultiViewController(gui_scale)
+        import glglue.pyside6
+        self.glwidget = glglue.pyside6.Widget(self, self.gl_controller)
+        self.setCentralWidget(self.glwidget)
+
+        self.bvh_scene = bvh_scene.BvhScene()
+        view = self.gl_controller.pushScene(self.bvh_scene)
+        view.camera.projection.z_far *= 100
+        view.camera.view.distance *= 100
+        self.gl_controller.pushScene(self.humanoid.humanoid_scene)
 
         # menu
         menu = self.menuBar()
@@ -113,24 +85,14 @@ class BvhView(QtWidgets.QMainWindow):
         dock = QtWidgets.QDockWidget(name, self)
         dock.setWidget(widget)
         self.addDockWidget(area, dock)
-        return dock
+        self.docks[area] = dock
 
     def _create_left(self) -> QtWidgets.QWidget:
-        splitter = QtWidgets.QSplitter(self)
-
-        # OpenGL
-        self.bvh_controller = bvh_controller.BvhController()
-        import glglue.pyside6
-        self.glwidget = glglue.pyside6.Widget(self, self.bvh_controller)
-        splitter.insertWidget(0, self.glwidget)
-
         # BvhNodeTree
         self.tree = QtWidgets.QTreeWidget()
         self.tree.setColumnCount(3)
         self.tree.setHeaderLabels(["Name", "Offset", "Channels"])
-        splitter.insertWidget(0, self.tree)
-
-        return splitter
+        return self.tree
 
     def _create_bottom(self) -> QtWidgets.QWidget:
         # BvhFrameList
@@ -172,54 +134,13 @@ class BvhView(QtWidgets.QMainWindow):
         self.tree.resizeColumnToContents(1)
         self.tree.resizeColumnToContents(2)
 
-        # frames
-        # self.model = BvhFrameTableModel(bvh)
-        # self.table.setModel(self.model)
-
-        # chart
-        # for s in self.serieses:
-        #     self.chart.removeSeries(s)
-        # self.serieses.clear()
-        # channel_count = bvh.root.get_channel_count()
-        # def add_seriese(name: str, index: int):
-        #     series = QtCharts.QLineSeries()
-        #     series.setName(name)
-        #     for i in range(bvh.frames):
-        #         value = bvh.data[i * channel_count + index]
-        #         series.append(i, value)
-        #     self.serieses.append(series)
-        #     self.chart.addSeries(series)
-        # i = 0
-        # for node in bvh.root.traverse():
-        #     match node.channels:
-        #         case bvh_parser.Channels.PosXYZ_RotZXY:
-        #             add_seriese(f'{node.name}.pos.x', i)
-        #             i+=1
-        #             add_seriese(f'{node.name}.pos.y', i)
-        #             i+=1
-        #             add_seriese(f'{node.name}.pos.z', i)
-        #             i+=1
-        #             add_seriese(f'{node.name}.rot.z', i)
-        #             i+=1
-        #             add_seriese(f'{node.name}.rot.x', i)
-        #             i+=1
-        #             add_seriese(f'{node.name}.rot.y', i)
-        #             i+=1
-        #         case bvh_parser.Channels.RotZXY:
-        #             add_seriese(f'{node.name}.rot.z', i)
-        #             i+=1
-        #             add_seriese(f'{node.name}.rot.x', i)
-        #             i+=1
-        #             add_seriese(f'{node.name}.rot.y', i)
-        #             i+=1
-
-        self.bvh_controller.load(bvh)
+        self.bvh_scene.load(bvh)
         self.playback.set_bvh(bvh)
         self.glwidget.repaint()
         self.playback.frame_changed.connect(self.set_frame)  # type: ignore
 
     def set_frame(self, frame: int):
-        self.bvh_controller.set_frame(frame)
+        self.bvh_scene.set_frame(frame)
         self.glwidget.repaint()
 
     @QtCore.Slot()  # type: ignore
@@ -236,9 +157,9 @@ class BvhView(QtWidgets.QMainWindow):
 
 
 def run():
-    app = QtWidgets.QApplication([])
+    app = QtWidgets.QApplication(sys.argv)
 
-    widget = BvhView()
+    widget = BvhView(1.5)
     widget.resize(1024, 768)
     widget.show()
 

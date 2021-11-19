@@ -1,6 +1,6 @@
 from PySide6 import QtCore, QtWidgets
 from . import humanoid
-from . import humanoid_controller
+from . import humanoid_scene
 
 
 class HumanoidTreeModel(QtCore.QAbstractItemModel):
@@ -49,13 +49,13 @@ class HumanoidTreeModel(QtCore.QAbstractItemModel):
                 return item.bone.name
 
 
-class HumanoidWiget(QtWidgets.QSplitter):
+class HumanoidWiget(QtWidgets.QWidget):
     '''
-    +----+----+
-    |tree|    |
-    +----+view|
-    |prop|    |
-    +----+----+
+    +----+
+    |tree|
+    +----+
+    |prop|
+    +----+
     '''
 
     def __init__(self, parent):
@@ -69,12 +69,11 @@ class HumanoidWiget(QtWidgets.QSplitter):
         self.tree.expandAll()
         self.tree.resizeColumnToContents(0)
         self.tree.resizeColumnToContents(1)
-        self.insertWidget(0, self.tree)
+
+        layout = QtWidgets.QVBoxLayout(self)
+        self.setLayout(layout)
+        layout.addWidget(self.tree)
 
         # OpenGL
-        self.humanoid_controller = humanoid_controller.HumanoidController(
+        self.humanoid_scene = humanoid_scene.HumanoidScene(
             self.root)
-        import glglue.pyside6
-        self.glwidget = glglue.pyside6.Widget(self, self.humanoid_controller)
-        self.insertWidget(1, self.glwidget)
-        self.glwidget.repaint()
