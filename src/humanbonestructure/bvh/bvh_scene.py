@@ -1,5 +1,5 @@
 from OpenGL import GL
-import glglue.ctypesmath
+from glglue.ctypesmath import Camera
 from ..gl import gl_scene
 from . import bvh_skeleton, bvh_parser
 
@@ -20,9 +20,12 @@ class BvhScene(gl_scene.Scene):
         GL.glEnable(GL.GL_DEPTH_TEST)
         self.isInitialized = True
 
-    def draw(self, projection: glglue.ctypesmath.Mat4, view: glglue.ctypesmath.Mat4):
+    def draw(self, camera: Camera):
         if not self.isInitialized:
             self._initialize()
 
         if self.skeleton:
-            self.skeleton.draw(projection, view)
+            self.skeleton.draw(camera.projection.matrix, camera.view.matrix)
+
+    def expand_aabb(self, aabb):
+        return aabb

@@ -4,7 +4,7 @@
 
 ## TODO
 
-* [ ] src, setup.py, project.toml
+* [x] src, setup.py, project.toml
 * [ ] separate bvh viewer
 * [ ] box
 * [ ] bone gizmo / local axis

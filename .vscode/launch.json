@@ -8,7 +8,7 @@
             "name": "bvh_view",
             "type": "python",
             "request": "launch",
-            "module": "humanbonestructure",
+            "module": "humanbonestructure.bvh",
             "console": "integratedTerminal",
             "justMyCode": false
         },

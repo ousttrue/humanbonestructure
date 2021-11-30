@@ -1,9 +1,7 @@
 import pathlib
 from typing import Optional
 from PySide6 import QtCore, QtWidgets, QtGui
-from .bvh import bvh_parser, bvh_scene
-from .humanoid import humanoid_widget
-from .gl import gl_multiview
+from . import bvh_parser, bvh_scene
 
 
 class Playback(QtWidgets.QWidget):
@@ -39,28 +37,34 @@ class MainWidget(QtWidgets.QMainWindow):
         self.setWindowTitle('bvh view')
         self.docks = {}
         self.tree: Optional[QtWidgets.QTreeWidget] = None
-        self.playback: Optional[Playback] = None
-
-        #
-        # Right
-        #
-        self.humanoid = humanoid_widget.HumanoidWiget(self)
-        self._create_dock(
-            QtCore.Qt.RightDockWidgetArea, 'humanoid', self.humanoid)
 
         #
         # Central
         #
-        self.gl_controller = gl_multiview.MultiViewController(gui_scale)
         import glglue.pyside6
-        import glglue.utils
+        import glglue.gl3.samplecontroller
+        self.controller = glglue.gl3.samplecontroller.SampleController()
+        self.bvh_scene = bvh_scene.BvhScene()
+        self.controller.scene = self.bvh_scene
         self.glwidget = glglue.pyside6.Widget(
-            self, self.gl_controller,
-        )
+            self, self.controller, dpi_scale=gui_scale)
         self.setCentralWidget(self.glwidget)
-        self.gl_controller.pushScene(
-            0, self.humanoid.humanoid_scene, (0.2, 0.2, 0.2, 0))
-        self.bvh_scene: Optional[bvh_scene.BvhScene] = None
+
+        #
+        # bottom
+        #
+        self.playback = Playback(self)
+        # self.table = QtWidgets.QTableView()
+        w = QtWidgets.QWidget(self)
+        layout = QtWidgets.QVBoxLayout(w)
+        layout.addWidget(self.playback)
+        # layout.addWidget(self.table)
+        w.setLayout(layout)
+        #
+        # Bottom
+        #
+        self._create_dock(QtCore.Qt.BottomDockWidgetArea,
+                          'timeline', self.playback)
 
         # menu
         menu = self.menuBar()
@@ -84,24 +88,6 @@ class MainWidget(QtWidgets.QMainWindow):
             self._create_dock(QtCore.Qt.LeftDockWidgetArea,
                               'bvh', self.tree)
         return self.tree
-
-    def _get_or_create_playback(self) -> Playback:
-        if not self.playback:
-            # BvhFrameList
-            self.playback = Playback(self)
-            # self.table = QtWidgets.QTableView()
-            w = QtWidgets.QWidget(self)
-            layout = QtWidgets.QVBoxLayout(w)
-            layout.addWidget(self.playback)
-            # layout.addWidget(self.table)
-            w.setLayout(layout)
-            #
-            # Bottom
-            #
-            self._create_dock(QtCore.Qt.BottomDockWidgetArea,
-                              'timeline', self.playback)
-
-        return self.playback
 
     def open(self, path: pathlib.Path):
         if not path.exists():
@@ -134,16 +120,8 @@ class MainWidget(QtWidgets.QMainWindow):
         tree.resizeColumnToContents(1)
         tree.resizeColumnToContents(2)
 
-        if not self.bvh_scene:
-            self.bvh_scene = bvh_scene.BvhScene()
-            view = self.gl_controller.pushScene(
-                0, self.bvh_scene, (0.4, 0.3, 0.2, 0))
-            view.camera.projection.z_far *= 100
-            view.camera.view.distance *= 100
-
-        playback = self._get_or_create_playback()
-        playback.set_bvh(bvh)
-        playback.frame_changed.connect(self.set_frame)  # type: ignore
+        self.playback.set_bvh(bvh)
+        self.playback.frame_changed.connect(self.set_frame)  # type: ignore
 
         self.bvh_scene.load(bvh)
         self.glwidget.repaint()
