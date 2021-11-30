@@ -2,3 +2,4 @@ build
 .venv
 imgui.ini
 *.pyc
+src/humanbonestructure/_version.py

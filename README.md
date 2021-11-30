@@ -2,6 +2,13 @@
 
 <https://ousttrue.github.io/humanbonestructure/>
 
+## TODO
+
+* [ ] src, setup.py, project.toml
+* [ ] separate bvh viewer
+* [ ] box
+* [ ] bone gizmo / local axis
+
 ## pip
 
 * sphinx

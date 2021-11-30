@@ -1,4 +1,3 @@
-import sys
 import pathlib
 from typing import Optional
 from PySide6 import QtCore, QtWidgets, QtGui
@@ -165,17 +164,3 @@ class MainWidget(QtWidgets.QMainWindow):
         if not files:
             return
         self.open(pathlib.Path(files[0]))
-
-
-def run():
-    app = QtWidgets.QApplication(sys.argv)
-
-    # import glglue.utils
-    # dpi_scale = glglue.utils.get_desktop_scaling_factor()
-    dpi_scale = 1.5
-
-    widget = MainWidget(dpi_scale)
-    widget.resize(1024, 768)
-    widget.show()
-
-    sys.exit(app.exec())
