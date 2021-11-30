@@ -38,11 +38,20 @@ class Float3(NamedTuple):
     z: float
 
 
+NEXT_ID = 1
+
+
 @dataclass
 class Bone:
     bone: HumanBones
     offset: Float3
     children: List['Bone']
+    unique_id: int = -1
+
+    def __post_init__(self):
+        global NEXT_ID
+        self.unique_id = NEXT_ID
+        NEXT_ID += 1
 
     def __hash__(self) -> int:
         return hash((self.bone, self.offset))

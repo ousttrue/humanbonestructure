@@ -1,6 +1,7 @@
-from PySide6 import QtCore, QtWidgets
-from . import humanoid
+from typing import Optional
+from PySide6 import QtCore, QtWidgets, QtGui
 from . import humanoid_scene
+from . import humanoid
 
 
 class HumanoidTreeModel(QtCore.QAbstractItemModel):
@@ -49,17 +50,14 @@ class HumanoidTreeModel(QtCore.QAbstractItemModel):
                 return item.bone.name
 
 
-class HumanoidWiget(QtWidgets.QWidget):
-    '''
-    +----+
-    |tree|
-    +----+
-    |prop|
-    +----+
-    '''
-
-    def __init__(self, parent):
-        super().__init__(parent)
+class MainWidget(QtWidgets.QMainWindow):
+    def __init__(self, gui_scale: float = 1.0):
+        super().__init__()
+        self.setWindowTitle('humanoid view')
+        menu = self.menuBar()
+        file_menu = menu.addMenu("&File")
+        self.view_menu = menu.addMenu("&File")
+        self.docks = {}
         self.root = humanoid.make_humanoid(1.0)
 
         # tree
@@ -69,11 +67,22 @@ class HumanoidWiget(QtWidgets.QWidget):
         self.tree.expandAll()
         self.tree.resizeColumnToContents(0)
         self.tree.resizeColumnToContents(1)
-
-        layout = QtWidgets.QVBoxLayout(self)
-        self.setLayout(layout)
-        layout.addWidget(self.tree)
+        self._create_dock(QtCore.Qt.LeftDockWidgetArea, "bones", self.tree)
 
         # OpenGL
+        import glglue.pyside6
+        import glglue.gl3.samplecontroller
+        self.controller = glglue.gl3.samplecontroller.SampleController()
         self.humanoid_scene = humanoid_scene.HumanoidScene(
             self.root)
+        self.controller.scene = self.humanoid_scene
+        self.glwidget = glglue.pyside6.Widget(
+            self, self.controller, dpi_scale=gui_scale)
+        self.setCentralWidget(self.glwidget)
+
+    def _create_dock(self, area, name, widget):
+        dock = QtWidgets.QDockWidget(name, self)
+        dock.setWidget(widget)
+        self.addDockWidget(area, dock)
+        self.view_menu.addAction(dock.toggleViewAction())
+        self.docks[area] = dock

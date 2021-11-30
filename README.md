@@ -5,9 +5,10 @@
 ## TODO
 
 * [x] src, setup.py, project.toml
-* [ ] separate bvh viewer
-* [ ] box
+* [x] separate bvh viewer
+* [x] humanoid view
 * [ ] bone gizmo / local axis
+* [ ] ray cast / pick
 
 ## pip
 

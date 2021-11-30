@@ -5,10 +5,18 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "bvh_view",
+            "name": "bvhview",
             "type": "python",
             "request": "launch",
             "module": "humanbonestructure.bvh",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "humanoidview",
+            "type": "python",
+            "request": "launch",
+            "module": "humanbonestructure.humanoid",
             "console": "integratedTerminal",
             "justMyCode": false
         },

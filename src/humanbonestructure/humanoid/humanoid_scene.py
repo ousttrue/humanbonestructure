@@ -1,5 +1,5 @@
 import glglue.basecontroller
-import glglue.ctypesmath
+from glglue.ctypesmath import Camera, Mat4
 from glglue.gl3 import gizmo
 from OpenGL import GL
 from dataclasses import dataclass
@@ -18,7 +18,7 @@ class HumanoidScene(gl_scene.Scene):
         self.isInitialized = True
 
     def _draw(self, bone: humanoid.Bone, parent):
-        m = glglue.ctypesmath.Mat4.new_translation(
+        m = Mat4.new_translation(
             *bone.offset) * parent
 
         self.gizmo.axis(0.1, m)
@@ -26,13 +26,13 @@ class HumanoidScene(gl_scene.Scene):
         for child in bone.children:
             self._draw(child, m)
 
-    def draw(self, projection, view):
+    def draw(self, camera: Camera):
         if not self.isInitialized:
             self._initialize()
 
-        self.gizmo.begin(view * projection)
+        self.gizmo.begin(camera.view.matrix * camera.projection.matrix)
 
-        m = glglue.ctypesmath.Mat4.new_identity()
+        m = Mat4.new_identity()
         self.gizmo.axis(10, m)
         self._draw(self.root, m)
 
