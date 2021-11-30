@@ -1,10 +1,12 @@
 import math
 import array
-import glglue
-import glglue.ctypesmath
-from . import bvh_parser
+import ctypes
 from typing import List, NamedTuple, Iterator, Optional
 from OpenGL import GL
+from glglue.ctypesmath import Mat4
+import glglue.gl3.shader
+from glglue.gl3.vbo import Planar, VectorView, create
+from . import bvh_parser
 
 
 VS = """
@@ -71,7 +73,7 @@ class BvhSkeleton:
 
     def initialize(self):
         vertices = (bvh_parser.Float3 * len(self.bones))()
-        indices = array.array('H')
+        self.indices = array.array('H')
 
         def get_index(node: bvh_parser.Node):
             for i, bone in enumerate(self.bones):
@@ -83,44 +85,45 @@ class BvhSkeleton:
             head = bone.offset + bone.head.offset
             vertices[i] = head
             if bone.tail:
-                indices.append(i)
-                indices.append(get_index(bone.tail))
+                self.indices.append(i)
+                self.indices.append(get_index(bone.tail))
 
-        self.vbo = glglue.gl3.vbo.create_vbo_from(vertices, is_dynamic=True)
-        self.ibo = glglue.gl3.vbo.create_ibo_from(indices)
-        self.ibo.topology = GL.GL_LINES
-        self.shader = glglue.gl3.shader.create_from(VS, FS)
+        self.drawable = create(
+            Planar([VectorView(memoryview(vertices), ctypes.c_float, 3)]),
+            VectorView.create(self.indices),
+            is_dynamic=True)
+        self.shader = glglue.gl3.shader.create_from(
+            glglue.gl3.shader.ShaderSource(VS, (), FS, ()))
         self.is_initialized = True
 
     def draw(self, projection, view):
         if not self.is_initialized:
             self.initialize()
         self.shader.use()
-        self.shader.uniforms["vp"].set(view * projection)
+        self.shader.set_uniform("vp", view * projection)
 
-        m = glglue.ctypesmath.Mat4.new_identity()
-        self.shader.uniforms["m"].set(m)
-        self.vbo.set_slot(0)
-        self.ibo.draw()
+        m = Mat4.new_identity()
+        self.shader.set_uniform("m", m)
+        self.drawable.draw(GL.GL_LINES, 0, len(self.indices))
 
-    def _set_frame(self, it: Iterator[float], node: bvh_parser.Node, parent: glglue.ctypesmath.Mat4):
+    def _set_frame(self, it: Iterator[float], node: bvh_parser.Node, parent: Mat4):
         '''
         行ベクトル。左右逆で
         '''
-        offset = glglue.ctypesmath.Mat4.new_translation(
+        offset = Mat4.new_translation(
             node.offset.x, node.offset.y, node.offset.z)
         match node.channels:
             case bvh_parser.Channels.PosXYZ_RotZXY:
-                t = glglue.ctypesmath.Mat4.new_translation(
+                t = Mat4.new_translation(
                     next(it), next(it), next(it))
-                z = glglue.ctypesmath.Mat4.new_rotation_z(to_radian(next(it)))
-                x = glglue.ctypesmath.Mat4.new_rotation_x(to_radian(next(it)))
-                y = glglue.ctypesmath.Mat4.new_rotation_y(to_radian(next(it)))
+                z = Mat4.new_rotation_z(to_radian(next(it)))
+                x = Mat4.new_rotation_x(to_radian(next(it)))
+                y = Mat4.new_rotation_y(to_radian(next(it)))
                 m = y * x * z * t * offset * parent
             case bvh_parser.Channels.RotZXY:
-                z = glglue.ctypesmath.Mat4.new_rotation_z(to_radian(next(it)))
-                x = glglue.ctypesmath.Mat4.new_rotation_x(to_radian(next(it)))
-                y = glglue.ctypesmath.Mat4.new_rotation_y(to_radian(next(it)))
+                z = Mat4.new_rotation_z(to_radian(next(it)))
+                x = Mat4.new_rotation_x(to_radian(next(it)))
+                y = Mat4.new_rotation_y(to_radian(next(it)))
                 m = y * x * z * offset * parent
             case _:
                 m = offset * parent
@@ -134,10 +137,10 @@ class BvhSkeleton:
         data = self.bvh.data[begin:begin+self.channel_count]
         self.matrices = []
         self._set_frame(iter(data), self.bvh.root,
-                        glglue.ctypesmath.Mat4.new_identity())
+                        Mat4.new_identity())
 
         vertices = (bvh_parser.Float3 * len(self.matrices))()
         for i, m in enumerate(self.matrices):
             vertices[i] = bvh_parser.Float3(m._41, m._42, m._43)
-        if self.vbo:
-            self.vbo.update(memoryview(vertices).cast('B').tobytes())
+        if self.drawable:
+            self.drawable.vbo_list[0].update(memoryview(vertices))

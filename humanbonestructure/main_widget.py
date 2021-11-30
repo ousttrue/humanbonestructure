@@ -54,7 +54,10 @@ class MainWidget(QtWidgets.QMainWindow):
         #
         self.gl_controller = gl_multiview.MultiViewController(gui_scale)
         import glglue.pyside6
-        self.glwidget = glglue.pyside6.Widget(self, self.gl_controller)
+        import glglue.utils
+        self.glwidget = glglue.pyside6.Widget(
+            self, self.gl_controller,
+        )
         self.setCentralWidget(self.glwidget)
         self.gl_controller.pushScene(
             0, self.humanoid.humanoid_scene, (0.2, 0.2, 0.2, 0))
@@ -167,7 +170,11 @@ class MainWidget(QtWidgets.QMainWindow):
 def run():
     app = QtWidgets.QApplication(sys.argv)
 
-    widget = MainWidget(1.5)
+    # import glglue.utils
+    # dpi_scale = glglue.utils.get_desktop_scaling_factor()
+    dpi_scale = 1.5
+
+    widget = MainWidget(dpi_scale)
     widget.resize(1024, 768)
     widget.show()
 

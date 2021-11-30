@@ -1,13 +1,11 @@
-from glglue.gl3.axis import Axis
-import glglue.ctypesmath
 from OpenGL import GL
+import glglue.ctypesmath
 from ..gl import gl_scene
 from . import bvh_skeleton, bvh_parser
 
 
 class BvhScene(gl_scene.Scene):
     def __init__(self):
-        self.axis = Axis(1.0 * 100)
         self.isInitialized = False
         self.skeleton = None
 
@@ -26,6 +24,5 @@ class BvhScene(gl_scene.Scene):
         if not self.isInitialized:
             self._initialize()
 
-        self.axis.draw(projection, view)
         if self.skeleton:
             self.skeleton.draw(projection, view)
