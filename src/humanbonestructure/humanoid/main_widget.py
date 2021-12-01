@@ -90,7 +90,7 @@ class BodyPanel(QtWidgets.QWidget):
         self.box_layout.addLayout(layout)
 
     def _label_slider(self, text: str):
-        layout = QtWidgets.QHBoxLayout(self)
+        layout = QtWidgets.QHBoxLayout()
 
         label = QtWidgets.QLabel(self)
         label.setText(text)

@@ -17,9 +17,8 @@ class HumanoidScene(gl_scene.Scene):
         GL.glEnable(GL.GL_DEPTH_TEST)
         self.isInitialized = True
 
-    def _draw(self, bone: humanoid.Bone, parent):
-        m = Mat4.new_translation(
-            *bone.offset) * parent
+    def _draw(self, bone: humanoid.Bone):
+        self.gizmo.matrix = bone.world_matrix
 
         # self.gizmo.axis(0.1, m)
         if bone.children:
@@ -43,42 +42,41 @@ class HumanoidScene(gl_scene.Scene):
             p2 = Float3(-s, s, 0)
             p3 = Float3(0, s, s)
 
-            self.gizmo.line(p0, p1, bone.world_matrix)
-            self.gizmo.line(p1, p2, bone.world_matrix)
-            self.gizmo.line(p2, p3, bone.world_matrix)
-            self.gizmo.line(p3, p0, bone.world_matrix)
+            self.gizmo.line(p0, p1)
+            self.gizmo.line(p1, p2)
+            self.gizmo.line(p2, p3)
+            self.gizmo.line(p3, p0)
 
             # self.gizmo.line(p2, p0, bone.world_matrix)
             self.gizmo.color = Float4(1, 0, 0, 1)
-            self.gizmo.line(h, p0, bone.world_matrix)
-            self.gizmo.line(p0, t, bone.world_matrix)
+            self.gizmo.line(h, p0)
+            self.gizmo.line(p0, t)
             self.gizmo.color = Float4(0.1, 0, 0, 1)
             if bone == self.selected:
                 self.gizmo.color = Float4(0.1, 1, 0, 1)
-            self.gizmo.line(h, p2, bone.world_matrix)
-            self.gizmo.line(p2, t, bone.world_matrix)
+            self.gizmo.line(h, p2)
+            self.gizmo.line(p2, t)
 
             # self.gizmo.line(p1, p3, bone.world_matrix)
             self.gizmo.color = Float4(0, 0, 1, 1)
-            self.gizmo.line(h, p3, bone.world_matrix)
-            self.gizmo.line(p3, t, bone.world_matrix)
+            self.gizmo.line(h, p3)
+            self.gizmo.line(p3, t)
             self.gizmo.color = Float4(0, 0, 0.1, 1)
             if bone == self.selected:
                 self.gizmo.color = Float4(0, 1, 0.1, 1)
-            self.gizmo.line(h, p1, bone.world_matrix)
-            self.gizmo.line(p1, t, bone.world_matrix)
+            self.gizmo.line(h, p1)
+            self.gizmo.line(p1, t)
 
         for child in bone.children:
-            self._draw(child, m)
+            self._draw(child)
 
     def draw(self, camera: Camera):
         if not self.isInitialized:
             self._initialize()
 
-        self.gizmo.begin(camera.view.matrix * camera.projection.matrix)
+        self.gizmo.begin(camera.view.matrix, camera.projection.matrix)
 
-        m = Mat4.new_identity()
-        self.gizmo.axis(10, m)
-        self._draw(self.root, m)
+        self.gizmo.axis(10)
+        self._draw(self.root)
 
         self.gizmo.end()
