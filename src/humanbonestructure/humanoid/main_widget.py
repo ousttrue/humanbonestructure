@@ -183,7 +183,7 @@ class MainWidget(QtWidgets.QMainWindow):
         self.controller = glglue.gl3.samplecontroller.SampleController()
         self.humanoid_scene = humanoid_scene.HumanoidScene(
             self.root)
-        self.controller.scene = self.humanoid_scene
+        self.controller.scene = self.humanoid_scene  # type: ignore
         self.glwidget = glglue.pyside6.Widget(
             self, self.controller, dpi_scale=gui_scale)
         return self.glwidget

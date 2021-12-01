@@ -40,6 +40,7 @@ class Bone:
         # children[0] is tail
         self.children = children
         self.world_matrix = Mat4.new_identity()
+        self.init_local_matrix = Mat4.new_identity()
 
     def __hash__(self) -> int:
         return hash((self.bone, self.offset))
@@ -50,13 +51,13 @@ class Bone:
             for x in child.traverse():
                 yield x
 
-    def calc_matrix(self, parent_offset: Float3):
+    def calc_matrix(self, parent_world: Mat4):
+        parent_offset = Float3(
+            parent_world._41, parent_world._42, parent_world._43)
         t = self.offset + parent_offset
 
         if self.children:
-            tail = self.children[0]
-
-            y = tail.offset.normalized()
+            y = self.children[0].offset.normalized()
             match self.bone:
                 case HumanBones.LeftToes | HumanBones.RightToes:
                     z = Float3(0, 1, 0)
@@ -64,11 +65,12 @@ class Bone:
                     z = Float3(0, 0, 1)
             x = Float3.cross(y, z)
             z = Float3.cross(x, y)
+            world_matrix = Mat4.new_coords(x, y, z, t)
+            self.world_matrix = world_matrix
+            self.init_local_matrix = self.world_matrix * parent_world.inverse_rigidbody()
 
-            self.world_matrix = Mat4.new_coords(x, y, z, t)
-
-            for child in self.children:
-                child.calc_matrix(t)
+        for i, child in enumerate(self.children):
+            child.calc_matrix(self.world_matrix)
 
 
 def make_humanoid(hips_pos: float) -> Bone:
@@ -136,6 +138,6 @@ def make_humanoid(hips_pos: float) -> Bone:
             ])]),
     ])
 
-    root.calc_matrix(Float3(0, 0, 0))
+    root.calc_matrix(Mat4.new_identity())
 
     return root
