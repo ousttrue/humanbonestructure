@@ -1,7 +1,11 @@
-from typing import Optional
+import math
+from typing import Optional, Dict, Any
 from PySide6 import QtCore, QtWidgets, QtGui
 from . import humanoid_scene
 from . import humanoid
+
+MAX_VALUE = 1024
+TO_RADIAN = math.pi/180
 
 
 class HumanoidTreeModel(QtCore.QAbstractItemModel):
@@ -67,6 +71,8 @@ class BodyPanel(QtWidgets.QWidget):
     捩: Y+ 左に捩じる
     '''
 
+    value_changed = QtCore.Signal()
+
     def __init__(self, parent) -> None:
         super().__init__(parent)
 
@@ -79,14 +85,33 @@ class BodyPanel(QtWidgets.QWidget):
 
         slider, layout = self._label_slider("前後屈")
         self.main_slider = slider
+        self.bone: Optional[humanoid.Bone] = None
+
+        def on_main(value):
+            if self.bone:
+                self.bone.local_rotation_main = value / MAX_VALUE * math.pi
+                self.value_changed.emit()
+        self.main_slider.valueChanged.connect(on_main)
         self.box_layout.addLayout(layout)
 
         slider, layout = self._label_slider("右左屈")
         self.sub_slider = slider
+
+        def on_sub(value):
+            if self.bone:
+                self.bone.local_rotation_sub = value / MAX_VALUE * math.pi
+                self.value_changed.emit()
+        self.sub_slider.valueChanged.connect(on_sub)
         self.box_layout.addLayout(layout)
 
         slider, layout = self._label_slider("左右捩")
         self.roll_slider = slider
+
+        def on_roll(value):
+            if self.bone:
+                self.bone.local_rotation_roll = value / MAX_VALUE * math.pi
+                self.value_changed.emit()
+        self.roll_slider.valueChanged.connect(on_roll)
         self.box_layout.addLayout(layout)
 
     def _label_slider(self, text: str):
@@ -97,8 +122,8 @@ class BodyPanel(QtWidgets.QWidget):
         layout.addWidget(label)
 
         slider = QtWidgets.QSlider(QtCore.Qt.Horizontal, self)
-        slider.setMinimum(-180)
-        slider.setMaximum(180)
+        slider.setRange(-MAX_VALUE, MAX_VALUE)
+
         layout.addWidget(slider)
         return slider, layout
 
@@ -113,8 +138,16 @@ class BodyPanel(QtWidgets.QWidget):
                 return True
         return False
 
+    def set_bone(self, bone: humanoid.Bone):
+        self.bone = bone
+        self.main_slider.setValue(self.bone.local_rotation_main)
+        self.sub_slider.setValue(self.bone.local_rotation_sub)
+        self.roll_slider.setValue(self.bone.local_rotation_roll)
+
 
 class BoneProp(QtWidgets.QWidget):
+    value_changed = QtCore.Signal()
+
     def __init__(self, parent):
         super().__init__(parent)
         self.box_layout = QtWidgets.QVBoxLayout()
@@ -126,8 +159,10 @@ class BoneProp(QtWidgets.QWidget):
         self.parts = [
             BodyPanel(self)
         ]
+
         for p in self.parts:
             p.setHidden(True)
+            p.value_changed.connect(self.value_changed)
 
     def set_bone(self, bone: humanoid.Bone):
         if self.current:
@@ -139,6 +174,7 @@ class BoneProp(QtWidgets.QWidget):
                 self.box_layout.addWidget(p)
                 self.current = p
                 self.current.setHidden(False)
+                self.current.set_bone(bone)
                 break
 
 
@@ -149,16 +185,24 @@ class MainWidget(QtWidgets.QMainWindow):
         menu = self.menuBar()
         view_menu = menu.addMenu("&View")
         self.view_menu = menu.addMenu("&File")
-        self.docks = {}
+        self.docks: Dict[Any, QtWidgets.QDockWidget] = {}
         self.root = humanoid.make_humanoid(1.0)
 
         self._create_tree()
-        self._create_gl(gui_scale)
+        gl = self._create_gl(gui_scale)
         self.prop = BoneProp(self)
 
         self.setCentralWidget(self.tree)
-        self._create_dock(QtCore.Qt.LeftDockWidgetArea, "view", self.glwidget)
+        self._create_dock(
+            QtCore.Qt.LeftDockWidgetArea, "view", self.glwidget)
         self._create_dock(QtCore.Qt.RightDockWidgetArea, "prop", self.prop)
+
+        def on_value_changed():
+            gl.repaint()
+        self.prop.value_changed.connect(on_value_changed)
+
+        for _, v in self.docks.items():
+            view_menu.addAction(v.toggleViewAction())
 
     def _create_tree(self):
         self.tree = QtWidgets.QTreeView()

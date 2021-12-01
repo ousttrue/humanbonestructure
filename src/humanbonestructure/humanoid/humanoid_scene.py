@@ -18,7 +18,7 @@ class HumanoidScene(gl_scene.Scene):
         self.isInitialized = True
 
     def _draw(self, bone: humanoid.Bone, parent: Mat4):
-        matrix = bone.init_local_matrix * parent
+        matrix = bone.local_euler_matrix() * bone.local_init_matrix * parent
 
         # self.gizmo.axis(0.1, m)
         for i, child in enumerate(bone.children):

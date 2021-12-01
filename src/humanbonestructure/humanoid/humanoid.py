@@ -40,7 +40,11 @@ class Bone:
         # children[0] is tail
         self.children = children
         self.world_matrix = Mat4.new_identity()
-        self.init_local_matrix = Mat4.new_identity()
+        self.local_init_matrix = Mat4.new_identity()
+        # -1 ~ +1
+        self.local_rotation_main = 0
+        self.local_rotation_sub = 0
+        self.local_rotation_roll = 0
 
     def __hash__(self) -> int:
         return hash((self.bone, self.offset))
@@ -67,10 +71,24 @@ class Bone:
             z = Float3.cross(x, y)
             world_matrix = Mat4.new_coords(x, y, z, t)
             self.world_matrix = world_matrix
-            self.init_local_matrix = self.world_matrix * parent_world.inverse_rigidbody()
+            self.local_init_matrix = self.world_matrix * parent_world.inverse_rigidbody()
 
         for i, child in enumerate(self.children):
             child.calc_matrix(self.world_matrix)
+
+    def local_euler_matrix(self) -> 'Mat4':
+        main = Mat4.new_axis_angle(Float3(
+            self.local_init_matrix._11, self.local_init_matrix._12, self.local_init_matrix._13), self.local_rotation_main)
+        sub = Mat4.new_axis_angle(Float3(
+            self.local_init_matrix._21, self.local_init_matrix._22, self.local_init_matrix._23), self.local_rotation_sub)
+        roll = Mat4.new_axis_angle(Float3(
+            self.local_init_matrix._31, self.local_init_matrix._32, self.local_init_matrix._33), self.local_rotation_roll)
+        m = roll * sub * main
+
+        if m != Mat4.new_identity():
+            pass
+
+        return m
 
 
 def make_humanoid(hips_pos: float) -> Bone:
