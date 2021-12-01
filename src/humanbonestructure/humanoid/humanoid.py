@@ -57,7 +57,11 @@ class Bone:
             tail = self.children[0]
 
             y = tail.offset.normalized()
-            z = Float3(0, 0, 1)
+            match self.bone:
+                case HumanBones.LeftToes | HumanBones.RightToes:
+                    z = Float3(0, 1, 0)
+                case _:
+                    z = Float3(0, 0, 1)
             x = Float3.cross(y, z)
             z = Float3.cross(x, y)
 
