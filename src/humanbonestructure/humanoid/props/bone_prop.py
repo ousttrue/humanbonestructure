@@ -1,5 +1,5 @@
 from PySide6 import QtWidgets, QtCore
-from .body_panel import BodyPanel
+from .panels import BodyPanel, LegPanel
 from .. import humanoid
 
 
@@ -15,7 +15,8 @@ class BoneProp(QtWidgets.QWidget):
 
         self.current = None
         self.parts = [
-            BodyPanel(self)
+            BodyPanel(self),
+            LegPanel(self),
         ]
 
         for p in self.parts:

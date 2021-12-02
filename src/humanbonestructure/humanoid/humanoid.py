@@ -42,9 +42,7 @@ class Bone:
         self.world_matrix = Mat4.new_identity()
         self.local_init_matrix = Mat4.new_identity()
         # -1 ~ +1
-        self.local_rotation_main = 0
-        self.local_rotation_sub = 0
-        self.local_rotation_roll = 0
+        self.local_euler = Float3(0, 0, 0)
 
     def __hash__(self) -> int:
         return hash((self.bone, self.offset))
@@ -77,16 +75,17 @@ class Bone:
             child.calc_matrix(self.world_matrix)
 
     def local_euler_matrix(self) -> 'Mat4':
-        main = Mat4.new_axis_angle(Float3(
-            self.local_init_matrix._11, self.local_init_matrix._12, self.local_init_matrix._13), self.local_rotation_main)
-        sub = Mat4.new_axis_angle(Float3(
-            self.local_init_matrix._21, self.local_init_matrix._22, self.local_init_matrix._23), self.local_rotation_sub)
-        roll = Mat4.new_axis_angle(Float3(
-            self.local_init_matrix._31, self.local_init_matrix._32, self.local_init_matrix._33), self.local_rotation_roll)
-        m = roll * sub * main
-
-        if m != Mat4.new_identity():
-            pass
+        '''
+        ZXY ?
+        '''
+        x = Mat4.new_axis_angle(Float3(
+            self.local_init_matrix._11, self.local_init_matrix._12, self.local_init_matrix._13), self.local_euler.x)
+        y = Mat4.new_axis_angle(Float3(
+            self.local_init_matrix._21, self.local_init_matrix._22, self.local_init_matrix._23), self.local_euler.y)
+        z = Mat4.new_axis_angle(Float3(
+            self.local_init_matrix._31, self.local_init_matrix._32, self.local_init_matrix._33), self.local_euler.z)
+        # m = y * x * z
+        m = y * z * x
 
         return m
 
