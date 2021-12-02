@@ -3,6 +3,9 @@ from .main_widget import MainWidget
 
 
 def run():
+    from logging import basicConfig, DEBUG
+    basicConfig(format='%(levelname)s:%(name)s:%(message)s', level=DEBUG)
+
     import sys
     app = QtWidgets.QApplication(sys.argv)
 

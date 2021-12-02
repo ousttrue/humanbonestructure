@@ -1,3 +1,4 @@
+import logging
 import math
 from typing import Optional, Dict, Any
 from PySide6 import QtCore, QtWidgets, QtGui
@@ -6,6 +7,8 @@ from . import humanoid
 
 MAX_VALUE = 1024
 TO_RADIAN = math.pi/180
+
+logger = logging.getLogger(__name__)
 
 
 class HumanoidTreeModel(QtCore.QAbstractItemModel):
@@ -90,8 +93,8 @@ class BodyPanel(QtWidgets.QWidget):
         def on_main(value):
             if self.bone:
                 self.bone.local_rotation_main = value / MAX_VALUE * math.pi
-                self.value_changed.emit()
-        self.main_slider.valueChanged.connect(on_main)
+                self.value_changed.emit()  # type: ignore
+        self.main_slider.valueChanged.connect(on_main)  # type: ignore
         self.box_layout.addLayout(layout)
 
         slider, layout = self._label_slider("右左屈")
@@ -100,8 +103,8 @@ class BodyPanel(QtWidgets.QWidget):
         def on_sub(value):
             if self.bone:
                 self.bone.local_rotation_sub = value / MAX_VALUE * math.pi
-                self.value_changed.emit()
-        self.sub_slider.valueChanged.connect(on_sub)
+                self.value_changed.emit()  # type: ignore
+        self.sub_slider.valueChanged.connect(on_sub)  # type: ignore
         self.box_layout.addLayout(layout)
 
         slider, layout = self._label_slider("左右捩")
@@ -110,8 +113,8 @@ class BodyPanel(QtWidgets.QWidget):
         def on_roll(value):
             if self.bone:
                 self.bone.local_rotation_roll = value / MAX_VALUE * math.pi
-                self.value_changed.emit()
-        self.roll_slider.valueChanged.connect(on_roll)
+                self.value_changed.emit()  # type: ignore
+        self.roll_slider.valueChanged.connect(on_roll)  # type: ignore
         self.box_layout.addLayout(layout)
 
     def _label_slider(self, text: str):
@@ -162,7 +165,7 @@ class BoneProp(QtWidgets.QWidget):
 
         for p in self.parts:
             p.setHidden(True)
-            p.value_changed.connect(self.value_changed)
+            p.value_changed.connect(self.value_changed)  # type: ignore
 
     def set_bone(self, bone: humanoid.Bone):
         if self.current:
@@ -199,10 +202,22 @@ class MainWidget(QtWidgets.QMainWindow):
 
         def on_value_changed():
             gl.repaint()
-        self.prop.value_changed.connect(on_value_changed)
+        self.prop.value_changed.connect(on_value_changed)  # type: ignore
 
         for _, v in self.docks.items():
             view_menu.addAction(v.toggleViewAction())
+
+        # logger
+        import glglue.pyside6
+        self.logger = glglue.pyside6.QPlainTextEditLogger(self)
+        logging.getLogger('').addHandler(self.logger.log_handler)
+        dock_bottom = self._create_dock(
+            QtGui.Qt.BottomDockWidgetArea, "logger", self.logger)
+
+        # render loop
+        self.timer = QtCore.QTimer()
+        self.timer.timeout.connect(self.glwidget.update)
+        self.timer.start(33)
 
     def _create_tree(self):
         self.tree = QtWidgets.QTreeView()
@@ -221,12 +236,35 @@ class MainWidget(QtWidgets.QMainWindow):
 
         return self.tree
 
+    def _scene_selected(self, bone):
+        self.tree.selectionModel().clearSelection()
+        if bone:
+            #self.tree.selectionModel().select(self.model.createIndex(0, 0, selected))
+            logger.info(f'select {bone.bone}')
+            index = [None]
+
+            def find(current: humanoid.Bone):
+                for i, child in enumerate(current.children):
+                    if child == bone:
+                        index[0] = self.model.createIndex(i, 0, child)
+                        return True
+                    if find(child):
+                        return True
+            find(self.root)
+            if index[0]:
+                self.tree.selectionModel().select(
+                    index[0], QtCore.QItemSelectionModel.Select)
+
     def _create_gl(self, gui_scale: float):
         import glglue.pyside6
         import glglue.gl3.samplecontroller
         self.controller = glglue.gl3.samplecontroller.SampleController()
+        self.controller.camera.view.y = -1.0
+        self.controller.camera.view.distance = 5.0
+        self.controller.camera.view.update_matrix()
+
         self.humanoid_scene = humanoid_scene.HumanoidScene(
-            self.root)
+            self.root, self._scene_selected)
         self.controller.scene = self.humanoid_scene  # type: ignore
         self.glwidget = glglue.pyside6.Widget(
             self, self.controller, dpi_scale=gui_scale)
