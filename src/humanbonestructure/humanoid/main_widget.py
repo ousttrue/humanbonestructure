@@ -1,184 +1,12 @@
 import logging
-import math
 from typing import Optional, Dict, Any
 from PySide6 import QtCore, QtWidgets, QtGui
 from . import humanoid_scene
 from . import humanoid
-
-MAX_VALUE = 1024
-TO_RADIAN = math.pi/180
+from . import humanoid_tree
+from .props import BoneProp
 
 logger = logging.getLogger(__name__)
-
-
-class HumanoidTreeModel(QtCore.QAbstractItemModel):
-    def __init__(self, root: humanoid.Bone):
-        super().__init__()
-        self.root = root
-
-    def columnCount(self, parent=QtCore.QModelIndex()) -> int:
-        return 1
-
-    def rowCount(self, parent=QtCore.QModelIndex()) -> int:
-        if parent.column() > 0:
-            return 0
-        parentItem = self.root
-        if parent.isValid():
-            parentItem = parent.internalPointer()
-        return len(parentItem.children)
-
-    def index(self, row, column, parent):
-        parentItem = self.root
-        if parent.isValid():
-            parentItem = parent.internalPointer()
-        try:
-            child = parentItem.children[row]
-            return self.createIndex(row, column, child)
-        except IndexError:
-            return QtCore.QModelIndex()
-
-    def parent(self, index):
-        if index.isValid():
-            childItem = index.internalPointer()
-            for i, bone in enumerate(self.root.traverse()):
-                if childItem in bone.children:
-                    return self.createIndex(i, 0, bone)
-        return QtCore.QModelIndex()
-
-    def headerData(self, section, orientation, role):
-        match orientation, role:
-            case QtCore.Qt.Horizontal, QtCore.Qt.DisplayRole:
-                return 'bone'
-
-    def data(self, index, role=QtCore.Qt.DisplayRole):
-        if index.isValid():
-            if role == QtCore.Qt.DisplayRole:
-                item = index.internalPointer()
-                return item.bone.name
-
-
-class BodyPanel(QtWidgets.QWidget):
-    '''
-    Hips, Spine, Chest, Neck Head
-
-       Y
-       ^
-       |
-       +->X
-      /
-     L
-    Z
-
-    主: X+ 前屈
-    副: Z+ 右屈
-    捩: Y+ 左に捩じる
-    '''
-
-    value_changed = QtCore.Signal()
-
-    def __init__(self, parent) -> None:
-        super().__init__(parent)
-
-        self.box_layout = QtWidgets.QVBoxLayout()
-        self.setLayout(self.box_layout)
-
-        self.label = QtWidgets.QLabel()
-        self.label.setText("Hips, Spine, Chest, Neck Head")
-        self.box_layout.addWidget(self.label)
-
-        slider, layout = self._label_slider("前後屈")
-        self.main_slider = slider
-        self.bone: Optional[humanoid.Bone] = None
-
-        def on_main(value):
-            if self.bone:
-                self.bone.local_rotation_main = value / MAX_VALUE * math.pi
-                self.value_changed.emit()  # type: ignore
-        self.main_slider.valueChanged.connect(on_main)  # type: ignore
-        self.box_layout.addLayout(layout)
-
-        slider, layout = self._label_slider("右左屈")
-        self.sub_slider = slider
-
-        def on_sub(value):
-            if self.bone:
-                self.bone.local_rotation_sub = value / MAX_VALUE * math.pi
-                self.value_changed.emit()  # type: ignore
-        self.sub_slider.valueChanged.connect(on_sub)  # type: ignore
-        self.box_layout.addLayout(layout)
-
-        slider, layout = self._label_slider("左右捩")
-        self.roll_slider = slider
-
-        def on_roll(value):
-            if self.bone:
-                self.bone.local_rotation_roll = value / MAX_VALUE * math.pi
-                self.value_changed.emit()  # type: ignore
-        self.roll_slider.valueChanged.connect(on_roll)  # type: ignore
-        self.box_layout.addLayout(layout)
-
-    def _label_slider(self, text: str):
-        layout = QtWidgets.QHBoxLayout()
-
-        label = QtWidgets.QLabel(self)
-        label.setText(text)
-        layout.addWidget(label)
-
-        slider = QtWidgets.QSlider(QtCore.Qt.Horizontal, self)
-        slider.setRange(-MAX_VALUE, MAX_VALUE)
-
-        layout.addWidget(slider)
-        return slider, layout
-
-    def is_match(self, bone: humanoid.Bone) -> bool:
-        match bone.bone:
-            case (humanoid.HumanBones.Hips
-                  | humanoid.HumanBones.Spine
-                  | humanoid.HumanBones.Chest
-                  | humanoid.HumanBones.Neck
-                  | humanoid.HumanBones.Head
-                  ):
-                return True
-        return False
-
-    def set_bone(self, bone: humanoid.Bone):
-        self.bone = bone
-        self.main_slider.setValue(self.bone.local_rotation_main)
-        self.sub_slider.setValue(self.bone.local_rotation_sub)
-        self.roll_slider.setValue(self.bone.local_rotation_roll)
-
-
-class BoneProp(QtWidgets.QWidget):
-    value_changed = QtCore.Signal()
-
-    def __init__(self, parent):
-        super().__init__(parent)
-        self.box_layout = QtWidgets.QVBoxLayout()
-        self.setLayout(self.box_layout)
-        self.bone_label = QtWidgets.QLabel()
-        self.box_layout.addWidget(self.bone_label)
-
-        self.current = None
-        self.parts = [
-            BodyPanel(self)
-        ]
-
-        for p in self.parts:
-            p.setHidden(True)
-            p.value_changed.connect(self.value_changed)  # type: ignore
-
-    def set_bone(self, bone: humanoid.Bone):
-        if self.current:
-            self.current.setHidden(True)
-            self.box_layout.removeWidget(self.current)
-
-        for p in self.parts:
-            if p.is_match(bone):
-                self.box_layout.addWidget(p)
-                self.current = p
-                self.current.setHidden(False)
-                self.current.set_bone(bone)
-                break
 
 
 class MainWidget(QtWidgets.QMainWindow):
@@ -216,7 +44,7 @@ class MainWidget(QtWidgets.QMainWindow):
 
         # render loop
         self.timer = QtCore.QTimer()
-        self.timer.timeout.connect(self.glwidget.update)
+        self.timer.timeout.connect(self.glwidget.update)  # type: ignore
         self.timer.start(33)
 
     def _create_tree(self):
@@ -225,7 +53,7 @@ class MainWidget(QtWidgets.QMainWindow):
         # add_root
         root = humanoid.Bone(humanoid.HumanBones.EndSite,
                              humanoid.Float3(0, 0, 0), [self.root])
-        self.model = HumanoidTreeModel(root)
+        self.model = humanoid_tree.HumanoidTreeModel(root)
         self.tree.setModel(self.model)
         self.tree.expandAll()
         self.tree.resizeColumnToContents(0)
@@ -241,17 +69,17 @@ class MainWidget(QtWidgets.QMainWindow):
         if bone:
             #self.tree.selectionModel().select(self.model.createIndex(0, 0, selected))
             logger.info(f'select {bone.bone}')
-            index = [None]
+            index = []
 
             def find(current: humanoid.Bone):
                 for i, child in enumerate(current.children):
                     if child == bone:
-                        index[0] = self.model.createIndex(i, 0, child)
+                        index.append(self.model.createIndex(i, 0, child))
                         return True
                     if find(child):
                         return True
             find(self.root)
-            if index[0]:
+            if index:
                 self.tree.selectionModel().select(
                     index[0], QtCore.QItemSelectionModel.Select)
 
