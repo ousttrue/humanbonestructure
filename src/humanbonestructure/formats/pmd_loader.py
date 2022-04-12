@@ -37,6 +37,7 @@ BONE_HUMANOID_MAP = {
     '右足首': HumanoidBone.rightFoot,
     '右つま先': HumanoidBone.rightToes,
 
+    '左親指０': HumanoidBone.leftThumbProximal,
     '左親指１': HumanoidBone.leftThumbIntermediate,
     '左親指２': HumanoidBone.leftThumbDistal,
     '左人指１': HumanoidBone.leftIndexProximal,
@@ -52,6 +53,7 @@ BONE_HUMANOID_MAP = {
     '左小指２': HumanoidBone.leftLittleIntermediate,
     '左小指３': HumanoidBone.leftLittleDistal,
 
+    '右親指０': HumanoidBone.rightThumbProximal,
     '右親指１': HumanoidBone.rightThumbIntermediate,
     '右親指２': HumanoidBone.rightThumbDistal,
     '右人指１': HumanoidBone.rightIndexProximal,
