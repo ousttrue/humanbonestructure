@@ -5,10 +5,40 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "pose",
+            "type": "python",
+            "request": "launch",
+            "module": "humanbonestructure",
+            "args": [
+                "${env:MMD_DATA}/Model/カイト.pmd",
+                // "${env:GLTF_SAMPLE_MODELS}/2.0/CesiumMan/glTF-Binary/CesiumMan.glb",
+                "${env:VRM_SAMPLES}/vroid/vivi.vrm",
+                "--asset_dir",
+                "${env:MMD_DATA}",
+            ],
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/src",
+            },
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "print_profile",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/print_profile.py",
+            "args": [],
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
             "name": "bvhview",
             "type": "python",
             "request": "launch",
             "module": "humanbonestructure.bvh",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}\\src"
+            },
             "console": "integratedTerminal",
             "justMyCode": false
         },
@@ -17,6 +47,9 @@
             "type": "python",
             "request": "launch",
             "module": "humanbonestructure.humanoid",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}\\src"
+            },
             "console": "integratedTerminal",
             "justMyCode": false
         },

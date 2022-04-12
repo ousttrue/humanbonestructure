@@ -50,6 +50,7 @@ class BvhSkeleton:
         self._build(bvh.root, bvh_parser.Float3(0, 0, 0))
         self.is_initialized = False
         self.channels = []
+        self.drawable = None
 
     def _build(self, head: bvh_parser.Node, offset):
         def get_tail(node: bvh_parser.Node) -> Optional[bvh_parser.Node]:
