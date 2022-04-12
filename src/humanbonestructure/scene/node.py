@@ -1,7 +1,7 @@
 from typing import Optional
 import glm
-from .transform import Transform
-from .humanoid_bones import HumanoidBone
+from ..formats.transform import Transform
+from ..formats.humanoid_bones import HumanoidBone
 from .mesh_renderer import MeshRenderer
 
 

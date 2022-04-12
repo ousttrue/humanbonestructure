@@ -1,4 +1,4 @@
-from typing import Optional, List, Collection
+from typing import Optional, List
 import ctypes
 import pathlib
 import logging
@@ -6,15 +6,13 @@ from OpenGL import GL
 import glm
 from pydear import imgui as ImGui
 from pydear.scene.camera import Camera
-from . import pmd_loader
-from . import gltf_loader
-from . import vpd_loader
+from ..formats import pmd_loader, gltf_loader, vpd_loader
 from .node import Node
 from .mesh_renderer import MeshRenderer
-from .buffer_types import Float4, SkinningVertex
-from .humanoid_bones import HumanoidBone
+from ..formats.buffer_types import Float4, SkinningVertex
+from ..formats.humanoid_bones import HumanoidBone
 from .axis import Axis
-from .transform import Transform
+from ..formats.transform import Transform
 LOGGER = logging.getLogger(__name__)
 
 
@@ -33,6 +31,8 @@ class Scene:
         match path.suffix.lower():
             case '.pmd':
                 self.load_pmd(path)
+            case '.pmx':
+                self.load_pmx(path)
             case '.glb' | '.vrm':
                 self.load_glb(path)
             case _:
@@ -42,7 +42,6 @@ class Scene:
         self.nodes.clear()
         self.roots.clear()
 
-        # TODO: convert to right handed
         pmd = pmd_loader.Pmd(path.read_bytes())
         LOGGER.debug(pmd)
 
@@ -97,6 +96,10 @@ class Scene:
         for root in self.roots:
             root.initialize()
             root.calc_skinning(glm.mat4())
+
+    def load_pmx(self, path: pathlib.Path):
+        self.nodes.clear()
+        self.roots.clear()
 
     def load_glb(self, path: pathlib.Path):
         self.nodes.clear()

@@ -4,7 +4,7 @@ import ctypes
 from OpenGL import GL
 import glm
 from pydear import glo
-from .buffer_types import Float3, Float4
+from ..formats.buffer_types import Float3, Float4
 
 
 class Vertex(ctypes.Structure):

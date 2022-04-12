@@ -5,7 +5,7 @@ import ctypes
 import glm
 from pydear import glo
 from pydear.scene.camera import Camera
-from .buffer_types import Float4, UShort4, Float3
+from ..formats.buffer_types import Float4, UShort4, Float3
 LOGGER = logging.getLogger(__name__)
 
 

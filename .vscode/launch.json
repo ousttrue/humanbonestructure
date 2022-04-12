@@ -10,9 +10,10 @@
             "request": "launch",
             "module": "humanbonestructure",
             "args": [
-                "${env:MMD_DATA}/Model/カイト.pmd",
+                // "${env:MMD_DATA}/Model/カイト.pmd",
+                "${env:MMD_DATA}/Tda式初音ミク・アペンドVer1.10/Tda式初音ミク・アペンド_Ver1.10.pmx",
                 // "${env:GLTF_SAMPLE_MODELS}/2.0/CesiumMan/glTF-Binary/CesiumMan.glb",
-                "${env:VRM_SAMPLES}/vroid/vivi.vrm",
+                // "${env:VRM_SAMPLES}/vroid/vivi.vrm",
                 "--asset_dir",
                 "${env:MMD_DATA}",
             ],

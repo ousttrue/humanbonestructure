@@ -7,4 +7,9 @@
         "-p",
         "test_*.py"
     ],
+    "cSpell.words": [
+        "gltf",
+        "imgui",
+        "pydear"
+    ],
 }
