@@ -8,8 +8,13 @@
         "test_*.py"
     ],
     "cSpell.words": [
+        "BDEF",
         "gltf",
         "imgui",
-        "pydear"
+        "pydear",
+        "specularity",
+        "TEXCOORD",
+        "tobytes",
+        "toon"
     ],
 }

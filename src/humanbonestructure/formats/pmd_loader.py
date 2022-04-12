@@ -1,9 +1,9 @@
 '''
 https://blog.goo.ne.jp/torisu_tetosuki/e/209ad341d3ece2b1b4df24abf619d6e4
 '''
-from typing import Type, List
+from typing import List
 import ctypes
-import struct
+from .bytesreader import BytesReader
 from .humanoid_bones import HumanoidBone
 from .buffer_types import Float3, Float4, RenderVertex
 
@@ -67,45 +67,6 @@ BONE_HUMANOID_MAP = {
     '右小指２': HumanoidBone.rightLittleIntermediate,
     '右小指３': HumanoidBone.rightLittleDistal,
 }
-
-
-def bytes_to_str(data: bytes, encoding: str = 'cp932') -> str:
-    if isinstance(data, ctypes.Array):
-        data = memoryview(data).tobytes()
-    zero = data.index(0)
-    if zero != -1:
-        data = data[0:zero]
-    return data.decode(encoding)
-
-
-class BytesReader:
-    def __init__(self, data: bytes) -> None:
-        self.data = data
-        self.pos = 0
-
-    def bytes(self, length: int) -> bytes:
-        data = self.data[self.pos:self.pos+length]
-        self.pos += length
-        return data
-
-    def str(self, length: int) -> str:
-        data = self.bytes(length)
-        return bytes_to_str(data)
-
-    def uint8(self) -> int:
-        return struct.unpack('B', self.bytes(1))[0]
-
-    def uint16(self) -> int:
-        return struct.unpack('H', self.bytes(2))[0]
-
-    def uint32(self) -> int:
-        return struct.unpack('I', self.bytes(4))[0]
-
-    def float32(self) -> float:
-        return struct.unpack('f', self.bytes(4))[0]
-
-    def array(self, array_type: Type[ctypes.Array]) -> ctypes.Array:
-        return array_type.from_buffer_copy(self.bytes(ctypes.sizeof(array_type)))
 
 
 class OptionVertex(ctypes.Structure):
@@ -197,8 +158,8 @@ class Pmd:
         r = BytesReader(data)
         assert r.bytes(3) == b'Pmd'
         assert r.float32() == 1.00
-        self.name = r.str(20)
-        self.comment = r.str(256)
+        self.name = r.str(20, encoding='cp932')
+        self.comment = r.str(256, encoding='cp932')
 
         vertex_count = r.uint32()
         self.vertices = r.array(Vertex * vertex_count)
@@ -235,11 +196,11 @@ class Pmd:
         self.morphs = []
         morph_count = r.uint16()
         for i in range(morph_count):
-            name = r.str(20)
+            name = r.str(20, encoding='cp932')
             vertex_count = r.uint32()
             morph_type = r.uint8()
             morph_vertices = r.array(MorphVertex * vertex_count)
             self.morphs.append(Morph(name, morph_type, morph_vertices))
 
     def __str__(self) -> str:
-        return f'{self.name}: {len(self.vertices)}vert, {len(self.indices)//3}tri, {len(self.submeshes)}materials, {len(self.bones)}bones, {len(self.ik)}IK, {len(self.morphs)}morphs'
+        return f'<pmd {self.name}: {len(self.vertices)}vert, {len(self.indices)//3}tri, {len(self.submeshes)}materials, {len(self.bones)}bones, {len(self.ik)}IK, {len(self.morphs)}morphs>'

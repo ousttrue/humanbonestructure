@@ -6,10 +6,10 @@ from OpenGL import GL
 import glm
 from pydear import imgui as ImGui
 from pydear.scene.camera import Camera
-from ..formats import pmd_loader, gltf_loader, vpd_loader
+from ..formats import pmd_loader, gltf_loader, vpd_loader, pmx_loader, bytesreader
 from .node import Node
 from .mesh_renderer import MeshRenderer
-from ..formats.buffer_types import Float4, SkinningVertex
+from ..formats.buffer_types import Float4, Vertex4BoneWeights
 from ..formats.humanoid_bones import HumanoidBone
 from .axis import Axis
 from ..formats.transform import Transform
@@ -47,9 +47,9 @@ class Scene:
 
         # build node hierarchy
         for i, b in enumerate(pmd.bones):
-            node = Node(i, pmd_loader.bytes_to_str(b.name), position=glm.vec3(b.position.x, b.position.y,
-                                                                              -b.position.z  # reverse z
-                                                                              ))
+            node = Node(i, bytesreader.bytes_to_str(b.name), position=glm.vec3(b.position.x, b.position.y,
+                                                                               -b.position.z  # reverse z
+                                                                               ))
             self.nodes.append(node)
 
         for i, (node, bone) in enumerate(zip(self.nodes, pmd.bones)):
@@ -63,7 +63,7 @@ class Scene:
                 parent.add_child(node)
 
         # setup vertex and skinning
-        vertices = (SkinningVertex * len(pmd.vertices))()
+        vertices = (Vertex4BoneWeights * len(pmd.vertices))()
         # skining_info = (SkinningInfo * len(pmd.vertices))()
         for i, v in enumerate(pmd.vertices):
             vv = v.render
@@ -81,7 +81,7 @@ class Scene:
             #     UShort4(o.bone0, o.bone1, 0, 0),
             #     Float4(w, 1-w, 0, 0))
 
-        # set renderer
+        # root origin
         if self.roots[0].init_position != glm.vec3(0, 0, 0):
             root = Node(len(self.nodes), '__root__',
                         position=glm.vec3(0, 0, 0))
@@ -89,6 +89,7 @@ class Scene:
                 root.add_child(r)
             self.roots = [root]
 
+        # set renderer
         self.roots[0].renderer = MeshRenderer(
             vertices, pmd.indices, joints=self.nodes)
 
@@ -100,6 +101,48 @@ class Scene:
     def load_pmx(self, path: pathlib.Path):
         self.nodes.clear()
         self.roots.clear()
+
+        pmx = pmx_loader.Pmx(path.read_bytes())
+        LOGGER.debug(pmx)
+
+        # build node hierarchy
+        for i, b in enumerate(pmx.bones):
+            node = Node(i, b.name_ja, position=glm.vec3(b.position.x, b.position.y,
+                                                        -b.position.z  # reverse z
+                                                        ))
+            self.nodes.append(node)
+
+        for i, (node, bone) in enumerate(zip(self.nodes, pmx.bones)):
+            if humanoid_bone := pmd_loader.BONE_HUMANOID_MAP.get(node.name):
+                node.humanoid_bone = humanoid_bone
+
+            if bone.parent_index == -1:
+                self.roots.append(node)
+            else:
+                parent = self.nodes[bone.parent_index]
+                parent.add_child(node)
+
+        # reverse z
+        for i, v in enumerate(pmx.vertices):
+            v.position = v.position.reverse_z()
+            v.normal = v.normal.reverse_z()
+
+        # root origin
+        if self.roots[0].init_position != glm.vec3(0, 0, 0):
+            root = Node(len(self.nodes), '__root__',
+                        position=glm.vec3(0, 0, 0))
+            for r in self.roots:
+                root.add_child(r)
+            self.roots = [root]
+
+        # set renderer
+        self.roots[0].renderer = MeshRenderer(
+            pmx.vertices, pmx.indices, joints=self.nodes)
+
+        # finalize
+        for root in self.roots:
+            root.initialize()
+            root.calc_skinning(glm.mat4())
 
     def load_glb(self, path: pathlib.Path):
         self.nodes.clear()
@@ -117,7 +160,7 @@ class Scene:
                 gltf.gltf, gltf_mesh)
 
             # merge submesh
-            vertices = (SkinningVertex * vertices_len)()
+            vertices = (Vertex4BoneWeights * vertices_len)()
             indices = (ctypes.c_uint16 * indices_len)()
             vertex_offset = 0
             index_offset = 0

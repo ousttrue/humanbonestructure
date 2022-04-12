@@ -15,6 +15,9 @@ class Float3(ctypes.Structure):
         ('z', ctypes.c_float),
     ]
 
+    def __mul__(self, rhs: float) -> 'Float3':
+        return Float3(self.x * rhs, self.y * rhs, self.z * rhs)
+
     def reverse_z(self) -> 'Float3':
         return Float3(self.x, self.y, -self.z)
 
@@ -89,7 +92,7 @@ class RenderVertex(ctypes.Structure):
     ]
 
 
-class SkinningVertex(ctypes.Structure):
+class Vertex4BoneWeights(ctypes.Structure):
     _pack_ = 1
     _fields_ = [
         ('position', Float3),
