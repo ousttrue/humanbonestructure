@@ -2,9 +2,11 @@ from typing import Optional, List
 import logging
 import pkgutil
 import ctypes
+from OpenGL import GL
 import glm
 from pydear import glo
 from pydear.scene.camera import Camera
+from .node import Node
 from ..formats.buffer_types import Float4, UShort4, Float3
 LOGGER = logging.getLogger(__name__)
 
@@ -27,12 +29,11 @@ class MeshRenderer:
         self.indices = indices
         if not joints:
             joints = []
-        from .node import Node
         self.joints = joints
         self.drawable: Optional[glo.Drawable] = None
         self.bone_matrices = glm.array.zeros(len(self.joints), glm.mat4)
 
-    def render(self, camera: Camera, node):
+    def render(self, camera: Camera, node: Node):
         if not self.vertices or not self.indices:
             return
 
@@ -113,9 +114,10 @@ class MeshRenderer:
         #     self.drawable.vao.vbo.set_vertices(self.vertices)
 
         # gpu skinning
-        pass
         for i, joint in enumerate(self.joints):
             self.bone_matrices[i] = joint.skinning_matrix
 
+        GL.glEnable(GL.GL_DEPTH_TEST)
         if self.drawable:
             self.drawable.draw()
+        GL.glDisable(GL.GL_DEPTH_TEST)

@@ -296,7 +296,6 @@ class Scene:
             self.camera.onWheel(int(-io.MouseWheel))
 
         # render
-        GL.glEnable(GL.GL_DEPTH_TEST)
         for root in self.roots:
             self.render_node(root)
 
@@ -305,6 +304,12 @@ class Scene:
     def render_node(self, node: Node):
         if node.renderer:
             node.renderer.render(self.camera, node)
+
+        from . import local_axis
+        if not node.gizmo:
+            node.gizmo = local_axis.create_local_axis(self.camera, node)
+        GL.glEnable(GL.GL_DEPTH_TEST)
+        node.gizmo.draw()
 
         for child in node.children:
             self.render_node(child)

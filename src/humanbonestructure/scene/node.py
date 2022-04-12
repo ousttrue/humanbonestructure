@@ -2,7 +2,6 @@ from typing import Optional
 import glm
 from ..formats.transform import Transform
 from ..formats.humanoid_bones import HumanoidBone
-from .mesh_renderer import MeshRenderer
 
 
 def trs_matrix(t: glm.vec3, r: glm.quat, s: glm.vec3) -> glm.mat4:
@@ -26,12 +25,15 @@ class Node:
         self.init_trs = trs
         self.inverse_bind_matrix = glm.mat4()
         # renderer
+        from .mesh_renderer import MeshRenderer
         self.renderer: Optional[MeshRenderer] = None
         # UI
         self.humanoid_bone: Optional[HumanoidBone] = None
         self.descendants_has_humaniod = False
         # skinning
         self.pose: Optional[Transform] = None
+
+        self.gizmo = None
 
     def __str__(self) -> str:
         if self.init_position:

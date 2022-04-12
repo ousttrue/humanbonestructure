@@ -55,10 +55,16 @@ class Axis:
             assert shader
 
             # props
+            identity = glm.mat4(1)
+            model = glo.UniformLocation.create(shader.program, "uModel")
             view = glo.UniformLocation.create(shader.program, "uView")
             projection = glo.UniformLocation.create(
                 shader.program, "uProjection")
             props = [
+                glo.ShaderProp(
+                    lambda x: model.set_mat4(x),
+                    lambda: glm.value_ptr(identity),
+                ),
                 glo.ShaderProp(
                     lambda x: view.set_mat4(x),
                     lambda:glm.value_ptr(camera.view.matrix)),
