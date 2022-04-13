@@ -1,6 +1,5 @@
-from typing import Optional, List
+from typing import Optional, List, Tuple
 import logging
-import pkgutil
 import ctypes
 from OpenGL import GL
 import glm
@@ -23,8 +22,9 @@ class SkinningInfo(ctypes.Structure):
 
 
 class MeshRenderer:
-    def __init__(self, vertices: ctypes.Array, indices: ctypes.Array, *,
+    def __init__(self, shader: str, vertices: ctypes.Array, indices: ctypes.Array, *,
                  joints: Optional[list] = None) -> None:
+        self.shader = ("humanbonestructure", shader)
         self.vertices = vertices
         self.indices = indices
         if not joints:
@@ -39,8 +39,7 @@ class MeshRenderer:
 
         if not self.drawable:
             # shader
-            shader = glo.Shader.load_from_pkg(
-                "humanbonestructure", "assets/shader")
+            shader = glo.Shader.load_from_pkg(*self.shader)
             assert isinstance(shader, glo.Shader)
 
             # props

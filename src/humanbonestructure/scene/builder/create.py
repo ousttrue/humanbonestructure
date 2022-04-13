@@ -19,9 +19,9 @@ class Hand:
         self.hand_h = 0.1
         self.push_quad(0,
                        Float3(0, 0, -w),
-                       Float3(0, 0, +w),
-                       Float3(0+self.hand_h, 0, +w),
                        Float3(0+self.hand_h, 0, -w),
+                       Float3(0+self.hand_h, 0, +w),
+                       Float3(0, 0, +w),
                        )
 
         self.x_offset = 0.01
@@ -137,5 +137,5 @@ def create_scene(scene: Scene):
 
     scene.nodes = hand.nodes[:]
     scene.roots.append(hand.root)
-    hand.root.renderer = MeshRenderer(
+    hand.root.renderer = MeshRenderer("assets/shader",
         vertices, indices, joints=scene.nodes)
