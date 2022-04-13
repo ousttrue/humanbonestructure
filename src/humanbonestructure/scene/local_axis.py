@@ -8,7 +8,7 @@ from .node import Node
 from .axis import Vertex
 from ..formats.buffer_types import Float3, Float4
 
-S = 0.05
+S = 0.02
 WHITE = Float4(1, 1, 1, 0.8)
 
 VERTICES = [

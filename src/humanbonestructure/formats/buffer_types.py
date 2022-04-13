@@ -15,6 +15,11 @@ class Float3(ctypes.Structure):
         ('z', ctypes.c_float),
     ]
 
+    def __iter__(self):
+        yield self.x
+        yield self.y
+        yield self.z
+
     def __mul__(self, rhs: float) -> 'Float3':
         return Float3(self.x * rhs, self.y * rhs, self.z * rhs)
 
