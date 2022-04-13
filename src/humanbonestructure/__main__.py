@@ -17,6 +17,7 @@ LOGGER = logging.getLogger(__name__)
 # TODO: camera fit to hand
 # TODO: multi angle
 
+
 def main():
     logging.basicConfig(level=logging.DEBUG)
 
@@ -24,6 +25,8 @@ def main():
 
     parser.add_argument('model', nargs='+')
     parser.add_argument('--asset_dir')
+    parser.add_argument('--create', action='store_true',
+                        help='create model procedual')
 
     args = parser.parse_args()
 
@@ -48,6 +51,9 @@ def main():
 
     for model in args.model:
         gui.add_model(pathlib.Path(model))
+
+    if args.create:
+        gui.create_model()
 
     from pydear.backends import impl_glfw
     impl_glfw = impl_glfw.ImplGlfwInput(app.window)

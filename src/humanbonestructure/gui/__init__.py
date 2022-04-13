@@ -66,3 +66,21 @@ class GUI(dockspace.DockingGui):
                                          (ctypes.c_bool * 1)(True)))
         self.views.append(dockspace.Dock(view_name, view.show,
                                          (ctypes.c_bool * 1)(True)))
+
+    def create_model(self):
+        scene = Scene()
+        scene.create_model()
+        self.scenes.append(scene)
+
+        tree_name = f'tree:__procedual__'
+        from .bone_tree import BoneTree
+        tree = BoneTree(tree_name, scene)
+
+        view_name = f'view:__procedual__'
+        from .scene_view import SceneView
+        view = SceneView(view_name, scene)
+
+        self.views.append(dockspace.Dock(tree_name, tree.show,
+                                         (ctypes.c_bool * 1)(True)))
+        self.views.append(dockspace.Dock(view_name, view.show,
+                                         (ctypes.c_bool * 1)(True)))
