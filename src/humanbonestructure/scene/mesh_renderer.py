@@ -39,35 +39,21 @@ class MeshRenderer:
 
         if not self.drawable:
             # shader
-            vs = pkgutil.get_data("humanbonestructure", "assets/shader.vs")
-            assert vs
-            fs = pkgutil.get_data("humanbonestructure", "assets/shader.fs")
-            assert fs
-            shader = glo.Shader.load(vs, fs)
-            assert shader
+            shader = glo.Shader.load_from_pkg(
+                "humanbonestructure", "assets/shader")
+            assert isinstance(shader, glo.Shader)
 
             # props
-            model = glo.UniformLocation.create(shader.program, "uModel")
-            view = glo.UniformLocation.create(shader.program, "uView")
-            projection = glo.UniformLocation.create(
-                shader.program, "uProjection")
+            props = shader.create_props(camera, node)
+
             bone_matrices = glo.UniformLocation.create(
                 shader.program, "uBoneMatrices")
-            props = [
-                glo.ShaderProp(
-                    lambda x: model.set_mat4(x),
-                    lambda:glm.value_ptr(node.world_matrix)),
-                glo.ShaderProp(
-                    lambda x: view.set_mat4(x),
-                    lambda:glm.value_ptr(camera.view.matrix)),
-                glo.ShaderProp(
-                    lambda x: projection.set_mat4(x),
-                    lambda:glm.value_ptr(camera.projection.matrix)),
-                glo.ShaderProp(
-                    lambda x: bone_matrices.set_mat4(
-                        x, count=len(self.joints)),
-                    lambda: self.bone_matrices.ptr),
-            ]
+
+            def update_bone_matrices():
+                bone_matrices.set_mat4(
+                    self.bone_matrices.ptr, count=len(self.joints))
+
+            props.append(update_bone_matrices)
 
             # vao
             vbo = glo.Vbo()

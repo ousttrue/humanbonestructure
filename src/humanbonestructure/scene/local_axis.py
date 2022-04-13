@@ -1,5 +1,3 @@
-import pkgutil
-from typing import Optional
 from OpenGL import GL
 import glm
 from pydear.scene.camera import Camera
@@ -33,30 +31,11 @@ VERTICES = [
 def create_local_axis(camera: Camera, node: Node):
 
     # shader
-    vs = pkgutil.get_data("humanbonestructure", "assets/line.vs")
-    assert vs
-    fs = pkgutil.get_data("humanbonestructure", "assets/line.fs")
-    assert fs
-    shader = glo.Shader.load(vs, fs)
+    shader = glo.Shader.load_from_pkg("humanbonestructure", "assets/line")
     assert shader
 
     # props
-    model = glo.UniformLocation.create(shader.program, "uModel")
-    view = glo.UniformLocation.create(shader.program, "uView")
-    projection = glo.UniformLocation.create(
-        shader.program, "uProjection")
-    props = [
-        glo.ShaderProp(
-            lambda x: model.set_mat4(x),
-            lambda: glm.value_ptr(node.world_matrix),
-        ),
-        glo.ShaderProp(
-            lambda x: view.set_mat4(x),
-            lambda:glm.value_ptr(camera.view.matrix)),
-        glo.ShaderProp(
-            lambda x: projection.set_mat4(x),
-            lambda:glm.value_ptr(camera.projection.matrix)),
-    ]
+    props = shader.create_props(camera, node)
 
     vbo = glo.Vbo()
 
