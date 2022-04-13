@@ -1,6 +1,7 @@
 import glm
 from ...formats import pmd_loader, bytesreader, buffer_types
-from .. import Scene, Node, MeshRenderer
+from ..scene import Scene, Node
+from ..mesh_renderer import MeshRenderer
 
 
 def build(self: Scene, pmd: pmd_loader.Pmd):

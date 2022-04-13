@@ -1,5 +1,5 @@
 from pydear import imgui as ImGui
-from ..scene import Scene
+from ..scene.scene import Scene
 from ..scene.node import Node
 
 

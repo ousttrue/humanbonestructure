@@ -5,7 +5,7 @@ import pathlib
 import ctypes
 from pydear import imgui as ImGui
 from pydear.utils import dockspace
-from ..scene import Scene
+from ..scene.scene import Scene
 
 LOGGER = logging.getLogger(__name__)
 

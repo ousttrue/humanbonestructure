@@ -1,6 +1,8 @@
 import ctypes
 import glm
-from .. import Scene, Node, HumanoidBone, MeshRenderer
+from ..scene import Scene, Node
+from ..mesh_renderer import MeshRenderer
+from ...formats.humanoid_bones import HumanoidBone
 from ...formats.buffer_types import Vertex4BoneWeights, Float2, Float3, Float4
 
 

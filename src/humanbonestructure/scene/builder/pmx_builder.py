@@ -1,6 +1,7 @@
 import glm
 from ...formats import pmx_loader, pmd_loader
-from .. import Scene, Node, MeshRenderer
+from ..scene import Scene, Node
+from ..mesh_renderer import MeshRenderer
 
 
 def build(self: Scene, pmx: pmx_loader.Pmx):

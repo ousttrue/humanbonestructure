@@ -1,7 +1,7 @@
 import ctypes
 from pydear import imgui as ImGui
 from pydear import glo
-from ..scene import Scene
+from ..scene.scene import Scene
 
 
 class SceneView:

@@ -1,7 +1,8 @@
 import ctypes
 import glm
-from .. import Scene, Node, MeshRenderer, Transform, HumanoidBone
-from ...formats import gltf_loader, buffer_types
+from ...formats import gltf_loader, buffer_types, transform, humanoid_bones
+from ..scene import Scene, Node
+from ..mesh_renderer import MeshRenderer
 
 
 def build(self: Scene, gltf):
@@ -75,11 +76,11 @@ def build(self: Scene, gltf):
         if human_bone_map:
             # rotate y180
             t = glm.vec3(-t.x, t.y, -t.z)
-        node = Node(i, name, trs=Transform(t, r, s))
+        node = Node(i, name, trs=transform.Transform(t, r, s))
         # if human_bones
         human_bone = human_bone_map.get(i)
         if human_bone:
-            node.humanoid_bone = HumanoidBone(human_bone)
+            node.humanoid_bone = humanoid_bones.HumanoidBone(human_bone)
 
         self.nodes.append(node)
     for gltf_node, node in zip(gltf.gltf.get('nodes', []), self.nodes):

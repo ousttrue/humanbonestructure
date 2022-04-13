@@ -37,7 +37,7 @@ def main():
             for f in files:
                 f = pathlib.Path(root) / f
                 if f.suffix == '.vpd':
-                    from .scene import vpd_loader
+                    from .scene.scene import vpd_loader
                     vpd = vpd_loader.Vpd(f.read_bytes())
                     vpd.name = f.name
                     vpd_list.append(vpd)
