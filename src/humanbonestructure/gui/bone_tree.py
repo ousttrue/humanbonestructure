@@ -16,6 +16,33 @@ class BoneTree:
         self.name = name
         self.scene = scene
 
+    def show(self, p_open):
+        ImGui.SetNextWindowSize((100, 100), ImGui.ImGuiCond_.Once)
+        if ImGui.Begin(self.name, p_open):
+            ImGui.Checkbox('mesh', self.scene.enable_draw_skinning)
+
+            # tree
+            flags = (
+                ImGui.ImGuiTableFlags_.BordersV
+                | ImGui.ImGuiTableFlags_.BordersOuterH
+                | ImGui.ImGuiTableFlags_.Resizable
+                | ImGui.ImGuiTableFlags_.RowBg
+                | ImGui.ImGuiTableFlags_.NoBordersInBody
+            )
+            header_lablels = ("name", "humanoid bone", "transform")
+            if ImGui.BeginTable("jsontree_table", len(header_lablels), flags):
+                # header
+                for label in header_lablels:
+                    ImGui.TableSetupColumn(label)
+                ImGui.TableHeadersRow()
+
+                # body
+                for root in self.scene.roots:
+                    self._traverse(root)
+
+                ImGui.EndTable()
+        ImGui.End()
+
     def _traverse(self, node: Node):
         flag = 0
         if node.children:
@@ -57,27 +84,3 @@ class BoneTree:
             for child in node.children:
                 self._traverse(child)
             ImGui.TreePop()
-
-    def show(self, p_open):
-        ImGui.SetNextWindowSize((100, 100), ImGui.ImGuiCond_.Once)
-        if ImGui.Begin(self.name, p_open):
-            flags = (
-                ImGui.ImGuiTableFlags_.BordersV
-                | ImGui.ImGuiTableFlags_.BordersOuterH
-                | ImGui.ImGuiTableFlags_.Resizable
-                | ImGui.ImGuiTableFlags_.RowBg
-                | ImGui.ImGuiTableFlags_.NoBordersInBody
-            )
-            header_lablels = ("name", "humanoid bone", "transform")
-            if ImGui.BeginTable("jsontree_table", len(header_lablels), flags):
-                # header
-                for label in header_lablels:
-                    ImGui.TableSetupColumn(label)
-                ImGui.TableHeadersRow()
-
-                # body
-                for root in self.scene.roots:
-                    self._traverse(root)
-
-                ImGui.EndTable()
-        ImGui.End()

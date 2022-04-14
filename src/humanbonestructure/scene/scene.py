@@ -1,4 +1,5 @@
 from typing import Optional, List
+import ctypes
 import pathlib
 import logging
 import glm
@@ -18,7 +19,7 @@ class Scene:
         # scene
         self.nodes: List[Node] = []
         self.roots: List[Node] = []
-        self.enable_draw_skinning = False
+        self.enable_draw_skinning = (ctypes.c_bool * 1)(True)
         # model gizmo
         self.gizmo = Gizmo()
 
@@ -84,7 +85,7 @@ class Scene:
 
     def render(self, camera: Camera):
         # render
-        if self.enable_draw_skinning:
+        if self.enable_draw_skinning[0]:
             for root in self.roots:
                 self.render_node(camera, root)
 
