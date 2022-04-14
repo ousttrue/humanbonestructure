@@ -48,6 +48,7 @@ def main():
     from .gui import GUI
     gui = GUI(app.loop)
     gui.selector.items = vpd_list
+    gui.selector.apply()
 
     for model in args.model:
         gui.add_model(pathlib.Path(model))
