@@ -84,13 +84,6 @@ class Gizmo:
     '''
 
     def __init__(self) -> None:
-        self.vertices = (MeshVertex * 65535)()
-        self.vertex_count = 0
-        self.indices = (ctypes.c_uint16 * 65535)()
-        self.index_count = 0
-        self.mesh_drawable: Optional[glo.Drawable] = None
-        self.mesh_updated = False
-
         self.lines = (LineVertex * 65535)()
         for i, p in enumerate(LINE_VERTICES):
             self.lines[i] = p
@@ -114,8 +107,8 @@ class Gizmo:
             push.push_line(pos, m[0], 0.02, Float4(1, 0, 0, 1))
             push.push_line(pos, m[1], 0.02, Float4(0, 1, 0, 1))
             push.push_line(pos, m[2], 0.02, Float4(0, 0, 1, 1))
-            self.lines_submeshes[1].draw_count = push.pos
 
+        self.lines_submeshes[1].draw_count = push.pos
         self.lines_updated = True
 
     def init_line_drawable(self, camera: Camera) -> glo.Vao:
@@ -146,11 +139,14 @@ class Gizmo:
 
         GL.glEnable(GL.GL_DEPTH_TEST)
         lines_vao.bind()
+        offset = 0
         for submesh in self.lines_submeshes:
             assert submesh.shader
             with submesh.shader:
                 for prop in submesh.properties:
                     prop()
-                lines_vao.draw(submesh.draw_count, topology=submesh.topology)
+                lines_vao.draw(submesh.draw_count, offset=offset,
+                               topology=submesh.topology)
+            offset += submesh.draw_count
         lines_vao.unbind()
         GL.glDisable(GL.GL_DEPTH_TEST)

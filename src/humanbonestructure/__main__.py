@@ -23,7 +23,7 @@ def main():
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('model', nargs='+')
+    parser.add_argument('model', nargs='*')
     parser.add_argument('--asset_dir')
     parser.add_argument('--create', action='store_true',
                         help='create model procedual')

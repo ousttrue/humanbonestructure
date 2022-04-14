@@ -23,6 +23,9 @@ class Float3(ctypes.Structure):
     def __mul__(self, rhs: float) -> 'Float3':
         return Float3(self.x * rhs, self.y * rhs, self.z * rhs)
 
+    def __add__(self, rhs: 'Float3') -> 'Float3':
+        return Float3(self.x + rhs.x, self.y + rhs.y, self.z+rhs.z)
+
     def reverse_z(self) -> 'Float3':
         return Float3(self.x, self.y, -self.z)
 

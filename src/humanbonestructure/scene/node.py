@@ -15,7 +15,8 @@ def trs_matrix(t: glm.vec3, r: glm.quat, s: glm.vec3) -> glm.mat4:
 class Node:
     def __init__(self, index: int, name: str, *,
                  position: Optional[glm.vec3] = None,
-                 trs: Optional[Transform] = None) -> None:
+                 trs: Optional[Transform] = None,
+                 humanoid_bone: Optional[HumanoidBone] = None) -> None:
         self.index = index
         self.name = name
         self.children = []
@@ -28,7 +29,7 @@ class Node:
         from .mesh_renderer import MeshRenderer
         self.renderer: Optional[MeshRenderer] = None
         # UI
-        self.humanoid_bone: Optional[HumanoidBone] = None
+        self.humanoid_bone = humanoid_bone
         self.descendants_has_humaniod = False
         # skinning
         self.pose: Optional[Transform] = None
@@ -80,9 +81,7 @@ class Node:
                 if child.initialize():
                     self.descendants_has_humaniod = True
                     has = True
-            if has:
-                return True
-        return False
+        return has
 
     def _get_local(self, init=False) -> glm.mat4:
         assert self.init_trs
