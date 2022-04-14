@@ -1,7 +1,6 @@
 from typing import Optional, List
 import pathlib
 import logging
-from OpenGL import GL
 import glm
 from pydear.scene.camera import Camera
 from ..formats import pmd_loader, gltf_loader, vpd_loader, pmx_loader
@@ -14,14 +13,13 @@ class Scene:
     '''
     モデル一体分のシーングラフ
     '''
+
     def __init__(self) -> None:
-        # gizmo
+        # world gizmo
         self.axis = Axis()
         # scene
         self.nodes: List[Node] = []
         self.roots: List[Node] = []
-        # gui
-        self.camera = Camera(distance=4, y=-0.8)
 
     def load_model(self, path: pathlib.Path):
         match path.suffix.lower():
@@ -88,28 +86,25 @@ class Scene:
             root.initialize()
             root.calc_skinning(glm.mat4())
 
-    def render(self, w: int, h: int):
-        # camera update
-        self.camera.onResize(w, h)
-
+    def render(self, camera: Camera):
         # render
         for root in self.roots:
-            self.render_node(root)
+            self.render_node(camera, root)
 
-        self.axis.render(self.camera)
+        self.axis.render(camera)
 
-    def render_node(self, node: Node):
+    def render_node(self, camera: Camera, node: Node):
         if node.renderer:
-            node.renderer.render(self.camera, node)
+            node.renderer.render(camera, node)
 
-        from . import local_axis
-        if not node.gizmo:
-            node.gizmo = local_axis.create_local_axis(self.camera, node)
-        GL.glEnable(GL.GL_DEPTH_TEST)
-        node.gizmo.draw()
+        # from . import local_axis
+        # if not node.gizmo:
+        #     node.gizmo = local_axis.create_local_axis(self.camera, node)
+        # GL.glEnable(GL.GL_DEPTH_TEST)
+        # node.gizmo.draw()
 
         for child in node.children:
-            self.render_node(child)
+            self.render_node(camera, child)
 
     def load_vpd(self, vpd: Optional[vpd_loader.Vpd]):
         # clear

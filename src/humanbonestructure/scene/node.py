@@ -33,8 +33,6 @@ class Node:
         # skinning
         self.pose: Optional[Transform] = None
 
-        self.gizmo = None
-
     def __str__(self) -> str:
         if self.init_position:
             return f'[{self.name}: {self.init_position}]'
