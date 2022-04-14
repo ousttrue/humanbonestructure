@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Iterable, List, Tuple
 import glm
 from ..formats.transform import Transform
 from ..formats.humanoid_bones import HumanoidBone
@@ -16,10 +16,11 @@ class Node:
     def __init__(self, index: int, name: str, *,
                  position: Optional[glm.vec3] = None,
                  trs: Optional[Transform] = None,
-                 humanoid_bone: Optional[HumanoidBone] = None) -> None:
+                 humanoid_bone: Optional[HumanoidBone] = None,
+                 children: Optional[List['Node']] = None) -> None:
         self.index = index
         self.name = name
-        self.children = []
+        self.children = children[:] if children else []
         self.parent = None
         self.world_matrix = glm.mat4()
         self.init_position = position
@@ -33,6 +34,16 @@ class Node:
         self.descendants_has_humaniod = False
         # skinning
         self.pose: Optional[Transform] = None
+
+        for node, parent in self.traverse_node_and_parent():
+            if parent:
+                node.parent = parent
+
+    def traverse_node_and_parent(self, parent: Optional['Node'] = None) -> Iterable[Tuple['Node', Optional['Node']]]:
+        yield self, parent
+        for child in self.children:
+            for x, y in child.traverse_node_and_parent(self):
+                yield x, y
 
     def __str__(self) -> str:
         if self.init_position:

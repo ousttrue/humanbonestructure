@@ -19,7 +19,9 @@ class BoneTree:
     def show(self, p_open):
         ImGui.SetNextWindowSize((100, 100), ImGui.ImGuiCond_.Once)
         if ImGui.Begin(self.name, p_open):
-            ImGui.Checkbox('mesh', self.scene.enable_draw_skinning)
+            ImGui.Checkbox('mesh', self.scene.visible_mesh)
+            ImGui.SameLine()
+            ImGui.Checkbox('skeleton', self.scene.visible_skeleotn)
 
             # tree
             flags = (

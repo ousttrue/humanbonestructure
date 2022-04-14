@@ -33,7 +33,7 @@ class MeshRenderer:
         self.drawable: Optional[glo.Drawable] = None
         self.bone_matrices = glm.array.zeros(len(self.joints), glm.mat4)
 
-    def render(self, camera: Camera, node: Node):
+    def render(self, camera: Camera, node: Optional[Node] = None):
         if not self.vertices or not self.indices:
             return
 

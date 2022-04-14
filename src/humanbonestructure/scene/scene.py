@@ -7,6 +7,7 @@ from pydear.scene.camera import Camera
 from ..formats import pmd_loader, gltf_loader, vpd_loader, pmx_loader
 from .node import Node
 from .gizmo import Gizmo
+from .skeleton import Skeleton
 LOGGER = logging.getLogger(__name__)
 
 
@@ -19,9 +20,23 @@ class Scene:
         # scene
         self.nodes: List[Node] = []
         self.roots: List[Node] = []
-        self.enable_draw_skinning = (ctypes.c_bool * 1)(True)
+        self.visible_mesh = (ctypes.c_bool * 1)(True)
+        self.visible_skeleotn = (ctypes.c_bool * 1)(True)
         # model gizmo
         self.gizmo = Gizmo()
+        self.skeleton = None
+
+    def _setup_model(self):
+        for root in self.roots:
+            root.initialize()
+            # root.calc_skinning(glm.mat4())
+        self.skeleton = Skeleton(self.roots[0])
+
+        for root in self.roots:
+            # root.initialize()
+            root.calc_skinning(glm.mat4())
+
+        self.gizmo.update(self.nodes)
 
     def load_model(self, path: pathlib.Path):
         match path.suffix.lower():
@@ -33,13 +48,6 @@ class Scene:
                 self.load_glb(path)
             case _:
                 raise NotImplementedError()
-
-    def _setup_model(self):
-        for root in self.roots:
-            root.initialize()
-            root.calc_skinning(glm.mat4())
-
-        self.gizmo.update(self.nodes)
 
     def load_pmd(self, path: pathlib.Path):
         self.nodes.clear()
@@ -79,17 +87,20 @@ class Scene:
 
     def create_model(self):
         from .builder import create
-        create.create_scene(self)
+        create.create_hand(self)
 
         self._setup_model()
 
     def render(self, camera: Camera):
         # render
-        if self.enable_draw_skinning[0]:
+        if self.visible_mesh[0]:
             for root in self.roots:
                 self.render_node(camera, root)
 
         self.gizmo.render(camera)
+
+        if self.skeleton and self.visible_skeleotn[0]:
+            self.skeleton.renderer.render(camera)
 
     def render_node(self, camera: Camera, node: Node):
         if node.renderer:

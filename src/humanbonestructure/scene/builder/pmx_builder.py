@@ -28,7 +28,7 @@ def build(self: Scene, pmx: pmx_loader.Pmx):
         v.normal = v.normal.reverse_z()
 
     # root origin
-    if self.roots[0].init_position != glm.vec3(0, 0, 0):
+    if len(self.roots) > 1 or self.roots[0].init_position != glm.vec3(0, 0, 0):
         root = Node(len(self.nodes), '__root__',
                     position=glm.vec3(0, 0, 0))
         for r in self.roots:
@@ -37,4 +37,4 @@ def build(self: Scene, pmx: pmx_loader.Pmx):
 
     # set renderer
     self.roots[0].renderer = MeshRenderer("assets/shader",
-        pmx.vertices, pmx.indices, joints=self.nodes)
+                                          pmx.vertices, pmx.indices, joints=self.nodes)
