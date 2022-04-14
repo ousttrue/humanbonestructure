@@ -9,11 +9,13 @@ class SceneView:
     def __init__(self, name: str, scene: Scene) -> None:
         self.name = name
         self.scene = scene
+        # imgui
         self.clear_color = (ctypes.c_float * 4)(0.1, 0.2, 0.3, 1)
         self.hover_color = (ctypes.c_float * 4)(0.2, 0.4, 0.6, 1)
         self.fbo_manager = glo.FboRenderer()
         self.bg = ImGui.ImVec4(1, 1, 1, 1)
         self.tint = ImGui.ImVec4(1, 1, 1, 1)
+        self.hover = False
 
     def show(self, p_open):
         ImGui.SetNextWindowSize((200, 200), ImGui.ImGuiCond_.Once)
@@ -27,7 +29,7 @@ class SceneView:
             h = int(_h)
 
             texture = self.fbo_manager.clear(
-                w, h, self.hover_color if self.scene.hover else self.clear_color)
+                w, h, self.hover_color if self.hover else self.clear_color)
             if texture:
                 ImGui.ImageButton(texture, (w, h), (0, 1),
                                   (1, 0), 0, self.bg, self.tint)
@@ -43,8 +45,8 @@ class SceneView:
                         int(io.MouseDelta.x), int(io.MouseDelta.y),
                         io.MouseDown[0], io.MouseDown[1], io.MouseDown[2])
 
-                self.scene.hover = ImGui.IsItemHovered()
-                if self.scene.hover:
+                self.hover = ImGui.IsItemHovered()
+                if self.hover:
                     self.scene.camera.onWheel(int(io.MouseWheel))
 
                 # render mesh

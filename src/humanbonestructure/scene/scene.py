@@ -3,7 +3,6 @@ import pathlib
 import logging
 from OpenGL import GL
 import glm
-from pydear import imgui as ImGui
 from pydear.scene.camera import Camera
 from ..formats import pmd_loader, gltf_loader, vpd_loader, pmx_loader
 from .node import Node
@@ -12,6 +11,9 @@ LOGGER = logging.getLogger(__name__)
 
 
 class Scene:
+    '''
+    モデル一体分のシーングラフ
+    '''
     def __init__(self) -> None:
         # gizmo
         self.axis = Axis()
@@ -20,7 +22,6 @@ class Scene:
         self.roots: List[Node] = []
         # gui
         self.camera = Camera(distance=4, y=-0.8)
-        self.hover = False
 
     def load_model(self, path: pathlib.Path):
         match path.suffix.lower():
