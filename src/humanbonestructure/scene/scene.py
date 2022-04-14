@@ -5,7 +5,7 @@ import glm
 from pydear.scene.camera import Camera
 from ..formats import pmd_loader, gltf_loader, vpd_loader, pmx_loader
 from .node import Node
-from .axis import Axis
+from .gizmo import Gizmo
 LOGGER = logging.getLogger(__name__)
 
 
@@ -15,11 +15,12 @@ class Scene:
     '''
 
     def __init__(self) -> None:
-        # world gizmo
-        self.axis = Axis()
         # scene
         self.nodes: List[Node] = []
         self.roots: List[Node] = []
+        self.enable_draw_skinning = False
+        # model gizmo
+        self.gizmo = Gizmo()
 
     def load_model(self, path: pathlib.Path):
         match path.suffix.lower():
@@ -32,6 +33,13 @@ class Scene:
             case _:
                 raise NotImplementedError()
 
+    def _setup_model(self):
+        for root in self.roots:
+            root.initialize()
+            root.calc_skinning(glm.mat4())
+
+        self.gizmo.update(self.nodes)
+
     def load_pmd(self, path: pathlib.Path):
         self.nodes.clear()
         self.roots.clear()
@@ -42,10 +50,7 @@ class Scene:
         from .builder import pmd_builder
         pmd_builder.build(self, pmd)
 
-        # finalize
-        for root in self.roots:
-            root.initialize()
-            root.calc_skinning(glm.mat4())
+        self._setup_model()
 
     def load_pmx(self, path: pathlib.Path):
         self.nodes.clear()
@@ -57,10 +62,7 @@ class Scene:
         from .builder import pmx_builder
         pmx_builder.build(self, pmx)
 
-        # finalize
-        for root in self.roots:
-            root.initialize()
-            root.calc_skinning(glm.mat4())
+        self._setup_model()
 
     def load_glb(self, path: pathlib.Path):
         self.nodes.clear()
@@ -72,36 +74,25 @@ class Scene:
         from .builder import gltf_builder
         gltf_builder.build(self, gltf)
 
-        # finalize
-        for root in self.roots:
-            root.initialize()
-            root.calc_skinning(glm.mat4())
+        self._setup_model()
 
     def create_model(self):
         from .builder import create
         create.create_scene(self)
 
-        # finalize
-        for root in self.roots:
-            root.initialize()
-            root.calc_skinning(glm.mat4())
+        self._setup_model()
 
     def render(self, camera: Camera):
         # render
-        for root in self.roots:
-            self.render_node(camera, root)
+        if self.enable_draw_skinning:
+            for root in self.roots:
+                self.render_node(camera, root)
 
-        self.axis.render(camera)
+        self.gizmo.render(camera)
 
     def render_node(self, camera: Camera, node: Node):
         if node.renderer:
             node.renderer.render(camera, node)
-
-        # from . import local_axis
-        # if not node.gizmo:
-        #     node.gizmo = local_axis.create_local_axis(self.camera, node)
-        # GL.glEnable(GL.GL_DEPTH_TEST)
-        # node.gizmo.draw()
 
         for child in node.children:
             self.render_node(camera, child)
@@ -130,6 +121,4 @@ class Scene:
                     else:
                         LOGGER.warn(f'{bone.name} not found')
 
-        # calc skinning matrix
-        for root in self.roots:
-            root.calc_skinning(glm.mat4())
+        self._setup_model()

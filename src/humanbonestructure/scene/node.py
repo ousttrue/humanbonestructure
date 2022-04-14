@@ -50,7 +50,6 @@ class Node:
         child.parent = self
 
     def initialize(self) -> bool:
-        assert self.pose is None
         if self.init_trs:
             # gltf
             pass
@@ -65,9 +64,10 @@ class Node:
             raise NotImplementedError()
 
         if self.parent:
-            self.world_matrix = self.parent.world_matrix * self._get_local()
+            self.world_matrix = self.parent.world_matrix * \
+                self._get_local(init=True)
         else:
-            self.world_matrix = self._get_local()
+            self.world_matrix = self._get_local(init=True)
 
         self.inverse_bind_matrix = glm.inverse(self.world_matrix)
 
@@ -84,10 +84,10 @@ class Node:
                 return True
         return False
 
-    def _get_local(self) -> glm.mat4:
+    def _get_local(self, init=False) -> glm.mat4:
         assert self.init_trs
 
-        if self.pose:
+        if not init and self.pose:
             t, r, s = self.init_trs
             return trs_matrix(self.pose.translation + t, self.pose.rotation * r, self.pose.scale * s)
         else:
