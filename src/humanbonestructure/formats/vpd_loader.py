@@ -1,7 +1,8 @@
-from typing import List, NamedTuple, Tuple
+from typing import List, NamedTuple, Optional
 import re
 from .transform import Transform
-from .pmd_loader import SCALING_FACTOR
+from .pmd_loader import SCALING_FACTOR, BONE_HUMANOID_MAP
+from .humanoid_bones import HumanoidBone
 import glm
 
 COMMENT_PATTERN = re.compile(r'(.*?)//.*$')
@@ -10,6 +11,7 @@ BONE_NAME_PATTERN = re.compile(r'Bone(\d+)\{(\w+)')
 
 class BonePose(NamedTuple):
     name: str
+    humanoid_bone: Optional[HumanoidBone]
     transform: Transform
 
 
@@ -68,8 +70,10 @@ class Vpd:
             close = lines.pop(0)
             assert close == '}'
 
+            name = get_name(open)
+            humanoid_bone = BONE_HUMANOID_MAP.get(name)
             self.bones.append(
-                BonePose(get_name(open), Transform(get_t(t), get_r(r), glm.vec3(1))))
+                BonePose(name, humanoid_bone, Transform(get_t(t), get_r(r), glm.vec3(1))))
 
         assert len(self.bones) == count
 
