@@ -90,31 +90,6 @@ class Scene:
     def render(self, w: int, h: int):
         # camera update
         self.camera.onResize(w, h)
-        if self.hover:
-            wx, wy = ImGui.GetWindowPos()
-            wy += ImGui.GetFrameHeight()
-            io = ImGui.GetIO()
-
-            x = int(io.MousePos.x-wx)
-            y = int(io.MousePos.y-wy)
-
-            if io.MouseDown[0]:
-                self.camera.onLeftDown(x, y)
-            else:
-                self.camera.onLeftUp(x, y)
-
-            if io.MouseDown[1]:
-                self.camera.onRightDown(x, y)
-            else:
-                self.camera.onRightUp(x, y)
-
-            if io.MouseDown[2]:
-                self.camera.onMiddleDown(x, y)
-            else:
-                self.camera.onMiddleUp(x, y)
-
-            self.camera.onMotion(x, y)
-            self.camera.onWheel(int(-io.MouseWheel))
 
         # render
         for root in self.roots:

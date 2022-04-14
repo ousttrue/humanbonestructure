@@ -1,5 +1,6 @@
 import ctypes
 from pydear import imgui as ImGui
+from pydear import imgui_internal
 from pydear import glo
 from ..scene.scene import Scene
 
@@ -11,6 +12,8 @@ class SceneView:
         self.clear_color = (ctypes.c_float * 4)(0.1, 0.2, 0.3, 1)
         self.hover_color = (ctypes.c_float * 4)(0.2, 0.4, 0.6, 1)
         self.fbo_manager = glo.FboRenderer()
+        self.bg = ImGui.ImVec4(1, 1, 1, 1)
+        self.tint = ImGui.ImVec4(1, 1, 1, 1)
 
     def show(self, p_open):
         ImGui.SetNextWindowSize((200, 200), ImGui.ImGuiCond_.Once)
@@ -26,12 +29,26 @@ class SceneView:
             texture = self.fbo_manager.clear(
                 w, h, self.hover_color if self.scene.hover else self.clear_color)
             if texture:
+                ImGui.ImageButton(texture, (w, h), (0, 1),
+                                  (1, 0), 0, self.bg, self.tint)
+                imgui_internal.ButtonBehavior(ImGui.Custom_GetLastItemRect(), ImGui.Custom_GetLastItemId(), None, None,
+                                              ImGui.ImGuiButtonFlags_.MouseButtonMiddle | ImGui.ImGuiButtonFlags_.MouseButtonRight)
+
+                io = ImGui.GetIO()
+                if ImGui.IsItemActive():
+                    x, y = ImGui.GetWindowPos()
+                    y += ImGui.GetFrameHeight()
+                    self.scene.camera.drag(
+                        int(io.MousePos.x-x), int(io.MousePos.y-y),
+                        int(io.MouseDelta.x), int(io.MouseDelta.y),
+                        io.MouseDown[0], io.MouseDown[1], io.MouseDown[2])
+
+                self.scene.hover = ImGui.IsItemHovered()
+                if self.scene.hover:
+                    self.scene.camera.onWheel(int(io.MouseWheel))
+
                 # render mesh
                 self.scene.render(w, h)
 
-                ImGui.BeginChild("_image_")
-                ImGui.Image(texture, (w, h), (0, 1), (1, 0))
-                self.scene.hover = ImGui.IsItemHovered()
-                ImGui.EndChild()
         ImGui.End()
         ImGui.PopStyleVar()
