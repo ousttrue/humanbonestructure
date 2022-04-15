@@ -184,7 +184,9 @@ class Skeleton:
 
     def _push_cube(self, bone_index: int, color: Float3, p0: glm.vec3, p1: glm.vec3,
                    y: glm.vec3, w: float, h: float):
-        x = glm.cross(glm.normalize(p1 - p0), y)
+        z = glm.normalize(p1 - p0)
+        x = glm.cross(z, y)
+        y = glm.cross(x, z)
         # 3 2
         # 0 1
         p0_0 = p0-x*w-y*h
