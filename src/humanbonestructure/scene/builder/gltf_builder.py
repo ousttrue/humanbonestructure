@@ -1,7 +1,8 @@
 from typing import List
 import ctypes
 import glm
-from ...formats import gltf_loader, buffer_types, transform, humanoid_bones
+from ...formats import gltf_loader, buffer_types, humanoid_bones
+from ...formats.transform import Transform
 from ..node import Node
 from ..mesh_renderer import MeshRenderer
 
@@ -78,7 +79,7 @@ def build(gltf) -> Node:
         if human_bone_map:
             # rotate y180
             t = glm.vec3(-t.x, t.y, -t.z)
-        node = Node(i, name, trs=transform.Transform(t, r, s))
+        node = Node(i, name, Transform(t, r, s))
         # if human_bones
         human_bone = human_bone_map.get(i)
         if human_bone:
@@ -116,7 +117,7 @@ def build(gltf) -> Node:
             else:
                 raise NotImplementedError()
 
-    root = Node(-1, '__root__', position=glm.vec3(0, 0, 0))
+    root = Node(-1, '__root__', Transform.identity())
     for node in nodes:
         if not node.parent:
             root.add_child(node)

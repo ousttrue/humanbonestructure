@@ -68,7 +68,7 @@ class BoneTree:
         # col 0
         ImGui.TableNextColumn()
 
-        if node.descendants_has_humaniod:
+        if node.descendants_has_humanoid:
             ImGui.SetNextItemOpen(True, ImGui.ImGuiCond_.Once)
         open = ImGui.TreeNodeEx(f'{node.name}##{node.index}', flag)
 

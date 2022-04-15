@@ -31,7 +31,7 @@ class Scene:
 
     def _setup_model(self):
         assert self.root
-        self.root.initialize()
+        self.root.initialize(glm.mat4())
 
         if self.force_tpose[0]:
             tpose.make_tpose(self.root)

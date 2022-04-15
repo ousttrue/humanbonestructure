@@ -41,6 +41,9 @@ class Bone(NamedTuple):
     width: float = 0
     height: float = 0
 
+    def __str__(self) -> str:
+        return f'{self.head.humanoid_bone} => {self.tail.humanoid_bone}'
+
 
 class Skeleton:
     def __init__(self, root: Node) -> None:
@@ -56,9 +59,7 @@ class Skeleton:
                     case '上半身2':
                         return next(iter(node for node, _ in node.traverse_node_and_parent() if node.name == '首'))
                     case '下半身':
-                        for child in node.children:
-                            if find_tail(child):
-                                return child
+                        node.find_tail()
                     case '右手首':
                         return next(iter(node for node, _ in node.traverse_node_and_parent() if node.name == '右中指１'))
                     case '左手首':
@@ -66,14 +67,7 @@ class Skeleton:
                     case _:
                         pass
 
-            for child in node.children:
-                if child.humanoid_bone:
-                    return child
-                tail = find_tail(child)
-                if tail:
-                    return tail
-            if node.children:
-                return node.children[0]
+            return node.find_tail()
 
         for node, _ in root.traverse_node_and_parent():
             if node.humanoid_bone:
@@ -116,6 +110,7 @@ class Skeleton:
                         Bone(node, tail, color, up=up, width=width, height=height))
 
         for bone in bones:
+            print(bone)
             self._add_node(bone)
 
         vertices = (Vertex * len(self.vertices))(*self.vertices)
@@ -125,8 +120,8 @@ class Skeleton:
                                      vertices, indices, joints=self.nodes)
 
     def _add_node(self, bone: Bone):
-        p0 = bone.head.world_matrix[3]
-        p1 = bone.tail.world_matrix[3]
+        p0 = -bone.head.inverse_bind_matrix[3]
+        p1 = -bone.tail.inverse_bind_matrix[3]
         if bone.up:
             self._push_cube(len(self.nodes), bone.color, glm.vec3(p0.x, p0.y, p0.z), glm.vec3(p1.x, p1.y, p1.z),
                             bone.up, bone.width, bone.height)

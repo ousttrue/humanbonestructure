@@ -14,9 +14,9 @@
                 "${env:MMD_DATA}/Tda式初音ミクアペンドVer1.10/Tda式初音ミクアペンド_Ver1.10.pmx",
                 // "${env:GLTF_SAMPLE_MODELS}/2.0/CesiumMan/glTF-Binary/CesiumMan.glb",
                 // "${env:VRM_SAMPLES}/vroid/vivi.vrm",
+                // "--create",
                 "--asset_dir",
                 "${env:MMD_DATA}",
-                "--create",
             ],
             "env": {
                 "PYTHONPATH": "${workspaceFolder}/src",
