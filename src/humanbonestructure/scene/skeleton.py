@@ -88,7 +88,10 @@ class Skeleton:
                                 color = Float3(0.8, 0.4, 0.1)
                             else:
                                 color = Float3(0.9, 0.7, 0.2)
-                        up = glm.vec3(0, 1, 0)
+                        if 'Thumb' in node.humanoid_bone.name:
+                            up = glm.vec3(0, 0, 1)
+                        else:
+                            up = glm.vec3(0, 1, 0)
                         width = 0.005
                     else:
                         match node.humanoid_bone:

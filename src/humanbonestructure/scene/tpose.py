@@ -1,29 +1,22 @@
 import glm
 from .node import Node
 from ..formats.humanoid_bones import HumanoidBone
-import copy
+
 
 def mod(head: Node, tail: Node):
-    print(head, tail)
+    # print(head, tail)
 
     x = glm.normalize(
         tail.world_matrix[3].xyz-head.world_matrix[3].xyz)
-    z = glm.vec3(0, 0, 1)
-    y = glm.cross(z, x)
-    world = glm.mat4(
-        glm.vec4(x, 0),
-        glm.vec4(y, 0),
-        glm.vec4(z, 0),
-        glm.vec4(0, 0, 0, 1))
+    _z = glm.vec3(0, 0, 1)
+    y = glm.cross(_z, x)
+    z = glm.cross(x, y)
+    world = glm.quat(glm.mat3(x, y, z))
 
-    src = copy.copy(head.world_matrix)
-    src[3] = glm.vec4(0, 0, 0, 1)
-
-    local = glm.inverse(src) * world
-
-    head.delta = glm.quat(local)
-    assert head.parent
-    head.calc_skinning(head.parent.world_matrix)
+    src = glm.quat()
+    local = glm.inverse(world) * src
+    head.delta = local
+    print(head, local)
 
 
 def make_tpose(root: Node):
@@ -34,7 +27,13 @@ def make_tpose(root: Node):
         return
 
     for node, _ in upper_arm.traverse_node_and_parent():
-        if node.humanoid_bone:
-            tail = node.find_tail()
-            if tail:
-                mod(node, tail)
+        if not node.humanoid_bone:
+            continue
+        if node.humanoid_bone == HumanoidBone.leftHand:
+            continue
+        tail = node.find_tail()
+        if tail:
+            root.calc_skinning(glm.mat4())
+            mod(node, tail)
+
+    root.calc_skinning(glm.mat4())

@@ -71,27 +71,8 @@ class Node:
         child.parent = self
 
     def initialize(self, parent: glm.mat4) -> bool:
-        # self.delta = glm.quat()
-        # if self.init_trs:
-        #     # gltf
-        #     pass
-        # elif self.init_position:
-        #     # pmd / pmx
-        #     if self.parent:
-        #         t = self.init_position - self.parent.init_position
-        #     else:
-        #         t = self.init_position
-        #     self.init_trs = Transform(t, glm.quat(), glm.vec3(1))
-        # else:
-        #     raise NotImplementedError()
-
-        # if self.parent:
-        #     self.world_matrix = self.parent.world_matrix * \
-        #         self._get_local(init=True)
-        # else:
-        #     self.world_matrix = self._get_local(init=True)
-
-        self.inverse_bind_matrix = glm.inverse(trs_matrix(*self.init_trs)) * parent
+        self.inverse_bind_matrix = glm.inverse(
+            trs_matrix(*self.init_trs)) * parent
 
         has = False
         if self.humanoid_bone:
@@ -109,9 +90,9 @@ class Node:
 
         t, r, s = self.init_trs
         if self.pose:
-            return trs_matrix(t + self.pose.translation, r * self.delta * self.pose.rotation, s * self.pose.scale)
+            return trs_matrix(t + self.pose.translation, r * self.pose.rotation, s * self.pose.scale) * glm.mat4(self.delta)
         else:
-            return trs_matrix(t, r * self.delta, s)
+            return trs_matrix(t, r, s) * glm.mat4(self.delta)
 
     def calc_skinning(self, parent: glm.mat4):
         self.world_matrix = parent * self._get_local()

@@ -35,7 +35,7 @@ class BoneTree:
                 | ImGui.ImGuiTableFlags_.RowBg
                 | ImGui.ImGuiTableFlags_.NoBordersInBody
             )
-            header_lablels = ("name", "humanoid bone", "transform")
+            header_lablels = ("name", "humanoid bone", "delta", "pose")
             if ImGui.BeginTable("jsontree_table", len(header_lablels), flags):
                 # header
                 for label in header_lablels:
@@ -80,6 +80,11 @@ class BoneTree:
             ImGui.TextUnformatted('')
 
         # col 2
+        if node.delta:
+            ImGui.TableNextColumn()
+            ImGui.TextUnformatted(f'{node.delta}')
+
+        # col 3
         if node.pose:
             ImGui.TableNextColumn()
             ImGui.TextUnformatted(f'{node.pose}')

@@ -27,18 +27,23 @@ class Scene:
         self.visible_mesh = (ctypes.c_bool * 1)(True)
         self.visible_gizmo = (ctypes.c_bool * 1)(True)
         self.visible_skeleton = (ctypes.c_bool * 1)(True)
-        self.force_tpose = (ctypes.c_bool * 1)(False)
+        self.force_tpose = (ctypes.c_bool * 1)(True)
 
     def _setup_model(self):
         assert self.root
         self.root.initialize(glm.mat4())
 
-        if self.force_tpose[0]:
-            tpose.make_tpose(self.root)
-
         self.skeleton = Skeleton(self.root)
 
+        if self.force_tpose[0]:
+            self.root.calc_skinning(glm.mat4())
+            tpose.make_tpose(self.root)
+        else:
+            for node, _ in self.root.traverse_node_and_parent():
+                node.delta = glm.quat()
+
         self.root.calc_skinning(glm.mat4())
+
         self.gizmo.update(self.root)
 
     def load_model(self, path: pathlib.Path):
