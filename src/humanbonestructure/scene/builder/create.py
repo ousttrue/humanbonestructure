@@ -1,9 +1,9 @@
 import glm
-from ..scene import Scene, Node
+from ..node import Node
 from ...formats.humanoid_bones import HumanoidBone
 
 
-def create_hand(scene: Scene):
+def create_hand() -> Node:
     root = Node(0, 'root', humanoid_bone=HumanoidBone.leftHand, position=glm.vec3(0), children=[
         Node(1, 'thumb1', humanoid_bone=HumanoidBone.leftThumbProximal, position=glm.vec3(0.1, 0, 0), children=[
             Node(2, 'thumb2', humanoid_bone=HumanoidBone.leftThumbIntermediate, position=glm.vec3(0.2, 0, 0), children=[
@@ -42,5 +42,4 @@ def create_hand(scene: Scene):
         ]),
     ])
 
-    scene.nodes = [node for node, parent in root.traverse_node_and_parent()]
-    scene.roots.append(root)
+    return root

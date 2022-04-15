@@ -1,25 +1,29 @@
+from typing import List, Tuple
 import glm
 from ...formats import pmd_loader, bytesreader, buffer_types
-from ..scene import Scene, Node
+from ..node import Node
 from ..mesh_renderer import MeshRenderer
 
 
-def build(self: Scene, pmd: pmd_loader.Pmd):
+def build(pmd: pmd_loader.Pmd) -> Node:
+    root = Node(-1, '__root__', position=glm.vec3(0, 0, 0))
+
     # build node hierarchy
+    nodes: List[Node] = []
     for i, b in enumerate(pmd.bones):
         node = Node(i, bytesreader.bytes_to_str(b.name), position=glm.vec3(b.position.x, b.position.y,
                                                                            -b.position.z  # reverse z
                                                                            ))
-        self.nodes.append(node)
+        nodes.append(node)
 
-    for i, (node, bone) in enumerate(zip(self.nodes, pmd.bones)):
+    for i, (node, bone) in enumerate(zip(nodes, pmd.bones)):
         if humanoid_bone := pmd_loader.BONE_HUMANOID_MAP.get(node.name):
             node.humanoid_bone = humanoid_bone
 
         if bone.parent_index == 65535:
-            self.roots.append(node)
+            root.add_child(node)
         else:
-            parent = self.nodes[bone.parent_index]
+            parent = nodes[bone.parent_index]
             parent.add_child(node)
 
     # setup vertex and skinning
@@ -41,14 +45,7 @@ def build(self: Scene, pmd: pmd_loader.Pmd):
         #     UShort4(o.bone0, o.bone1, 0, 0),
         #     Float4(w, 1-w, 0, 0))
 
-    # root origin
-    if self.roots[0].init_position != glm.vec3(0, 0, 0):
-        root = Node(len(self.nodes), '__root__',
-                    position=glm.vec3(0, 0, 0))
-        for r in self.roots:
-            root.add_child(r)
-        self.roots = [root]
-
     # set renderer
-    self.roots[0].renderer = MeshRenderer(
-        vertices, pmd.indices, joints=self.nodes, flip=True)
+    root.renderer = MeshRenderer("assets/shader",
+                                 vertices, pmd.indices, joints=nodes, flip=True)
+    return root

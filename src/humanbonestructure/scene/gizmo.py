@@ -97,11 +97,11 @@ class Gizmo:
             topology=GL.GL_LINES, draw_count=len(LINE_VERTICES)))
         self.lines_submeshes.append(glo.Submesh(topology=GL.GL_LINES))
 
-    def update(self, nodes: List[Node]):
+    def update(self, root: Node):
         # add local axis
         push = LinePush(self.lines, len(LINE_VERTICES))
 
-        for node in nodes:
+        for node, _ in root.traverse_node_and_parent():
             m = node.world_matrix
             pos = m[3]
             push.push_line(pos, m[0], 0.02, Float4(1, 0, 0, 1))

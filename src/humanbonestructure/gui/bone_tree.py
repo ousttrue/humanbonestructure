@@ -21,7 +21,7 @@ class BoneTree:
         if ImGui.Begin(self.name, p_open):
             ImGui.Checkbox('mesh', self.scene.visible_mesh)
             ImGui.SameLine()
-            ImGui.Checkbox('skeleton', self.scene.visible_skeleotn)
+            ImGui.Checkbox('skeleton', self.scene.visible_skeleton)
 
             # tree
             flags = (
@@ -39,8 +39,8 @@ class BoneTree:
                 ImGui.TableHeadersRow()
 
                 # body
-                for root in self.scene.roots:
-                    self._traverse(root)
+                if self.scene.root:
+                    self._traverse(self.scene.root)
 
                 ImGui.EndTable()
         ImGui.End()

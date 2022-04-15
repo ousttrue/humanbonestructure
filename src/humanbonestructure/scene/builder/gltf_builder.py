@@ -1,11 +1,12 @@
+from typing import List
 import ctypes
 import glm
 from ...formats import gltf_loader, buffer_types, transform, humanoid_bones
-from ..scene import Scene, Node
+from ..node import Node
 from ..mesh_renderer import MeshRenderer
 
 
-def build(self: Scene, gltf):
+def build(gltf) -> Node:
 
     # vrm-0.x
     human_bone_map = gltf.get_vrm_human_bone_map()
@@ -70,6 +71,7 @@ def build(self: Scene, gltf):
         meshes.append((vertices, indices))
 
     # build hierarchy
+    nodes: List[Node] = []
     for i, gltf_node in enumerate(gltf.gltf.get('nodes', [])):
         name = gltf_node.get('name', f'{i}')
         t, r, s = gltf_loader.get_trs(gltf_node)
@@ -82,10 +84,10 @@ def build(self: Scene, gltf):
         if human_bone:
             node.humanoid_bone = humanoid_bones.HumanoidBone(human_bone)
 
-        self.nodes.append(node)
-    for gltf_node, node in zip(gltf.gltf.get('nodes', []), self.nodes):
+        nodes.append(node)
+    for gltf_node, node in zip(gltf.gltf.get('nodes', []), nodes):
         for child_index in gltf_node.get('children', []):
-            child = self.nodes[child_index]
+            child = nodes[child_index]
             node.add_child(child)
 
         mesh_index = gltf_node.get('mesh')
@@ -95,7 +97,7 @@ def build(self: Scene, gltf):
             if isinstance(skin_index, int):
                 gltf_skin = gltf.gltf.get('skins', [])[skin_index]
                 if gltf_skin:
-                    joints = [self.nodes[joint]
+                    joints = [nodes[joint]
                               for joint in gltf_skin['joints']]
 
                     bind_index = gltf_skin.get('inverseBindMatrices')
@@ -106,14 +108,16 @@ def build(self: Scene, gltf):
                         #         *m
                         #     ))
 
-                    node.renderer = MeshRenderer(
-                        vertices, indices, joints=joints)
+                    node.renderer = MeshRenderer("assets/shader",
+                                                 vertices, indices, joints=joints)
                 else:
-                    node.renderer = MeshRenderer(
-                        vertices, indices)
+                    node.renderer = MeshRenderer("assets/shader",
+                                                 vertices, indices)
             else:
                 raise NotImplementedError()
 
-    for node in self.nodes:
+    root = Node(-1, '__root__', position=glm.vec3(0, 0, 0))
+    for node in nodes:
         if not node.parent:
-            self.roots.append(node)
+            root.add_child(node)
+    return root

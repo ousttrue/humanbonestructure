@@ -18,25 +18,20 @@ class Scene:
 
     def __init__(self) -> None:
         # scene
-        self.nodes: List[Node] = []
-        self.roots: List[Node] = []
+        self.root: Optional[Node] = None
         self.visible_mesh = (ctypes.c_bool * 1)(True)
-        self.visible_skeleotn = (ctypes.c_bool * 1)(True)
+        self.visible_skeleton = (ctypes.c_bool * 1)(True)
         # model gizmo
         self.gizmo = Gizmo()
         self.skeleton = None
 
     def _setup_model(self):
-        for root in self.roots:
-            root.initialize()
-            # root.calc_skinning(glm.mat4())
-        self.skeleton = Skeleton(self.roots[0])
+        assert self.root
+        self.root.initialize()
+        self.skeleton = Skeleton(self.root)
 
-        for root in self.roots:
-            # root.initialize()
-            root.calc_skinning(glm.mat4())
-
-        self.gizmo.update(self.nodes)
+        self.root.calc_skinning(glm.mat4())
+        self.gizmo.update(self.root)
 
     def load_model(self, path: pathlib.Path):
         match path.suffix.lower():
@@ -50,56 +45,40 @@ class Scene:
                 raise NotImplementedError()
 
     def load_pmd(self, path: pathlib.Path):
-        self.nodes.clear()
-        self.roots.clear()
-
         pmd = pmd_loader.Pmd(path.read_bytes())
         LOGGER.debug(pmd)
-
         from .builder import pmd_builder
-        pmd_builder.build(self, pmd)
-
+        self.root = pmd_builder.build(pmd)
         self._setup_model()
 
     def load_pmx(self, path: pathlib.Path):
-        self.nodes.clear()
-        self.roots.clear()
-
         pmx = pmx_loader.Pmx(path.read_bytes())
         LOGGER.debug(pmx)
-
         from .builder import pmx_builder
-        pmx_builder.build(self, pmx)
-
+        self.root = pmx_builder.build(pmx)
         self._setup_model()
 
     def load_glb(self, path: pathlib.Path):
-        self.nodes.clear()
-        self.roots.clear()
-
         gltf = gltf_loader.Gltf.load_glb(path.read_bytes())
         LOGGER.debug(gltf)
-
         from .builder import gltf_builder
-        gltf_builder.build(self, gltf)
-
+        self.root = gltf_builder.build(gltf)
         self._setup_model()
 
     def create_model(self):
         from .builder import create
-        create.create_hand(self)
-
+        self.root = create.create_hand()
         self._setup_model()
 
     def render(self, camera: Camera):
         # render
         if self.visible_mesh[0]:
-            for root in self.roots:
+            if root := self.root:
                 self.render_node(camera, root)
 
         self.gizmo.render(camera)
 
-        if self.skeleton and self.visible_skeleotn[0]:
+        if self.skeleton and self.visible_skeleton[0]:
             self.skeleton.renderer.render(camera)
 
     def render_node(self, camera: Camera, node: Node):
@@ -111,14 +90,18 @@ class Scene:
 
     def load_vpd(self, vpd: Optional[vpd_loader.Vpd]):
         # clear
-        for node in self.nodes:
+        if not self.root:
+            return
+
+        for node, _ in self.root.traverse_node_and_parent():
             node.pose = None
 
         # self.vpd = Vpd(pkgutil.get_data('humanbonestructure', 'assets/Pose/右手グー.vpd'))
         self.vpd = vpd
         LOGGER.debug(self.vpd)
 
-        humanoid_node_map = {node.humanoid_bone: node for node in self.nodes}
+        humanoid_node_map = {node.humanoid_bone: node for node,
+                             _ in self.root.traverse_node_and_parent() if node.humanoid_bone}
 
         # assign pose to node hierarchy
         if self.vpd:
