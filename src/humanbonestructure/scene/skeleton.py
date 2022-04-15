@@ -36,8 +36,8 @@ class Vertex(ctypes.Structure):
 class Bone(NamedTuple):
     head: Node
     tail: Node
-    up: glm.vec3
     color: Float3
+    up: Optional[glm.vec3] = None
 
 
 class Skeleton:
@@ -74,6 +74,7 @@ class Skeleton:
                 tail = find_tail(node)
                 if tail:
                     color = Float3(1, 1, 1)
+                    up = None
                     if node.humanoid_bone.is_finger():
                         if 'Index' in node.humanoid_bone.name or 'Ring' in node.humanoid_bone.name:
                             if node.humanoid_bone.name.endswith("Intermediate"):
@@ -85,8 +86,9 @@ class Skeleton:
                                 color = Float3(0.8, 0.4, 0.1)
                             else:
                                 color = Float3(0.9, 0.7, 0.2)
+                        up = glm.vec3(0, 1, 0)
                     bones.append(
-                        Bone(node, tail, glm.vec3(0, 1, 0), color))
+                        Bone(node, tail, color, up=up))
 
         for bone in bones:
             self._add_node(bone.head, bone.tail, bone.color, bone.up)

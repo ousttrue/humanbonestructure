@@ -23,7 +23,7 @@ class GUI(dockspace.DockingGui):
         def on_select(x):
             for scene in self.scenes:
                 scene.load_vpd(x)
-        self.selector = Selector(on_select)
+        self.selector = Selector('pose selector', on_select)
 
         self.docks = [
             dockspace.Dock('pose_selector', self.selector.show,

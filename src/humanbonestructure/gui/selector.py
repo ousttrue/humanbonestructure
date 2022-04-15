@@ -8,7 +8,8 @@ LOGGER = logging.getLogger(__name__)
 
 
 class Selector:
-    def __init__(self, on_selected) -> None:
+    def __init__(self, name: str, on_selected) -> None:
+        self.name = name
         self.items: List[Vpd] = []
         self.filtered_items: List[Vpd] = []
         self.selected: Optional[Any] = None
@@ -20,15 +21,16 @@ class Selector:
     def apply(self):
         self.filtered_items.clear()
         for item in self.items:
-            if self.filter_has_lefthand[0] and not any(bone.humanoid_bone.value.startswith('left') for bone in item.bones if bone.humanoid_bone):
-                continue
-            if self.filter_has_thumbnail0[0] and not any(bone.humanoid_bone == HumanoidBone.leftThumbProximal or bone.humanoid_bone == HumanoidBone.rightThumbProximal for bone in item.bones if bone.humanoid_bone):
-                continue
+            if item.bones:
+                if self.filter_has_lefthand[0] and not any(bone.humanoid_bone.value.startswith('left') for bone in item.bones if bone.humanoid_bone):
+                    continue
+                if self.filter_has_thumbnail0[0] and not any(bone.humanoid_bone == HumanoidBone.leftThumbProximal or bone.humanoid_bone == HumanoidBone.rightThumbProximal for bone in item.bones if bone.humanoid_bone):
+                    continue
             self.filtered_items.append(item)
 
     def show(self, p_open):
         ImGui.SetNextWindowSize((100, 100), ImGui.ImGuiCond_.Once)
-        if ImGui.Begin("select vpd", p_open):
+        if ImGui.Begin(self.name, p_open):
             if ImGui.Checkbox("leftHand", self.filter_has_lefthand):
                 self.apply()
             if ImGui.Checkbox("has thumb0", self.filter_has_thumbnail0):
