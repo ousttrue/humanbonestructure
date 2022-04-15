@@ -33,7 +33,12 @@ def get_r(r: str) -> glm.quat:
 
 
 class Vpd:
-    def __init__(self, data: bytes) -> None:
+    def __init__(self, name: str):
+        self.name = name
+        self.bones: List[BonePose] = []
+
+    @staticmethod
+    def load(data: bytes) -> 'Vpd':
         text = data.decode('cp932', errors='ignore')
 
         def cleanup_line(src: str) -> str:
@@ -50,15 +55,13 @@ class Vpd:
 
         # target osm ?
         l = lines.pop(0)
-        self.name = l[:-1]
+        vpd = Vpd(l[:-1])
 
         m = re.match(r'^(\d+);$', lines.pop(0))
         if not m:
             raise RuntimeError()
 
         count = int(m.group(1))
-
-        self.bones: List[BonePose] = []
 
         # parse
         for i in range(count):
@@ -72,10 +75,12 @@ class Vpd:
 
             name = get_name(open)
             humanoid_bone = BONE_HUMANOID_MAP.get(name)
-            self.bones.append(
+            vpd.bones.append(
                 BonePose(name, humanoid_bone, Transform(get_t(t), get_r(r), glm.vec3(1))))
 
-        assert len(self.bones) == count
+        assert len(vpd.bones) == count
+
+        return vpd
 
     def __str__(self) -> str:
         return f'<{self.name}:{len(self.bones)}bones>'

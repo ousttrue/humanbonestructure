@@ -37,4 +37,4 @@ def build(self: Scene, pmx: pmx_loader.Pmx):
 
     # set renderer
     self.roots[0].renderer = MeshRenderer("assets/shader",
-                                          pmx.vertices, pmx.indices, joints=self.nodes)
+                                          pmx.vertices, pmx.indices, joints=self.nodes, flip=True)

@@ -1,3 +1,4 @@
+from typing import List
 import logging
 import os
 import argparse
@@ -30,7 +31,8 @@ def main():
 
     args = parser.parse_args()
 
-    vpd_list = []
+    from .formats.vpd_loader import Vpd
+    vpd_list: List[Vpd] = [Vpd('__empty__')]
     if args.asset_dir:
         asset_dir = pathlib.Path(args.asset_dir)
         for root, dirs, files in os.walk(asset_dir):
@@ -38,7 +40,7 @@ def main():
                 f = pathlib.Path(root) / f
                 if f.suffix == '.vpd':
                     from .scene.scene import vpd_loader
-                    vpd = vpd_loader.Vpd(f.read_bytes())
+                    vpd = vpd_loader.Vpd.load(f.read_bytes())
                     vpd.name = f.name
                     vpd_list.append(vpd)
 

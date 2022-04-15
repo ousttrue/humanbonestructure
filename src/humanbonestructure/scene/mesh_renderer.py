@@ -23,10 +23,16 @@ class SkinningInfo(ctypes.Structure):
 
 class MeshRenderer:
     def __init__(self, shader: str, vertices: ctypes.Array, indices: ctypes.Array, *,
-                 joints: Optional[list] = None) -> None:
+                 joints: Optional[list] = None, flip=False) -> None:
         self.shader = ("humanbonestructure", shader)
         self.vertices = vertices
         self.indices = indices
+        if flip:
+            for i in range(0, len(self.indices), 3):
+                i0, i1, i2 = self.indices[i:i+3]
+                self.indices[i+0] = i0
+                self.indices[i+1] = i2
+                self.indices[i+2] = i1
         if not joints:
             joints = []
         self.joints = joints
@@ -102,7 +108,9 @@ class MeshRenderer:
         for i, joint in enumerate(self.joints):
             self.bone_matrices[i] = joint.skinning_matrix
 
+        GL.glEnable(GL.GL_CULL_FACE)
         GL.glEnable(GL.GL_DEPTH_TEST)
         if self.drawable:
             self.drawable.draw()
         GL.glDisable(GL.GL_DEPTH_TEST)
+        GL.glDisable(GL.GL_CULL_FACE)

@@ -51,4 +51,4 @@ def build(self: Scene, pmd: pmd_loader.Pmd):
 
     # set renderer
     self.roots[0].renderer = MeshRenderer(
-        vertices, pmd.indices, joints=self.nodes)
+        vertices, pmd.indices, joints=self.nodes, flip=True)
