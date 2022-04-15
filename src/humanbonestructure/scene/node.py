@@ -63,6 +63,13 @@ class Node:
         return f'[{self.name}: {self.init_trs}]'
 
     @property
+    def local_matrix(self) -> glm.mat4:
+        if self.parent:
+            return glm.inverse(self.parent.world_matrix) * self.world_matrix
+        else:
+            return self.world_matrix
+
+    @property
     def skinning_matrix(self) -> glm.mat4:
         return self.world_matrix * glm.inverse(self.bind_matrix)
 
@@ -89,9 +96,9 @@ class Node:
 
         t, r, s = self.init_trs
         if self.pose:
-            return trs_matrix(t + self.pose.translation, r * self.pose.rotation, s * self.pose.scale) * glm.mat4(self.delta)
+            return trs_matrix(t + self.pose.translation, r * self.delta * self.pose.rotation, s * self.pose.scale)
         else:
-            return trs_matrix(t, r, s) * glm.mat4(self.delta)
+            return trs_matrix(t, r * self.delta, s) * glm.mat4()
 
     def calc_skinning(self, parent: glm.mat4):
         self.world_matrix = parent * self._get_local()
