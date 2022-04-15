@@ -123,8 +123,8 @@ class Skeleton:
                                      vertices, indices, joints=self.nodes)
 
     def _add_node(self, bone: Bone):
-        p0 = -bone.head.inverse_bind_matrix[3]
-        p1 = -bone.tail.inverse_bind_matrix[3]
+        p0 = bone.head.bind_matrix[3]
+        p1 = bone.tail.bind_matrix[3]
         if bone.up:
             self._push_cube(len(self.nodes), bone.color, glm.vec3(p0.x, p0.y, p0.z), glm.vec3(p1.x, p1.y, p1.z),
                             bone.up, bone.width, bone.height)

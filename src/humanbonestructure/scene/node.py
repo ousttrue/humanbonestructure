@@ -24,7 +24,7 @@ class Node:
         self.init_trs = local_trs
 
         self.world_matrix = glm.mat4()
-        self.inverse_bind_matrix = glm.mat4()
+        self.bind_matrix = glm.mat4()
         self.delta = glm.quat()
         # renderer
         from .mesh_renderer import MeshRenderer
@@ -64,15 +64,14 @@ class Node:
 
     @property
     def skinning_matrix(self) -> glm.mat4:
-        return self.world_matrix * self.inverse_bind_matrix
+        return self.world_matrix * glm.inverse(self.bind_matrix)
 
     def add_child(self, child: 'Node'):
         self.children.append(child)
         child.parent = self
 
     def initialize(self, parent: glm.mat4) -> bool:
-        self.inverse_bind_matrix = glm.inverse(
-            trs_matrix(*self.init_trs)) * parent
+        self.bind_matrix = parent * trs_matrix(*self.init_trs)
 
         has = False
         if self.humanoid_bone:
@@ -80,7 +79,7 @@ class Node:
 
         if self.children:
             for child in self.children:
-                if child.initialize(self.inverse_bind_matrix):
+                if child.initialize(self.bind_matrix):
                     self.descendants_has_humanoid = True
                     has = True
         return has
