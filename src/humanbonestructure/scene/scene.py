@@ -1,4 +1,4 @@
-from typing import Optional, List, Callable
+from typing import Optional, Callable
 import ctypes
 import pathlib
 import logging
@@ -9,6 +9,7 @@ from ..formats.humanoid_bones import HumanoidBone
 from .node import Node
 from .gizmo import Gizmo
 from .skeleton import Skeleton
+from . import tpose
 LOGGER = logging.getLogger(__name__)
 
 
@@ -26,11 +27,15 @@ class Scene:
         self.visible_mesh = (ctypes.c_bool * 1)(True)
         self.visible_gizmo = (ctypes.c_bool * 1)(True)
         self.visible_skeleton = (ctypes.c_bool * 1)(True)
-        self.force_tpose = (ctypes.c_bool * 1)(True)
+        self.force_tpose = (ctypes.c_bool * 1)(False)
 
     def _setup_model(self):
         assert self.root
         self.root.initialize()
+
+        if self.force_tpose[0]:
+            tpose.make_tpose(self.root)
+
         self.skeleton = Skeleton(self.root)
 
         self.root.calc_skinning(glm.mat4())

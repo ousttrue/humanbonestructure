@@ -16,6 +16,7 @@
         "specularity",
         "TEXCOORD",
         "tobytes",
-        "toon"
+        "toon",
+        "tpose"
     ],
 }

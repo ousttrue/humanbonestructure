@@ -1,4 +1,4 @@
-from typing import Optional, Iterable, List, Tuple
+from typing import Optional, Iterable, List, Tuple, Callable
 import glm
 from ..formats.transform import Transform
 from ..formats.humanoid_bones import HumanoidBone
@@ -21,11 +21,12 @@ class Node:
         self.index = index
         self.name = name
         self.children = children[:] if children else []
-        self.parent = None
+        self.parent: Optional[Node] = None
         self.world_matrix = glm.mat4()
         self.init_position = position
         self.init_trs = trs
         self.inverse_bind_matrix = glm.mat4()
+        self.delta = glm.quat()
         # renderer
         from .mesh_renderer import MeshRenderer
         self.renderer: Optional[MeshRenderer] = None
@@ -45,6 +46,20 @@ class Node:
             for x, y in child.traverse_node_and_parent(self):
                 yield x, y
 
+    def find(self, pred: Callable[['Node'], bool]) -> Optional['Node']:
+        for node, _ in self.traverse_node_and_parent():
+            if pred(node):
+                return node
+
+    def find_tail(self) -> Optional['Node']:
+        assert self.humanoid_bone
+        for child in self.children:
+            for node, _ in child.traverse_node_and_parent():
+                if node.humanoid_bone:
+                    return node
+        if self.children:
+            return self.children[0]
+
     def __str__(self) -> str:
         if self.init_position:
             return f'[{self.name}: {self.init_position}]'
@@ -55,13 +70,14 @@ class Node:
 
     @property
     def skinning_matrix(self) -> glm.mat4:
-        return self.world_matrix * self.inverse_bind_matrix
+        return self.world_matrix * glm.mat4(glm.inverse(self.delta)) * self.inverse_bind_matrix
 
     def add_child(self, child: 'Node'):
         self.children.append(child)
         child.parent = self
 
     def initialize(self) -> bool:
+        self.delta = glm.quat()
         if self.init_trs:
             # gltf
             pass
@@ -97,11 +113,11 @@ class Node:
     def _get_local(self, init=False) -> glm.mat4:
         assert self.init_trs
 
+        t, r, s = self.init_trs
         if not init and self.pose:
-            t, r, s = self.init_trs
             return trs_matrix(self.pose.translation + t, self.pose.rotation * r, self.pose.scale * s)
         else:
-            return trs_matrix(*self.init_trs)
+            return trs_matrix(t, r, s)
 
     def calc_skinning(self, parent: glm.mat4):
         self.world_matrix = parent * self._get_local()
