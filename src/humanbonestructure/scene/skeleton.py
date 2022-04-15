@@ -38,6 +38,8 @@ class Bone(NamedTuple):
     tail: Node
     color: Float3
     up: Optional[glm.vec3] = None
+    width: float = 0
+    height: float = 0
 
 
 class Skeleton:
@@ -57,6 +59,10 @@ class Skeleton:
                         for child in node.children:
                             if find_tail(child):
                                 return child
+                    case '右手首':
+                        return next(iter(node for node, _ in node.traverse_node_and_parent() if node.name == '右中指１'))
+                    case '左手首':
+                        return next(iter(node for node, _ in node.traverse_node_and_parent() if node.name == '左中指１'))
                     case _:
                         pass
 
@@ -75,6 +81,8 @@ class Skeleton:
                 if tail:
                     color = Float3(1, 1, 1)
                     up = None
+                    width = 0.005
+                    height = 0.001
                     if node.humanoid_bone.is_finger():
                         if 'Index' in node.humanoid_bone.name or 'Ring' in node.humanoid_bone.name:
                             if node.humanoid_bone.name.endswith("Intermediate"):
@@ -87,11 +95,28 @@ class Skeleton:
                             else:
                                 color = Float3(0.9, 0.7, 0.2)
                         up = glm.vec3(0, 1, 0)
+                        width = 0.005
+                    else:
+                        match node.humanoid_bone:
+                            case (
+                                HumanoidBone.leftUpperArm | HumanoidBone.leftLowerArm |
+                                HumanoidBone.leftUpperArm | HumanoidBone.leftLowerArm
+                            ):
+                                color = Float3(0.3, 0.6, 0.1) if 'Lower' in node.humanoid_bone.name else Float3(
+                                    0.7, 0.9, 0.2)
+                                up = glm.vec3(0, 1, 0)
+                                width = 0.01
+                                height = 0.005
+                            case (HumanoidBone.leftHand | HumanoidBone.leftHand):
+                                color = Float3(0.8, 0.8, 0.8)
+                                up = glm.vec3(0, 1, 0)
+                                width = 0.005
+                                height = 0.002
                     bones.append(
-                        Bone(node, tail, color, up=up))
+                        Bone(node, tail, color, up=up, width=width, height=height))
 
         for bone in bones:
-            self._add_node(bone.head, bone.tail, bone.color, bone.up)
+            self._add_node(bone)
 
         vertices = (Vertex * len(self.vertices))(*self.vertices)
         indices = (ctypes.c_uint16 * len(self.indices))(*self.indices)
@@ -99,25 +124,24 @@ class Skeleton:
         self.renderer = MeshRenderer(SHADER,
                                      vertices, indices, joints=self.nodes)
 
-    def _add_node(self, head: Node, tail: Node, color: Float3, up: glm.vec3):
-        print(head.name, tail.name)
-        p0 = head.world_matrix[3]
-        p1 = tail.world_matrix[3]
-        if head.humanoid_bone and head.humanoid_bone.is_finger():
-            self._push_cube(len(self.nodes), color, glm.vec3(p0.x, p0.y, p0.z), glm.vec3(p1.x, p1.y, p1.z),
-                            up, 0.005, 0.001)
+    def _add_node(self, bone: Bone):
+        p0 = bone.head.world_matrix[3]
+        p1 = bone.tail.world_matrix[3]
+        if bone.up:
+            self._push_cube(len(self.nodes), bone.color, glm.vec3(p0.x, p0.y, p0.z), glm.vec3(p1.x, p1.y, p1.z),
+                            bone.up, bone.width, bone.height)
         else:
-            self._push_triangle(len(self.nodes), color,
+            self._push_triangle(len(self.nodes), bone.color,
                                 Float3(p0.x, p0.y, p0.z),
                                 Float3(p1.x, p1.y, p1.z),
                                 Float3(p0.x, p0.y, p0.z + 0.01),
                                 )
-            self._push_triangle(len(self.nodes), color,
+            self._push_triangle(len(self.nodes), bone.color,
                                 Float3(p0.x, p0.y, p0.z),
                                 Float3(p0.x, p0.y, p0.z + 0.01),
                                 Float3(p1.x, p1.y, p1.z),
                                 )
-        self.nodes.append(head)
+        self.nodes.append(bone.head)
 
     def _push_triangle(self, bone_index: int, color: Float3, p0: Float3, p1: Float3, p2: Float3):
         vertex_index = len(self.vertices)
