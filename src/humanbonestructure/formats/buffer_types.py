@@ -1,3 +1,4 @@
+from typing import Union
 import ctypes
 
 
@@ -14,14 +15,21 @@ class Float3(ctypes.Structure):
         ('y', ctypes.c_float),
         ('z', ctypes.c_float),
     ]
+    __match_args__ = ('x', 'y', 'z')
 
     def __iter__(self):
         yield self.x
         yield self.y
         yield self.z
 
-    def __mul__(self, rhs: float) -> 'Float3':
-        return Float3(self.x * rhs, self.y * rhs, self.z * rhs)
+    def __mul__(self, rhs: Union[float, 'Float3']) -> 'Float3':
+        match rhs:
+            case float() as n:
+                return Float3(self.x * rhs, self.y * rhs, self.z * rhs)
+            case Float3(x, y, z):
+                return Float3(self.x * x, self.y * y, self.z * z)
+            case _:
+                raise NotImplementedError()
 
     def __add__(self, rhs: 'Float3') -> 'Float3':
         return Float3(self.x + rhs.x, self.y + rhs.y, self.z+rhs.z)

@@ -104,7 +104,7 @@ class Skeleton:
                             ):
                                 color = Float3(0.3, 0.6, 0.1) if 'Lower' in node.humanoid_bone.name else Float3(
                                     0.7, 0.9, 0.2)
-                                up = glm.vec3(0, 1, 0)
+                                up = glm.vec3(0, 0, -1)
                                 width = 0.01
                                 height = 0.005
                             case (HumanoidBone.leftHand | HumanoidBone.leftHand):
@@ -210,7 +210,7 @@ class Skeleton:
                         vec3_to_float3(p1_2),
                         vec3_to_float3(p1_3))
         # bottom
-        self._push_quad(bone_index, color,
+        self._push_quad(bone_index, color * Float3(0.9, 0.2, 0.2),
                         vec3_to_float3(p0_1),
                         vec3_to_float3(p0_0),
                         vec3_to_float3(p1_0),
