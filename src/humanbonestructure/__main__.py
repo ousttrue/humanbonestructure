@@ -5,7 +5,6 @@ import argparse
 import pathlib
 LOGGER = logging.getLogger(__name__)
 
-# TODO: pmx loader
 # TODO: vmd loader
 # TODO: bvh loader
 # TODO: gltf animation
@@ -13,7 +12,6 @@ LOGGER = logging.getLogger(__name__)
 # TODO: human bone gizmo
 # TODO: trackball camera
 # TODO: mediapipe
-# TODO: local axis
 # TODO: pose -> axis angle
 # TODO: camera fit to hand
 # TODO: multi angle

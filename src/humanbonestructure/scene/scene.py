@@ -1,10 +1,11 @@
-from typing import Optional, List
+from typing import Optional, List, Callable
 import ctypes
 import pathlib
 import logging
 import glm
 from pydear.scene.camera import Camera
 from ..formats import pmd_loader, gltf_loader, vpd_loader, pmx_loader
+from ..formats.humanoid_bones import HumanoidBone
 from .node import Node
 from .gizmo import Gizmo
 from .skeleton import Skeleton
@@ -19,11 +20,13 @@ class Scene:
     def __init__(self) -> None:
         # scene
         self.root: Optional[Node] = None
-        self.visible_mesh = (ctypes.c_bool * 1)(True)
-        self.visible_skeleton = (ctypes.c_bool * 1)(True)
-        # model gizmo
         self.gizmo = Gizmo()
         self.skeleton = None
+        # GUI check box
+        self.visible_mesh = (ctypes.c_bool * 1)(True)
+        self.visible_gizmo = (ctypes.c_bool * 1)(True)
+        self.visible_skeleton = (ctypes.c_bool * 1)(True)
+        self.force_tpose = (ctypes.c_bool * 1)(True)
 
     def _setup_model(self):
         assert self.root
@@ -71,12 +74,12 @@ class Scene:
         self._setup_model()
 
     def render(self, camera: Camera):
-        # render
         if self.visible_mesh[0]:
             if root := self.root:
                 self.render_node(camera, root)
 
-        self.gizmo.render(camera)
+        if self.visible_gizmo[0]:
+            self.gizmo.render(camera)
 
         if self.skeleton and self.visible_skeleton[0]:
             self.skeleton.renderer.render(camera)
@@ -88,7 +91,7 @@ class Scene:
         for child in node.children:
             self.render_node(camera, child)
 
-    def load_vpd(self, vpd: Optional[vpd_loader.Vpd]):
+    def load_vpd(self, vpd: Optional[vpd_loader.Vpd], mask: Callable[[HumanoidBone], bool]):
         # clear
         if not self.root:
             return
@@ -96,7 +99,6 @@ class Scene:
         for node, _ in self.root.traverse_node_and_parent():
             node.pose = None
 
-        # self.vpd = Vpd(pkgutil.get_data('humanbonestructure', 'assets/Pose/右手グー.vpd'))
         self.vpd = vpd
         LOGGER.debug(self.vpd)
 
@@ -109,11 +111,8 @@ class Scene:
                 humanoid_bone = pmd_loader.BONE_HUMANOID_MAP.get(bone.name)
                 if humanoid_bone:
                     node = humanoid_node_map.get(humanoid_bone)
-                    if node and node.humanoid_bone:
-                        # Handより祖先に適用しない(mask)
-                        if node.humanoid_bone.is_finger():
+                    if node:
+                        if mask(humanoid_bone):
                             node.pose = bone.transform.reverse_z()
-                    else:
-                        LOGGER.warn(f'{bone.name} not found')
 
         self._setup_model()

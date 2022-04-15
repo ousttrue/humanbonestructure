@@ -18,6 +18,10 @@ class Selector:
         self.filter_has_lefthand = (ctypes.c_bool * 1)(True)
         self.filter_has_thumbnail0 = (ctypes.c_bool * 1)(True)
 
+        self.use_except_finger = (ctypes.c_bool * 1)(False)
+        self.use_finger = (ctypes.c_bool * 1)(True)
+        self.mask = lambda x: True
+
     def apply(self):
         self.filtered_items.clear()
         for item in self.items:
@@ -28,12 +32,31 @@ class Selector:
                     continue
             self.filtered_items.append(item)
 
+        if self.use_except_finger[0] and self.use_finger[0]:
+            self.mask = lambda x: True
+        elif self.use_except_finger[0]:
+            self.mask = lambda x: not x.is_finger()
+        elif self.use_finger[0]:
+            self.mask = lambda x: x.is_finger()
+        else:
+            self.mask = lambda x: False
+
+        if self.selected:
+            self.on_selected(self.selected, self.mask)
+
     def show(self, p_open):
         ImGui.SetNextWindowSize((100, 100), ImGui.ImGuiCond_.Once)
         if ImGui.Begin(self.name, p_open):
             if ImGui.Checkbox("leftHand", self.filter_has_lefthand):
                 self.apply()
+            ImGui.SameLine()
             if ImGui.Checkbox("has thumb0", self.filter_has_thumbnail0):
+                self.apply()
+
+            if ImGui.Checkbox("mask except finger", self.use_except_finger):
+                self.apply()
+            ImGui.SameLine()
+            if ImGui.Checkbox("mask finger", self.use_finger):
                 self.apply()
 
             selected = None
@@ -44,5 +67,5 @@ class Selector:
                     selected = item
             if selected:
                 self.selected = selected
-                self.on_selected(selected)
+                self.on_selected(selected, self.mask)
         ImGui.End()

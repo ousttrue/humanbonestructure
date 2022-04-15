@@ -19,9 +19,13 @@ class BoneTree:
     def show(self, p_open):
         ImGui.SetNextWindowSize((100, 100), ImGui.ImGuiCond_.Once)
         if ImGui.Begin(self.name, p_open):
+            ImGui.Checkbox('skeleton', self.scene.visible_skeleton)
+            ImGui.SameLine()
+            ImGui.Checkbox('gizmo', self.scene.visible_gizmo)
+            ImGui.SameLine()
             ImGui.Checkbox('mesh', self.scene.visible_mesh)
             ImGui.SameLine()
-            ImGui.Checkbox('skeleton', self.scene.visible_skeleton)
+            ImGui.Checkbox('tpose', self.scene.force_tpose)
 
             # tree
             flags = (

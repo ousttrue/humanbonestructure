@@ -6,6 +6,7 @@ import ctypes
 from pydear import imgui as ImGui
 from pydear.utils import dockspace
 from ..scene.scene import Scene
+from ..formats.humanoid_bones import HumanoidBone
 
 LOGGER = logging.getLogger(__name__)
 
@@ -20,9 +21,9 @@ class GUI(dockspace.DockingGui):
 
         from .selector import Selector
 
-        def on_select(x):
+        def on_select(vpd, mask):
             for scene in self.scenes:
-                scene.load_vpd(x)
+                scene.load_vpd(vpd, mask)
         self.selector = Selector('pose selector', on_select)
 
         self.docks = [

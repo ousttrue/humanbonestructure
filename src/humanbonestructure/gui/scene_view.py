@@ -13,7 +13,7 @@ class SceneView:
         self.scene = scene
         # imgui
         self.clear_color = (ctypes.c_float * 4)(0.1, 0.2, 0.3, 1)
-        self.hover_color = (ctypes.c_float * 4)(0.2, 0.4, 0.6, 1)
+        self.hover_color = (ctypes.c_float * 4)(0.2, 0.3, 0.4, 1)
         self.fbo_manager = glo.FboRenderer()
         self.bg = ImGui.ImVec4(1, 1, 1, 1)
         self.tint = ImGui.ImVec4(1, 1, 1, 1)
