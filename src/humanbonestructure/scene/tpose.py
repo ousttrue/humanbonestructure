@@ -13,8 +13,7 @@ def mod(head: Node, tail: Node):
     z = glm.cross(x, y)
     world = glm.quat(glm.mat3(x, y, z))
 
-    src = glm.quat()
-    local = glm.inverse(world) * src
+    local = glm.inverse(world)
     head.delta = local
     print(head, local)
 
