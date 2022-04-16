@@ -31,6 +31,7 @@ class Node:
         self.renderer: Optional[MeshRenderer] = None
         # UI
         self.humanoid_bone = humanoid_bone
+        self.humanoid_tail: Optional[None] = None
         self.descendants_has_humanoid = False
         # skinning
         self.pose: Optional[Transform] = None

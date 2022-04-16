@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 import ctypes
 from .bytesreader import BytesReader
 from .buffer_types import Vertex4BoneWeights, RenderVertex, Float3, Float4
@@ -34,6 +34,7 @@ class Bone:
         self.name_en = name_en
         self.position = position
         self.parent_index = parent_index
+        self.tail_position: Optional[Float3] = None
 
 
 class Pmx:
@@ -205,7 +206,8 @@ class Pmx:
             if flags & BONE_HAS_TAIL:
                 tail_index = bone_index()
             else:
-                tail_position = r.struct(Float3)
+                bone.tail_position = r.struct(
+                    Float3) * SCALING_FACTOR  # type: ignore
 
             if flags & BONE_ROTATION_CONSTRAINT or flags & BONE_TRANSLATION_CONSTRAINT:
                 source_index = bone_index()

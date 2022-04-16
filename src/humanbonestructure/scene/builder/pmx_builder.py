@@ -17,6 +17,7 @@ def build(pmx: pmx_loader.Pmx) -> Node:
         nodes.append(node)
 
     for i, (node, bone) in enumerate(zip(nodes, pmx.bones)):
+        assert isinstance(bone, pmx_loader.Bone)
         if humanoid_bone := pmd_loader.BONE_HUMANOID_MAP.get(node.name):
             node.humanoid_bone = humanoid_bone
 
@@ -29,6 +30,10 @@ def build(pmx: pmx_loader.Pmx) -> Node:
             node.init_trs = node.init_trs._replace(translation=reverse_z(t))
             parent = nodes[bone.parent_index]
             parent.add_child(node)
+
+        if bone.tail_position:
+            node.add_child(
+                Node(-1, f'{bone.name_ja}先', Transform(reverse_z(glm.vec3(*bone.tail_position)), glm.quat(), glm.vec3(1))))
 
     # reverse z
     for i, v in enumerate(pmx.vertices):

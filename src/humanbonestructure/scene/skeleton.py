@@ -59,7 +59,7 @@ class Skeleton:
                     case '上半身2':
                         return next(iter(node for node, _ in node.traverse_node_and_parent() if node.name == '首'))
                     case '下半身':
-                        node.find_tail()
+                        return next(iter(node for node, _ in node.traverse_node_and_parent() if node.name == '下半身先'))
                     case '右手首':
                         return next(iter(node for node, _ in node.traverse_node_and_parent() if node.name == '右中指１'))
                     case '左手首':
