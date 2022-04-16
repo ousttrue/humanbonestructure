@@ -1,6 +1,7 @@
 from typing import Optional, List
 import ctypes
 from OpenGL import GL
+import glm
 from pydear.scene.camera import Camera
 from pydear import glo
 from .scene import Node
@@ -103,7 +104,7 @@ class Gizmo:
 
         for node, _ in root.traverse_node_and_parent():
             if node.humanoid_bone:
-                m = node.world_matrix
+                m = node.world_matrix * glm.mat4(node.local_aixs)
                 pos = m[3]
                 push.push_line(pos, m[0], 0.02, Float4(1, 0, 0, 1))
                 push.push_line(pos, m[1], 0.02, Float4(0, 1, 0, 1))

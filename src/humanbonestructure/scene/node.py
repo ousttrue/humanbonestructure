@@ -17,6 +17,9 @@ class Node:
     SkinnigMatrix = WorldMatrix x InvereBindMatrix
     WorldMatrix = Root x ... x Parent x Local
     Local = Init x Delta x Pose
+
+    # not propagate hierarchy
+    Pose = inv(local_axis) x Pose
     '''
 
     def __init__(self, index: int, name: str, local_trs: Transform, *,
@@ -32,6 +35,7 @@ class Node:
         self.world_matrix = glm.mat4()
         self.bind_matrix = glm.mat4()
         self.delta = glm.quat()
+        self.local_aixs = glm.quat()
         # renderer
         from .mesh_renderer import MeshRenderer
         self.renderer: Optional[MeshRenderer] = None

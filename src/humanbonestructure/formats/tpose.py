@@ -1,3 +1,5 @@
+from typing import Dict
+import copy
 import glm
 from ..scene.node import Node
 from ..formats.humanoid_bones import HumanoidBone
@@ -42,7 +44,8 @@ def make_tpose(root: Node):
     root.calc_skinning(glm.mat4())
 
 
-def pose_to_init(root: Node, counter_delta=False):
+def pose_to_init(root: Node) -> Dict[Node, glm.quat]:
+    delta_map = {}
     for node, parent in root.traverse_node_and_parent():
         r = glm.quat()
         if node.pose:
@@ -58,6 +61,14 @@ def pose_to_init(root: Node, counter_delta=False):
                 node.world_matrix[3].xyz,
                 node.init_trs.rotation * r,
                 glm.vec3(1))
-        if counter_delta:
-            node.delta = glm.inverse(r)
+        delta_map[node] = glm.inverse(r)
         node.pose = None
+    return delta_map
+
+
+def local_axis_fit_world(root: Node):
+
+    for node, parent in root.traverse_node_and_parent():
+        node.local_aixs = glm.inverse(glm.quat(node.world_matrix))
+
+    root.calc_skinning(glm.mat4())

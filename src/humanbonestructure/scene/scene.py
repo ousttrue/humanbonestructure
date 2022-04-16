@@ -92,7 +92,13 @@ class Scene:
 
         # tpose
         tpose.make_tpose(self.root)
-        tpose.pose_to_init(self.root, counter_delta=True)
+        delta_map = tpose.pose_to_init(self.root)
+        tpose.local_axis_fit_world(self.root)
+        # restore pose
+        for node, _ in self.root.traverse_node_and_parent():
+            delta = delta_map.get(node)
+            if delta:
+                node.delta = delta
         self._setup_model()
 
     def render(self, camera: Camera):
@@ -114,7 +120,6 @@ class Scene:
             self.render_node(camera, child)
 
     def load_vpd(self, vpd: Optional[vpd_loader.Vpd], mask: Optional[Callable[[HumanoidBone], bool]] = None):
-        # clear
         if not self.root:
             return
 
@@ -127,6 +132,10 @@ class Scene:
         humanoid_node_map = {node.humanoid_bone: node for node,
                              _ in self.root.traverse_node_and_parent() if node.humanoid_bone}
 
+        def conv(bone: vpd_loader.BonePose):
+            t = bone.transform.reverse_z()
+            return t
+
         # assign pose to node hierarchy
         if self.vpd:
             for bone in self.vpd.bones:
@@ -135,6 +144,6 @@ class Scene:
                     node = humanoid_node_map.get(humanoid_bone)
                     if node:
                         if not mask or mask(humanoid_bone):
-                            node.pose = bone.transform.reverse_z()
+                            node.pose = conv(bone)
 
         self._skinning()
