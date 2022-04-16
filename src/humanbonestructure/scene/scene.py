@@ -92,19 +92,7 @@ class Scene:
 
         # tpose
         tpose.make_tpose(self.root)
-        for node, parent in self.root.traverse_node_and_parent():
-            if parent:
-                node.init_trs = Transform(
-                    node.world_matrix[3].xyz-parent.world_matrix[3].xyz,
-                    glm.quat(),
-                    glm.vec3(1))
-            else:
-                node.init_trs = Transform(
-                    node.world_matrix[3].xyz,
-                    glm.quat(),
-                    glm.vec3(1))
-            node.pose = None
-            node.delta = glm.inverse(node.delta)
+        tpose.pose_to_init(self.root, counter_delta=True)
         self._setup_model()
 
     def render(self, camera: Camera):

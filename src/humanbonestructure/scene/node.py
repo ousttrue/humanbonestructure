@@ -13,6 +13,12 @@ def trs_matrix(t: glm.vec3, r: glm.quat, s: glm.vec3) -> glm.mat4:
 
 
 class Node:
+    '''
+    SkinnigMatrix = WorldMatrix x InvereBindMatrix
+    WorldMatrix = Root x ... x Parent x Local
+    Local = Init x Delta x Pose
+    '''
+
     def __init__(self, index: int, name: str, local_trs: Transform, *,
                  humanoid_bone: Optional[HumanoidBone] = None,
                  children: Optional[List['Node']] = None) -> None:

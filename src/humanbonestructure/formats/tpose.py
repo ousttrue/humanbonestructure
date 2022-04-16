@@ -19,7 +19,7 @@ def mod(head: Node, tail: Node):
     local_to = glm.quat(inv)
 
     local = local_to * glm.inverse(local_from)
-    head.delta = glm.normalize(local)
+    head.pose = Transform(glm.vec3(0), glm.normalize(local), glm.vec3(1))
     print(head, local)
 
 
@@ -40,3 +40,24 @@ def make_tpose(root: Node):
             mod(node, node.humanoid_tail)
 
     root.calc_skinning(glm.mat4())
+
+
+def pose_to_init(root: Node, counter_delta=False):
+    for node, parent in root.traverse_node_and_parent():
+        r = glm.quat()
+        if node.pose:
+            r = node.pose.rotation
+        if parent:
+            node.init_trs = Transform(
+                (glm.inverse(parent.world_matrix)
+                    * node.world_matrix)[3].xyz,
+                node.init_trs.rotation * r,
+                glm.vec3(1))
+        else:
+            node.init_trs = Transform(
+                node.world_matrix[3].xyz,
+                node.init_trs.rotation * r,
+                glm.vec3(1))
+        if counter_delta:
+            node.delta = glm.inverse(r)
+        node.pose = None
