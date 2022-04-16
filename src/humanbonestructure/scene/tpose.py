@@ -5,16 +5,20 @@ from ..formats.humanoid_bones import HumanoidBone
 
 def mod(head: Node, tail: Node):
     # print(head, tail)
+    inv = glm.inverse(head.world_matrix)
 
-    x = glm.normalize(
-        tail.world_matrix[3].xyz-head.world_matrix[3].xyz)
-    _z = glm.vec3(0, 0, 1)
-    y = glm.cross(_z, x)
-    z = glm.cross(x, y)
-    world = glm.quat(glm.mat3(x, y, z))
+    # local to
+    x = glm.normalize((inv * tail.world_matrix)[3].xyz)
+    _z = (inv * glm.vec4(0, 0, 1, 0)).xyz
+    y = glm.normalize(glm.cross(_z, x))
+    z = glm.normalize(glm.cross(x, y))
+    local_from = glm.quat(glm.mat3(x, y, z))
 
-    local = glm.inverse(world)
-    head.delta = local
+    # local from
+    local_to = glm.quat(inv)
+
+    local = local_to * glm.inverse(local_from)
+    head.delta = glm.normalize(local)
     print(head, local)
 
 

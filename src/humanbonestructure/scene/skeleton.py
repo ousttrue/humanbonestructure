@@ -76,12 +76,13 @@ class Skeleton:
                             up = glm.vec3(0, 0, 1)
                         else:
                             up = glm.vec3(0, 1, 0)
-                        width = 0.005
                     else:
                         match node.humanoid_bone:
                             case (
                                 HumanoidBone.leftUpperArm | HumanoidBone.leftLowerArm |
-                                HumanoidBone.leftUpperArm | HumanoidBone.leftLowerArm
+                                HumanoidBone.leftUpperArm | HumanoidBone.leftLowerArm |
+                                HumanoidBone.rightUpperArm | HumanoidBone.rightLowerArm |
+                                HumanoidBone.rightUpperArm | HumanoidBone.rightLowerArm
                             ):
                                 color = Float3(0.3, 0.6, 0.1) if 'Lower' in node.humanoid_bone.name else Float3(
                                     0.7, 0.9, 0.2)
@@ -91,10 +92,10 @@ class Skeleton:
                             case (HumanoidBone.leftHand | HumanoidBone.leftHand):
                                 color = Float3(0.8, 0.8, 0.8)
                                 up = glm.vec3(0, 1, 0)
-                                width = 0.005
+                                width = 0.01
                                 height = 0.002
                     bones.append(
-                        Bone(node, node.humanoid_tail, color, up=up, width=width, height=height))
+                        Bone(node, node.humanoid_tail, up=up, color=color, width=width, height=height))
 
         for bone in bones:
             print(bone)
@@ -169,8 +170,8 @@ class Skeleton:
     def _push_cube(self, bone_index: int, color: Float3, p0: glm.vec3, p1: glm.vec3,
                    y: glm.vec3, w: float, h: float):
         z = glm.normalize(p1 - p0)
-        x = glm.cross(z, y)
-        y = glm.cross(x, z)
+        x = glm.normalize(glm.cross(z, y))
+        y = glm.normalize(glm.cross(x, z))
         # 3 2
         # 0 1
         p0_0 = p0-x*w-y*h

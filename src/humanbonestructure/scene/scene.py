@@ -33,10 +33,10 @@ class Scene:
         assert self.root
         self.root.initialize(glm.mat4())
 
+        self.root.calc_skinning(glm.mat4())
         self.skeleton = Skeleton(self.root)
 
         if self.force_tpose[0]:
-            self.root.calc_skinning(glm.mat4())
             tpose.make_tpose(self.root)
         else:
             for node, _ in self.root.traverse_node_and_parent():
