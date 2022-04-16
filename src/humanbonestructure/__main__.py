@@ -50,11 +50,15 @@ def main():
     gui.selector.items = vpd_list
     gui.selector.apply()
 
+    # load model
     for model in args.model:
         gui.add_model(pathlib.Path(model))
 
     if args.create:
         gui.create_model()
+
+    # add_tpose
+    gui.add_tpose()
 
     from pydear.backends import impl_glfw
     impl_glfw = impl_glfw.ImplGlfwInput(app.window)

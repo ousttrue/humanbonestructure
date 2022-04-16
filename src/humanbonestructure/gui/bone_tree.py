@@ -24,8 +24,6 @@ class BoneTree:
             ImGui.Checkbox('gizmo', self.scene.visible_gizmo)
             ImGui.SameLine()
             ImGui.Checkbox('mesh', self.scene.visible_mesh)
-            ImGui.SameLine()
-            ImGui.Checkbox('tpose', self.scene.force_tpose)
 
             # tree
             flags = (

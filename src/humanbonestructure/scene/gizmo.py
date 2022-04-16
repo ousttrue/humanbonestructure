@@ -102,11 +102,12 @@ class Gizmo:
         push = LinePush(self.lines, len(LINE_VERTICES))
 
         for node, _ in root.traverse_node_and_parent():
-            m = node.world_matrix
-            pos = m[3]
-            push.push_line(pos, m[0], 0.02, Float4(1, 0, 0, 1))
-            push.push_line(pos, m[1], 0.02, Float4(0, 1, 0, 1))
-            push.push_line(pos, m[2], 0.02, Float4(0, 0, 1, 1))
+            if node.humanoid_bone:
+                m = node.world_matrix
+                pos = m[3]
+                push.push_line(pos, m[0], 0.02, Float4(1, 0, 0, 1))
+                push.push_line(pos, m[1], 0.02, Float4(0, 1, 0, 1))
+                push.push_line(pos, m[2], 0.02, Float4(0, 0, 1, 1))
 
         self.lines_submeshes[1].draw_count = push.pos
         self.lines_updated = True

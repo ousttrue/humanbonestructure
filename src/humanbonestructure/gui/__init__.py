@@ -128,12 +128,25 @@ class GUI(dockspace.DockingGui):
         tree_name = f'tree:__procedual__'
         from .bone_tree import BoneTree
         tree = BoneTree(tree_name, scene)
+        self.views.append(dockspace.Dock(tree_name, tree.show,
+                                         (ctypes.c_bool * 1)(True)))
 
         view_name = f'view:__procedual__'
         from .scene_view import SceneView
         view = SceneView(view_name, scene)
-
-        self.views.append(dockspace.Dock(tree_name, tree.show,
+        self.views.append(dockspace.Dock(view_name, view.show,
                                          (ctypes.c_bool * 1)(True)))
+
+    def add_tpose(self):
+        if not self.scenes:
+            return
+
+        scene = Scene()
+        scene.create_tpose_from(self.scenes[0])
+        self.scenes.append(scene)
+
+        view_name = f'tpose'
+        from .scene_view import SceneView
+        view = SceneView(view_name, scene)
         self.views.append(dockspace.Dock(view_name, view.show,
                                          (ctypes.c_bool * 1)(True)))

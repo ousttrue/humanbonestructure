@@ -6,10 +6,11 @@ import glm
 from pydear.scene.camera import Camera
 from ..formats import pmd_loader, gltf_loader, vpd_loader, pmx_loader
 from ..formats.humanoid_bones import HumanoidBone
+from ..formats import tpose
+from ..formats.transform import Transform
 from .node import Node
 from .gizmo import Gizmo
 from .skeleton import Skeleton
-from . import tpose
 LOGGER = logging.getLogger(__name__)
 
 
@@ -20,34 +21,22 @@ class Scene:
 
     def __init__(self) -> None:
         # scene
-        self.root: Optional[Node] = None
+        self.root = Node(-1, '__root__', Transform.identity())
         self.gizmo = Gizmo()
         self.skeleton = None
         # GUI check box
         self.visible_mesh = (ctypes.c_bool * 1)(True)
         self.visible_gizmo = (ctypes.c_bool * 1)(True)
         self.visible_skeleton = (ctypes.c_bool * 1)(True)
-        self.force_tpose = (ctypes.c_bool * 1)(True)
 
     def _setup_model(self):
-        assert self.root
         self.root.initialize(glm.mat4())
-
         self.root.calc_skinning(glm.mat4())
         self.skeleton = Skeleton(self.root)
-
-        if self.force_tpose[0]:
-            tpose.make_tpose(self.root)
-        else:
-            for node, _ in self.root.traverse_node_and_parent():
-                node.delta = glm.quat()
-
         self._skinning()
 
     def _skinning(self):
-        assert self.root
         self.root.calc_skinning(glm.mat4())
-
         self.gizmo.update(self.root)
 
     def load_model(self, path: pathlib.Path):
@@ -87,6 +76,37 @@ class Scene:
         self.root = create.create_hand()
         self._setup_model()
 
+    def create_tpose_from(self, scene: 'Scene'):
+        def copy_tree(src: Node, dst: Node):
+
+            for s in src.children:
+                d = Node(s.index, s.name, s.init_trs,
+                         humanoid_bone=s.humanoid_bone)
+
+                dst.add_child(d)
+                copy_tree(s, d)
+
+        self.root = Node(-1, '__root__', Transform.identity())
+        copy_tree(scene.root, self.root)
+        self._setup_model()
+
+        # tpose
+        tpose.make_tpose(self.root)
+        for node, parent in self.root.traverse_node_and_parent():
+            if parent:
+                node.init_trs = Transform(
+                    node.world_matrix[3].xyz-parent.world_matrix[3].xyz,
+                    glm.quat(),
+                    glm.vec3(1))
+            else:
+                node.init_trs = Transform(
+                    node.world_matrix[3].xyz,
+                    glm.quat(),
+                    glm.vec3(1))
+            node.pose = None
+            node.delta = glm.inverse(node.delta)
+        self._setup_model()
+
     def render(self, camera: Camera):
         if self.visible_mesh[0]:
             if root := self.root:
@@ -105,7 +125,7 @@ class Scene:
         for child in node.children:
             self.render_node(camera, child)
 
-    def load_vpd(self, vpd: Optional[vpd_loader.Vpd], mask: Callable[[HumanoidBone], bool]):
+    def load_vpd(self, vpd: Optional[vpd_loader.Vpd], mask: Optional[Callable[[HumanoidBone], bool]] = None):
         # clear
         if not self.root:
             return
@@ -126,7 +146,7 @@ class Scene:
                 if humanoid_bone:
                     node = humanoid_node_map.get(humanoid_bone)
                     if node:
-                        if mask(humanoid_bone):
+                        if not mask or mask(humanoid_bone):
                             node.pose = bone.transform.reverse_z()
 
         self._skinning()
