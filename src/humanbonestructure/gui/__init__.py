@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional, Tuple, Callable
 import logging
 import asyncio
 import pathlib
@@ -7,8 +7,55 @@ from pydear import imgui as ImGui
 from pydear.utils import dockspace
 from ..scene.scene import Scene
 from ..formats.humanoid_bones import HumanoidBone
+from ..formats import vpd_loader
+from .eventproperty import EventProperty
 
 LOGGER = logging.getLogger(__name__)
+
+
+class VpdFilter(EventProperty[Callable[[vpd_loader.Vpd], bool]]):
+    def __init__(self) -> None:
+        self.filter_has_lefthand = (ctypes.c_bool * 1)(True)
+        self.filter_has_thumbnail0 = (ctypes.c_bool * 1)(True)
+        super().__init__(default_value=lambda x: True, show=self.show)
+
+    def show(self):
+        chcked = False
+        if ImGui.Checkbox("leftHand", self.filter_has_lefthand):
+            chcked = True
+        ImGui.SameLine()
+        if ImGui.Checkbox("has thumb0", self.filter_has_thumbnail0):
+            chcked = True
+
+        if chcked:
+            def on_checked(item: vpd_loader.Vpd):
+                if self.filter_has_lefthand[0] and not any(bone.humanoid_bone.value.startswith('left') for bone in item.bones if bone.humanoid_bone):
+                    return False
+                if self.filter_has_thumbnail0[0] and not any(bone.humanoid_bone == HumanoidBone.leftThumbProximal or bone.humanoid_bone == HumanoidBone.rightThumbProximal for bone in item.bones if bone.humanoid_bone):
+                    return False
+                return True
+
+            self.set(on_checked)
+
+
+class VpdMask(EventProperty):
+    def __init__(self) -> None:
+        super().__init__(default_value=lambda x: True, show=self.show)
+        self.use_except_finger = (ctypes.c_bool * 1)(False)
+        self.use_finger = (ctypes.c_bool * 1)(True)
+
+    def show(self):
+        ImGui.Checkbox("mask except finger", self.use_except_finger)
+        ImGui.SameLine()
+        ImGui.Checkbox("mask finger", self.use_finger)
+        if self.use_except_finger[0] and self.use_finger[0]:
+            self.set(lambda x: True)
+        elif self.use_except_finger[0]:
+            self.set(lambda x: not x.is_finger())
+        elif self.use_finger[0]:
+            self.set(lambda x: x.is_finger())
+        else:
+            self.set(lambda x: False)
 
 
 class GUI(dockspace.DockingGui):
@@ -21,10 +68,15 @@ class GUI(dockspace.DockingGui):
 
         from .selector import Selector
 
-        def on_select(vpd, mask):
+        vpd_mask = VpdMask()
+        vpd_filter = VpdFilter()
+
+        def on_select(vpd: Optional[vpd_loader.Vpd]):
             for scene in self.scenes:
-                scene.load_vpd(vpd, mask)
-        self.selector = Selector('pose selector', on_select)
+                scene.load_vpd(vpd, vpd_mask.value)
+        self.selector = Selector('pose selector', vpd_filter)
+
+        self.selector.selected += on_select
 
         self.docks = [
             dockspace.Dock('pose_selector', self.selector.show,
