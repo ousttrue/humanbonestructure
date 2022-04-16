@@ -115,9 +115,9 @@ class Node:
 
         t, r, s = self.init_trs
         if self.pose:
-            return trs_matrix(t + self.pose.translation, r * self.delta * self.pose.rotation, s * self.pose.scale)
+            return trs_matrix(t + self.pose.translation, r * self.pose.rotation, s * self.pose.scale)
         else:
-            return trs_matrix(t, r * self.delta, s) * glm.mat4()
+            return trs_matrix(t, r * self.delta, s)
 
     def calc_skinning(self, parent: glm.mat4):
         self.world_matrix = parent * self._get_local()

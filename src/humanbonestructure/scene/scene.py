@@ -42,6 +42,10 @@ class Scene:
             for node, _ in self.root.traverse_node_and_parent():
                 node.delta = glm.quat()
 
+        self._skinning()
+
+    def _skinning(self):
+        assert self.root
         self.root.calc_skinning(glm.mat4())
 
         self.gizmo.update(self.root)
@@ -125,4 +129,4 @@ class Scene:
                         if mask(humanoid_bone):
                             node.pose = bone.transform.reverse_z()
 
-        self._setup_model()
+        self._skinning()

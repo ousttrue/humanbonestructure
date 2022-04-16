@@ -1,6 +1,7 @@
 import glm
 from .node import Node
 from ..formats.humanoid_bones import HumanoidBone
+from ..formats.transform import Transform
 
 
 def mod(head: Node, tail: Node):
