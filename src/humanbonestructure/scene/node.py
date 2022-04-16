@@ -31,7 +31,7 @@ class Node:
         self.renderer: Optional[MeshRenderer] = None
         # UI
         self.humanoid_bone = humanoid_bone
-        self.humanoid_tail: Optional[None] = None
+        self.humanoid_tail: Optional[Node] = None
         self.descendants_has_humanoid = False
         # skinning
         self.pose: Optional[Transform] = None
@@ -53,12 +53,29 @@ class Node:
 
     def find_tail(self) -> Optional['Node']:
         assert self.humanoid_bone
+        if not len(self.children):
+            return
+
+        match self.name:
+            case '上半身':
+                pass
+            case '上半身2':
+                return next(iter(node for node, _ in self.traverse_node_and_parent() if node.name == '首'))
+            case '下半身':
+                return next(iter(node for node, _ in self.traverse_node_and_parent() if node.name == '下半身先'))
+            case '右手首':
+                return next(iter(node for node, _ in self.traverse_node_and_parent() if node.name == '右中指１'))
+            case '左手首':
+                return next(iter(node for node, _ in self.traverse_node_and_parent() if node.name == '左中指１'))
+            case _:
+                pass
+
         for child in self.children:
             for node, _ in child.traverse_node_and_parent():
                 if node.humanoid_bone:
                     return node
-        if self.children:
-            return self.children[0]
+
+        return self.children[0]
 
     def __str__(self) -> str:
         return f'[{self.name}: {self.init_trs}]'
@@ -84,6 +101,7 @@ class Node:
         has = False
         if self.humanoid_bone:
             has = True
+            self.humanoid_tail = self.find_tail()
 
         if self.children:
             for child in self.children:

@@ -30,9 +30,8 @@ def make_tpose(root: Node):
             continue
         if node.humanoid_bone == HumanoidBone.leftHand:
             continue
-        tail = node.find_tail()
-        if tail:
+        if node.humanoid_tail:
             root.calc_skinning(glm.mat4())
-            mod(node, tail)
+            mod(node, node.humanoid_tail)
 
     root.calc_skinning(glm.mat4())

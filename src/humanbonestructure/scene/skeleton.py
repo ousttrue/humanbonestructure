@@ -53,26 +53,10 @@ class Skeleton:
 
         bones: List[Bone] = []
 
-        def find_tail(node: Node) -> Optional[Node]:
-            if len(node.children) > 1:
-                match node.name:
-                    case '上半身2':
-                        return next(iter(node for node, _ in node.traverse_node_and_parent() if node.name == '首'))
-                    case '下半身':
-                        return next(iter(node for node, _ in node.traverse_node_and_parent() if node.name == '下半身先'))
-                    case '右手首':
-                        return next(iter(node for node, _ in node.traverse_node_and_parent() if node.name == '右中指１'))
-                    case '左手首':
-                        return next(iter(node for node, _ in node.traverse_node_and_parent() if node.name == '左中指１'))
-                    case _:
-                        pass
-
-            return node.find_tail()
-
         for node, _ in root.traverse_node_and_parent():
             if node.humanoid_bone:
-                tail = find_tail(node)
-                if tail:
+                if node.humanoid_bone:
+                    assert node.humanoid_tail
                     color = Float3(1, 1, 1)
                     up = None
                     width = 0.005
@@ -110,7 +94,7 @@ class Skeleton:
                                 width = 0.005
                                 height = 0.002
                     bones.append(
-                        Bone(node, tail, color, up=up, width=width, height=height))
+                        Bone(node, node.humanoid_tail, color, up=up, width=width, height=height))
 
         for bone in bones:
             print(bone)
@@ -203,6 +187,11 @@ class Skeleton:
                         vec3_to_float3(p1_3),
                         vec3_to_float3(p1_2),
                         vec3_to_float3(p1_1))
+        self._push_quad(bone_index, color,
+                        vec3_to_float3(p0_0),
+                        vec3_to_float3(p0_1),
+                        vec3_to_float3(p0_2),
+                        vec3_to_float3(p0_3))
         # top
         self._push_quad(bone_index, color,
                         vec3_to_float3(p0_3),
