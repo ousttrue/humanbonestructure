@@ -1,16 +1,52 @@
 from typing import List
 import ctypes
 import glm
-from ...formats import gltf_loader, buffer_types, humanoid_bones
+from ...formats import gltf_loader, buffer_types
+from ...formats.humanoid_bones import HumanoidBone
 from ...formats.transform import Transform
 from ..node import Node
 from ..mesh_renderer import MeshRenderer
+
+
+CESIUMMAN_HUMANOID_MAP = {
+    'Skeleton_torso_joint_1': HumanoidBone.hips,
+    'Skeleton_torso_joint_2': HumanoidBone.spine,
+    'torso_joint_3': HumanoidBone.chest,
+    'Skeleton_neck_joint_1': HumanoidBone.neck,
+    'Skeleton_neck_joint_2': HumanoidBone.head,
+    'Skeleton_arm_joint_L__4_': HumanoidBone.leftUpperArm,
+    'Skeleton_arm_joint_L__3_': HumanoidBone.leftLowerArm,
+    'Skeleton_arm_joint_L__2_': HumanoidBone.leftHand,
+    'Skeleton_arm_joint_R': HumanoidBone.rightUpperArm,
+    'Skeleton_arm_joint_R__2_': HumanoidBone.rightLowerArm,
+    'Skeleton_arm_joint_R__3_': HumanoidBone.rightHand,
+    'leg_joint_L_1': HumanoidBone.leftUpperLeg,
+    'leg_joint_L_2': HumanoidBone.leftLowerLeg,
+    'leg_joint_L_3': HumanoidBone.leftFoot,
+    'leg_joint_L_5': HumanoidBone.leftToes,
+    'leg_joint_R_1': HumanoidBone.rightUpperLeg,
+    'leg_joint_R_2': HumanoidBone.rightLowerLeg,
+    'leg_joint_R_3': HumanoidBone.rightFoot,
+    'leg_joint_R_5': HumanoidBone.rightToes,
+}
 
 
 def build(gltf) -> Node:
 
     # vrm-0.x
     human_bone_map = gltf.get_vrm_human_bone_map()
+
+    def set_human_bone(i: int, node: Node):
+        human_bone = human_bone_map.get(i)
+        if human_bone:
+            node.humanoid_bone = HumanoidBone(human_bone)
+            return
+
+        # cesium man !
+        human_bone = CESIUMMAN_HUMANOID_MAP.get(node.name)
+        if human_bone:
+            node.humanoid_bone = human_bone
+            return
 
     meshes = []
     for gltf_mesh in gltf.gltf.get('meshes', []):
@@ -77,13 +113,11 @@ def build(gltf) -> Node:
         name = gltf_node.get('name', f'{i}')
         t, r, s = gltf_loader.get_trs(gltf_node)
         if human_bone_map:
-            # rotate y180
+            # vrm-0.x: rotate y180
             t = glm.vec3(-t.x, t.y, -t.z)
         node = Node(i, name, Transform(t, r, s))
         # if human_bones
-        human_bone = human_bone_map.get(i)
-        if human_bone:
-            node.humanoid_bone = humanoid_bones.HumanoidBone(human_bone)
+        set_human_bone(i, node)
 
         nodes.append(node)
     for gltf_node, node in zip(gltf.gltf.get('nodes', []), nodes):

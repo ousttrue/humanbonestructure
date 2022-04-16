@@ -1,10 +1,14 @@
 from typing import List, NamedTuple, Optional
+import logging
 import ctypes
 import glm
 from ..formats.buffer_types import Float3, Float4
+from ..formats.humanoid_bones import HumanoidBone
+from ..formats.transform import Transform
 from .node import Node
 from .mesh_renderer import MeshRenderer
-from ..formats.humanoid_bones import HumanoidBone
+
+LOGGER = logging.getLogger(__name__)
 
 
 def vec3_to_float3(v: glm.vec3) -> Float3:
@@ -57,6 +61,7 @@ class Skeleton:
             if node.humanoid_bone:
                 if node.humanoid_bone:
                     assert node.humanoid_tail
+
                     color = Float3(1, 1, 1)
                     up = None
                     width = 0.005
@@ -89,11 +94,42 @@ class Skeleton:
                                 up = glm.vec3(0, 0, -1)
                                 width = 0.01
                                 height = 0.005
-                            case (HumanoidBone.leftHand | HumanoidBone.leftHand):
+                            case (HumanoidBone.leftHand | HumanoidBone.leftHand |
+                                  HumanoidBone.rightHand | HumanoidBone.rightHand
+                                  ):
                                 color = Float3(0.8, 0.8, 0.8)
                                 up = glm.vec3(0, 1, 0)
                                 width = 0.01
                                 height = 0.002
+                            case (HumanoidBone.head):
+                                color = Float3(0.8, 0.8, 0.2)
+                                up = glm.vec3(0, 0, 1)
+                                width = 0.06
+                                height = 0.06
+                            case (HumanoidBone.neck):
+                                color = Float3(0.4, 0.4, 0.2)
+                                up = glm.vec3(0, 0, 1)
+                                width = 0.02
+                                height = 0.02
+                            case (HumanoidBone.chest | HumanoidBone.upperChest | HumanoidBone.hips):
+                                color = Float3(0.8, 0.8, 0.2)
+                                if node.humanoid_bone == HumanoidBone.upperChest:
+                                    color = Float3(0.8, 0.8, 0.6)
+                                up = glm.vec3(0, 0, 1)
+                                width = 0.05
+                                height = 0.04
+                            case (HumanoidBone.spine):
+                                color = Float3(0.4, 0.4, 0.2)
+                                up = glm.vec3(0, 0, 1)
+                                width = 0.04
+                                height = 0.03
+                            case (HumanoidBone.leftUpperLeg | HumanoidBone.leftLowerLeg | HumanoidBone.leftFoot | HumanoidBone.leftToes |
+                                  HumanoidBone.rightUpperLeg | HumanoidBone.rightLowerLeg | HumanoidBone.rightFoot | HumanoidBone.rightToes):
+                                color = Float3(0.3, 0.6, 0.1) if 'Lower' in node.humanoid_bone.name else Float3(
+                                    0.7, 0.9, 0.2)
+                                up = glm.vec3(0, 0, 1)
+                                width = 0.01
+                                height = 0.005
                     bones.append(
                         Bone(node, node.humanoid_tail, up=up, color=color, width=width, height=height))
 

@@ -1,7 +1,10 @@
 from typing import Optional, Iterable, List, Tuple, Callable
+import logging
 import glm
 from ..formats.transform import Transform
 from ..formats.humanoid_bones import HumanoidBone
+
+LOGGER = logging.getLogger(__name__)
 
 
 def trs_matrix(t: glm.vec3, r: glm.quat, s: glm.vec3) -> glm.mat4:
@@ -64,26 +67,42 @@ class Node:
     def find_tail(self) -> Optional['Node']:
         assert self.humanoid_bone
         if not len(self.children):
-            return
+            # add dummy tail
+            LOGGER.warn(f'no tail: {self}')
+            tail = Node(-1, self.name+'先', Transform(glm.vec3(0,
+                        0, 0.05), glm.quat(), glm.vec3(1)))
+            self.add_child(tail)
+            self.humanoid_tail = tail
+            return tail
 
+        # mmd
         match self.name:
-            case '上半身':
-                pass
-            case '上半身2':
-                return next(iter(node for node, _ in self.traverse_node_and_parent() if node.name == '首'))
-            case '下半身':
-                return next(iter(node for node, _ in self.traverse_node_and_parent() if node.name == '下半身先'))
-            case '右手首':
-                return next(iter(node for node, _ in self.traverse_node_and_parent() if node.name == '右中指１'))
-            case '左手首':
-                return next(iter(node for node, _ in self.traverse_node_and_parent() if node.name == '左中指１'))
+            case '下半身' | '頭':
+                return next(iter(node for node, _ in self.traverse_node_and_parent() if node.name == self.name + '先'))
+
+        match self.humanoid_bone:
+            case HumanoidBone.chest | HumanoidBone.upperChest:
+                return next(iter(node for node, _ in self.traverse_node_and_parent() if node.humanoid_bone == HumanoidBone.neck))
+            case HumanoidBone.rightHand:
+                return next(iter(node for node, _ in self.traverse_node_and_parent() if node.humanoid_bone == HumanoidBone.rightMiddleProximal))
+            case HumanoidBone.leftHand:
+                return next(iter(node for node, _ in self.traverse_node_and_parent() if node.humanoid_bone == HumanoidBone.leftMiddleProximal))
             case _:
                 pass
 
-        for child in self.children:
-            for node, _ in child.traverse_node_and_parent():
-                if node.humanoid_bone:
-                    return node
+        if self.humanoid_bone == HumanoidBone.head:
+            # leftEye, rightEye, jaw is not expected
+            LOGGER.warn(f'no tail: {self}')
+            tail = Node(-1, 'head tail', Transform(glm.vec3(0,
+                        0.18, 0), glm.quat(), glm.vec3(1)))
+            self.add_child(tail)
+            self.humanoid_tail = tail
+            return tail
+        else:
+            for child in self.children:
+                for node, _ in child.traverse_node_and_parent():
+                    if node.humanoid_bone:
+                        return node
 
         return self.children[0]
 
