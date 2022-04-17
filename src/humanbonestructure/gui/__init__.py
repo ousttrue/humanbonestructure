@@ -1,3 +1,4 @@
+from .selector import Selector, Filter
 from typing import List, Optional, Tuple, Callable
 import logging
 import asyncio
@@ -13,11 +14,11 @@ from .eventproperty import EventProperty
 LOGGER = logging.getLogger(__name__)
 
 
-class VpdFilter(EventProperty[Callable[[vpd_loader.Vpd], bool]]):
+class VpdFilter(Filter[vpd_loader.Vpd]):
     def __init__(self) -> None:
         self.filter_has_lefthand = (ctypes.c_bool * 1)(True)
         self.filter_has_thumbnail0 = (ctypes.c_bool * 1)(True)
-        super().__init__(default_value=lambda x: True, show=self.show)
+        super().__init__()
 
     def show(self):
         chcked = False
@@ -40,7 +41,7 @@ class VpdFilter(EventProperty[Callable[[vpd_loader.Vpd], bool]]):
 
 class VpdMask(EventProperty):
     def __init__(self) -> None:
-        super().__init__(default_value=lambda x: True, show=self.show)
+        super().__init__(default_value=lambda x: True)
         self.use_except_finger = (ctypes.c_bool * 1)(False)
         self.use_finger = (ctypes.c_bool * 1)(True)
 
@@ -65,8 +66,6 @@ class GUI(dockspace.DockingGui):
         from pydear.utils.loghandler import ImGuiLogHandler
         log_handler = ImGuiLogHandler()
         log_handler.register_root(append=True)
-
-        from .selector import Selector
 
         vpd_mask = VpdMask()
         vpd_filter = VpdFilter()

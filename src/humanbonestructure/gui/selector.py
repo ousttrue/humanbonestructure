@@ -1,24 +1,33 @@
-from typing import Optional, List
+from typing import Optional, List, TypeVar, Generic, Callable
 import logging
+import abc
 from pydear import imgui as ImGui
-from ..formats.vpd_loader import Vpd
 from .eventproperty import EventProperty
+
 
 LOGGER = logging.getLogger(__name__)
 
+T = TypeVar('T')
 
-class Selector:
-    def __init__(self, name: str, filter: EventProperty) -> None:
+
+class Filter(EventProperty[Callable[[T], bool]], metaclass=abc.ABCMeta):
+    def __init__(self) -> None:
+        super().__init__(lambda _: True)
+
+    @abc.abstractmethod
+    def show(self):
+        pass
+
+
+class Selector(Generic[T]):
+    def __init__(self, name: str, filter: Filter[T]) -> None:
         self.name = name
-        self.items: List[Vpd] = []
+        self.items: List[T] = []
         self.filter = filter
         self.filter += self.apply
 
-        assert filter.show
-        self.show_filter = filter.show
-
-        self.filtered_items: List[Vpd] = []
-        self.selected: EventProperty[Optional[Vpd]] = EventProperty(None)
+        self.filtered_items: List[T] = []
+        self.selected: EventProperty[Optional[T]] = EventProperty(None)
 
     def apply(self, filter=None):
         self.filtered_items.clear()
@@ -29,7 +38,7 @@ class Selector:
     def show(self, p_open):
         ImGui.SetNextWindowSize((100, 100), ImGui.ImGuiCond_.Once)
         if ImGui.Begin(self.name, p_open):
-            self.show_filter()
+            self.filter.show()
 
             selected = None
             for item in self.filtered_items:

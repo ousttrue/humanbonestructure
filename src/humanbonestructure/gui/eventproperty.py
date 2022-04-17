@@ -1,14 +1,13 @@
-from typing import TypeVar, Generic, Callable, List
+from typing import TypeVar, Generic, Callable, List, Optional
 
 T = TypeVar('T')
 
 
 class EventProperty(Generic[T]):
-    def __init__(self, default_value: T, *, show=None) -> None:
+    def __init__(self, default_value: T) -> None:
         super().__init__()
         self.callbacks: List[Callable[[T], None]] = []
         self.value = default_value
-        self.show = show
 
     def __iadd__(self, callback: Callable[[T], None]):
         self.callbacks.append(callback)
