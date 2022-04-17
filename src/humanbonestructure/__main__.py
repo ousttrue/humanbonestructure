@@ -29,8 +29,13 @@ def main():
 
     args = parser.parse_args()
 
+    from pydear.utils import glfw_app
+    app = glfw_app.GlfwApp('pose')
+
+    from .gui import GUI
+    gui = GUI(app.loop)
+
     from .formats.vpd_loader import Vpd
-    vpd_list: List[Vpd] = [Vpd('__empty__')]
     if args.asset_dir:
         asset_dir = pathlib.Path(args.asset_dir)
         for root, dirs, files in os.walk(asset_dir):
@@ -40,15 +45,9 @@ def main():
                     from .scene.scene import vpd_loader
                     vpd = vpd_loader.Vpd.load(f.read_bytes())
                     vpd.name = f.name
-                    vpd_list.append(vpd)
+                    gui.vpd_items.items.append(vpd)
 
-    from pydear.utils import glfw_app
-    app = glfw_app.GlfwApp('pose')
-
-    from .gui import GUI
-    gui = GUI(app.loop)
-    gui.selector.items = vpd_list
-    gui.selector.apply()
+    gui.vpd_items.apply()
 
     # load model
     for model in args.model:

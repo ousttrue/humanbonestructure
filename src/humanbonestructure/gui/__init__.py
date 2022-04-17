@@ -1,4 +1,3 @@
-from .selector import Selector, Filter
 from typing import List, Optional, Tuple, Callable
 import logging
 import asyncio
@@ -10,6 +9,7 @@ from ..scene.scene import Scene
 from ..formats.humanoid_bones import HumanoidBone
 from ..formats import vpd_loader
 from .eventproperty import EventProperty
+from .selector import Selector, ItemList, Filter
 
 LOGGER = logging.getLogger(__name__)
 
@@ -18,7 +18,14 @@ class VpdFilter(Filter[vpd_loader.Vpd]):
     def __init__(self) -> None:
         self.filter_has_lefthand = (ctypes.c_bool * 1)(True)
         self.filter_has_thumbnail0 = (ctypes.c_bool * 1)(True)
-        super().__init__()
+        super().__init__(self.filter)
+
+    def filter(self, item: vpd_loader.Vpd):
+        if self.filter_has_lefthand[0] and not any(bone.humanoid_bone.value.startswith('left') for bone in item.bones if bone.humanoid_bone):
+            return False
+        if self.filter_has_thumbnail0[0] and not any(bone.humanoid_bone == HumanoidBone.leftThumbProximal or bone.humanoid_bone == HumanoidBone.rightThumbProximal for bone in item.bones if bone.humanoid_bone):
+            return False
+        return True
 
     def show(self):
         chcked = False
@@ -29,14 +36,23 @@ class VpdFilter(Filter[vpd_loader.Vpd]):
             chcked = True
 
         if chcked:
-            def on_checked(item: vpd_loader.Vpd):
-                if self.filter_has_lefthand[0] and not any(bone.humanoid_bone.value.startswith('left') for bone in item.bones if bone.humanoid_bone):
-                    return False
-                if self.filter_has_thumbnail0[0] and not any(bone.humanoid_bone == HumanoidBone.leftThumbProximal or bone.humanoid_bone == HumanoidBone.rightThumbProximal for bone in item.bones if bone.humanoid_bone):
-                    return False
-                return True
+            self.fire()
 
-            self.set(on_checked)
+
+class VpdItems(ItemList[vpd_loader.Vpd]):
+    def __init__(self) -> None:
+        super().__init__()
+        self.items.append(vpd_loader.Vpd('__empty__'))
+        self._filter = VpdFilter()
+
+        def on_filter_changed(_):
+            self.apply()
+        self._filter += on_filter_changed
+
+    def filter(self, item: vpd_loader.Vpd) -> bool:
+        if not self._filter.value:
+            return True
+        return self._filter.value(item)
 
 
 class VpdMask(EventProperty):
@@ -68,17 +84,17 @@ class GUI(dockspace.DockingGui):
         log_handler.register_root(append=True)
 
         vpd_mask = VpdMask()
-        vpd_filter = VpdFilter()
+        self.vpd_items = VpdItems()
+        self.vpd_selector = Selector(
+            'pose selector', self.vpd_items, self.vpd_items._filter.show)
 
         def on_select(vpd: Optional[vpd_loader.Vpd]):
             for scene in self.scenes:
                 scene.load_vpd(vpd, vpd_mask.value)
-        self.selector = Selector('pose selector', vpd_filter)
-
-        self.selector.selected += on_select
+        self.vpd_selector.selected += on_select
 
         self.docks = [
-            dockspace.Dock('pose_selector', self.selector.show,
+            dockspace.Dock('pose_selector', self.vpd_selector.show,
                            (ctypes.c_bool * 1)(True)),
             dockspace.Dock('log', log_handler.draw,
                            (ctypes.c_bool * 1)(True)),
