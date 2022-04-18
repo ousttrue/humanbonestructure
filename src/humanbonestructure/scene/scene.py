@@ -1,13 +1,13 @@
-from typing import Optional, Callable
+from typing import Optional
 import ctypes
 import pathlib
 import logging
 import glm
 from pydear.scene.camera import Camera
 from ..formats import pmd_loader, gltf_loader, vpd_loader, pmx_loader
-from ..formats.humanoid_bones import HumanoidBone
 from ..formats import tpose
 from ..formats.transform import Transform
+from ..formats.pose import Pose
 from .node import Node
 from .skeleton import Skeleton
 LOGGER = logging.getLogger(__name__)
@@ -119,15 +119,14 @@ class Scene:
         for child in node.children:
             self.render_node(camera, child)
 
-    def load_vpd(self, vpd: Optional[vpd_loader.Vpd], mask: Optional[Callable[[HumanoidBone], bool]] = None):
+    def load_pose(self, pose: Optional[Pose]):
         if not self.root:
             return
 
         for node, _ in self.root.traverse_node_and_parent():
             node.pose = None
 
-        self.vpd = vpd
-        LOGGER.debug(self.vpd)
+        LOGGER.debug(pose)
 
         humanoid_node_map = {node.humanoid_bone: node for node,
                              _ in self.root.traverse_node_and_parent() if node.humanoid_bone}
@@ -137,13 +136,12 @@ class Scene:
             return t
 
         # assign pose to node hierarchy
-        if self.vpd:
-            for bone in self.vpd.bones:
+        if pose:
+            for bone in pose.bones:
                 humanoid_bone = pmd_loader.BONE_HUMANOID_MAP.get(bone.name)
                 if humanoid_bone:
                     node = humanoid_node_map.get(humanoid_bone)
                     if node:
-                        if not mask or mask(humanoid_bone):
-                            node.pose = conv(bone)
+                        node.pose = conv(bone)
 
         self._skinning()

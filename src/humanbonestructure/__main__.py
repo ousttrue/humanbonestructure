@@ -45,9 +45,9 @@ def main():
                     from .scene.scene import vpd_loader
                     vpd = vpd_loader.Vpd.load(f.read_bytes())
                     vpd.name = f.name
-                    gui.vpd_items.items.append(vpd)
+                    gui.motion_list.items.append(vpd)
 
-    gui.vpd_items.apply()
+    gui.motion_list.apply()
 
     # load model
     for model in args.model:

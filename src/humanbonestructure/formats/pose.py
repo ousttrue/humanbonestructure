@@ -1,4 +1,4 @@
-from typing import NamedTuple, Optional, List, Dict
+from typing import NamedTuple, Optional, List, Dict, Set
 import abc
 from .transform import Transform
 from .humanoid_bones import HumanoidBone, HumanoidBodyParts
@@ -30,9 +30,21 @@ class Pose:
 
 
 class Motion(abc.ABC):
-    def __init__(self) -> None:
-        pass
+    def __init__(self, name: str) -> None:
+        self.name = name
+
+    def get_humanbones(self) -> Set[HumanoidBone]:
+        return set()
 
     @abc.abstractmethod
-    def current_pose(self) -> Pose:
+    def get_current_pose(self) -> Pose:
         raise NotImplementedError()
+
+
+class Empty(Motion):
+    def __init__(self) -> None:
+        super().__init__('__empty__')
+        self.pose = Pose(self.name)
+
+    def get_current_pose(self) -> Pose:
+        return self.pose

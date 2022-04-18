@@ -1,8 +1,10 @@
+from typing import List
 import re
 import glm
 from .transform import Transform
 from .pmd_loader import SCALING_FACTOR, BONE_HUMANOID_MAP
 from .pose import BonePose, Pose, Motion
+from .humanoid_bones import HumanoidBone
 
 COMMENT_PATTERN = re.compile(r'(.*?)//.*$')
 BONE_NAME_PATTERN = re.compile(r'Bone(\d+)\{(\w+)')
@@ -26,22 +28,20 @@ def get_r(r: str) -> glm.quat:
 
 
 class Vpd(Motion):
-    def __init__(self, name: str):
-        self.name = name
-        self.pose = Pose(name)
+    def __init__(self, pose: Pose):
+        super().__init__(pose.name)
+        self.pose = pose
+        self._humanbones = list(
+            set(bone.humanoid_bone for bone in self.pose.bones if bone.humanoid_bone))
 
     def __str__(self) -> str:
         return f'<{self.name}:{len(self.pose.bones)}bones>'
 
-    def current_pose(self) -> Pose:
+    def get_humanbones(self) -> List[HumanoidBone]:
+        return self._humanbones
+
+    def get_current_pose(self) -> Pose:
         return self.pose
-
-    @property
-    def bones(self):
-        return self.pose.bones
-
-    def get_parts(self, part):
-        return self.pose.get_parts(part)
 
     @staticmethod
     def load(data: bytes) -> 'Vpd':
@@ -61,7 +61,7 @@ class Vpd(Motion):
 
         # target osm ?
         l = lines.pop(0)
-        vpd = Vpd(l[:-1])
+        pose = Pose(l[:-1])
 
         m = re.match(r'^(\d+);$', lines.pop(0))
         if not m:
@@ -81,9 +81,9 @@ class Vpd(Motion):
 
             name = get_name(open)
             humanoid_bone = BONE_HUMANOID_MAP.get(name)
-            vpd.pose.bones.append(
+            pose.bones.append(
                 BonePose(name, humanoid_bone, Transform(get_t(t), get_r(r), glm.vec3(1))))
 
-        assert len(vpd.pose.bones) == count
+        assert len(pose.bones) == count
 
-        return vpd
+        return Vpd(pose)
