@@ -37,7 +37,7 @@ def main():
 
     gui = dockspace.DockingGui(app.loop, docks=views)
 
-    app.loop.create_task(hand_landmark.estimate())
+    app.loop.create_task(hand_landmark.video_capture.start_async())
 
     from pydear.backends.impl_glfw import ImplGlfwInput
     impl_glfw = ImplGlfwInput(app.window)

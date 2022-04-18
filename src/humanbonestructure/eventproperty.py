@@ -4,18 +4,19 @@ T = TypeVar('T')
 
 
 class EventProperty(Generic[T]):
-    def __init__(self, default_value: T) -> None:
+    def __init__(self, default_value: Optional[T] = None) -> None:
         super().__init__()
         self.callbacks: List[Callable[[T], None]] = []
-        self.value = default_value
+        if default_value:
+            self.value = default_value
+        else:
+            self.value = None
 
     def __iadd__(self, callback: Callable[[T], None]):
         self.callbacks.append(callback)
         return self
 
     def set(self, value: T):
-        if self.value == value:
-            return
         self.value = value
 
         self.fire()
@@ -23,7 +24,8 @@ class EventProperty(Generic[T]):
     def fire(self):
         value = self.value
         for callback in self.callbacks:
-            callback(value)
+            callback(value)  # type: ignore
 
     def get(self) -> T:
+        assert self.value
         return self.value

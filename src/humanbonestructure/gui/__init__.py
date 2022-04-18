@@ -8,7 +8,7 @@ from pydear.utils import dockspace
 from ..scene.scene import Scene
 from ..formats.humanoid_bones import HumanoidBone, HumanoidBodyParts
 from ..formats import vpd_loader
-from .eventproperty import EventProperty
+from ..eventproperty import EventProperty
 from .selector import Selector, TableSelector, ItemList, Filter
 
 LOGGER = logging.getLogger(__name__)
