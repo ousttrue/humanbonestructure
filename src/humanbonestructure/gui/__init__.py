@@ -52,10 +52,9 @@ class GUI(dockspace.DockingGui):
 
         def on_select(motion: Optional[Motion]):
             for scene in self.scenes:
+                # scene.motion = motion
                 if motion:
-                    scene.load_pose(motion.get_current_pose())
-                else:
-                    scene.load_pose(None)
+                    scene._load_pose(motion.get_current_pose())
         self.motion_selector.selected += on_select
 
         from ..formats.video_capture import VideCapture
@@ -73,9 +72,10 @@ class GUI(dockspace.DockingGui):
         def estimate(image):
             results = hands.process(image)
             self.capture_view.points.update(results)
+            self.handpose.update(results)
 
         self.video_capture.frame_event += estimate
-        self.video_capture.frame_event += self.capture_view.rect.update_capture_texture
+        self.video_capture.frame_event += self.capture_view.rect.set_image
 
         self.docks = [
             dockspace.Dock('capture_view', self.capture_view.show,

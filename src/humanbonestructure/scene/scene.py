@@ -7,7 +7,7 @@ from pydear.scene.camera import Camera
 from ..formats import pmd_loader, gltf_loader, vpd_loader, pmx_loader
 from ..formats import tpose
 from ..formats.transform import Transform
-from ..formats.pose import Pose
+from ..formats.pose import Pose, Motion
 from .node import Node
 from .skeleton import Skeleton
 LOGGER = logging.getLogger(__name__)
@@ -21,6 +21,7 @@ class Scene:
     def __init__(self) -> None:
         # scene
         self.root = Node(-1, '__root__', Transform.identity())
+        self.motion: Optional[Motion] = None
         from .gizmo import Gizmo
         self.gizmo = Gizmo()
         self.skeleton = None
@@ -34,6 +35,8 @@ class Scene:
         self.root.calc_skinning(glm.mat4())
         self.skeleton = Skeleton(self.root)
         self._skinning()
+        self.humanoid_node_map = {node.humanoid_bone: node for node,
+                                  _ in self.root.traverse_node_and_parent() if node.humanoid_bone}
 
     def _skinning(self):
         self.root.calc_skinning(glm.mat4())
@@ -113,23 +116,22 @@ class Scene:
             self.skeleton.renderer.render(camera)
 
     def render_node(self, camera: Camera, node: Node):
+        # if self.motion:
+        #     pose = self.motion.get_current_pose()
+        #     self._load_pose(pose)
+
         if node.renderer:
             node.renderer.render(camera, node)
 
         for child in node.children:
             self.render_node(camera, child)
 
-    def load_pose(self, pose: Optional[Pose]):
+    def _load_pose(self, pose: Optional[Pose]):
         if not self.root:
             return
 
         for node, _ in self.root.traverse_node_and_parent():
             node.pose = None
-
-        LOGGER.debug(pose)
-
-        humanoid_node_map = {node.humanoid_bone: node for node,
-                             _ in self.root.traverse_node_and_parent() if node.humanoid_bone}
 
         def conv(bone: vpd_loader.BonePose):
             t = bone.transform.reverse_z()
@@ -140,7 +142,7 @@ class Scene:
             for bone in pose.bones:
                 humanoid_bone = pmd_loader.BONE_HUMANOID_MAP.get(bone.name)
                 if humanoid_bone:
-                    node = humanoid_node_map.get(humanoid_bone)
+                    node = self.humanoid_node_map.get(humanoid_bone)
                     if node:
                         node.pose = conv(bone)
 

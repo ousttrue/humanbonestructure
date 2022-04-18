@@ -82,7 +82,7 @@ class MotionList(ItemList[Motion]):
         ]
 
     def filter(self, item: Motion) -> bool:
-        if not item.get_current_pose().bones:
+        if not item.get_humanbones():
             # empty
             return True
         if not self._filter.value:

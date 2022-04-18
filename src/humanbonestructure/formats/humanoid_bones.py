@@ -36,6 +36,12 @@ class HumanoidBone(Enum):
     rightUpperArm = "rightUpperArm"
     rightLowerArm = "rightLowerArm"
     rightHand = "rightHand"
+    # 親指とその他で構成が違う
+    # [親指]
+    # 中手骨 - 指骨(基節骨 proximal),
+    # [人指,中,薬,小]
+    # 中手骨
+
     leftThumbProximal = "leftThumbProximal"
     leftThumbIntermediate = "leftThumbIntermediate"
     leftThumbDistal = "leftThumbDistal"
@@ -66,6 +72,12 @@ class HumanoidBone(Enum):
     rightLittleProximal = "rightLittleProximal"
     rightLittleIntermediate = "rightLittleIntermediate"
     rightLittleDistal = "rightLittleDistal"
+    # additional bones
+    leftThumbTip = "leftThumbTip"
+    leftIndexTip = "leftIndexTip"
+    leftMiddleTip = "leftMiddleTip"
+    leftRingTip = "leftRingTip"
+    leftLittleTip = "leftLittleTip"
 
     def get_part(self) -> HumanoidBodyParts:
         return HUMANOIDBONE_PART_MAP[self]

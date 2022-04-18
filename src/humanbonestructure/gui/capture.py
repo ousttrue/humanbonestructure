@@ -97,14 +97,10 @@ class Rect:
         self.vao = None
         self.shader = None
         self.texture = None
+        self.image = None
 
-    def update_capture_texture(self, image: numpy.ndarray):
-        h, w = image.shape[:2]
-        if not self.texture or self.texture.width != w or self.texture.height != h:
-            self.texture = glo.Texture(
-                w, h, image, pixel_type=GL.GL_RGB)
-        else:
-            self.texture.update(0, 0, w, h, image)
+    def set_image(self, image):
+        self.image = image
 
     def render(self):
         if not self.shader:
@@ -122,6 +118,15 @@ class Rect:
             self.vao = glo.Vao(
                 vbo, glo.VertexLayout.create_list(self.shader.program), ibo)
         assert self.vao
+
+        if self.image is not None:
+            h, w = self.image.shape[:2]
+            if not self.texture or self.texture.width != w or self.texture.height != h:
+                self.texture = glo.Texture(
+                    w, h, self.image, pixel_type=GL.GL_RGB)
+            else:
+                self.texture.update(0, 0, w, h, self.image)
+            self.image = None
 
         with self.shader:
             if self.texture:
