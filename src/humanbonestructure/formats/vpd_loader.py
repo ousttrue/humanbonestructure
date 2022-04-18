@@ -1,18 +1,11 @@
-from typing import List, NamedTuple, Optional, Dict
 import re
+import glm
 from .transform import Transform
 from .pmd_loader import SCALING_FACTOR, BONE_HUMANOID_MAP
-from .humanoid_bones import HumanoidBone, HumanoidBodyParts
-import glm
+from .pose import BonePose, Pose, Motion
 
 COMMENT_PATTERN = re.compile(r'(.*?)//.*$')
 BONE_NAME_PATTERN = re.compile(r'Bone(\d+)\{(\w+)')
-
-
-class BonePose(NamedTuple):
-    name: str
-    humanoid_bone: Optional[HumanoidBone]
-    transform: Transform
 
 
 def get_name(open: str) -> str:
@@ -32,23 +25,23 @@ def get_r(r: str) -> glm.quat:
     return glm.quat(float(w), float(x), float(y), float(z))
 
 
-class Vpd:
+class Vpd(Motion):
     def __init__(self, name: str):
         self.name = name
-        self.bones: List[BonePose] = []
-        self._parts: Dict[HumanoidBodyParts, bool] = {
-        }
+        self.pose = Pose(name)
 
-    def get_parts(self, part: HumanoidBodyParts) -> bool:
-        value = self._parts.get(part)
-        if not isinstance(value, bool):
-            def has_part(bone: BonePose) -> bool:
-                if not bone.humanoid_bone:
-                    return False
-                return bone.humanoid_bone.get_part() == part
-            value = any(has_part(bone) for bone in self.bones)
-            self._parts[part] = value
-        return value
+    def __str__(self) -> str:
+        return f'<{self.name}:{len(self.pose.bones)}bones>'
+
+    def current_pose(self) -> Pose:
+        return self.pose
+
+    @property
+    def bones(self):
+        return self.pose.bones
+
+    def get_parts(self, part):
+        return self.pose.get_parts(part)
 
     @staticmethod
     def load(data: bytes) -> 'Vpd':
@@ -88,12 +81,9 @@ class Vpd:
 
             name = get_name(open)
             humanoid_bone = BONE_HUMANOID_MAP.get(name)
-            vpd.bones.append(
+            vpd.pose.bones.append(
                 BonePose(name, humanoid_bone, Transform(get_t(t), get_r(r), glm.vec3(1))))
 
-        assert len(vpd.bones) == count
+        assert len(vpd.pose.bones) == count
 
         return vpd
-
-    def __str__(self) -> str:
-        return f'<{self.name}:{len(self.bones)}bones>'
