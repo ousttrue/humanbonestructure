@@ -22,13 +22,13 @@ def main():
     from ..gui.hand_landmark_table import HandLandMarkTable
     landmark_table = HandLandMarkTable()
 
-    from ..scene.scene_capture import CaptureScene
-    capture = CaptureScene()
+    from ..gui.capture import CaptureView
+    capture = CaptureView()
 
-    from ..scene.scene_3d import Scene
+    from ..gui.scene_3d import Scene
     scene = Scene()
 
-    from ..scene.scene_hand import HandScene
+    from ..gui.scene_hand import HandScene
     hand = HandScene()
 
     hands = mp_hands.Hands(
@@ -51,20 +51,21 @@ def main():
     video_capture.frame_event += estimate
 
     landmark_result += landmark_table.update
+    landmark_result += capture.points.update
     # landmark_result += scene.update
     # landmark_result += hand.update
 
     views = [
         dockspace.Dock('metrics', ImGui.ShowMetricsWindow,
                        (ctypes.c_bool * 1)(True)),
-        dockspace.Dock('landmarks', landmark_table.show,
-                       (ctypes.c_bool * 1)(True)),
         dockspace.Dock('capture', capture.show,
                        (ctypes.c_bool * 1)(True)),
-        dockspace.Dock('scene', scene.show,
+        dockspace.Dock('landmarks', landmark_table.show,
                        (ctypes.c_bool * 1)(True)),
-        dockspace.Dock('hand', hand.show,
-                       (ctypes.c_bool * 1)(True)),
+        # dockspace.Dock('scene', scene.show,
+        #                (ctypes.c_bool * 1)(True)),
+        # dockspace.Dock('hand', hand.show,
+        #                (ctypes.c_bool * 1)(True)),
         dockspace.Dock('log', log_handler.draw, (ctypes.c_bool * 1)(True)),
     ]
 

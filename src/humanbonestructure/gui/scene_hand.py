@@ -9,7 +9,7 @@ class HandScene:
         self.clear_color = (ctypes.c_float * 4)(0.2, 0.1, 0.1, 1)
         self.fbo_manager = glo.FboRenderer()
         self.camera = Camera(distance=0.2)
-        from .gizmo import Gizmo
+        from ..scene.gizmo import Gizmo
         self.axis = Gizmo()
         # gui
         self.hover = False

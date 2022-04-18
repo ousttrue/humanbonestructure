@@ -7,10 +7,19 @@ from pydear import glo
 from pydear import imgui as ImGui
 
 
+class Float3(ctypes.Structure):
+    _fields_ = [
+        ('x', ctypes.c_float),
+        ('y', ctypes.c_float),
+        ('z', ctypes.c_float),
+    ]
+
+
 class Point(ctypes.Structure):
     _fields_ = [
         ('x', ctypes.c_float),
         ('y', ctypes.c_float),
+        ('color', Float3),
     ]
 
 
@@ -38,26 +47,40 @@ RECT_INDICES = (ctypes.c_uint16 * 6)(
 
 class Points:
     def __init__(self) -> None:
-        self.vertices = (Point * 21)()
+        self.vertices = (Point * 512)()
         self.is_updated = False
+        self.draw_count = 0
         self.shader: Optional[glo.Shader] = None
         self.vao: Optional[glo.Vao] = None
 
-    def update(self, landmark: List[NormalizedLandmark]):
-        for i, v in enumerate(landmark):
-            self.vertices[i] = Point(v.x * 2 - 1, (1-v.y) * 2 - 1)
+    def update(self, results):
+        # update vertices
+        self.draw_count = 0
         self.is_updated = True
+        if results.multi_hand_landmarks:
+            for hand_landmarks, handedness in zip(results.multi_hand_landmarks, results.multi_handedness):
+                hand_class = handedness.classification[0]
+
+                # 右手が赤
+                color = Float3(
+                    1, 0, 0) if hand_class.label == 'Left' else Float3(0, 0, 1)
+
+                for v in hand_landmarks.landmark:
+                    self.vertices[self.draw_count] = Point(
+                        v.x * 2 - 1, (1-v.y) * 2 - 1, color)
+                    self.draw_count += 1
 
     def render(self):
         if not self.shader:
-            self.shader = glo.Shader.load_from_pkg('humanbonestructure', 'assets/point')
+            self.shader = glo.Shader.load_from_pkg(
+                'humanbonestructure', 'assets/point')
             if not self.shader:
                 return
             vbo = glo.Vbo()
             vbo.set_vertices(self.vertices, is_dynamic=True)
             self.vao = glo.Vao(
                 vbo, glo.VertexLayout.create_list(self.shader.program))
-            self.is_updated = False
+            self.is_updated = 0
         assert self.vao
 
         if self.is_updated:
@@ -66,7 +89,7 @@ class Points:
 
         with self.shader:
             GL.glPointSize(10)
-            self.vao.draw(len(self.vertices), topology=GL.GL_POINTS)
+            self.vao.draw(self.draw_count, topology=GL.GL_POINTS)
 
 
 class Rect:
@@ -85,7 +108,8 @@ class Rect:
 
     def render(self):
         if not self.shader:
-            self.shader = glo.Shader.load_from_pkg('humanbonestructure', 'assets/rect')
+            self.shader = glo.Shader.load_from_pkg(
+                'humanbonestructure', 'assets/rect')
             if not self.shader:
                 return
 
@@ -105,7 +129,7 @@ class Rect:
             self.vao.draw(len(RECT_INDICES), topology=GL.GL_TRIANGLES)
 
 
-class CaptureScene:
+class CaptureView:
     def __init__(self) -> None:
         self.clear_color = (ctypes.c_float * 4)(0.1, 0.2, 0.3, 1)
         self.fbo_manager = glo.FboRenderer()
