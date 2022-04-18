@@ -61,20 +61,10 @@ class Hand:
 
     def render(self, camera: Camera):
         if not self.shader:
-            self.shader = glo.Shader.load_from_pkg('humanbonestructure', 'assets/hand')
+            self.shader = glo.Shader.load_from_pkg(
+                'humanbonestructure', 'assets/hand')
             assert self.shader
-
-            view = glo.UniformLocation.create(self.shader.program, "uView")
-            projection = glo.UniformLocation.create(
-                self.shader.program, "uProjection")
-            self.props = [
-                glo.ShaderProp(
-                    lambda x: view.set_mat4(x),
-                    lambda:glm.value_ptr(camera.view.matrix)),
-                glo.ShaderProp(
-                    lambda x: projection.set_mat4(x),
-                    lambda:glm.value_ptr(camera.projection.matrix)),
-            ]
+            self.props = self.shader.create_props(camera)
 
             vbo = glo.Vbo()
             vbo.set_vertices(self.vertices, is_dynamic=True)
@@ -94,7 +84,7 @@ class Hand:
 
         with self.shader:
             for prop in self.props:
-                prop.update()
+                prop()
 
             self.vao.draw(len(HAND_INDICES), topology=GL.GL_LINES)
 
@@ -104,8 +94,8 @@ class Scene:
         self.clear_color = (ctypes.c_float * 4)(0.1, 0.2, 0.1, 1)
         self.fbo_manager = glo.FboRenderer()
         self.camera = Camera(distance=0.2)
-        from .axis import Axis
-        self.axis = Axis()
+        from .gizmo import Gizmo
+        self.axis = Gizmo()
         self.hand = Hand()
         # gui
         self.hover = False
@@ -116,12 +106,14 @@ class Scene:
                        ImGui.ImGuiWindowFlags_.NoScrollbar |
                        ImGui.ImGuiWindowFlags_.NoScrollWithMouse):
             w, h = ImGui.GetContentRegionAvail()
+            self.camera.onResize(w, h)
             if self.hover:
                 x, y = ImGui.GetWindowPos()
                 y += ImGui.GetFrameHeight()
                 io = ImGui.GetIO()
-                self.camera.update(w, h, io.MousePos.x-x, io.MousePos.y-y,
-                                   io.MouseDown[0], io.MouseDown[1], io.MouseDown[2], int(io.MouseWheel))
+                self.camera.drag(io.MousePos.x-x, io.MousePos.y-y, int(io.MouseDelta.x), int(io.MouseDelta.y),
+                                 io.MouseDown[0], io.MouseDown[1], io.MouseDown[2])
+                self.camera.onWheel(int(io.MouseWheel))
 
             texture = self.fbo_manager.clear(
                 int(w), int(h), self.clear_color)

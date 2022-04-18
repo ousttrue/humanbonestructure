@@ -9,7 +9,6 @@ from ..formats.humanoid_bones import HumanoidBone
 from ..formats import tpose
 from ..formats.transform import Transform
 from .node import Node
-from .gizmo import Gizmo
 from .skeleton import Skeleton
 LOGGER = logging.getLogger(__name__)
 
@@ -22,6 +21,7 @@ class Scene:
     def __init__(self) -> None:
         # scene
         self.root = Node(-1, '__root__', Transform.identity())
+        from .gizmo import Gizmo
         self.gizmo = Gizmo()
         self.skeleton = None
         # GUI check box

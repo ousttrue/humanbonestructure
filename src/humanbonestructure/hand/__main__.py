@@ -18,7 +18,7 @@ def main():
     from pydear.utils import dockspace
     import ctypes
 
-    from .handlandmark import HandLandmark
+    from ..formats.handlandmark import HandLandmark
     hand_landmark = HandLandmark()
 
     views = [
