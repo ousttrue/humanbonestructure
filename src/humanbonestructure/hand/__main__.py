@@ -33,23 +33,18 @@ def main():
         min_detection_confidence=0.5,
         min_tracking_confidence=0.5)
 
-    from ..eventproperty import EventProperty
-    landmark_result: EventProperty[mp_hands.SolutionOutputs] = EventProperty()
-
     def estimate(image: numpy.ndarray):
         assert isinstance(image, numpy.ndarray)
 
         results = hands.process(image)
-        landmark_result.set(results)
+        landmark_table.update(results)
+        capture.points.update(results)
+        scene3d.hand.update(results)
 
     from ..formats.video_capture import VideCapture
     video_capture = VideCapture()
     video_capture.frame_event += capture.rect.update_capture_texture
     video_capture.frame_event += estimate
-
-    landmark_result += landmark_table.update
-    landmark_result += capture.points.update
-    landmark_result += scene3d.hand.update
 
     #
     # gui

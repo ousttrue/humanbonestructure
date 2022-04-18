@@ -82,15 +82,18 @@ class MotionList(ItemList[Motion]):
         ]
 
     def filter(self, item: Motion) -> bool:
+        if not item.get_current_pose().bones:
+            # empty
+            return True
         if not self._filter.value:
             return True
         return self._filter.value(item)
 
     def columns(self, item: Motion) -> Iterable[str]:
         yield item.name
-        yield 'O' if HumanoidBodyParts.Trunk in item.get_humanbones() else ''
-        yield 'O' if HumanoidBodyParts.Legs in item.get_humanbones() else ''
-        yield 'O' if HumanoidBodyParts.LeftArm in item.get_humanbones() else ''
-        yield 'O' if HumanoidBodyParts.LeftFingers in item.get_humanbones() else ''
-        yield 'O' if HumanoidBodyParts.RightArm in item.get_humanbones() else ''
-        yield 'O' if HumanoidBodyParts.RightFingers in item.get_humanbones() else ''
+        yield 'O' if (HumanoidBodyParts.Trunk in item.get_humanboneparts()) else ''
+        yield 'O' if (HumanoidBodyParts.Legs in item.get_humanboneparts()) else ''
+        yield 'O' if (HumanoidBodyParts.LeftArm in item.get_humanboneparts()) else ''
+        yield 'O' if (HumanoidBodyParts.LeftFingers in item.get_humanboneparts()) else ''
+        yield 'O' if (HumanoidBodyParts.RightArm in item.get_humanboneparts()) else ''
+        yield 'O' if (HumanoidBodyParts.RightFingers in item.get_humanboneparts()) else ''
