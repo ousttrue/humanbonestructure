@@ -1,4 +1,5 @@
 from typing import Set
+import math
 import glm
 from .pose import Motion, Pose, BonePose
 from .humanoid_bones import HumanoidBone
@@ -90,6 +91,56 @@ class HandPose(Motion):
                      Transform.identity()),
             BonePose('leftLittleTip', HumanoidBone.leftLittleTip,
                      Transform.identity()),
+
+            #
+            BonePose('rightHand', HumanoidBone.rightHand,
+                     Transform.identity()),
+            # thumb: 1, 2, 3, 4
+            BonePose('rightThumbProximal',
+                     HumanoidBone.rightThumbProximal, Transform.identity()),
+            BonePose('rightThumbIntermediate',
+                     HumanoidBone.rightThumbIntermediate, Transform.identity()),
+            BonePose('rightThumbDistal', HumanoidBone.rightThumbDistal,
+                     Transform.identity()),
+            BonePose('rightThumbTip', HumanoidBone.rightThumbTip,
+                     Transform.identity()),
+            # index: 5, 6, 7, 8
+            BonePose('rightIndexProximal',
+                     HumanoidBone.rightIndexProximal, Transform.identity()),
+            BonePose('rightIndexIntermediate',
+                     HumanoidBone.rightIndexIntermediate, Transform.identity()),
+            BonePose('rightIndexDistal', HumanoidBone.rightIndexDistal,
+                     Transform.identity()),
+            BonePose('rightIndexTip', HumanoidBone.rightIndexTip,
+                     Transform.identity()),
+            # middle: 9, 10, 11, 12
+            BonePose('rightMiddleProximal',
+                     HumanoidBone.rightMiddleProximal, Transform.identity()),
+            BonePose('rightMiddleIntermediate',
+                     HumanoidBone.rightMiddleIntermediate, Transform.identity()),
+            BonePose('rightMiddleDistal', HumanoidBone.rightMiddleDistal,
+                     Transform.identity()),
+            BonePose('rightMiddleTip', HumanoidBone.rightMiddleTip,
+                     Transform.identity()),
+            # ring: 13, 14, 15, 16
+            BonePose('rightRingProximal', HumanoidBone.rightRingProximal,
+                     Transform.identity()),
+            BonePose('rightRingIntermediate',
+                     HumanoidBone.rightRingIntermediate, Transform.identity()),
+            BonePose('rightRingDistal', HumanoidBone.rightRingDistal,
+                     Transform.identity()),
+            BonePose('rightRingTip', HumanoidBone.rightRingTip,
+                     Transform.identity()),
+            # little: 17, 18, 19, 20
+            BonePose('rightLittleProximal',
+                     HumanoidBone.rightLittleProximal, Transform.identity()),
+            BonePose('rightLittleIntermediate',
+                     HumanoidBone.rightLittleIntermediate, Transform.identity()),
+            BonePose('rightLittleDistal', HumanoidBone.rightLittleDistal,
+                     Transform.identity()),
+            BonePose('rightLittleTip', HumanoidBone.rightLittleTip,
+                     Transform.identity()),
+
         ]
 
     def get_humanbones(self) -> Set[HumanoidBone]:
@@ -114,15 +165,54 @@ class HandPose(Motion):
                 elif hand_class.label == 'Right':
                     left = hand_landmarks.landmark
 
-                break
+            self.make_handpose(left, 0, glm.vec3(0, 0, -1))
+            self.make_handpose(right, 21, glm.vec3(0, 0, 1))
 
-    def make_handpose(self, left_landmarks, right_landmarks):
-        points_l = {
-            i: glm.vec3(v.x, -v.y, -v.z) for i, v in enumerate(left_landmarks)
+    def make_handpose(self, landmarks, offset: int, axis: glm.vec3):
+        if not landmarks:
+            return
+        points = {
+            i: glm.vec3(v.x, -v.y, -v.z) for i, v in enumerate(landmarks)
         }
-        _56 = glm.normalize(points_l[6] - points_l[5])
-        _67 = glm.normalize(points_l[7]-points_l[6])
-        _6_angle = glm.dot(_56, _67)
-        _6 = self._pose.bones[6]
-        self._pose.bones[6] = BonePose(
-            _6.name, _6.humanoid_bone, _6.transform._replace(rotation=glm.angleAxis(_6_angle, glm.vec3(0, 0, 1))))
+        # thumb
+        t_axis = glm.normalize(glm.vec3(-1, 1, 0))
+        _01 = glm.normalize(points[1] - points[0])
+        _a = glm.normalize(points[2] - points[1])
+        _b = glm.normalize(points[3]-points[2])
+        _c = glm.normalize(points[4]-points[3])
+        _a_angle = math.acos(glm.dot(_01, _a))
+        _b_angle = math.acos(glm.dot(_a, _b))
+        _c_angle = math.acos(glm.dot(_b, _c))
+        bone_a = self._pose.bones[offset+1]
+        self._pose.bones[offset+1] = BonePose(
+            bone_a.name, bone_a.humanoid_bone, bone_a.transform._replace(rotation=glm.angleAxis(_a_angle, t_axis)))
+        bone_b = self._pose.bones[offset+2]
+        self._pose.bones[offset+2] = BonePose(
+            bone_b.name, bone_b.humanoid_bone, bone_b.transform._replace(rotation=glm.angleAxis(_b_angle, t_axis)))
+        bone_c = self._pose.bones[offset+3]
+        self._pose.bones[offset+3] = BonePose(
+            bone_c.name, bone_c.humanoid_bone, bone_c.transform._replace(rotation=glm.angleAxis(_c_angle, t_axis)))
+
+        # index, middle, ring, little
+        _09 = glm.normalize(points[9]-points[0])
+        self.make_fingerpose(points, offset, axis, _09, 5, 6, 7, 8)
+        self.make_fingerpose(points, offset, axis, _09, 9, 10, 11, 12)
+        self.make_fingerpose(points, offset, axis, _09, 13, 14, 15, 16)
+        self.make_fingerpose(points, offset, axis, _09, 17, 18, 19, 20)
+
+    def make_fingerpose(self, points, offset: int, axis: glm.vec3, _0, i0, i1, i2, i3):
+        _a = glm.normalize(points[i3] - points[i2])
+        _b = glm.normalize(points[i2]-points[i1])
+        _c = glm.normalize(points[i1]-points[i0])
+        _a_angle = math.acos(glm.dot(_0, _a))
+        _b_angle = math.acos(glm.dot(_a, _b))
+        _c_angle = math.acos(glm.dot(_b, _c))
+        bone_a = self._pose.bones[offset+i0]
+        self._pose.bones[offset+i0] = BonePose(
+            bone_a.name, bone_a.humanoid_bone, bone_a.transform._replace(rotation=glm.angleAxis(_a_angle, axis)))
+        bone_b = self._pose.bones[offset+i1]
+        self._pose.bones[offset+i1] = BonePose(
+            bone_b.name, bone_b.humanoid_bone, bone_b.transform._replace(rotation=glm.angleAxis(_b_angle, axis)))
+        bone_c = self._pose.bones[offset+i2]
+        self._pose.bones[offset+i2] = BonePose(
+            bone_c.name, bone_c.humanoid_bone, bone_c.transform._replace(rotation=glm.angleAxis(_c_angle, axis)))

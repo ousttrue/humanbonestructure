@@ -105,6 +105,10 @@ class Scene:
         self._setup_model()
 
     def render(self, camera: Camera):
+        if self.motion:
+            pose = self.motion.get_current_pose()
+            self._load_pose(pose)
+
         if self.visible_mesh[0]:
             if root := self.root:
                 self.render_node(camera, root)
@@ -116,10 +120,6 @@ class Scene:
             self.skeleton.renderer.render(camera)
 
     def render_node(self, camera: Camera, node: Node):
-        # if self.motion:
-        #     pose = self.motion.get_current_pose()
-        #     self._load_pose(pose)
-
         if node.renderer:
             node.renderer.render(camera, node)
 
@@ -140,9 +140,8 @@ class Scene:
         # assign pose to node hierarchy
         if pose:
             for bone in pose.bones:
-                humanoid_bone = pmd_loader.BONE_HUMANOID_MAP.get(bone.name)
-                if humanoid_bone:
-                    node = self.humanoid_node_map.get(humanoid_bone)
+                if bone.humanoid_bone:
+                    node = self.humanoid_node_map.get(bone.humanoid_bone)
                     if node:
                         node.pose = conv(bone)
 

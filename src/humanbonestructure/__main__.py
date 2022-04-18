@@ -58,9 +58,6 @@ def main():
     # add_tpose
     gui.add_tpose()
 
-    # start OpenCV
-    app.loop.create_task(gui.video_capture.start_async())
-
     from pydear.backends import impl_glfw
     impl_glfw = impl_glfw.ImplGlfwInput(app.window)
     while app.clear():

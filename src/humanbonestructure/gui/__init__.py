@@ -52,9 +52,7 @@ class GUI(dockspace.DockingGui):
 
         def on_select(motion: Optional[Motion]):
             for scene in self.scenes:
-                # scene.motion = motion
-                if motion:
-                    scene._load_pose(motion.get_current_pose())
+                scene.motion = motion
         self.motion_selector.selected += on_select
 
         from ..formats.video_capture import VideCapture

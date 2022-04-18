@@ -48,6 +48,12 @@ class Motion(abc.ABC):
     def get_current_pose(self) -> Pose:
         raise NotImplementedError()
 
+    def start(self):
+        pass
+
+    def stop(self):
+        pass
+
 
 class Empty(Motion):
     def __init__(self) -> None:

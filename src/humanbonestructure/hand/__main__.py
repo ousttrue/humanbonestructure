@@ -43,7 +43,7 @@ def main():
 
     from ..formats.video_capture import VideCapture
     video_capture = VideCapture()
-    video_capture.frame_event += capture.rect.update_capture_texture
+    video_capture.frame_event += capture.rect.set_image
     video_capture.frame_event += estimate
 
     #

@@ -9,17 +9,19 @@ def create_hand() -> Node:
         Node(1, 'thumb1', Transform(glm.vec3(0.1, 0, 0), glm.quat(), glm.vec3(1)), humanoid_bone=HumanoidBone.leftThumbProximal, children=[
             Node(2, 'thumb2', Transform(glm.vec3(0.1, 0, 0), glm.quat(), glm.vec3(1)), humanoid_bone=HumanoidBone.leftThumbIntermediate, children=[
                 Node(3, 'thumb3', Transform(glm.vec3(0.1, 0, 0), glm.quat(), glm.vec3(1)), humanoid_bone=HumanoidBone.leftThumbDistal, children=[
-                    Node(4, 'thumb4', Transform(glm.vec3(0.1, 0, 0), glm.quat(), glm.vec3(1)))
+                    Node(4, 'thumb4', Transform(glm.vec3(0.1, 0, 0), glm.quat(
+                    ), glm.vec3(1)), humanoid_bone=HumanoidBone.leftThumbTip)
                 ])
             ])
         ]),
-        # Node(5, 'index1', humanoid_bone=HumanoidBone.leftIndexProximal, Transform(glm.vec3(0.1, 0, -0.1), children=[
-        #     Node(6, 'index2', humanoid_bone=HumanoidBone.leftIndexIntermediate, Transform(glm.vec3(0.2, 0, -0.1), children=[
-        #         Node(7, 'index3', humanoid_bone=HumanoidBone.leftIndexDistal, Transform(glm.vec3(0.3, 0, -0.1), children=[
-        #             Node(8, 'index4', Transform(glm.vec3(0.4, 0, -0.1))
-        #         ])
-        #     ])
-        # ]),
+        Node(5, 'index1', Transform(glm.vec3(0.1, 0, -0.1), glm.quat(), glm.vec3(1)), humanoid_bone=HumanoidBone.leftIndexProximal, children=[
+            Node(6, 'index2', Transform(glm.vec3(0.1, 0, 0), glm.quat(), glm.vec3(1)), humanoid_bone=HumanoidBone.leftIndexIntermediate, children=[
+                Node(7, 'index3', Transform(glm.vec3(0.1, 0, 0), glm.quat(), glm.vec3(1)), humanoid_bone=HumanoidBone.leftIndexDistal, children=[
+                    Node(8, 'index4', Transform(glm.vec3(0.1, 0, 0), glm.quat(
+                    ), glm.vec3(1)), humanoid_bone=HumanoidBone.leftIndexTip)
+                ])
+            ])
+        ]),
         # Node(9, 'middle1', humanoid_bone=HumanoidBone.leftMiddleProximal, Transform(glm.vec3(0.1, 0, -0.2), children=[
         #     Node(10, 'middle2', humanoid_bone=HumanoidBone.leftMiddleIntermediate, Transform(glm.vec3(0.2, 0, -0.2), children=[
         #         Node(11, 'middle3', humanoid_bone=HumanoidBone.leftMiddleDistal, Transform(glm.vec3(0.3, 0, -0.2), children=[

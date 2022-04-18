@@ -82,11 +82,17 @@ class Node:
 
         match self.humanoid_bone:
             case HumanoidBone.chest | HumanoidBone.upperChest:
-                return next(iter(node for node, _ in self.traverse_node_and_parent() if node.humanoid_bone == HumanoidBone.neck))
+                for x, _ in self.traverse_node_and_parent():
+                    if x.humanoid_bone == HumanoidBone.neck:
+                        return x
             case HumanoidBone.rightHand:
-                return next(iter(node for node, _ in self.traverse_node_and_parent() if node.humanoid_bone == HumanoidBone.rightMiddleProximal))
+                for x, _ in self.traverse_node_and_parent():
+                    if x.humanoid_bone == HumanoidBone.rightMiddleProximal:
+                        return x
             case HumanoidBone.leftHand:
-                return next(iter(node for node, _ in self.traverse_node_and_parent() if node.humanoid_bone == HumanoidBone.leftMiddleProximal))
+                for x, _ in self.traverse_node_and_parent():
+                    if x.humanoid_bone == HumanoidBone.leftMiddleProximal:
+                        return x
             case _:
                 pass
 

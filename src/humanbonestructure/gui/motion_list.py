@@ -97,3 +97,12 @@ class MotionList(ItemList[Motion]):
         yield 'O' if (HumanoidBodyParts.LeftFingers in item.get_humanboneparts()) else ''
         yield 'O' if (HumanoidBodyParts.RightArm in item.get_humanboneparts()) else ''
         yield 'O' if (HumanoidBodyParts.RightFingers in item.get_humanboneparts()) else ''
+
+    def start(self):
+        # start OpenCV
+        # app.loop.create_task(gui.video_capture.start_async())
+        pass
+
+    def stop(self):
+        pass
+
