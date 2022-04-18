@@ -30,7 +30,7 @@ class HandLandMarkTable:
         #         # self.handedness.append(handedness)
 
         if results.multi_hand_world_landmarks:
-            for h_id, hand_landmarks in enumerate(results.multi_hand_world_landmarks):
+            for h_id, hand in enumerate(results.multi_hand_world_landmarks):
 
                 for c_id, hand_class in enumerate(results.multi_handedness[h_id].classification):
                     assert c_id == 0
@@ -40,7 +40,7 @@ class HandLandMarkTable:
                     #     'score': hand_class.score,
                     # })
 
-                for landmark in hand_landmarks.landmark:
+                for landmark in hand.landmark:
 
                     self.landmark.append(Item(
                         hand_class.index,

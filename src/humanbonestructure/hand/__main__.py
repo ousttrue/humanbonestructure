@@ -14,7 +14,7 @@ def main():
     log_handler.register_root()
 
     from pydear.utils import glfw_app
-    app = glfw_app.GlfwApp('hello_docking')
+    app = glfw_app.GlfwApp('mediapipe')
 
     from pydear.utils import dockspace
     import ctypes
@@ -25,11 +25,8 @@ def main():
     from ..gui.capture import CaptureView
     capture = CaptureView()
 
-    from ..gui.scene_3d import Scene
-    scene = Scene()
-
-    from ..gui.scene_hand import HandScene
-    hand = HandScene()
+    from ..gui.scene_3d import Scene3D
+    scene3d = Scene3D()
 
     hands = mp_hands.Hands(
         model_complexity=0,
@@ -52,20 +49,20 @@ def main():
 
     landmark_result += landmark_table.update
     landmark_result += capture.points.update
-    # landmark_result += scene.update
-    # landmark_result += hand.update
+    landmark_result += scene3d.hand.update
 
+    #
+    # gui
+    #
     views = [
         dockspace.Dock('metrics', ImGui.ShowMetricsWindow,
                        (ctypes.c_bool * 1)(True)),
         dockspace.Dock('capture', capture.show,
                        (ctypes.c_bool * 1)(True)),
-        dockspace.Dock('landmarks', landmark_table.show,
+        dockspace.Dock('table', landmark_table.show,
                        (ctypes.c_bool * 1)(True)),
-        # dockspace.Dock('scene', scene.show,
-        #                (ctypes.c_bool * 1)(True)),
-        # dockspace.Dock('hand', hand.show,
-        #                (ctypes.c_bool * 1)(True)),
+        dockspace.Dock('3d', scene3d.show,
+                       (ctypes.c_bool * 1)(True)),
         dockspace.Dock('log', log_handler.draw, (ctypes.c_bool * 1)(True)),
     ]
 
