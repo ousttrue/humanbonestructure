@@ -1,4 +1,4 @@
-from typing import List, Optional, Tuple, Callable
+from typing import List, Optional, Tuple, Callable, Iterable
 import logging
 import asyncio
 import pathlib
@@ -6,22 +6,37 @@ import ctypes
 from pydear import imgui as ImGui
 from pydear.utils import dockspace
 from ..scene.scene import Scene
-from ..formats.humanoid_bones import HumanoidBone
+from ..formats.humanoid_bones import HumanoidBone, HumanoidBodyParts
 from ..formats import vpd_loader
 from .eventproperty import EventProperty
-from .selector import Selector, ItemList, Filter
+from .selector import Selector, TableSelector, ItemList, Filter
 
 LOGGER = logging.getLogger(__name__)
 
 
 class VpdFilter(Filter[vpd_loader.Vpd]):
     def __init__(self) -> None:
-        self.filter_has_lefthand = (ctypes.c_bool * 1)(True)
+        self.filter_has_trunk = (ctypes.c_bool * 1)(False)
+        self.filter_has_legs = (ctypes.c_bool * 1)(False)
+        self.filter_has_leftArm = (ctypes.c_bool * 1)(False)
+        self.filter_has_leftFingers = (ctypes.c_bool * 1)(True)
+        self.filter_has_rightArm = (ctypes.c_bool * 1)(False)
+        self.filter_has_rightFingers = (ctypes.c_bool * 1)(False)
         self.filter_has_thumbnail0 = (ctypes.c_bool * 1)(True)
         super().__init__(self.filter)
 
     def filter(self, item: vpd_loader.Vpd):
-        if self.filter_has_lefthand[0] and not any(bone.humanoid_bone.value.startswith('left') for bone in item.bones if bone.humanoid_bone):
+        if self.filter_has_trunk[0] and not any(bone.humanoid_bone.get_part() == HumanoidBodyParts.Trunk for bone in item.bones if bone.humanoid_bone):
+            return False
+        if self.filter_has_legs[0] and not any(bone.humanoid_bone.get_part() == HumanoidBodyParts.Legs for bone in item.bones if bone.humanoid_bone):
+            return False
+        if self.filter_has_leftArm[0] and not any(bone.humanoid_bone.get_part() == HumanoidBodyParts.LeftArm for bone in item.bones if bone.humanoid_bone):
+            return False
+        if self.filter_has_leftFingers[0] and not any(bone.humanoid_bone.get_part() == HumanoidBodyParts.LeftFingers for bone in item.bones if bone.humanoid_bone):
+            return False
+        if self.filter_has_rightArm[0] and not any(bone.humanoid_bone.get_part() == HumanoidBodyParts.RightArm for bone in item.bones if bone.humanoid_bone):
+            return False
+        if self.filter_has_rightFingers[0] and not any(bone.humanoid_bone.get_part() == HumanoidBodyParts.RightFingers for bone in item.bones if bone.humanoid_bone):
             return False
         if self.filter_has_thumbnail0[0] and not any(bone.humanoid_bone == HumanoidBone.leftThumbProximal or bone.humanoid_bone == HumanoidBone.rightThumbProximal for bone in item.bones if bone.humanoid_bone):
             return False
@@ -29,7 +44,22 @@ class VpdFilter(Filter[vpd_loader.Vpd]):
 
     def show(self):
         chcked = False
-        if ImGui.Checkbox("leftHand", self.filter_has_lefthand):
+        if ImGui.Checkbox("幹", self.filter_has_trunk):
+            chcked = True
+        ImGui.SameLine()
+        if ImGui.Checkbox("脚", self.filter_has_legs):
+            chcked = True
+        ImGui.SameLine()
+        if ImGui.Checkbox("左腕", self.filter_has_leftArm):
+            chcked = True
+        ImGui.SameLine()
+        if ImGui.Checkbox("左指", self.filter_has_leftFingers):
+            chcked = True
+        ImGui.SameLine()
+        if ImGui.Checkbox("右腕", self.filter_has_rightArm):
+            chcked = True
+        ImGui.SameLine()
+        if ImGui.Checkbox("右指", self.filter_has_rightFingers):
             chcked = True
         ImGui.SameLine()
         if ImGui.Checkbox("has thumb0", self.filter_has_thumbnail0):
@@ -49,10 +79,29 @@ class VpdItems(ItemList[vpd_loader.Vpd]):
             self.apply()
         self._filter += on_filter_changed
 
+        self.headers = [
+            "name",
+            "幹",
+            "脚",
+            "左腕",
+            "左指",
+            "右腕",
+            "右指",
+        ]
+
     def filter(self, item: vpd_loader.Vpd) -> bool:
         if not self._filter.value:
             return True
         return self._filter.value(item)
+
+    def columns(self, item: vpd_loader.Vpd) -> Iterable[str]:
+        yield item.name
+        yield 'O' if item.get_parts(HumanoidBodyParts.Trunk) else ''
+        yield 'O' if item.get_parts(HumanoidBodyParts.Legs) else ''
+        yield 'O' if item.get_parts(HumanoidBodyParts.LeftArm) else ''
+        yield 'O' if item.get_parts(HumanoidBodyParts.LeftFingers) else ''
+        yield 'O' if item.get_parts(HumanoidBodyParts.RightArm) else ''
+        yield 'O' if item.get_parts(HumanoidBodyParts.RightFingers) else ''
 
 
 class VpdMask(EventProperty):
@@ -85,7 +134,7 @@ class GUI(dockspace.DockingGui):
 
         vpd_mask = VpdMask()
         self.vpd_items = VpdItems()
-        self.vpd_selector = Selector(
+        self.vpd_selector = TableSelector(
             'pose selector', self.vpd_items, self.vpd_items._filter.show)
 
         def on_select(vpd: Optional[vpd_loader.Vpd]):

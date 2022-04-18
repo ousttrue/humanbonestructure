@@ -1,8 +1,8 @@
-from typing import List, NamedTuple, Optional
+from typing import List, NamedTuple, Optional, Dict
 import re
 from .transform import Transform
 from .pmd_loader import SCALING_FACTOR, BONE_HUMANOID_MAP
-from .humanoid_bones import HumanoidBone
+from .humanoid_bones import HumanoidBone, HumanoidBodyParts
 import glm
 
 COMMENT_PATTERN = re.compile(r'(.*?)//.*$')
@@ -36,6 +36,19 @@ class Vpd:
     def __init__(self, name: str):
         self.name = name
         self.bones: List[BonePose] = []
+        self._parts: Dict[HumanoidBodyParts, bool] = {
+        }
+
+    def get_parts(self, part: HumanoidBodyParts) -> bool:
+        value = self._parts.get(part)
+        if not isinstance(value, bool):
+            def has_part(bone: BonePose) -> bool:
+                if not bone.humanoid_bone:
+                    return False
+                return bone.humanoid_bone.get_part() == part
+            value = any(has_part(bone) for bone in self.bones)
+            self._parts[part] = value
+        return value
 
     @staticmethod
     def load(data: bytes) -> 'Vpd':

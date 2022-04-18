@@ -1,4 +1,4 @@
-from typing import Optional, List, TypeVar, Generic, Callable
+from typing import Optional, List, TypeVar, Generic, Callable, Iterable
 import logging
 import abc
 from pydear import imgui as ImGui
@@ -24,9 +24,13 @@ class ItemList(Generic[T]):
         super().__init__()
         self.items: List[T] = []
         self.filtered_items: List[T] = []
+        self.headers: List[str] = ['name']
 
     def __iter__(self):
         return iter(self.filtered_items)
+
+    def columns(self, item: T) -> Iterable[str]:
+        raise NotImplementedError()
 
     def filter(self, item: T) -> bool:
         return True
@@ -51,12 +55,70 @@ class Selector(Generic[T]):
             if self.on_show:
                 self.on_show()
 
+            self._selector()
+        ImGui.End()
+
+    def _selector(self):
+        selected = None
+        for item in self.items:
+            current = ImGui.Selectable(
+                str(item), item == self.selected.value)
+            if current:
+                selected = item
+        if selected:
+            self.selected.set(selected)
+
+
+class TableSelector(Generic[T]):
+    def __init__(self, name: str, items: ItemList[T], on_show: Optional[Callable[[], None]]) -> None:
+        self.name = name
+        self.items = items
+        self.selected: EventProperty[Optional[T]] = EventProperty(None)
+        self.on_show = on_show
+
+    def show(self, p_open):
+        ImGui.SetNextWindowSize((100, 100), ImGui.ImGuiCond_.Once)
+        if ImGui.Begin(self.name, p_open):
+            if self.on_show:
+                self.on_show()
+
+            self._selector()
+        ImGui.End()
+
+    def _selector(self):
+        # tree
+        flags = (
+            ImGui.ImGuiTableFlags_.BordersV
+            | ImGui.ImGuiTableFlags_.BordersOuterH
+            | ImGui.ImGuiTableFlags_.Resizable
+            | ImGui.ImGuiTableFlags_.RowBg
+            | ImGui.ImGuiTableFlags_.NoBordersInBody
+        )
+        if ImGui.BeginTable(self.name, len(self.items.headers), flags):
+            # header
+            for label in self.items.headers:
+                ImGui.TableSetupColumn(label)
+            ImGui.TableHeadersRow()
+
             selected = None
+
+            # body
             for item in self.items:
-                current = ImGui.Selectable(
-                    str(item), item == self.selected.value)
-                if current:
-                    selected = item
+                ImGui.TableNextRow()
+                for i, col in enumerate(self.items.columns(item)):
+                    ImGui.TableNextColumn()
+                    if i == 0:
+                        current = ImGui.Selectable(
+                            col, item == self.selected.value)
+                        if current:
+                            selected = item
+                    else:
+                        #
+                        ImGui.TextUnformatted(col)
+
             if selected:
                 self.selected.set(selected)
-        ImGui.End()
+
+            ImGui.EndTable()
+
+        selected = None
