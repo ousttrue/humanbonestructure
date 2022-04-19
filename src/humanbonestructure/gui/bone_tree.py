@@ -47,8 +47,10 @@ class BoneTree:
                 ImGui.TableHeadersRow()
 
                 # body
+                ImGui.PushStyleVar(ImGui.ImGuiStyleVar_.IndentSpacing, 12)
                 if self.scene.root:
                     self._traverse(self.scene.root)
+                ImGui.PopStyleVar()
 
                 ImGui.EndTable()
         ImGui.End()

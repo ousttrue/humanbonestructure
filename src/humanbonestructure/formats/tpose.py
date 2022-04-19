@@ -26,26 +26,26 @@ from .pose import Motion, Pose, BonePose
 #     print(head, local)
 
 
-# def mod(head: Node, tail: Node, forward: glm.vec3):
-#     assert not head.pose
-#     p_tail = tail.local_matrix[3].xyz
-#     dir = glm.normalize(p_tail)
-#     target = glm.inverse(glm.quat(head.world_matrix)) * forward
-#     axis = glm.normalize(glm.cross(dir, target))
-#     dot = glm.dot(dir, target)
-#     r = glm.angleAxis(math.acos(dot), axis)
-#     head.pose = Transform.from_rotation(r)
-
-
 def mod(head: Node, tail: Node, forward: glm.vec3):
-    p_head = head.world_matrix[3].xyz
-    p_tail = tail.world_matrix[3].xyz
-    dir = glm.normalize(p_tail - p_head)
-    target = forward
+    assert not head.pose
+    p_tail = tail.local_matrix[3].xyz
+    dir = glm.normalize(p_tail)
+    target = glm.inverse(glm.quat(head.world_matrix)) * forward
     axis = glm.normalize(glm.cross(dir, target))
     dot = glm.dot(dir, target)
     r = glm.angleAxis(math.acos(dot), axis)
     head.pose = Transform.from_rotation(r)
+
+
+# def mod(head: Node, tail: Node, forward: glm.vec3):
+#     p_head = head.world_matrix[3].xyz
+#     p_tail = tail.world_matrix[3].xyz
+#     dir = glm.normalize(p_tail - p_head)
+#     target = forward
+#     axis = glm.normalize(glm.cross(dir, target))
+#     dot = glm.dot(dir, target)
+#     r = glm.angleAxis(math.acos(dot), axis)
+#     head.pose = Transform.from_rotation(r)
 
 
 def make_tpose(root: Node):
