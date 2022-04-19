@@ -8,8 +8,26 @@ from pydear.utils import dockspace
 from ..scene.scene import Scene
 from .selector import TableSelector
 from .bone_mask import VpdMask
+from .motion_list import MotionList, Motion
+from ..eventproperty import EventProperty
+from ..formats.pose import Pose
 
 LOGGER = logging.getLogger(__name__)
+
+
+class PoseGenerator:
+    def __init__(self) -> None:
+        self.vpd_mask = VpdMask()
+        self.motion_list = MotionList()
+        self.pose_event = EventProperty(Pose('empty'))
+
+    def show(self):
+        self.motion_list._filter.show()
+        self.vpd_mask.show()
+
+    def set_motion(self, motion: Optional[Motion]):
+        if motion:
+            self.pose_event.set(motion.get_current_pose())
 
 
 class GUI(dockspace.DockingGui):
@@ -20,22 +38,12 @@ class GUI(dockspace.DockingGui):
         log_handler = ImGuiLogHandler()
         log_handler.register_root(append=True)
 
-        vpd_mask = VpdMask()
-        from .motion_list import MotionList, Motion
-        self.motion_list = MotionList()
-
-        def show():
-            self.motion_list._filter.show()
-            vpd_mask.show()
+        self.pose_generator = PoseGenerator()
 
         self.motion_selector = TableSelector(
-            'pose selector', self.motion_list, show)
+            'pose selector', self.pose_generator.motion_list, self.pose_generator.show)
 
-        def on_select(motion: Optional[Motion]):
-            for scene in self.scenes:
-                scene.motion = motion
-                scene.mask = vpd_mask.mask
-        self.motion_selector.selected += on_select
+        self.motion_selector.selected += self.pose_generator.set_motion
 
         self.docks = [
             dockspace.Dock('pose_selector', self.motion_selector.show,
@@ -61,10 +69,17 @@ class GUI(dockspace.DockingGui):
 
         io.Fonts.Build()
 
-    def add_model(self, path: pathlib.Path):
-        scene = Scene(path.stem)
-        scene.load_model(path)
+    def _add_scene(self, name: str) -> Scene:
+        scene = Scene(name)
         self.scenes.append(scene)
+
+        self.pose_generator.pose_event += scene.set_pose
+
+        return scene
+
+    def add_model(self, path: pathlib.Path):
+        scene = self._add_scene(path.stem)
+        scene.load_model(path)
 
         tree_name = f'tree:{path.name}'
         from .bone_tree import BoneTree
@@ -80,9 +95,8 @@ class GUI(dockspace.DockingGui):
                                          (ctypes.c_bool * 1)(True)))
 
     def create_model(self):
-        scene = Scene('generate')
+        scene = self._add_scene('generate')
         scene.create_model()
-        self.scenes.append(scene)
 
         tree_name = f'tree:__procedual__'
         from .bone_tree import BoneTree
@@ -100,9 +114,8 @@ class GUI(dockspace.DockingGui):
         if not self.scenes:
             return
 
-        scene = Scene('tpose')
+        scene = self._add_scene('tpose')
         scene.create_tpose_from(self.scenes[0])
-        self.scenes.append(scene)
 
         view_name = f'tpose'
         from .scene_view import SceneView

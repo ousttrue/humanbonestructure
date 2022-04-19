@@ -44,7 +44,7 @@ def main():
                     from .scene.scene import vpd_loader
                     vpd = vpd_loader.Vpd.load(f.read_bytes())
                     vpd.name = f.name
-                    gui.motion_list.items.append(vpd)
+                    gui.pose_generator.motion_list.items.append(vpd)
 
     # load model
     for model in args.model:
@@ -59,8 +59,9 @@ def main():
     if gui.scenes:
         scene = gui.scenes[0]
         from .formats.tpose import TPose
-        gui.motion_list.items.insert(1, TPose(scene.name, scene.root))
-    gui.motion_list.apply()
+        gui.pose_generator.motion_list.items.insert(
+            1, TPose(scene.name, scene.root))
+    gui.pose_generator.motion_list.apply()
 
     from pydear.backends import impl_glfw
     impl_glfw = impl_glfw.ImplGlfwInput(app.window)

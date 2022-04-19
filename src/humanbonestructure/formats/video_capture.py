@@ -1,11 +1,11 @@
 import asyncio
 import numpy
-from ..eventproperty import EventProperty
+from ..eventproperty import OptionalEventProperty
 
 
 class VideCapture:
     def __init__(self) -> None:
-        self.frame_event: EventProperty[numpy.ndarray] = EventProperty()
+        self.frame_event: OptionalEventProperty[numpy.ndarray] = OptionalEventProperty()
 
     async def start_async(self):
         import cv2

@@ -2,7 +2,7 @@ from typing import Optional, List, TypeVar, Generic, Callable, Iterable, NamedTu
 import logging
 import abc
 from pydear import imgui as ImGui
-from ..eventproperty import EventProperty
+from ..eventproperty import EventProperty, OptionalEventProperty
 
 
 LOGGER = logging.getLogger(__name__)
@@ -51,7 +51,7 @@ class Selector(Generic[T]):
     def __init__(self, name: str, items: ItemList[T], on_show: Optional[Callable[[], None]]) -> None:
         self.name = name
         self.items = items
-        self.selected: EventProperty[Optional[T]] = EventProperty(None)
+        self.selected: OptionalEventProperty[T] = OptionalEventProperty()
         self.on_show = on_show
 
     def show(self, p_open):
@@ -78,7 +78,7 @@ class TableSelector(Generic[T]):
     def __init__(self, name: str, items: ItemList[T], on_show: Optional[Callable[[], None]]) -> None:
         self.name = name
         self.items = items
-        self.selected: EventProperty[Optional[T]] = EventProperty(None)
+        self.selected: OptionalEventProperty[T] = OptionalEventProperty()
         self.on_show = on_show
 
     def show(self, p_open):

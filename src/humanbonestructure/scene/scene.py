@@ -22,7 +22,6 @@ class Scene:
         self.name = name
         # scene
         self.root = Node(-1, '__root__', Transform.identity())
-        self.motion: Optional[Motion] = None
         self.mask = None
         from .gizmo import Gizmo
         self.gizmo = Gizmo()
@@ -107,10 +106,6 @@ class Scene:
         self._setup_model()
 
     def render(self, camera: Camera):
-        if self.motion:
-            pose = self.motion.get_current_pose()
-            self._load_pose(pose)
-
         if self.visible_mesh[0]:
             if root := self.root:
                 self.render_node(camera, root)
@@ -128,7 +123,7 @@ class Scene:
         for child in node.children:
             self.render_node(camera, child)
 
-    def _load_pose(self, pose: Optional[Pose]):
+    def set_pose(self, pose: Pose):
         if not self.root:
             return
 
@@ -139,13 +134,12 @@ class Scene:
             return t
 
         # assign pose to node hierarchy
-        if pose:
-            for bone in pose.bones:
-                if bone.humanoid_bone:
-                    node = self.humanoid_node_map.get(bone.humanoid_bone)
-                    if node:
-                        if self.mask and not self.mask(bone.humanoid_bone):
-                            continue
-                        node.pose = conv(bone)
+        for bone in pose.bones:
+            if bone.humanoid_bone:
+                node = self.humanoid_node_map.get(bone.humanoid_bone)
+                if node:
+                    if self.mask and not self.mask(bone.humanoid_bone):
+                        continue
+                    node.pose = conv(bone)
 
         self._skinning()

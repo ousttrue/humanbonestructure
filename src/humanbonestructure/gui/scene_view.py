@@ -44,12 +44,12 @@ class SceneView:
                 if ImGui.IsItemActive():
                     x, y = ImGui.GetWindowPos()
                     y += ImGui.GetFrameHeight()
-                    self.camera.drag(
+                    self.camera.mouse_drag(
                         int(io.MousePos.x-x), int(io.MousePos.y-y),
                         int(io.MouseDelta.x), int(io.MouseDelta.y),
                         io.MouseDown[0], io.MouseDown[1], io.MouseDown[2])
                 else:
-                    self.camera.release()
+                    self.camera.mouse_release()
 
                 self.hover = ImGui.IsItemHovered()
                 if self.hover:
