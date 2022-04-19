@@ -3,6 +3,7 @@ import ctypes
 from OpenGL import GL
 import glm
 from pydear import imgui as ImGui
+from pydear import imgui_internal
 from pydear import glo
 from pydear.scene.camera import Camera
 
@@ -76,7 +77,8 @@ class Hand:
                     1, 0, 0) if hand_class.label == 'Left' else Float3(0, 0, 1)
 
                 for v in hand_landmarks.landmark:
-                    self.vertices[i] = HandVertex(Float3(v.x, -v.y, -v.z), color)
+                    self.vertices[i] = HandVertex(
+                        Float3(v.x, -v.y, -v.z), color)
                     i += 1
                 self.hand_count += 1
         self.is_updated = True
@@ -127,7 +129,8 @@ class Scene3D:
         self.axis = Gizmo()
         self.hand = Hand()
         # gui
-        self.hover = False
+        self.bg = ImGui.ImVec4(1, 1, 1, 1)
+        self.tint = ImGui.ImVec4(1, 1, 1, 1)
 
     def show(self, p_open):
         ImGui.PushStyleVar_2(ImGui.ImGuiStyleVar_.WindowPadding, (0, 0))
@@ -135,19 +138,34 @@ class Scene3D:
                        ImGui.ImGuiWindowFlags_.NoScrollbar |
                        ImGui.ImGuiWindowFlags_.NoScrollWithMouse):
             w, h = ImGui.GetContentRegionAvail()
-            self.camera.onResize(w, h)
-            if self.hover:
-                x, y = ImGui.GetWindowPos()
-                y += ImGui.GetFrameHeight()
-                io = ImGui.GetIO()
-                self.camera.drag(io.MousePos.x-x, io.MousePos.y-y, int(io.MouseDelta.x), int(io.MouseDelta.y),
-                                 io.MouseDown[0], io.MouseDown[1], io.MouseDown[2])
-                self.camera.onWheel(int(io.MouseWheel))
+            self.camera.projection.resize(w, h)
 
             texture = self.fbo_manager.clear(
                 int(w), int(h), self.clear_color)
 
             if texture:
+
+                ImGui.ImageButton(texture, (w, h), (0, 1),
+                                  (1, 0), 0, self.bg, self.tint)
+                imgui_internal.ButtonBehavior(ImGui.Custom_GetLastItemRect(), ImGui.Custom_GetLastItemId(), None, None,
+                                              ImGui.ImGuiButtonFlags_.MouseButtonMiddle | ImGui.ImGuiButtonFlags_.MouseButtonRight)
+
+                io = ImGui.GetIO()
+                if ImGui.IsItemActive():
+                    x, y = ImGui.GetWindowPos()
+                    y += ImGui.GetFrameHeight()
+                    self.camera.mouse_drag(
+                        int(io.MousePos.x-x), int(io.MousePos.y-y),
+                        int(io.MouseDelta.x), int(io.MouseDelta.y),
+                        io.MouseDown[0], io.MouseDown[1], io.MouseDown[2])
+                else:
+                    self.camera.mouse_release()
+
+                self.hover = ImGui.IsItemHovered()
+                if self.hover:
+                    self.camera.wheel(int(io.MouseWheel))
+
+                # render mesh
                 self.axis.render(self.camera)
                 self.hand.render(self.camera)
 

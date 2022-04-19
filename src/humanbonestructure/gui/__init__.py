@@ -28,10 +28,6 @@ class GUI(dockspace.DockingGui):
             self.motion_list._filter.show()
             vpd_mask.show()
 
-        # from ..formats.handpose import HandPose
-        # self.handpose = HandPose()
-        # self.motion_list.items.append(self.handpose)
-
         self.motion_selector = TableSelector(
             'pose selector', self.motion_list, show)
 
@@ -40,24 +36,6 @@ class GUI(dockspace.DockingGui):
                 scene.motion = motion
                 scene.mask = vpd_mask.mask
         self.motion_selector.selected += on_select
-
-        if False:
-            from ..formats.video_capture import VideCapture
-            self.video_capture = VideCapture()
-
-            from .capture import CaptureView
-            self.capture_view = CaptureView()
-
-            from mediapipe.python.solutions import hands as mp_hands
-            hands = mp_hands.Hands(
-                model_complexity=0,
-                min_detection_confidence=0.5,
-                min_tracking_confidence=0.5)
-
-            def estimate(image):
-                results = hands.process(image)
-                self.capture_view.points.update(results)
-                self.handpose.update(results)
 
         self.docks = [
             dockspace.Dock('pose_selector', self.motion_selector.show,
