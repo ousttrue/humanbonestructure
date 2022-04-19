@@ -11,6 +11,10 @@ class Transform(NamedTuple):
     def identity() -> 'Transform':
         return Transform(glm.vec3(0), glm.quat(), glm.vec3(1))
 
+    @staticmethod
+    def from_translation(t: glm.vec3) -> 'Transform':
+        return Transform(t, glm.quat(), glm.vec3(1))
+
     def __str__(self) -> str:
         if self.translation == (0, 0, 0):
             return f'r[{self.rotation}]'

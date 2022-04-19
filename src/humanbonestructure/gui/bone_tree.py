@@ -60,8 +60,9 @@ class BoneTree:
 
         ImGui.TableNextRow()
 
-        ImGui.PushStyleColor(ImGui.ImGuiCol_.Text,
-                             IM_WHITE if node.humanoid_bone else IM_GRAY)
+        color = IM_WHITE if (
+            node.humanoid_bone and not node.humanoid_bone.is_tip()) else IM_GRAY
+        ImGui.PushStyleColor(ImGui.ImGuiCol_.Text, color)
 
         # col 0
         ImGui.TableNextColumn()

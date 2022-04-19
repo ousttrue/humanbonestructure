@@ -29,7 +29,7 @@ class SceneView:
             _w, _h = ImGui.GetContentRegionAvail()
             w = int(_w)
             h = int(_h)
-            self.camera.onResize(w, h)
+            self.camera.projection.resize(w, h)
 
             texture = self.fbo_manager.clear(
                 w, h, self.hover_color if self.hover else self.clear_color)
@@ -48,10 +48,12 @@ class SceneView:
                         int(io.MousePos.x-x), int(io.MousePos.y-y),
                         int(io.MouseDelta.x), int(io.MouseDelta.y),
                         io.MouseDown[0], io.MouseDown[1], io.MouseDown[2])
+                else:
+                    self.camera.release()
 
                 self.hover = ImGui.IsItemHovered()
                 if self.hover:
-                    self.camera.onWheel(int(io.MouseWheel))
+                    self.camera.wheel(int(io.MouseWheel))
 
                 # render mesh
                 self.scene.render(self.camera)

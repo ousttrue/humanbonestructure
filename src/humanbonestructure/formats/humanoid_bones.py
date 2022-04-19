@@ -87,40 +87,58 @@ class HumanoidBone(Enum):
     def get_part(self) -> HumanoidBodyParts:
         return HUMANOIDBONE_PART_MAP[self]
 
-    def is_finger(self) -> bool:
-        return self in (
-            HumanoidBone.leftThumbProximal,
-            HumanoidBone.leftThumbIntermediate,
-            HumanoidBone.leftThumbDistal,
-            HumanoidBone.leftIndexProximal,
-            HumanoidBone.leftIndexIntermediate,
-            HumanoidBone.leftIndexDistal,
-            HumanoidBone.leftMiddleProximal,
-            HumanoidBone.leftMiddleIntermediate,
-            HumanoidBone.leftMiddleDistal,
-            HumanoidBone.leftRingProximal,
-            HumanoidBone.leftRingIntermediate,
-            HumanoidBone.leftRingDistal,
-            HumanoidBone.leftLittleProximal,
-            HumanoidBone.leftLittleIntermediate,
-            HumanoidBone.leftLittleDistal,
-            HumanoidBone.rightThumbProximal,
-            HumanoidBone.rightThumbIntermediate,
-            HumanoidBone.rightThumbDistal,
-            HumanoidBone.rightIndexProximal,
-            HumanoidBone.rightIndexIntermediate,
-            HumanoidBone.rightIndexDistal,
-            HumanoidBone.rightMiddleProximal,
-            HumanoidBone.rightMiddleIntermediate,
-            HumanoidBone.rightMiddleDistal,
-            HumanoidBone.rightRingProximal,
-            HumanoidBone.rightRingIntermediate,
-            HumanoidBone.rightRingDistal,
-            HumanoidBone.rightLittleProximal,
-            HumanoidBone.rightLittleIntermediate,
-            HumanoidBone.rightLittleDistal,
-        )
+    def is_tip(self) -> bool:
+        return self in TIPS
 
+    def is_finger(self) -> bool:
+        return self in FINGERS
+
+
+TIPS = set((
+    HumanoidBone.leftThumbTip,
+    HumanoidBone.leftIndexTip,
+    HumanoidBone.leftMiddleTip,
+    HumanoidBone.leftRingTip,
+    HumanoidBone.leftLittleTip,
+    HumanoidBone.rightThumbTip,
+    HumanoidBone.rightIndexTip,
+    HumanoidBone.rightMiddleTip,
+    HumanoidBone.rightRingTip,
+    HumanoidBone.rightLittleTip,
+))
+
+FINGERS = set((
+    HumanoidBone.leftThumbProximal,
+    HumanoidBone.leftThumbIntermediate,
+    HumanoidBone.leftThumbDistal,
+    HumanoidBone.leftIndexProximal,
+    HumanoidBone.leftIndexIntermediate,
+    HumanoidBone.leftIndexDistal,
+    HumanoidBone.leftMiddleProximal,
+    HumanoidBone.leftMiddleIntermediate,
+    HumanoidBone.leftMiddleDistal,
+    HumanoidBone.leftRingProximal,
+    HumanoidBone.leftRingIntermediate,
+    HumanoidBone.leftRingDistal,
+    HumanoidBone.leftLittleProximal,
+    HumanoidBone.leftLittleIntermediate,
+    HumanoidBone.leftLittleDistal,
+    HumanoidBone.rightThumbProximal,
+    HumanoidBone.rightThumbIntermediate,
+    HumanoidBone.rightThumbDistal,
+    HumanoidBone.rightIndexProximal,
+    HumanoidBone.rightIndexIntermediate,
+    HumanoidBone.rightIndexDistal,
+    HumanoidBone.rightMiddleProximal,
+    HumanoidBone.rightMiddleIntermediate,
+    HumanoidBone.rightMiddleDistal,
+    HumanoidBone.rightRingProximal,
+    HumanoidBone.rightRingIntermediate,
+    HumanoidBone.rightRingDistal,
+    HumanoidBone.rightLittleProximal,
+    HumanoidBone.rightLittleIntermediate,
+    HumanoidBone.rightLittleDistal,
+))
 
 HUMANOIDBONE_PART_MAP = {
     HumanoidBone.hips: HumanoidBodyParts.Trunk,

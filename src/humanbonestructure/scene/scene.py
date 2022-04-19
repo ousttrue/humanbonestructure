@@ -76,7 +76,7 @@ class Scene:
 
     def create_model(self):
         from .builder import create
-        self.root = create.create_hand()
+        self.root = create.create()
         self._setup_model()
 
     def create_tpose_from(self, scene: 'Scene'):
