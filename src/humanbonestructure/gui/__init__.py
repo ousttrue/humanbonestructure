@@ -7,28 +7,9 @@ from pydear import imgui as ImGui
 from pydear.utils import dockspace
 from ..scene.scene import Scene
 from .selector import TableSelector
+from .bone_mask import VpdMask
 
 LOGGER = logging.getLogger(__name__)
-
-
-# class VpdMask(EventProperty):
-#     def __init__(self) -> None:
-#         super().__init__(default_value=lambda x: True)
-#         self.use_except_finger = (ctypes.c_bool * 1)(False)
-#         self.use_finger = (ctypes.c_bool * 1)(True)
-
-#     def show(self):
-#         ImGui.Checkbox("mask except finger", self.use_except_finger)
-#         ImGui.SameLine()
-#         ImGui.Checkbox("mask finger", self.use_finger)
-#         if self.use_except_finger[0] and self.use_finger[0]:
-#             self.set(lambda x: True)
-#         elif self.use_except_finger[0]:
-#             self.set(lambda x: not x.is_finger())
-#         elif self.use_finger[0]:
-#             self.set(lambda x: x.is_finger())
-#         else:
-#             self.set(lambda x: False)
 
 
 class GUI(dockspace.DockingGui):
@@ -39,20 +20,25 @@ class GUI(dockspace.DockingGui):
         log_handler = ImGuiLogHandler()
         log_handler.register_root(append=True)
 
-        # vpd_mask = VpdMask()
+        vpd_mask = VpdMask()
         from .motion_list import MotionList, Motion
         self.motion_list = MotionList()
+
+        def show():
+            self.motion_list._filter.show()
+            vpd_mask.show()
 
         # from ..formats.handpose import HandPose
         # self.handpose = HandPose()
         # self.motion_list.items.append(self.handpose)
 
         self.motion_selector = TableSelector(
-            'pose selector', self.motion_list, self.motion_list._filter.show)
+            'pose selector', self.motion_list, show)
 
         def on_select(motion: Optional[Motion]):
             for scene in self.scenes:
                 scene.motion = motion
+                scene.mask = vpd_mask.mask
         self.motion_selector.selected += on_select
 
         if False:

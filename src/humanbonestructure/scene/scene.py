@@ -23,6 +23,7 @@ class Scene:
         # scene
         self.root = Node(-1, '__root__', Transform.identity())
         self.motion: Optional[Motion] = None
+        self.mask = None
         from .gizmo import Gizmo
         self.gizmo = Gizmo()
         self.skeleton = None
@@ -131,8 +132,7 @@ class Scene:
         if not self.root:
             return
 
-        for node, _ in self.root.traverse_node_and_parent():
-            node.pose = None
+        self.root.clear_pose()
 
         def conv(bone: vpd_loader.BonePose):
             t = bone.transform.reverse_z()
@@ -144,6 +144,8 @@ class Scene:
                 if bone.humanoid_bone:
                     node = self.humanoid_node_map.get(bone.humanoid_bone)
                     if node:
+                        if self.mask and not self.mask(bone.humanoid_bone):
+                            continue
                         node.pose = conv(bone)
 
         self._skinning()

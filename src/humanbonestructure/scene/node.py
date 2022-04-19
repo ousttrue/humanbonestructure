@@ -112,6 +112,10 @@ class Node:
 
         return self.children[0]
 
+    def clear_pose(self):
+        for node, _ in self.traverse_node_and_parent():
+            node.pose = None
+
     def __str__(self) -> str:
         return f'[{self.name}: {self.init_trs}]'
 

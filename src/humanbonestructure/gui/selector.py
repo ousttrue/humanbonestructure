@@ -1,4 +1,4 @@
-from typing import Optional, List, TypeVar, Generic, Callable, Iterable
+from typing import Optional, List, TypeVar, Generic, Callable, Iterable, NamedTuple
 import logging
 import abc
 from pydear import imgui as ImGui
@@ -19,12 +19,17 @@ class Filter(EventProperty[Callable[[T], bool]], metaclass=abc.ABCMeta):
         pass
 
 
+class Header(NamedTuple):
+    name: str
+    width: Optional[float] = None
+
+
 class ItemList(Generic[T]):
     def __init__(self) -> None:
         super().__init__()
         self.items: List[T] = []
         self.filtered_items: List[T] = []
-        self.headers: List[str] = ['name']
+        self.headers: List[Header] = [Header('name')]
 
     def __iter__(self):
         return iter(self.filtered_items)
@@ -96,8 +101,16 @@ class TableSelector(Generic[T]):
         )
         if ImGui.BeginTable(self.name, len(self.items.headers), flags):
             # header
-            for label in self.items.headers:
-                ImGui.TableSetupColumn(label)
+            for header in self.items.headers:
+                match header:
+                    case Header(label, width):
+                        if isinstance(width, (float, int)):
+                            ImGui.TableSetupColumn(
+                                label, ImGui.ImGuiTableColumnFlags_.WidthFixed, width)
+                        else:
+                            ImGui.TableSetupColumn(label)
+                    case _:
+                        ImGui.TableSetupColumn(header)
             ImGui.TableHeadersRow()
 
             selected = None

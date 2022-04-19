@@ -1,7 +1,7 @@
-from typing import Iterable
+from typing import Iterable, List
 import ctypes
 from pydear import imgui as ImGui
-from .selector import ItemList, Filter
+from .selector import ItemList, Filter, Header
 from ..formats.pose import Motion, Empty
 from ..formats.humanoid_bones import HumanoidBone, HumanoidBodyParts
 
@@ -71,14 +71,14 @@ class MotionList(ItemList[Motion]):
             self.apply()
         self._filter += on_filter_changed
 
-        self.headers = [
-            "name",
-            "幹",
-            "脚",
-            "左腕",
-            "左指",
-            "右腕",
-            "右指",
+        self.headers: List[Header] = [
+            Header("name"),
+            Header("幹", 15),
+            Header("脚", 15),
+            Header("左腕", 15),
+            Header("左指", 15),
+            Header("右腕", 15),
+            Header("右指", 15),
         ]
 
     def filter(self, item: Motion) -> bool:
@@ -105,4 +105,3 @@ class MotionList(ItemList[Motion]):
 
     def stop(self):
         pass
-

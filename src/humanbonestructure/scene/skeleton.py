@@ -19,7 +19,8 @@ def get_normal(p0: Float3, p1: Float3, p2: Float3) -> Float3:
     pp0 = glm.vec3(*p0)
     pp1 = glm.vec3(*p1)
     pp2 = glm.vec3(*p2)
-    n = glm.cross(glm.normalize(pp2-pp1), glm.normalize(pp0-pp1))
+    n = glm.normalize(
+        glm.cross(glm.normalize(pp2-pp1), glm.normalize(pp0-pp1)))
     return vec3_to_float3(n)
 
 

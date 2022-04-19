@@ -33,11 +33,17 @@ class BoneTree:
                 | ImGui.ImGuiTableFlags_.RowBg
                 | ImGui.ImGuiTableFlags_.NoBordersInBody
             )
-            header_lablels = ("name", "humanoid bone", "pose")
-            if ImGui.BeginTable("jsontree_table", len(header_lablels), flags):
+            if ImGui.BeginTable("jsontree_table", 4, flags):
                 # header
-                for label in header_lablels:
-                    ImGui.TableSetupColumn(label)
+                ImGui.TableSetupColumn(
+                    'name', ImGui.ImGuiTableColumnFlags_.WidthFixed, 24)
+                ImGui.TableSetupColumn(
+                    'humanoid bone')
+                ImGui.TableSetupColumn(
+                    'pose', ImGui.ImGuiTableColumnFlags_.WidthFixed, 15)
+                ImGui.TableSetupColumn(
+                    'position')
+
                 ImGui.TableHeadersRow()
 
                 # body
@@ -79,9 +85,16 @@ class BoneTree:
             ImGui.TextUnformatted('')
 
         # col 2
+        ImGui.TableNextColumn()
         if node.pose:
-            ImGui.TableNextColumn()
             ImGui.TextUnformatted(f'{node.pose}')
+        else:
+            ImGui.TextUnformatted('')
+
+        # col 3
+        ImGui.TableNextColumn()
+        p = node.world_matrix[3].xyz
+        ImGui.TextUnformatted(f'{p.x:.2f}, {p.y:.2f}, {p.z:.2f}')
 
         ImGui.PopStyleColor()
 
