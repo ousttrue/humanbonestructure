@@ -1,9 +1,10 @@
-from typing import Dict
+from typing import Dict, Set
 import copy
 import glm
 from ..scene.node import Node
-from ..formats.humanoid_bones import HumanoidBone
-from ..formats.transform import Transform
+from .humanoid_bones import HumanoidBone
+from .transform import Transform
+from .pose import Motion, Pose, BonePose
 
 
 def mod(head: Node, tail: Node):
@@ -72,3 +73,22 @@ def local_axis_fit_world(root: Node):
         node.local_aixs = glm.inverse(glm.quat(node.world_matrix))
 
     root.calc_skinning(glm.mat4())
+
+
+class TPose(Motion):
+    def __init__(self, model_name: str, root: Node) -> None:
+        super().__init__(f'{model_name} tpose')
+        self.humanoid_bones = set([node.humanoid_bone for node,
+                                   _ in root.traverse_node_and_parent() if node.humanoid_bone])
+        make_tpose(root)
+        self.pose = Pose(self.name)
+        for node, _ in root.traverse_node_and_parent():
+            if node.pose:
+                self.pose.bones.append(
+                    BonePose(node.name, node.humanoid_bone, node.pose))
+
+    def get_humanbones(self) -> Set[HumanoidBone]:
+        return self.humanoid_bones
+
+    def get_current_pose(self) -> Pose:
+        return self.pose

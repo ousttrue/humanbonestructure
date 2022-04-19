@@ -43,9 +43,9 @@ class GUI(dockspace.DockingGui):
         from .motion_list import MotionList, Motion
         self.motion_list = MotionList()
 
-        from ..formats.handpose import HandPose
-        self.handpose = HandPose()
-        self.motion_list.items.append(self.handpose)
+        # from ..formats.handpose import HandPose
+        # self.handpose = HandPose()
+        # self.motion_list.items.append(self.handpose)
 
         self.motion_selector = TableSelector(
             'pose selector', self.motion_list, self.motion_list._filter.show)
@@ -98,7 +98,7 @@ class GUI(dockspace.DockingGui):
         io.Fonts.Build()
 
     def add_model(self, path: pathlib.Path):
-        scene = Scene()
+        scene = Scene(path.stem)
         scene.load_model(path)
         self.scenes.append(scene)
 
@@ -116,7 +116,7 @@ class GUI(dockspace.DockingGui):
                                          (ctypes.c_bool * 1)(True)))
 
     def create_model(self):
-        scene = Scene()
+        scene = Scene('generate')
         scene.create_model()
         self.scenes.append(scene)
 
@@ -136,7 +136,7 @@ class GUI(dockspace.DockingGui):
         if not self.scenes:
             return
 
-        scene = Scene()
+        scene = Scene('tpose')
         scene.create_tpose_from(self.scenes[0])
         self.scenes.append(scene)
 

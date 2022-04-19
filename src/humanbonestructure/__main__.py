@@ -58,6 +58,11 @@ def main():
     # add_tpose
     gui.add_tpose()
 
+    if gui.scenes:
+        scene = gui.scenes[0]
+        from .formats.tpose import TPose
+        gui.motion_list.items.insert(1, TPose(scene.name, scene.root))
+
     from pydear.backends import impl_glfw
     impl_glfw = impl_glfw.ImplGlfwInput(app.window)
     while app.clear():

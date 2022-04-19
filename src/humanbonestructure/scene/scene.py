@@ -18,7 +18,8 @@ class Scene:
     モデル一体分のシーングラフ
     '''
 
-    def __init__(self) -> None:
+    def __init__(self, name: str) -> None:
+        self.name = name
         # scene
         self.root = Node(-1, '__root__', Transform.identity())
         self.motion: Optional[Motion] = None
