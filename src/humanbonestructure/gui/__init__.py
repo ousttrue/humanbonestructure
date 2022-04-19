@@ -55,29 +55,25 @@ class GUI(dockspace.DockingGui):
                 scene.motion = motion
         self.motion_selector.selected += on_select
 
-        from ..formats.video_capture import VideCapture
-        self.video_capture = VideCapture()
+        if False:
+            from ..formats.video_capture import VideCapture
+            self.video_capture = VideCapture()
 
-        from .capture import CaptureView
-        self.capture_view = CaptureView()
+            from .capture import CaptureView
+            self.capture_view = CaptureView()
 
-        from mediapipe.python.solutions import hands as mp_hands
-        hands = mp_hands.Hands(
-            model_complexity=0,
-            min_detection_confidence=0.5,
-            min_tracking_confidence=0.5)
+            from mediapipe.python.solutions import hands as mp_hands
+            hands = mp_hands.Hands(
+                model_complexity=0,
+                min_detection_confidence=0.5,
+                min_tracking_confidence=0.5)
 
-        def estimate(image):
-            results = hands.process(image)
-            self.capture_view.points.update(results)
-            self.handpose.update(results)
-
-        self.video_capture.frame_event += estimate
-        self.video_capture.frame_event += self.capture_view.rect.set_image
+            def estimate(image):
+                results = hands.process(image)
+                self.capture_view.points.update(results)
+                self.handpose.update(results)
 
         self.docks = [
-            dockspace.Dock('capture_view', self.capture_view.show,
-                           (ctypes.c_bool * 1)(True)),
             dockspace.Dock('pose_selector', self.motion_selector.show,
                            (ctypes.c_bool * 1)(True)),
             dockspace.Dock('log', log_handler.draw,
