@@ -84,7 +84,7 @@ class MainWidget(QtWidgets.QMainWindow):
                     index[0], QtCore.QItemSelectionModel.Select)
 
     def _create_gl(self, gui_scale: float):
-        from .scene import SampleController
+        from .humanoid_scene import SampleController
         self.controller = SampleController(self.root, self._scene_selected)
         import glglue.pyside6
         self.glwidget = glglue.pyside6.Widget(
