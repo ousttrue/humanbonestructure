@@ -88,7 +88,7 @@ class MainWidget(QtWidgets.QMainWindow):
         self.controller = BoneScene(self.root, self._scene_selected)
         import glglue.pyside6
         self.glwidget = glglue.pyside6.Widget(
-            self, self.controller, dpi_scale=gui_scale)
+            self, self.controller, dpi_scale=gui_scale, core_profile=True)
         return self.glwidget
 
     @property

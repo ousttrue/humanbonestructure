@@ -1,11 +1,12 @@
 from typing import NamedTuple, Optional
+import logging
 import ctypes
 import math
 from OpenGL import GL
 import glm
-import glglue.gl3.shader
-import glglue.gl3.vbo
-import glglue.scene.vertices
+from pydear import glo
+
+LOGGER = logging.getLogger(__name__)
 
 VS = '''
 #version 330
@@ -15,7 +16,7 @@ out vec4 vColor;
 uniform mediump mat4 vp;
 
 void main() {
-  gl_Position = vec4(aPosition, 1) * vp;
+  gl_Position = vp * vec4(aPosition, 1);
   vColor = aColor;
 }
 '''
@@ -131,22 +132,6 @@ class Ray(NamedTuple):
         return t  # this ray hits the triangle
 
 
-# class FrameState(NamedTuple):
-#     '''
-#     RenderInfo for frame
-#     '''
-#     viewport: glm.vec4
-#     mouse_x: int
-#     mouse_y: int
-#     mouse_left_down: bool
-#     mouse_right_down: bool
-#     mouse_middle_down: bool
-#     camera_view: glm.mat4
-#     camera_projection: glm.mat4
-#     ray: Ray
-#     light: glm.vec4
-
-
 class Vertex(ctypes.Structure):
 
     _fields_ = [
@@ -192,16 +177,17 @@ class Gizmo:
         self.click_left = False
         self.click_middle = False
         self.click_right = False
+
+        self.line_shader: Optional[glo.Shader] = None
+        self.line_props = []
         # lines
         self.lines = (Vertex * 65535)()
         self.line_count = 0
-        self.line_shader = None
-        self.line_drawable = None
+        self.line_drawable: Optional[glo.Vao] = None
         # triangles
         self.triangles = (Vertex * 65535)()
         self.triangle_count = 0
-        self.triangle_shader = None
-        self.triangle_drawable = None
+        self.triangle_drawable: Optional[glo.Vao] = None
 
         # hover selectable
         self.hover = None
@@ -209,7 +195,7 @@ class Gizmo:
 
     def begin(self, viewport, x, y,
               mouse_left_down, mouse_right_down, mouse_middle_down,
-              view, projection, ray, light):
+              view: glm.mat4, projection: glm.mat4, ray, light):
         # clear
         self.line_count = 0
         self.triangle_count = 0
@@ -235,44 +221,58 @@ class Gizmo:
         self.hover = None
 
     def end(self):
-        # material
         if not self.line_shader:
-            shader_source = glglue.gl3.shader.ShaderSource(
-                VS, (), FS, ())
-            self.line_shader = glglue.gl3.shader.create_from(shader_source)
-        self.line_shader.use()
-        vp = self.camera_view * self.camera_projection
-        self.line_shader.set_uniform('vp', vp)
+            # shader
+            shader_or_error = glo.Shader.load(VS, FS)
+            if not isinstance(shader_or_error, glo.Shader):
+                LOGGER.error(shader_or_error)
+                raise Exception()
+            self.line_shader = shader_or_error
 
-        self._draw_triangles()
-        self._draw_lines()
+            vp = glo.UniformLocation.create(self.line_shader.program, "vp")
 
-    def _draw_lines(self):
-        if self.line_drawable:
-            self.line_drawable.vbo_list[0].update(memoryview(self.lines))
+            def set_vp():
+                m = self.camera_projection * self.camera_view
+                vp.set_mat4(glm.value_ptr(m))
+            self.line_props.append(set_vp)
+
+            # lines
+            line_vbo = glo.Vbo()
+            line_vbo.set_vertices(self.lines, is_dynamic=True)
+
+            self.line_drawable = glo.Vao(
+                line_vbo, glo.VertexLayout.create_list(self.line_shader.program))
+
+            # vertices
+            triangle_vbo = glo.Vbo()
+            triangle_vbo.set_vertices(self.lines, is_dynamic=True)
+
+            self.triangle_drawable = glo.Vao(
+                triangle_vbo, glo.VertexLayout.create_list(self.line_shader.program))
+
         else:
-            typed = glglue.scene.vertices.VectorView(
-                memoryview(self.lines), ctypes.c_float, 7)
-            self.line_drawable = glglue.gl3.vbo.create(
-                glglue.gl3.vbo.Interleaved(typed, [0, 12]), is_dynamic=True)
-        self.line_drawable.draw(GL.GL_LINES, 0, self.line_count)
+            assert self.line_drawable
+            self.line_drawable.vbo.update(self.lines)
 
-    def _draw_triangles(self):
-        if self.triangle_drawable:
-            self.triangle_drawable.vbo_list[0].update(
-                memoryview(self.triangles))
-        else:
-            typed = glglue.scene.vertices.VectorView(
-                memoryview(self.triangles), ctypes.c_float, 7)
-            self.triangle_drawable = glglue.gl3.vbo.create(
-                glglue.gl3.vbo.Interleaved(typed, [0, 12]), is_dynamic=True)
+            assert self.triangle_drawable
+            self.triangle_drawable.vbo.update(self.triangles)
 
-        GL.glDisable(GL.GL_DEPTH_TEST)
-        GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
-        GL.glEnable(GL.GL_BLEND)
-        self.triangle_drawable.draw(GL.GL_TRIANGLES, 0, self.triangle_count)
-        GL.glDisable(GL.GL_BLEND)
-        GL.glEnable(GL.GL_DEPTH_TEST)
+        assert self.line_drawable
+        assert self.triangle_drawable
+
+        with self.line_shader:
+            for prop in self.line_props:
+                prop()
+
+            GL.glDisable(GL.GL_DEPTH_TEST)
+            GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
+            GL.glEnable(GL.GL_BLEND)
+            self.triangle_drawable.draw(
+                self.triangle_count, topology=GL.GL_TRIANGLES)
+            GL.glDisable(GL.GL_BLEND)
+            GL.glEnable(GL.GL_DEPTH_TEST)
+
+            self.line_drawable.draw(self.line_count, topology=GL.GL_LINES)
 
     def line(self, p0: glm.vec3, p1: glm.vec3):
         p0 = (self.matrix * glm.vec4(p0, 1)).xyz

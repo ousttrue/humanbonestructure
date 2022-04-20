@@ -101,8 +101,8 @@ class BoneScene:
             state.mouse_left_down,
             state.mouse_right_down,
             state.mouse_middle_down,
-            state.camera_view,
-            state.camera_projection,
+            glm.mat4(*state.camera_view),
+            glm.mat4(*state.camera_projection),
             state.ray,
             state.light)
 

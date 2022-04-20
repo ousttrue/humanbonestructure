@@ -8,6 +8,7 @@
         "test_*.py"
     ],
     "cSpell.words": [
+        "aabb",
         "BDEF",
         "gltf",
         "imgui",
