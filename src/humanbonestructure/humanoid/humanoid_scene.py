@@ -1,6 +1,7 @@
 from typing import Optional
 import logging
 from OpenGL import GL
+import glm
 from glglue import ctypesmath
 from . import bone_gizmo
 from . import humanoid
@@ -73,7 +74,7 @@ class BoneScene:
 
         for i, child in enumerate(bone.children):
             if i == 0:
-                self.gizmo.matrix = matrix
+                self.gizmo.matrix = glm.mat4(*matrix)
                 # self.gizmo.matrix = bone.world_matrix
                 if self.gizmo.bone(bone.bone, child.offset.get_length(), bone == self.selected):
                     if self.selected != bone:
@@ -93,7 +94,17 @@ class BoneScene:
 
         GL.glEnable(GL.GL_DEPTH_TEST)
 
-        self.gizmo.begin(state)
+        self.gizmo.begin(
+            state.viewport,
+            state.mouse_x,
+            state.mouse_y,
+            state.mouse_left_down,
+            state.mouse_right_down,
+            state.mouse_middle_down,
+            state.camera_view,
+            state.camera_projection,
+            state.ray,
+            state.light)
 
         self.gizmo.axis(10)
         self._draw(self.root, ctypesmath.Mat4.new_identity())
