@@ -1,12 +1,13 @@
 from typing import Optional
 from OpenGL import GL
-from glglue.ctypesmath import Camera, Mat4, Float3, Float4, FrameState
+from pydear.scene.camera import Camera
+from glglue.ctypesmath import Mat4, Float3, Float4, FrameState
 from glglue.gl3 import gizmo
 from ..gl import gl_scene
 from . import humanoid
 
 
-class HumanoidScene(gl_scene.Scene):
+class HumanoidScene:
     def __init__(self, root: humanoid.Bone, on_selected):
         self.isInitialized = False
         self.root = root
