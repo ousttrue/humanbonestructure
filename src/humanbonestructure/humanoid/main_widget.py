@@ -84,8 +84,8 @@ class MainWidget(QtWidgets.QMainWindow):
                     index[0], QtCore.QItemSelectionModel.Select)
 
     def _create_gl(self, gui_scale: float):
-        from .humanoid_scene import SampleController
-        self.controller = SampleController(self.root, self._scene_selected)
+        from .humanoid_scene import BoneScene
+        self.controller = BoneScene(self.root, self._scene_selected)
         import glglue.pyside6
         self.glwidget = glglue.pyside6.Widget(
             self, self.controller, dpi_scale=gui_scale)
@@ -93,7 +93,7 @@ class MainWidget(QtWidgets.QMainWindow):
 
     @property
     def humanoid_scene(self):
-        return self.controller.scene
+        return self.controller
 
     def _create_dock(self, area, name, widget):
         dock = QtWidgets.QDockWidget(name, self)

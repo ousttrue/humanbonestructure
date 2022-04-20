@@ -2,7 +2,7 @@ from typing import Optional
 import logging
 from OpenGL import GL
 from glglue import ctypesmath
-from glglue.gl3 import gizmo
+from . import bone_gizmo
 from . import humanoid
 
 
@@ -18,7 +18,7 @@ class BoneScene:
         self.camera.view.update_matrix()
 
         self.root = root
-        self.gizmo = gizmo.Gizmo()
+        self.gizmo = bone_gizmo.Gizmo()
         self.selected: Optional[humanoid.Bone] = None
         self.on_selected = scene_selected
 
