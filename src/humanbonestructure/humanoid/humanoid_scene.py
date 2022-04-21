@@ -4,7 +4,6 @@ from OpenGL import GL
 import glm
 from pydear.scene.camera import Camera
 from pydear.scene.bone_gizmo import BoneGizmo
-from glglue import ctypesmath
 from . import humanoid
 
 
@@ -96,14 +95,14 @@ class BoneScene:
         '''
         return False
 
-    def _draw(self, bone: humanoid.Bone, parent: ctypesmath.Mat4):
-        matrix = bone.local_euler_matrix() * bone.local_init_matrix * parent
+    def _draw(self, bone: humanoid.Bone, parent: glm.mat4):
+        matrix = parent * bone.local_init_matrix * bone.local_euler_matrix()
 
         for i, child in enumerate(bone.children):
             if i == 0:
                 self.gizmo.matrix = glm.mat4(*matrix)
                 # self.gizmo.matrix = bone.world_matrix
-                if self.gizmo.bone(bone.bone, child.offset.get_length(), bone == self.selected):
+                if self.gizmo.bone(bone.bone, glm.length(child.offset), bone == self.selected):
                     if self.selected != bone:
                         self.selected = bone
                         self.on_selected(self.selected)
@@ -131,6 +130,6 @@ class BoneScene:
             self.camera.get_mouse_ray(self.x, self.y))
 
         self.gizmo.axis(10)
-        self._draw(self.root, ctypesmath.Mat4.new_identity())
+        self._draw(self.root, glm.mat4())
 
         self.gizmo.end()

@@ -1,6 +1,7 @@
 from typing import Dict, Any
 import logging
 from PySide6 import QtCore, QtWidgets, QtGui
+import glm
 from . import humanoid
 from . import humanoid_tree
 from ..formats.humanoid_bones import HumanoidBone
@@ -52,8 +53,7 @@ class MainWidget(QtWidgets.QMainWindow):
         self.tree = QtWidgets.QTreeView()
 
         # add_root
-        root = humanoid.Bone(HumanoidBone.endSite,
-                             humanoid.Float3(0, 0, 0), [self.root])
+        root = humanoid.Bone(HumanoidBone.endSite, glm.vec3(0), [self.root])
         self.model = humanoid_tree.HumanoidTreeModel(root)
         self.tree.setModel(self.model)
         self.tree.expandAll()

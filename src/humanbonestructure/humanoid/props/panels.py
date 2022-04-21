@@ -1,5 +1,5 @@
-from .. import humanoid
 from .panel_base import *
+from ...formats.humanoid_bones import HumanoidBone
 
 
 class BodyPanel(PanelBase):
@@ -25,11 +25,11 @@ class BodyPanel(PanelBase):
 
     def is_match(self, bone: humanoid.Bone) -> bool:
         match bone.bone:
-            case (humanoid.HumanBones.Hips
-                  | humanoid.HumanBones.Spine
-                  | humanoid.HumanBones.Chest
-                  | humanoid.HumanBones.Neck
-                  | humanoid.HumanBones.Head
+            case (HumanoidBone.hips
+                  | HumanoidBone.spine
+                  | HumanoidBone.chest
+                  | HumanoidBone.neck
+                  | HumanoidBone.head
                   ):
                 return True
         return False
@@ -55,14 +55,14 @@ class LegPanel(PanelBase):
 
     def is_match(self, bone: humanoid.Bone) -> bool:
         match bone.bone:
-            case (humanoid.HumanBones.LeftUpperLeg
-                  | humanoid.HumanBones.LeftLowerLeg
-                  | humanoid.HumanBones.LeftFoot
-                  | humanoid.HumanBones.LeftToes
-                  | humanoid.HumanBones.RightUpperLeg
-                  | humanoid.HumanBones.RightLowerLeg
-                  | humanoid.HumanBones.RightFoot
-                  | humanoid.HumanBones.RightToes
+            case (HumanoidBone.leftUpperLeg
+                  | HumanoidBone.leftLowerLeg
+                  | HumanoidBone.leftFoot
+                  | HumanoidBone.leftToes
+                  | HumanoidBone.rightUpperLeg
+                  | HumanoidBone.rightLowerLeg
+                  | HumanoidBone.rightFoot
+                  | HumanoidBone.rightToes
                   ):
                 return True
         return False
