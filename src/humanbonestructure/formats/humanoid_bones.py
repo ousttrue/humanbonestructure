@@ -83,6 +83,8 @@ class HumanoidBone(Enum):
     rightMiddleTip = "rightMiddleTip"
     rightRingTip = "rightRingTip"
     rightLittleTip = "rightLittleTip"
+    # bvh
+    endSite = "endSite"
 
     def get_part(self) -> HumanoidBodyParts:
         return HUMANOIDBONE_PART_MAP[self]

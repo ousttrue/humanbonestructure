@@ -2,39 +2,11 @@ from enum import Enum, auto
 from typing import NamedTuple, List
 from dataclasses import dataclass
 from glglue.ctypesmath import Float3, Mat4
-
-
-class HumanBones(Enum):
-    EndSite = auto()
-    Hips = auto()
-    Spine = auto()
-    Chest = auto()
-    Neck = auto()
-    Head = auto()
-
-    LeftShoulder = auto()
-    LeftUpperArm = auto()
-    LeftLowerArm = auto()
-    LeftHand = auto()
-
-    RightShoulder = auto()
-    RightUpperArm = auto()
-    RightLowerArm = auto()
-    RightHand = auto()
-
-    LeftUpperLeg = auto()
-    LeftLowerLeg = auto()
-    LeftFoot = auto()
-    LeftToes = auto()
-
-    RightUpperLeg = auto()
-    RightLowerLeg = auto()
-    RightFoot = auto()
-    RightToes = auto()
+from ..formats.humanoid_bones import HumanoidBone
 
 
 class Bone:
-    def __init__(self, bone: HumanBones, offset: Float3, children: List['Bone']):
+    def __init__(self, bone: HumanoidBone, offset: Float3, children: List['Bone']):
         self.bone = bone
         self.offset = offset
         # children[0] is tail
@@ -61,7 +33,7 @@ class Bone:
         if self.children:
             y = self.children[0].offset.normalized()
             match self.bone:
-                case HumanBones.LeftToes | HumanBones.RightToes:
+                case HumanoidBone.leftToes | HumanoidBone.rightToes:
                     z = Float3(0, 1, 0)
                 case _:
                     z = Float3(0, 0, 1)
@@ -106,29 +78,29 @@ def make_humanoid(hips_pos: float) -> Bone:
     lower_leg_len = hips_pos * 0.4
     foot_len = hips_pos * 0.1
     toes_len = hips_pos * 0.05
-    root = Bone(HumanBones.Hips, Float3(0, hips_pos, 0), [
-        Bone(HumanBones.Spine, Float3(0, hips_len, 0), [
-            Bone(HumanBones.Chest, Float3(0, spine_len, 0), [
-                Bone(HumanBones.Neck, Float3(0, chest_len, 0), [
-                    Bone(HumanBones.Head, Float3(0, neck_len, 0), [
-                        Bone(HumanBones.EndSite, Float3(0, head_len, 0), [])
+    root = Bone(HumanoidBone.hips, Float3(0, hips_pos, 0), [
+        Bone(HumanoidBone.spine, Float3(0, hips_len, 0), [
+            Bone(HumanoidBone.chest, Float3(0, spine_len, 0), [
+                Bone(HumanoidBone.neck, Float3(0, chest_len, 0), [
+                    Bone(HumanoidBone.head, Float3(0, neck_len, 0), [
+                        Bone(HumanoidBone.endSite, Float3(0, head_len, 0), [])
                     ])
                 ]),
-                Bone(HumanBones.LeftShoulder, Float3(-0.05, chest_len, 0), [
-                    Bone(HumanBones.LeftUpperArm, Float3(-shoulder_len, 0, 0), [
-                        Bone(HumanBones.LeftLowerArm, Float3(-upper_arm_len, 0, 0), [
-                            Bone(HumanBones.LeftHand, Float3(-lower_arm_len, 0, 0), [
-                                Bone(HumanBones.EndSite,
+                Bone(HumanoidBone.leftShoulder, Float3(-0.05, chest_len, 0), [
+                    Bone(HumanoidBone.leftUpperArm, Float3(-shoulder_len, 0, 0), [
+                        Bone(HumanoidBone.leftLowerArm, Float3(-upper_arm_len, 0, 0), [
+                            Bone(HumanoidBone.leftHand, Float3(-lower_arm_len, 0, 0), [
+                                Bone(HumanoidBone.endSite,
                                      Float3(-hand_len, 0, 0), [])
                             ])
                         ])
                     ])
                 ]),
-                Bone(HumanBones.RightShoulder, Float3(0.05, chest_len, 0), [
-                    Bone(HumanBones.RightUpperArm, Float3(shoulder_len, 0, 0), [
-                        Bone(HumanBones.RightLowerArm, Float3(upper_arm_len, 0, 0), [
-                            Bone(HumanBones.RightHand, Float3(lower_arm_len, 0, 0), [
-                                Bone(HumanBones.EndSite,
+                Bone(HumanoidBone.rightShoulder, Float3(0.05, chest_len, 0), [
+                    Bone(HumanoidBone.rightUpperArm, Float3(shoulder_len, 0, 0), [
+                        Bone(HumanoidBone.rightLowerArm, Float3(upper_arm_len, 0, 0), [
+                            Bone(HumanoidBone.rightHand, Float3(lower_arm_len, 0, 0), [
+                                Bone(HumanoidBone.endSite,
                                      Float3(hand_len, 0, 0), [])
                             ])
                         ])
@@ -136,20 +108,20 @@ def make_humanoid(hips_pos: float) -> Bone:
                 ])
             ])
         ]),
-        Bone(HumanBones.LeftUpperLeg, Float3(-0.1, 0, 0), [
-            Bone(HumanBones.LeftLowerLeg, Float3(0, -upper_leg_len, 0), [
-                Bone(HumanBones.LeftFoot, Float3(0, -lower_leg_len, 0), [
-                    Bone(HumanBones.LeftToes, Float3(0, -foot_len, 0.1), [
-                        Bone(HumanBones.EndSite, Float3(0, 0, toes_len), [])
+        Bone(HumanoidBone.leftUpperLeg, Float3(-0.1, 0, 0), [
+            Bone(HumanoidBone.leftLowerLeg, Float3(0, -upper_leg_len, 0), [
+                Bone(HumanoidBone.leftFoot, Float3(0, -lower_leg_len, 0), [
+                    Bone(HumanoidBone.leftToes, Float3(0, -foot_len, 0.1), [
+                        Bone(HumanoidBone.endSite, Float3(0, 0, toes_len), [])
                     ])
                 ])
             ])
         ]),
-        Bone(HumanBones.RightUpperLeg, Float3(0.1, 0, 0), [
-            Bone(HumanBones.RightLowerLeg, Float3(0, -upper_leg_len, 0), [
-                Bone(HumanBones.RightFoot, Float3(0, -lower_leg_len, 0), [
-                    Bone(HumanBones.RightToes, Float3(0, -foot_len, 0.1), [
-                        Bone(HumanBones.EndSite, Float3(0, 0, toes_len), [])
+        Bone(HumanoidBone.rightUpperLeg, Float3(0.1, 0, 0), [
+            Bone(HumanoidBone.rightLowerLeg, Float3(0, -upper_leg_len, 0), [
+                Bone(HumanoidBone.rightFoot, Float3(0, -lower_leg_len, 0), [
+                    Bone(HumanoidBone.rightToes, Float3(0, -foot_len, 0.1), [
+                        Bone(HumanoidBone.endSite, Float3(0, 0, toes_len), [])
                     ])
                 ])
             ])]),
