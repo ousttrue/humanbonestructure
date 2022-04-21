@@ -81,6 +81,8 @@ def parse_offset_channels(it: Iterator[str], name: Optional[str]) -> Node:
                     case 'CHANNELS', '3', 'Zrotation', 'Xrotation', 'Yrotation':
                         node = Node(name, offset, Channels.RotZXY, [])
                     case _:
+                        # CHANNELS 6 Xposition Yposition Zposition Yrotation Xrotation Zrotation
+                        # CHANNELS 6 Xposition Yposition Zposition Zrotation Yrotation Xrotation
                         raise NotImplementedError(channels)
                 # children
                 while True:

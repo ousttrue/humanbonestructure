@@ -1,24 +1,26 @@
 import math
+import logging
 import array
 import ctypes
 from typing import List, NamedTuple, Iterator, Optional
 from OpenGL import GL
-from glglue.ctypesmath import Mat4
-import glglue.gl3.shader
-from glglue.gl3.vbo import Planar, VectorView, create
+import glm
 from . import bvh_parser
+from pydear import glo
+from pydear.scene.camera import Camera
 
+
+LOGGER = logging.getLogger(__name__)
 
 VS = """
 #version 330
-in vec3 aPosition;
-uniform mediump mat4 m;
+in vec3 aPos;
 uniform mediump mat4 vp;
 
 
 void main ()
 {
-    gl_Position = vec4(aPosition, 1) * m * vp;
+    gl_Position = vp * vec4(aPos, 1);
 }
 """
 
@@ -48,9 +50,11 @@ class BvhSkeleton:
         self.channel_count = bvh.root.get_channel_count()
         self.bones: List[Bone] = []
         self._build(bvh.root, bvh_parser.Float3(0, 0, 0))
-        self.is_initialized = False
         self.channels = []
+        # glo
         self.drawable = None
+        self.shader = None
+        self.props = []
 
     def _build(self, head: bvh_parser.Node, offset):
         def get_tail(node: bvh_parser.Node) -> Optional[bvh_parser.Node]:
@@ -72,62 +76,77 @@ class BvhSkeleton:
             for child in head.children:
                 self._build(child, offset + head.offset)
 
-    def initialize(self):
-        vertices = (bvh_parser.Float3 * len(self.bones))()
-        self.indices = array.array('H')
+    def draw(self, camera: Camera):
+        if not self.shader:
+            # shader
+            shader_or_error = glo.Shader.load(VS, FS)
+            if not isinstance(shader_or_error, glo.Shader):
+                LOGGER.error(shader_or_error)
+                return
+            self.shader = shader_or_error
 
-        def get_index(node: bvh_parser.Node):
+            vp = glo.UniformLocation.create(self.shader.program, "vp")
+
+            def set_vp():
+                m = camera.projection.matrix * camera.view.matrix
+                vp.set_mat4(glm.value_ptr(m))
+            self.props.append(set_vp)
+
+            # vertices
+
+            vertices = (bvh_parser.Float3 * len(self.bones))()
+            self.indices = array.array('H')
+
+            def get_index(node: bvh_parser.Node):
+                for i, bone in enumerate(self.bones):
+                    if bone.head == node:
+                        return i
+                raise Exception()
+
             for i, bone in enumerate(self.bones):
-                if bone.head == node:
-                    return i
-            raise Exception()
+                head = bone.offset + bone.head.offset
+                vertices[i] = head
+                if bone.tail:
+                    self.indices.append(i)
+                    self.indices.append(get_index(bone.tail))
 
-        for i, bone in enumerate(self.bones):
-            head = bone.offset + bone.head.offset
-            vertices[i] = head
-            if bone.tail:
-                self.indices.append(i)
-                self.indices.append(get_index(bone.tail))
+            vbo = glo.Vbo()
+            vbo.set_vertices(vertices, is_dynamic=True)
 
-        self.drawable = create(
-            Planar([VectorView(memoryview(vertices), ctypes.c_float, 3)]),
-            VectorView.create(self.indices),
-            is_dynamic=True)
-        self.shader = glglue.gl3.shader.create_from(
-            glglue.gl3.shader.ShaderSource(VS, (), FS, ()))
-        self.is_initialized = True
+            ibo = glo.Ibo()
+            ibo.set_indices(
+                (ctypes.c_uint16 * len(self.indices))(*self.indices))
 
-    def draw(self, projection, view):
-        if not self.is_initialized:
-            self.initialize()
-        self.shader.use()
-        self.shader.set_uniform("vp", view * projection)
+            self.drawable = glo.Vao(
+                vbo, glo.VertexLayout.create_list(self.shader.program), ibo)
 
-        m = Mat4.new_identity()
-        self.shader.set_uniform("m", m)
-        self.drawable.draw(GL.GL_LINES, 0, len(self.indices))
+        assert self.drawable
+        with self.shader:
+            for prop in self.props:
+                prop()
+            self.drawable.draw(len(self.indices), topology=GL.GL_LINES)
 
-    def _set_frame(self, it: Iterator[float], node: bvh_parser.Node, parent: Mat4):
+    def _set_frame(self, it: Iterator[float], node: bvh_parser.Node, parent: glm.mat4):
         '''
         行ベクトル。左右逆で
         '''
-        offset = Mat4.new_translation(
-            node.offset.x, node.offset.y, node.offset.z)
+        offset = glm.translate(node.offset.x, node.offset.y, node.offset.z)
         match node.channels:
             case bvh_parser.Channels.PosXYZ_RotZXY:
-                t = Mat4.new_translation(
-                    next(it), next(it), next(it))
-                z = Mat4.new_rotation_z(to_radian(next(it)))
-                x = Mat4.new_rotation_x(to_radian(next(it)))
-                y = Mat4.new_rotation_y(to_radian(next(it)))
-                m = y * x * z * t * offset * parent
+                t = glm.translate(next(it), next(it), next(it))
+                z = glm.angleAxis(to_radian(next(it)), glm.vec3(0, 0, 1))
+                x = glm.angleAxis(to_radian(next(it)), glm.vec3(1, 0, 0))
+                y = glm.angleAxis(to_radian(next(it)), glm.vec3(0, 1, 0))
+                # m = y * x * z * t * offset * parent
+                m = parent * offset * t * z * x * y
             case bvh_parser.Channels.RotZXY:
-                z = Mat4.new_rotation_z(to_radian(next(it)))
-                x = Mat4.new_rotation_x(to_radian(next(it)))
-                y = Mat4.new_rotation_y(to_radian(next(it)))
-                m = y * x * z * offset * parent
+                z = glm.angleAxis(to_radian(next(it)), glm.vec3(0, 0, 1))
+                x = glm.angleAxis(to_radian(next(it)), glm.vec3(1, 0, 0))
+                y = glm.angleAxis(to_radian(next(it)), glm.vec3(0, 1, 0))
+                # m = y * x * z * offset * parent
+                m = parent * offset * z * x * y
             case _:
-                m = offset * parent
+                m = parent * offset
 
         self.matrices.append(m)
         for child in node.children:
@@ -138,10 +157,11 @@ class BvhSkeleton:
         data = self.bvh.data[begin:begin+self.channel_count]
         self.matrices = []
         self._set_frame(iter(data), self.bvh.root,
-                        Mat4.new_identity())
+                        glm.mat4())
 
         vertices = (bvh_parser.Float3 * len(self.matrices))()
         for i, m in enumerate(self.matrices):
-            vertices[i] = bvh_parser.Float3(m._41, m._42, m._43)
+            p = m[3].xyz
+            vertices[i] = bvh_parser.Float3(p.x, p.y, p.z)
         if self.drawable:
-            self.drawable.vbo_list[0].update(memoryview(vertices))
+            self.drawable.vbo.update(vertices)

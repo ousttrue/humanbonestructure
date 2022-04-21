@@ -42,12 +42,9 @@ class MainWidget(QtWidgets.QMainWindow):
         # Central
         #
         import glglue.pyside6
-        import glglue.gl3.samplecontroller
-        self.controller = glglue.gl3.samplecontroller.SampleController()
         self.bvh_scene = bvh_scene.BvhScene()
-        self.controller.scene = self.bvh_scene
         self.glwidget = glglue.pyside6.Widget(
-            self, self.controller, dpi_scale=gui_scale)
+            self, self.bvh_scene, dpi_scale=gui_scale)
         self.setCentralWidget(self.glwidget)
 
         #

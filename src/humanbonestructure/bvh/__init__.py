@@ -1,4 +1,5 @@
 from PySide6 import QtWidgets
+import pathlib
 from .main_widget import MainWidget
 
 
@@ -13,5 +14,8 @@ def run():
     widget = MainWidget(dpi_scale)
     widget.resize(1024, 768)
     widget.show()
+
+    if len(sys.argv) > 1:
+        widget.open(pathlib.Path(sys.argv[1]))
 
     sys.exit(app.exec())
