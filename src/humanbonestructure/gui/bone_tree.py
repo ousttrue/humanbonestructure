@@ -1,3 +1,4 @@
+from typing import Optional
 from pydear import imgui as ImGui
 from ..scene.scene import Scene
 from ..scene.node import Node
@@ -33,16 +34,12 @@ class BoneTree:
                 | ImGui.ImGuiTableFlags_.RowBg
                 | ImGui.ImGuiTableFlags_.NoBordersInBody
             )
-            if ImGui.BeginTable("jsontree_table", 4, flags):
+            if ImGui.BeginTable("jsontree_table", 2, flags):
                 # header
                 ImGui.TableSetupColumn(
-                    'name', ImGui.ImGuiTableColumnFlags_.WidthFixed, 24)
+                    'name')
                 ImGui.TableSetupColumn(
-                    'humanoid bone')
-                ImGui.TableSetupColumn(
-                    'pose', ImGui.ImGuiTableColumnFlags_.WidthFixed, 15)
-                ImGui.TableSetupColumn(
-                    'position')
+                    'humanoid bone', ImGui.ImGuiTableColumnFlags_.WidthFixed, 24)
 
                 ImGui.TableHeadersRow()
 
@@ -57,6 +54,10 @@ class BoneTree:
 
     def _traverse(self, node: Node):
         flag = 0
+        flag |= ImGui.ImGuiTreeNodeFlags_.OpenOnArrow
+        flag |= ImGui.ImGuiTreeNodeFlags_.OpenOnDoubleClick
+        # flag |= ImGui.ImGuiTreeNodeFlags_.SpanAvailWidth
+        # flag |= ImGui.ImGuiTreeNodeFlags_.SpanFullWidth
         if node.children:
             # dir
             pass
@@ -81,22 +82,14 @@ class BoneTree:
 
         # col 1
         ImGui.TableNextColumn()
-        if node.humanoid_bone:
-            ImGui.TextUnformatted(f'{node.humanoid_bone.value}')
-        else:
-            ImGui.TextUnformatted('')
-
-        # col 2
-        ImGui.TableNextColumn()
-        if node.pose:
-            ImGui.TextUnformatted(f'{node.pose}')
-        else:
-            ImGui.TextUnformatted('')
-
-        # col 3
-        ImGui.TableNextColumn()
-        p = node.world_matrix[3].xyz
-        ImGui.TextUnformatted(f'{p.x:.2f}, {p.y:.2f}, {p.z:.2f}')
+        humanoid_bone = node.humanoid_bone.value if node.humanoid_bone else ''
+        # ImGui.TextUnformatted(humanoid_bone)
+        selected = ImGui.Selectable(f'{humanoid_bone}##{node.index}', node ==
+                                    self.scene.selected, ImGui.ImGuiSelectableFlags_.SpanAllColumns)
+        if selected:
+            self.scene.selected = node
+        elif ImGui.IsItemClicked():
+            self.scene.selected = None
 
         ImGui.PopStyleColor()
 

@@ -26,7 +26,8 @@ class Scene:
         self.mask = None
         self.gizmo = Gizmo()
         self.skeleton = None
-        self.bone_selected: Optional[Node] = None
+        self.selected: Optional[Node] = None
+
         # GUI check box
         self.visible_mesh = (ctypes.c_bool * 1)(False)
         self.visible_gizmo = (ctypes.c_bool * 1)(True)
@@ -115,13 +116,10 @@ class Scene:
             for bone, _ in self.root.traverse_node_and_parent():
                 if bone.humanoid_bone:
                     assert bone.humanoid_tail
-                    if self.gizmo.bone_head_tail(bone.humanoid_bone.name,
-                                                 bone.world_matrix[3].xyz, bone.humanoid_tail.world_matrix[3].xyz, glm.vec3(
-                                                     0, 0, 1),
-                                                 is_selected=bone == self.bone_selected):
-                        self.bone_selected = bone
-                    elif not camera.left:
-                        self.bone_selected = None
+                    self.gizmo.bone_head_tail(bone.humanoid_bone.name,
+                                              bone.world_matrix[3].xyz, bone.humanoid_tail.world_matrix[3].xyz, glm.vec3(
+                                                  0, 0, 1),
+                                              is_selected=bone == self.selected)
 
             self.gizmo.end()
 
