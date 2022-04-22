@@ -1,7 +1,7 @@
-from typing import Optional
 from pydear import imgui as ImGui
 from ..scene.scene import Scene
 from ..scene.node import Node
+from ..formats.humanoid_bones import HumanoidBone
 
 
 def make_color(r, g, b, a):
@@ -70,7 +70,7 @@ class BoneTree:
         ImGui.TableNextRow()
 
         color = IM_WHITE if (
-            node.humanoid_bone and not node.humanoid_bone.is_tip()) else IM_GRAY
+            node.humanoid_bone and not node.humanoid_bone == HumanoidBone.endSite) else IM_GRAY
         ImGui.PushStyleColor(ImGui.ImGuiCol_.Text, color)
 
         # col 0

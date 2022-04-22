@@ -73,25 +73,11 @@ class HumanoidBone(Enum):
     rightLittleProximal = "rightLittleProximal"
     rightLittleIntermediate = "rightLittleIntermediate"
     rightLittleDistal = "rightLittleDistal"
-    # additional bones
-    leftThumbTip = "leftThumbTip"
-    leftIndexTip = "leftIndexTip"
-    leftMiddleTip = "leftMiddleTip"
-    leftRingTip = "leftRingTip"
-    leftLittleTip = "leftLittleTip"
-    rightThumbTip = "rightThumbTip"
-    rightIndexTip = "rightIndexTip"
-    rightMiddleTip = "rightMiddleTip"
-    rightRingTip = "rightRingTip"
-    rightLittleTip = "rightLittleTip"
     # bvh
     endSite = "endSite"
 
     def get_part(self) -> HumanoidBodyParts:
         return HUMANOIDBONE_PART_MAP[self]
-
-    def is_tip(self) -> bool:
-        return self in TIPS
 
     def is_finger(self) -> bool:
         return self in FINGERS
@@ -99,19 +85,6 @@ class HumanoidBone(Enum):
     def get_world_axis(self) -> Tuple[float, float, float]:
         return HUMANOIDBONE_WORLD_AXIS[self]
 
-
-TIPS = set((
-    HumanoidBone.leftThumbTip,
-    HumanoidBone.leftIndexTip,
-    HumanoidBone.leftMiddleTip,
-    HumanoidBone.leftRingTip,
-    HumanoidBone.leftLittleTip,
-    HumanoidBone.rightThumbTip,
-    HumanoidBone.rightIndexTip,
-    HumanoidBone.rightMiddleTip,
-    HumanoidBone.rightRingTip,
-    HumanoidBone.rightLittleTip,
-))
 
 FINGERS = set((
     HumanoidBone.leftThumbProximal,

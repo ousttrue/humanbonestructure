@@ -38,7 +38,7 @@ class Node:
         self.world_matrix = glm.mat4()
         self.bind_matrix = glm.mat4()
         self.delta = glm.quat()
-        self.local_aixs = glm.quat()
+        self.local_axis = glm.quat()
         # renderer
         from .mesh_renderer import MeshRenderer
         self.renderer: Optional[MeshRenderer] = None

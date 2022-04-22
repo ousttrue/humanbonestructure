@@ -59,7 +59,7 @@ class Skeleton:
         bones: List[Bone] = []
 
         for node, _ in root.traverse_node_and_parent():
-            if node.humanoid_bone and not node.humanoid_bone.is_tip():
+            if node.humanoid_bone and not node.humanoid_bone == HumanoidBone.endSite:
                 if node.humanoid_bone:
                     assert node.humanoid_tail
 

@@ -111,15 +111,26 @@ class Scene:
         if self.visible_gizmo[0]:
             self.gizmo.begin(camera.x, camera.y, camera.left, camera.view.matrix,
                              camera.projection.matrix, camera.get_mouse_ray(camera.x, camera.y))
-            self.gizmo.axis(1)
+            # self.gizmo.axis(1)
+            self.gizmo.ground_mark()
 
             for bone, _ in self.root.traverse_node_and_parent():
                 if bone.humanoid_bone:
                     assert bone.humanoid_tail
+                    # bone
                     self.gizmo.bone_head_tail(bone.humanoid_bone.name,
                                               bone.world_matrix[3].xyz, bone.humanoid_tail.world_matrix[3].xyz, glm.vec3(
                                                   0, 0, 1),
                                               is_selected=bone == self.selected)
+                    # axis
+                    self.gizmo.matrix = (
+                        bone.world_matrix * glm.mat4(bone.local_axis))
+                    self.gizmo.color = glm.vec4(1, 0, 0, 1)
+                    self.gizmo.line(glm.vec3(0), glm.vec3(0.02, 0, 0))
+                    self.gizmo.color = glm.vec4(0, 1, 0, 1)
+                    self.gizmo.line(glm.vec3(0), glm.vec3(0, 0.02, 0))
+                    self.gizmo.color = glm.vec4(0, 0, 1, 1)
+                    self.gizmo.line(glm.vec3(0), glm.vec3(0, 0, 0.02))
 
             self.gizmo.end()
 

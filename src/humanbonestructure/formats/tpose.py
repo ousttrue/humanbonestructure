@@ -62,7 +62,7 @@ def pose_to_init(root: Node) -> Dict[Node, glm.quat]:
 def local_axis_fit_world(root: Node):
 
     for node, parent in root.traverse_node_and_parent():
-        node.local_aixs = glm.inverse(glm.quat(node.world_matrix))
+        node.local_axis = glm.inverse(glm.quat(node.world_matrix))
 
     root.calc_skinning(glm.mat4())
 
