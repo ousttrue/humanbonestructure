@@ -15,6 +15,7 @@
                 // "${env:GLTF_SAMPLE_MODELS}/2.0/CesiumMan/glTF-Binary/CesiumMan.glb",
                 // "${env:VRM_SAMPLES}/vroid/vivi.vrm",
                 // "--create",
+                "--tpose",
                 "--asset_dir",
                 "${env:MMD_DATA}",
             ],

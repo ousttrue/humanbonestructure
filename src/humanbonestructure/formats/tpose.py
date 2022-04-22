@@ -1,5 +1,4 @@
 from typing import Dict, Set
-import math
 import glm
 from ..scene.node import Node
 from .humanoid_bones import HumanoidBone
@@ -7,45 +6,16 @@ from .transform import Transform
 from .pose import Motion, Pose, BonePose
 
 
-# def mod(head: Node, tail: Node):
-#     # print(head, tail)
-#     inv = glm.inverse(head.world_matrix)
-
-#     # local to
-#     x = glm.normalize((inv * tail.world_matrix)[3].xyz)
-#     _z = (inv * glm.vec4(0, 0, 1, 0)).xyz
-#     y = glm.normalize(glm.cross(_z, x))
-#     z = glm.normalize(glm.cross(x, y))
-#     local_from = glm.quat(glm.mat3(x, y, z))
-
-#     # local from
-#     local_to = glm.quat(inv)
-
-#     local = local_to * glm.inverse(local_from)
-#     head.pose = Transform(glm.vec3(0), glm.normalize(local), glm.vec3(1))
-#     print(head, local)
-
-
-def mod(head: Node, tail: Node, forward: glm.vec3):
-    assert not head.pose
-    p_tail = tail.local_matrix[3].xyz
-    dir = glm.normalize(p_tail)
-    target = glm.inverse(glm.quat(head.world_matrix)) * forward
-    axis = glm.normalize(glm.cross(dir, target))
-    dot = glm.dot(dir, target)
-    r = glm.angleAxis(math.acos(dot), axis)
+def force_axis(head: Node, tail: Node, to: glm.vec3):
+    local_matrix = glm.inverse(head.world_matrix) * tail.world_matrix
+    src = glm.normalize(local_matrix[3].xyz)
+    to = glm.inverse(glm.quat(head.world_matrix)) * to
+    axis = glm.normalize(glm.cross(src, to))
+    cos = glm.dot(src, to)
+    r = glm.angleAxis(glm.acos(cos), axis)
     head.pose = Transform.from_rotation(r)
-
-
-# def mod(head: Node, tail: Node, forward: glm.vec3):
-#     p_head = head.world_matrix[3].xyz
-#     p_tail = tail.world_matrix[3].xyz
-#     dir = glm.normalize(p_tail - p_head)
-#     target = forward
-#     axis = glm.normalize(glm.cross(dir, target))
-#     dot = glm.dot(dir, target)
-#     r = glm.angleAxis(math.acos(dot), axis)
-#     head.pose = Transform.from_rotation(r)
+    parent_matrix = head.parent.world_matrix if head.parent else glm.mat4()
+    head.calc_skinning(parent_matrix)
 
 
 def make_tpose(root: Node):
@@ -62,7 +32,7 @@ def make_tpose(root: Node):
         #     continue
         if node.humanoid_tail:
             root.calc_skinning(glm.mat4())
-            mod(node, node.humanoid_tail, glm.vec3(1, 0, 0))
+            force_axis(node, node.humanoid_tail, glm.vec3(1, 0, 0))
 
     root.calc_skinning(glm.mat4())
 
@@ -95,18 +65,6 @@ def local_axis_fit_world(root: Node):
         node.local_aixs = glm.inverse(glm.quat(node.world_matrix))
 
     root.calc_skinning(glm.mat4())
-
-
-def force_axis(head: Node, tail: Node, to: glm.vec3):
-    local_matrix = glm.inverse(head.world_matrix) * tail.world_matrix
-    src = glm.normalize(local_matrix[3].xyz)
-    to = glm.inverse(glm.quat(head.world_matrix)) * to
-    axis = glm.normalize(glm.cross(src, to))
-    cos = glm.dot(src, to)
-    r = glm.angleAxis(glm.acos(cos), axis)
-    head.pose = Transform.from_rotation(r)
-    parent_matrix = head.parent.world_matrix if head.parent else glm.mat4()
-    head.calc_skinning(parent_matrix)
 
 
 class TPose(Motion):
