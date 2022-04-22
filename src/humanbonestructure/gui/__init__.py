@@ -91,40 +91,33 @@ class GUI(dockspace.DockingGui):
 
         self.pose_generator.pose_event += scene.set_pose
 
+        tree_name = f'tree:{name}'
+        from .bone_tree import BoneTree
+        tree = BoneTree(tree_name, scene)
+        self.views.append(dockspace.Dock(tree_name, tree.show,
+                                         (ctypes.c_bool * 1)(True)))
+
+        prop_name = f'prop:{name}'
+        from .bone_prop import BoneProp
+        prop = BoneProp(prop_name, scene)
+        self.views.append(dockspace.Dock(
+            prop_name, prop.show, (ctypes.c_bool*1)(True)))
+
+        view_name = f'view:{name}'
+        from .scene_view import SceneView
+        view = SceneView(view_name, scene)
+        self.views.append(dockspace.Dock(view_name, view.show,
+                                         (ctypes.c_bool * 1)(True)))
+
         return scene
 
     def add_model(self, path: pathlib.Path):
         scene = self._add_scene(path.stem)
         scene.load_model(path)
 
-        tree_name = f'tree:{path.name}'
-        from .bone_tree import BoneTree
-        tree = BoneTree(tree_name, scene)
-
-        view_name = f'view:{path.name}'
-        from .scene_view import SceneView
-        view = SceneView(view_name, scene)
-
-        self.views.append(dockspace.Dock(tree_name, tree.show,
-                                         (ctypes.c_bool * 1)(True)))
-        self.views.append(dockspace.Dock(view_name, view.show,
-                                         (ctypes.c_bool * 1)(True)))
-
     def create_model(self):
         scene = self._add_scene('generate')
         scene.create_model()
-
-        tree_name = f'tree:__procedual__'
-        from .bone_tree import BoneTree
-        tree = BoneTree(tree_name, scene)
-        self.views.append(dockspace.Dock(tree_name, tree.show,
-                                         (ctypes.c_bool * 1)(True)))
-
-        view_name = f'view:__procedual__'
-        from .scene_view import SceneView
-        view = SceneView(view_name, scene)
-        self.views.append(dockspace.Dock(view_name, view.show,
-                                         (ctypes.c_bool * 1)(True)))
 
     def add_tpose(self):
         if not self.scenes:
@@ -132,9 +125,3 @@ class GUI(dockspace.DockingGui):
 
         scene = self._add_scene('tpose')
         scene.create_tpose_from(self.scenes[0])
-
-        view_name = f'tpose'
-        from .scene_view import SceneView
-        view = SceneView(view_name, scene)
-        self.views.append(dockspace.Dock(view_name, view.show,
-                                         (ctypes.c_bool * 1)(True)))

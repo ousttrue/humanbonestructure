@@ -1,3 +1,4 @@
+from typing import Tuple
 from enum import Enum
 
 
@@ -94,6 +95,9 @@ class HumanoidBone(Enum):
 
     def is_finger(self) -> bool:
         return self in FINGERS
+
+    def get_world_axis(self) -> Tuple[float, float, float]:
+        return HUMANOIDBONE_WORLD_AXIS[self]
 
 
 TIPS = set((
@@ -198,4 +202,69 @@ HUMANOIDBONE_PART_MAP = {
     HumanoidBone.rightLittleProximal: HumanoidBodyParts.RightFingers,
     HumanoidBone.rightLittleIntermediate: HumanoidBodyParts.RightFingers,
     HumanoidBone.rightLittleDistal: HumanoidBodyParts.RightFingers,
+}
+
+UP = (0, 1, 0)
+DOWN = (0, -1, 0)
+FORWARD = (0, 0, 1)
+LEFT = (1, 0, 0)
+RIGHT = (-1, 0, 0)
+
+HUMANOIDBONE_WORLD_AXIS = {
+    HumanoidBone.hips: UP,
+    HumanoidBone.spine: UP,
+    HumanoidBone.chest: UP,
+    HumanoidBone.upperChest: UP,
+    HumanoidBone.neck: UP,
+    HumanoidBone.head: UP,
+    HumanoidBone.leftEye: FORWARD,
+    HumanoidBone.rightEye: FORWARD,
+    HumanoidBone.jaw: FORWARD,
+    HumanoidBone.leftUpperLeg: DOWN,
+    HumanoidBone.leftLowerLeg: DOWN,
+    HumanoidBone.leftFoot: DOWN,
+    HumanoidBone.leftToes: DOWN,
+    HumanoidBone.rightUpperLeg: DOWN,
+    HumanoidBone.rightLowerLeg: DOWN,
+    HumanoidBone.rightFoot: DOWN,
+    HumanoidBone.rightToes: DOWN,
+    HumanoidBone.leftShoulder: LEFT,
+    HumanoidBone.leftUpperArm: LEFT,
+    HumanoidBone.leftLowerArm: LEFT,
+    HumanoidBone.leftHand: LEFT,
+    HumanoidBone.rightShoulder: RIGHT,
+    HumanoidBone.rightUpperArm: RIGHT,
+    HumanoidBone.rightLowerArm: RIGHT,
+    HumanoidBone.rightHand: RIGHT,
+    #
+    HumanoidBone.leftThumbProximal: LEFT,
+    HumanoidBone.leftThumbIntermediate: LEFT,
+    HumanoidBone.leftThumbDistal: LEFT,
+    HumanoidBone.leftIndexProximal: LEFT,
+    HumanoidBone.leftIndexIntermediate: LEFT,
+    HumanoidBone.leftIndexDistal: LEFT,
+    HumanoidBone.leftMiddleProximal: LEFT,
+    HumanoidBone.leftMiddleIntermediate: LEFT,
+    HumanoidBone.leftMiddleDistal: LEFT,
+    HumanoidBone.leftRingProximal: LEFT,
+    HumanoidBone.leftRingIntermediate: LEFT,
+    HumanoidBone.leftRingDistal: LEFT,
+    HumanoidBone.leftLittleProximal: LEFT,
+    HumanoidBone.leftLittleIntermediate: LEFT,
+    HumanoidBone.leftLittleDistal: LEFT,
+    HumanoidBone.rightThumbProximal: RIGHT,
+    HumanoidBone.rightThumbIntermediate: RIGHT,
+    HumanoidBone.rightThumbDistal: RIGHT,
+    HumanoidBone.rightIndexProximal: RIGHT,
+    HumanoidBone.rightIndexIntermediate: RIGHT,
+    HumanoidBone.rightIndexDistal: RIGHT,
+    HumanoidBone.rightMiddleProximal: RIGHT,
+    HumanoidBone.rightMiddleIntermediate: RIGHT,
+    HumanoidBone.rightMiddleDistal: RIGHT,
+    HumanoidBone.rightRingProximal: RIGHT,
+    HumanoidBone.rightRingIntermediate: RIGHT,
+    HumanoidBone.rightRingDistal: RIGHT,
+    HumanoidBone.rightLittleProximal: RIGHT,
+    HumanoidBone.rightLittleIntermediate: RIGHT,
+    HumanoidBone.rightLittleDistal: RIGHT,
 }

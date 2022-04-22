@@ -97,6 +97,18 @@ def local_axis_fit_world(root: Node):
     root.calc_skinning(glm.mat4())
 
 
+def force_axis(head: Node, tail: Node, to: glm.vec3):
+    local_matrix = glm.inverse(head.world_matrix) * tail.world_matrix
+    src = glm.normalize(local_matrix[3].xyz)
+    to = glm.inverse(glm.quat(head.world_matrix)) * to
+    axis = glm.normalize(glm.cross(src, to))
+    cos = glm.dot(src, to)
+    r = glm.angleAxis(glm.acos(cos), axis)
+    head.pose = Transform.from_rotation(r)
+    parent_matrix = head.parent.world_matrix if head.parent else glm.mat4()
+    head.calc_skinning(parent_matrix)
+
+
 class TPose(Motion):
     def __init__(self, model_name: str, root: Node) -> None:
         super().__init__(f'TPose [{model_name}]')
