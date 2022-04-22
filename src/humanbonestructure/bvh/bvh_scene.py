@@ -1,6 +1,6 @@
 from OpenGL import GL
 from pydear.scene.camera import Camera
-from pydear.scene.bone_gizmo import BoneGizmo
+from pydear.scene.gizmo import Gizmo
 from . import bvh_skeleton, bvh_parser
 
 
@@ -9,7 +9,7 @@ class BvhScene:
         self.clear_color = (0.6, 0.6, 0.4, 0.0)
         self.camera = Camera(distance=200.0)
         self.skeleton = None
-        self.gizmo = BoneGizmo()
+        self.gizmo = Gizmo()
 
         self.x = 0
         self.y = 0
@@ -108,8 +108,6 @@ class BvhScene:
             self.x,
             self.y,
             self.left,
-            self.right,
-            self.middle,
             self.camera.view.matrix,
             self.camera.projection.matrix,
             self.camera.get_mouse_ray(self.x, self.y))

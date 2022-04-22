@@ -3,7 +3,7 @@ import logging
 from OpenGL import GL
 import glm
 from pydear.scene.camera import Camera
-from pydear.scene.bone_gizmo import BoneGizmo
+from pydear.scene.gizmo import Gizmo
 from . import humanoid
 
 
@@ -16,7 +16,7 @@ class BoneScene:
         self.camera = Camera(y=-1.0, distance=5.0)
 
         self.root = root
-        self.gizmo = BoneGizmo()
+        self.gizmo = Gizmo()
         self.selected: Optional[humanoid.Bone] = None
         self.on_selected = scene_selected
 
@@ -117,14 +117,12 @@ class BoneScene:
         GL.glViewport(0, 0, self.camera.projection.width,
                       self.camera.projection.height)
 
-        GL.glEnable(GL.GL_DEPTH_TEST)
+        # GL.glEnable(GL.GL_DEPTH_TEST)
 
         self.gizmo.begin(
             self.x,
             self.y,
             self.left,
-            self.right,
-            self.middle,
             self.camera.view.matrix,
             self.camera.projection.matrix,
             self.camera.get_mouse_ray(self.x, self.y))
