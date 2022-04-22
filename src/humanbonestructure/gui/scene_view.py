@@ -18,6 +18,7 @@ class SceneView:
         self.bg = ImGui.ImVec4(1, 1, 1, 1)
         self.tint = ImGui.ImVec4(1, 1, 1, 1)
         self.hover = False
+        self.xy = (ctypes.c_float * 2)(0, 0)
 
     def show(self, p_open):
         ImGui.SetNextWindowSize((200, 200), ImGui.ImGuiCond_.Once)
@@ -41,15 +42,16 @@ class SceneView:
                                               ImGui.ImGuiButtonFlags_.MouseButtonMiddle | ImGui.ImGuiButtonFlags_.MouseButtonRight)
 
                 io = ImGui.GetIO()
+                x, y = ImGui.GetWindowPos()
+                y += ImGui.GetFrameHeight()
                 if ImGui.IsItemActive():
-                    x, y = ImGui.GetWindowPos()
-                    y += ImGui.GetFrameHeight()
                     self.camera.mouse_drag(
                         int(io.MousePos.x-x), int(io.MousePos.y-y),
                         int(io.MouseDelta.x), int(io.MouseDelta.y),
                         io.MouseDown[0], io.MouseDown[1], io.MouseDown[2])
                 else:
-                    self.camera.mouse_release()
+                    self.camera.mouse_release(
+                        int(io.MousePos.x-x), int(io.MousePos.y-y))
 
                 self.hover = ImGui.IsItemHovered()
                 if self.hover:

@@ -25,6 +25,8 @@ def main():
     parser.add_argument('--asset_dir')
     parser.add_argument('--create', action='store_true',
                         help='create model procedual')
+    parser.add_argument('--tpose', action='store_true',
+                        help='tpose')
 
     args = parser.parse_args()
 
@@ -53,8 +55,8 @@ def main():
     if args.create:
         gui.create_model()
 
-    # add_tpose
-    gui.add_tpose()
+    if args.tpose:
+        gui.add_tpose()
 
     if gui.scenes:
         scene = gui.scenes[0]

@@ -4,6 +4,7 @@ import pathlib
 import logging
 import glm
 from pydear.scene.camera import Camera
+from pydear.scene.gizmo import Gizmo
 from ..formats import pmd_loader, gltf_loader, vpd_loader, pmx_loader
 from ..formats import tpose
 from ..formats.transform import Transform
@@ -23,25 +24,21 @@ class Scene:
         # scene
         self.root = Node(-1, '__root__', Transform.identity())
         self.mask = None
-        from .gizmo import Gizmo
         self.gizmo = Gizmo()
         self.skeleton = None
+        self.bone_selected: Optional[Node] = None
         # GUI check box
-        self.visible_mesh = (ctypes.c_bool * 1)(True)
+        self.visible_mesh = (ctypes.c_bool * 1)(False)
         self.visible_gizmo = (ctypes.c_bool * 1)(True)
-        self.visible_skeleton = (ctypes.c_bool * 1)(True)
+        self.visible_skeleton = (ctypes.c_bool * 1)(False)
 
     def _setup_model(self):
         self.root.initialize(glm.mat4())
         self.root.calc_skinning(glm.mat4())
         self.skeleton = Skeleton(self.root)
-        self._skinning()
+        self.root.calc_skinning(glm.mat4())
         self.humanoid_node_map = {node.humanoid_bone: node for node,
                                   _ in self.root.traverse_node_and_parent() if node.humanoid_bone}
-
-    def _skinning(self):
-        self.root.calc_skinning(glm.mat4())
-        self.gizmo.update(self.root)
 
     def load_model(self, path: pathlib.Path):
         match path.suffix.lower():
@@ -111,7 +108,22 @@ class Scene:
                 self.render_node(camera, root)
 
         if self.visible_gizmo[0]:
-            self.gizmo.render(camera)
+            self.gizmo.begin(camera.x, camera.y, camera.left, camera.view.matrix,
+                             camera.projection.matrix, camera.get_mouse_ray(camera.x, camera.y))
+            self.gizmo.axis(1)
+
+            for bone, _ in self.root.traverse_node_and_parent():
+                if bone.humanoid_bone:
+                    assert bone.humanoid_tail
+                    if self.gizmo.bone_head_tail(bone.humanoid_bone.name,
+                                                 bone.world_matrix[3].xyz, bone.humanoid_tail.world_matrix[3].xyz, glm.vec3(
+                                                     0, 0, 1),
+                                                 is_selected=bone == self.bone_selected):
+                        self.bone_selected = bone
+                    elif not camera.left:
+                        self.bone_selected = None
+
+            self.gizmo.end()
 
         if self.skeleton and self.visible_skeleton[0]:
             self.skeleton.renderer.render(camera)
@@ -142,4 +154,4 @@ class Scene:
                         continue
                     node.pose = conv(bone)
 
-        self._skinning()
+        self.root.calc_skinning(glm.mat4())
