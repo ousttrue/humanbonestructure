@@ -65,6 +65,13 @@ def main():
             1, TPose(scene.name, scene.root))
     gui.pose_generator.motion_list.apply()
 
+    async def connect_async(host: str, port: int):
+        import asyncio
+        reader, writer = await asyncio.open_connection(host, port)
+        LOGGER.debug('connected')
+
+    app.loop.create_task(connect_async('127.0.0.1', 12721))
+
     from pydear.backends import impl_glfw
     impl_glfw = impl_glfw.ImplGlfwInput(app.window)
     while app.clear():

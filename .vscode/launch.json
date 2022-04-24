@@ -5,6 +5,21 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "posestream",
+            "type": "python",
+            "request": "launch",
+            "module": "humanbonestructure.posestream",
+            "args": [
+                "--asset_dir",
+                "${env:MMD_DATA}",
+            ],
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/src",
+            },
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
             "name": "pose",
             "type": "python",
             "request": "launch",

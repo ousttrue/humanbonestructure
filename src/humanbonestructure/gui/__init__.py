@@ -64,7 +64,7 @@ class GUI(dockspace.DockingGui):
         self.docks = [
             dockspace.Dock('pose_selector', self.motion_selector.show,
                            (ctypes.c_bool * 1)(True)),
-            dockspace.Dock('log', log_handler.draw,
+            dockspace.Dock('log', log_handler.show,
                            (ctypes.c_bool * 1)(True)),
             dockspace.Dock('metrics', ImGui.ShowMetricsWindow,
                            (ctypes.c_bool * 1)(True)),
