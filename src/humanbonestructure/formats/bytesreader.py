@@ -4,6 +4,12 @@ import struct
 
 
 def bytes_to_str(data: bytes, encoding: str = 'cp932') -> str:
+    if encoding in ('cp932', 'utf-8'):
+        try:
+            zero = data.index(b'\0')
+            data = data[:zero]
+        except ValueError:
+            pass
     if isinstance(data, ctypes.Array):
         data = memoryview(data).tobytes()
     decoded = data.decode(encoding)

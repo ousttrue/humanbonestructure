@@ -29,11 +29,20 @@ def main():
         for root, dirs, files in os.walk(asset_dir):
             for f in files:
                 f = pathlib.Path(root) / f
-                if f.suffix == '.vpd':
-                    from ..scene.scene import vpd_loader
-                    vpd = vpd_loader.Vpd.load(f.read_bytes())
-                    vpd.name = f.name
-                    gui.selector.pose_generator.motion_list.items.append(vpd)
+
+                match f.suffix:
+                    case '.vpd':
+                        from ..formats import vpd_loader
+                        vpd = vpd_loader.Vpd.load(f.read_bytes())
+                        vpd.name = f.name
+                        gui.selector.pose_generator.motion_list.items.append(
+                            vpd)
+                    case '.vmd':
+                        from ..formats import vmd_loader
+                        vpd = vmd_loader.Vmd.load(f.read_bytes())
+                        vpd.name = f.name
+                        gui.selector.pose_generator.motion_list.items.append(
+                            vpd)
     gui.selector.pose_generator.motion_list.apply()
 
     gui.tcp_listener.start(app.loop)

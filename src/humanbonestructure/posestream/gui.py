@@ -42,6 +42,7 @@ class GUI(dockspace.DockingGui):
 
     def _load_scene(self, name: str) -> Scene:
         self.scene = Scene(name)
+        self.selector.pose_generator.pose_event += self.scene.set_pose
 
         tree_name = f'tree:{name}'
         from ..gui.bone_tree import BoneTree
