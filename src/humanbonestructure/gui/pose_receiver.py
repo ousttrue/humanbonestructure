@@ -41,8 +41,8 @@ class PoseReceiver:
                 body = await reader.read(length)
                 data = json.loads(body)
 
-                pose = Pose(f'pose{count}')
-                self.status = f'pose#{count}'
+                pose = Pose.from_json(f'pose#{count}', data)
+                self.status = str(pose)
                 count += 1
 
                 self.pose_event.set(pose)

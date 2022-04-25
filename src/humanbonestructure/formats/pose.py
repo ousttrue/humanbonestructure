@@ -1,5 +1,6 @@
-from typing import NamedTuple, Optional, List, Dict, Set, TypedDict, Tuple
+from typing import NamedTuple, Optional, List, Dict, Set, Tuple
 import abc
+import glm
 from .transform import Transform
 from .humanoid_bones import HumanoidBone, HumanoidBodyParts
 
@@ -10,28 +11,15 @@ class BonePose(NamedTuple):
     transform: Transform
 
 
-class BodyRotations(TypedDict):
-    hips0: Tuple[float, float, float, float]
-
-
-class FingerRotations(TypedDict):
-    thumb0: Tuple[float, float, float, float]
-
-
-class JsonPose(TypedDict):
-    translationScale: float
-    translation: Tuple[float, float, float]
-    body: BodyRotations
-    leftHand: FingerRotations
-    rightHand: FingerRotations
-
-
 class Pose:
     def __init__(self, name: str):
         self.name = name
         self.bones: List[BonePose] = []
         self._parts: Dict[HumanoidBodyParts, bool] = {
         }
+
+    def __str__(self) -> str:
+        return f'{self.name}: {len(self.bones)}bones'
 
     def get_parts(self, part: HumanoidBodyParts) -> bool:
         value = self._parts.get(part)
@@ -44,8 +32,22 @@ class Pose:
             self._parts[part] = value
         return value
 
-    def to_json(self) -> JsonPose:
-        return JsonPose()
+    def to_json(self) -> Dict[str, Tuple[float, float, float, float]]:
+        def float4(q) -> Tuple[float, float, float, float]:
+            return (q.x, q.y, q.z, q.w)
+        bone_map = {
+            bone.humanoid_bone.name: float4(bone.transform.rotation) for bone in self.bones if bone.humanoid_bone}
+
+        return bone_map
+
+    @staticmethod
+    def from_json(name: str, bone_map: Dict[str, Tuple[float, float, float, float]]) -> 'Pose':
+        pose = Pose(name)
+        for k, v in bone_map.items():
+            x, y, z, w = v
+            pose.bones.append(
+                BonePose(k, HumanoidBone(k), Transform.from_rotation(glm.quat(w, x, y, z))))
+        return pose
 
 
 class Motion(abc.ABC):
@@ -59,11 +61,11 @@ class Motion(abc.ABC):
                                     for bone in self.get_humanbones())
         return self._parts_cache
 
-    @abc.abstractmethod
+    @ abc.abstractmethod
     def get_humanbones(self) -> Set[HumanoidBone]:
         raise NotImplementedError()
 
-    @abc.abstractmethod
+    @ abc.abstractmethod
     def get_current_pose(self) -> Pose:
         raise NotImplementedError()
 
