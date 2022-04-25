@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Dict
 import ctypes
 import pathlib
 import logging
@@ -9,6 +9,7 @@ from ..formats import pmd_loader, gltf_loader, vpd_loader, pmx_loader
 from ..formats import tpose
 from ..formats.transform import Transform
 from ..formats.pose import Pose, Motion
+from ..formats.humanoid_bones import HumanoidBone
 from .node import Node
 from .skeleton import Skeleton
 LOGGER = logging.getLogger(__name__)
@@ -95,6 +96,20 @@ class Scene:
         self.root = Node(-1, '__root__', Transform.identity())
         copy_tree(scene.root, self.root)
         self._setup_model()
+
+        if scene.is_mmd:
+            node_pos_map: Dict[HumanoidBone, glm.vec3] = {
+                node.humanoid_bone: node.world_matrix[3].xyz for node, _ in scene.root.traverse_node_and_parent() if node.humanoid_bone}
+
+            hips = self.root.find_humanoid_bone(HumanoidBone.hips)
+            assert hips
+            spine = self.root.find_humanoid_bone(HumanoidBone.spine)
+            assert spine
+            spine.init_trs = spine.init_trs._replace(
+                translation=node_pos_map[HumanoidBone.hips.spine]-node_pos_map[HumanoidBone.hips])
+            hips.name = 'hips'
+            hips.add_child(spine, insert=True)
+            hips.humanoid_tail = spine
 
         # tpose
         tpose.make_tpose(self.root)

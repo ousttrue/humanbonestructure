@@ -64,6 +64,9 @@ class Node:
             if pred(node):
                 return node
 
+    def find_humanoid_bone(self, humanoid_bone: HumanoidBone) -> Optional['Node']:
+        return self.find(lambda x: x.humanoid_bone == humanoid_bone)
+
     def find_tail(self) -> Optional['Node']:
         assert self.humanoid_bone
         if not len(self.children):
@@ -130,8 +133,13 @@ class Node:
     def skinning_matrix(self) -> glm.mat4:
         return self.world_matrix * glm.inverse(self.bind_matrix)
 
-    def add_child(self, child: 'Node'):
-        self.children.append(child)
+    def add_child(self, child: 'Node', *, insert=False):
+        if child.parent:
+            child.parent.children.remove(child)
+        if insert:
+            self.children.insert(0, child)
+        else:
+            self.children.append(child)
         child.parent = self
 
     def initialize(self, parent: glm.mat4) -> bool:

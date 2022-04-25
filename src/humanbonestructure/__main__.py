@@ -21,12 +21,12 @@ def main():
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('model', nargs='*')
+    parser.add_argument('model')
     parser.add_argument('--asset_dir')
-    parser.add_argument('--create', action='store_true',
-                        help='create model procedual')
-    parser.add_argument('--tpose', action='store_true',
-                        help='tpose')
+    # parser.add_argument('--create', action='store_true',
+    #                     help='create model procedual')
+    # parser.add_argument('--tpose', action='store_true',
+    #                     help='tpose')
 
     args = parser.parse_args()
 
@@ -37,14 +37,12 @@ def main():
     gui = GUI(app.loop)
 
     # load model
-    for model in args.model:
-        gui.add_model(pathlib.Path(model))
+    gui.add_model(pathlib.Path(args.model))
 
-    if args.create:
-        gui.create_model()
+    # if args.create:
+    #     gui.create_model()
 
-    if args.tpose:
-        gui.add_tpose()
+    gui.add_tpose()
 
     # if gui.scenes:
     #     scene = gui.scenes[0]
