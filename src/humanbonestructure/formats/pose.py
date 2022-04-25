@@ -1,4 +1,4 @@
-from typing import NamedTuple, Optional, List, Dict, Set
+from typing import NamedTuple, Optional, List, Dict, Set, TypedDict, Tuple
 import abc
 from .transform import Transform
 from .humanoid_bones import HumanoidBone, HumanoidBodyParts
@@ -8,6 +8,22 @@ class BonePose(NamedTuple):
     name: str
     humanoid_bone: Optional[HumanoidBone]
     transform: Transform
+
+
+class BodyRotations(TypedDict):
+    hips0: Tuple[float, float, float, float]
+
+
+class FingerRotations(TypedDict):
+    thumb0: Tuple[float, float, float, float]
+
+
+class JsonPose(TypedDict):
+    translationScale: float
+    translation: Tuple[float, float, float]
+    body: BodyRotations
+    leftHand: FingerRotations
+    rightHand: FingerRotations
 
 
 class Pose:
@@ -27,6 +43,9 @@ class Pose:
             value = any(has_part(bone) for bone in self.bones)
             self._parts[part] = value
         return value
+
+    def to_json(self) -> JsonPose:
+        return JsonPose()
 
 
 class Motion(abc.ABC):

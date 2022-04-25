@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List
 import logging
 import asyncio
 import pathlib
@@ -6,44 +6,8 @@ import ctypes
 from pydear import imgui as ImGui
 from pydear.utils import dockspace
 from ..scene.scene import Scene
-from .selector import TableSelector
-from .bone_mask import BoneMask
-from .motion_list import MotionList, Motion
-from ..eventproperty import EventProperty
-from ..formats.pose import Pose
 
 LOGGER = logging.getLogger(__name__)
-
-
-class PoseGenerator:
-    def __init__(self) -> None:
-        self.bone_mask = BoneMask()
-        self.motion_list = MotionList()
-        self.pose_event = EventProperty(Pose('empty'))
-        self.motion: Optional[Motion] = None
-
-        def refilter():
-            self.set_motion(self.motion)
-
-        self.bone_mask.changed += refilter
-
-    def show(self):
-        self.motion_list._filter.show()
-        self.bone_mask.show()
-
-    def set_motion(self, motion: Optional[Motion]):
-        self.motion = motion
-        if motion:
-            pose = motion.get_current_pose()
-            self.set_pose(pose)
-        else:
-            self.set_pose(Pose('empty'))
-
-    def set_pose(self, _pose: Pose):
-        pose = Pose(_pose.name)
-        pose.bones = [
-            bone for bone in _pose.bones if bone.humanoid_bone and self.bone_mask.mask(bone.humanoid_bone)]
-        self.pose_event.set(pose)
 
 
 class GUI(dockspace.DockingGui):
@@ -54,19 +18,15 @@ class GUI(dockspace.DockingGui):
         log_handler = ImGuiLogHandler()
         log_handler.register_root(append=True)
 
-        self.pose_generator = PoseGenerator()
-
-        self.motion_selector = TableSelector(
-            'pose selector', self.pose_generator.motion_list, self.pose_generator.show)
-
-        self.motion_selector.selected += self.pose_generator.set_motion
+        from .pose_receiver import PoseReceiver
+        self.receiver = PoseReceiver()
 
         self.docks = [
-            dockspace.Dock('pose_selector', self.motion_selector.show,
-                           (ctypes.c_bool * 1)(True)),
             dockspace.Dock('log', log_handler.show,
                            (ctypes.c_bool * 1)(True)),
             dockspace.Dock('metrics', ImGui.ShowMetricsWindow,
+                           (ctypes.c_bool * 1)(True)),
+            dockspace.Dock('receiver', self.receiver.show,
                            (ctypes.c_bool * 1)(True)),
         ]
 
@@ -89,7 +49,7 @@ class GUI(dockspace.DockingGui):
         scene = Scene(name)
         self.scenes.append(scene)
 
-        self.pose_generator.pose_event += scene.set_pose
+        self.receiver.pose_event += scene.set_pose
 
         tree_name = f'tree:{name}'
         from .bone_tree import BoneTree

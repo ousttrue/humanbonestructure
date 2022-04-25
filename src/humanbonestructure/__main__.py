@@ -36,18 +36,6 @@ def main():
     from .gui import GUI
     gui = GUI(app.loop)
 
-    from .formats.vpd_loader import Vpd
-    if args.asset_dir:
-        asset_dir = pathlib.Path(args.asset_dir)
-        for root, dirs, files in os.walk(asset_dir):
-            for f in files:
-                f = pathlib.Path(root) / f
-                if f.suffix == '.vpd':
-                    from .scene.scene import vpd_loader
-                    vpd = vpd_loader.Vpd.load(f.read_bytes())
-                    vpd.name = f.name
-                    gui.pose_generator.motion_list.items.append(vpd)
-
     # load model
     for model in args.model:
         gui.add_model(pathlib.Path(model))
@@ -58,19 +46,13 @@ def main():
     if args.tpose:
         gui.add_tpose()
 
-    if gui.scenes:
-        scene = gui.scenes[0]
-        from .formats.tpose import TPose
-        gui.pose_generator.motion_list.items.insert(
-            1, TPose(scene.name, scene.root))
-    gui.pose_generator.motion_list.apply()
+    # if gui.scenes:
+    #     scene = gui.scenes[0]
+    #     from .formats.tpose import TPose
+    #     gui.pose_generator.motion_list.items.insert(
+    #         1, TPose(scene.name, scene.root))
 
-    async def connect_async(host: str, port: int):
-        import asyncio
-        reader, writer = await asyncio.open_connection(host, port)
-        LOGGER.debug('connected')
-
-    app.loop.create_task(connect_async('127.0.0.1', 12721))
+    app.loop.create_task(gui.receiver.connect_async('127.0.0.1', 12721))
 
     from pydear.backends import impl_glfw
     impl_glfw = impl_glfw.ImplGlfwInput(app.window)
