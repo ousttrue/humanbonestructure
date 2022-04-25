@@ -10,6 +10,7 @@
             "request": "launch",
             "module": "humanbonestructure.posestream",
             "args": [
+                "${env:MMD_DATA}/Tda式初音ミクアペンドVer1.10/Tda式初音ミクアペンド_Ver1.10.pmx",
                 "--asset_dir",
                 "${env:MMD_DATA}",
             ],

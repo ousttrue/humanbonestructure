@@ -1,7 +1,7 @@
 from typing import Dict, Set
 import glm
 from ..scene.node import Node
-from .humanoid_bones import HumanoidBone
+from .humanoid_bones import HumanoidBone, HUMANOIDBONE_WORLD_AXIS
 from .transform import Transform
 from .pose import Motion, Pose, BonePose
 
@@ -18,21 +18,18 @@ def force_axis(head: Node, tail: Node, to: glm.vec3):
     head.calc_skinning(parent_matrix)
 
 
-def make_tpose(root: Node):
+def make_tpose(root: Node, *, is_inverted_pelvis=False):
 
-    upper_arm = root.find(lambda node: node.humanoid_bone ==
-                          HumanoidBone.leftUpperArm)
-    if not upper_arm:
-        return
-
-    for node, _ in upper_arm.traverse_node_and_parent():
+    for node, _ in root.traverse_node_and_parent():
         if not node.humanoid_bone:
             continue
-        # if node.humanoid_bone == HumanoidBone.leftHand:
-        #     continue
         if node.humanoid_tail:
             root.calc_skinning(glm.mat4())
-            force_axis(node, node.humanoid_tail, glm.vec3(1, 0, 0))
+            if node.humanoid_bone == HumanoidBone.hips and is_inverted_pelvis:
+                dir = (0, -1, 0)
+            else:
+                dir = HUMANOIDBONE_WORLD_AXIS[node.humanoid_bone]
+            force_axis(node, node.humanoid_tail, glm.vec3(*dir))
 
     root.calc_skinning(glm.mat4())
 

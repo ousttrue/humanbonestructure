@@ -23,6 +23,7 @@ class Scene:
         self.name = name
         # scene
         self.root = Node(-1, '__root__', Transform.identity())
+        self.is_mmd = False
         self.mask = None
         self.gizmo = Gizmo()
         self.skeleton = None
@@ -45,10 +46,13 @@ class Scene:
         match path.suffix.lower():
             case '.pmd':
                 self.load_pmd(path)
+                self.is_mmd = True
             case '.pmx':
                 self.load_pmx(path)
+                self.is_mmd = True
             case '.glb' | '.vrm':
                 self.load_glb(path)
+                self.is_mmd = False
             case _:
                 raise NotImplementedError()
 
