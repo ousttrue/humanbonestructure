@@ -39,7 +39,7 @@ def main():
                             vpd)
                     case '.vmd':
                         from ..formats import vmd_loader
-                        vpd = vmd_loader.Vmd.load(f.read_bytes())
+                        vpd = vmd_loader.Vmd.load(f.stem, f.read_bytes())
                         vpd.name = f.name
                         gui.selector.pose_generator.motion_list.items.append(
                             vpd)

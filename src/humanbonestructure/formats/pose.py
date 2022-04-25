@@ -79,10 +79,7 @@ class Motion(abc.ABC):
     def get_current_pose(self) -> Pose:
         raise NotImplementedError()
 
-    def start(self):
-        pass
-
-    def stop(self):
+    def set_frame(self, frame: int):
         pass
 
 

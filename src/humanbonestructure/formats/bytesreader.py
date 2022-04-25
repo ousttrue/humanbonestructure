@@ -12,7 +12,7 @@ def bytes_to_str(data: bytes, encoding: str = 'cp932') -> str:
             pass
     if isinstance(data, ctypes.Array):
         data = memoryview(data).tobytes()
-    decoded = data.decode(encoding)
+    decoded = data.decode(encoding, errors='ignore')
 
     for i, c in enumerate(decoded):
         if c == '\x00':
