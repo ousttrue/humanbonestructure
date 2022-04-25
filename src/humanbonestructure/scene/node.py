@@ -43,6 +43,7 @@ class Node:
         from .mesh_renderer import MeshRenderer
         self.renderer: Optional[MeshRenderer] = None
         # UI
+        self.has_weighted_vertices = False
         self.humanoid_bone = humanoid_bone
         self.humanoid_tail: Optional[Node] = None
         self.descendants_has_humanoid = False

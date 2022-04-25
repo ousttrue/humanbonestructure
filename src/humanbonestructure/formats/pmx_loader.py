@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Dict
 import ctypes
 from .bytesreader import BytesReader
 from .buffer_types import Vertex4BoneWeights, RenderVertex, Float3, Float4
@@ -104,6 +104,7 @@ class Pmx:
 
         # vertices
         vertex_count = r.uint32()
+        self.deform_bones: Dict[int, int] = {}
         self.vertices = (Vertex4BoneWeights * vertex_count)()
         for i, v in enumerate(self.vertices):
             rv = r.struct(RenderVertex)
@@ -116,6 +117,9 @@ class Pmx:
                 case 0:
                     # BDEF1
                     v.bone.x = bone_index()
+                    v.bone.y = -1
+                    v.bone.z = -1
+                    v.bone.w = -1
                     v.weight.x = 1
                     v.weight.y = 0
                     v.weight.z = 0
@@ -125,6 +129,8 @@ class Pmx:
                     # BDEF2
                     v.bone.x = bone_index()
                     v.bone.y = bone_index()
+                    v.bone.z = -1
+                    v.bone.w = -1
                     v.weight.x = r.float32()
                     v.weight.y = 1-v.weight.x
                     v.weight.z = 0
@@ -153,10 +159,21 @@ class Pmx:
                     # fall back to BDEF2
                     v.bone.x = b0
                     v.bone.y = b1
+                    v.bone.z = -1
+                    v.bone.w = -1
                     v.weight.x = w0
                     v.weight.y = 1-w0
                     v.weight.z = 0
                     v.weight.w = 0
+
+            self.deform_bones[v.bone.x] = self.deform_bones.get(
+                v.bone.x, 0) + 1
+            self.deform_bones[v.bone.y] = self.deform_bones.get(
+                v.bone.y, 0) + 1
+            self.deform_bones[v.bone.z] = self.deform_bones.get(
+                v.bone.z, 0) + 1
+            self.deform_bones[v.bone.w] = self.deform_bones.get(
+                v.bone.w, 0) + 1
 
             edge_scale = r.float32()
 

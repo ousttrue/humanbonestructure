@@ -1,7 +1,7 @@
 '''
 https://blog.goo.ne.jp/torisu_tetosuki/e/209ad341d3ece2b1b4df24abf619d6e4
 '''
-from typing import List
+from typing import List, Dict
 import ctypes
 from .bytesreader import BytesReader
 from .humanoid_bones import HumanoidBone
@@ -164,11 +164,16 @@ class Pmd:
         self.comment = r.str(256, encoding='cp932')
 
         vertex_count = r.uint32()
+        self.deform_bones: Dict[int, int] = {}
         self.vertices = r.array(Vertex * vertex_count)
         for v in self.vertices:
             v.render.position.x *= SCALING_FACTOR
             v.render.position.y *= SCALING_FACTOR
             v.render.position.z *= SCALING_FACTOR
+            self.deform_bones[v.option.bone0] = self.deform_bones.get(
+                v.option.bone0, 0)+1
+            self.deform_bones[v.option.bone1] = self.deform_bones.get(
+                v.option.bone1, 0)+1
 
         face_vertex_count = r.uint32()
         self.indices = r.array(ctypes.c_uint16 * face_vertex_count)

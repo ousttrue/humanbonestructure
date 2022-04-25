@@ -17,6 +17,7 @@ def build(pmd: pmd_loader.Pmd) -> Node:
     nodes: List[Node] = []
     for i, b in enumerate(pmd.bones):
         node = Node(i, bytesreader.bytes_to_str(b.name), Transform.identity())
+        node.has_weighted_vertices = i in pmd.deform_bones
         nodes.append(node)
 
     for i, (node, bone) in enumerate(zip(nodes, pmd.bones)):

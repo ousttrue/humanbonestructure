@@ -1,7 +1,8 @@
-from typing import List
+from typing import List, Dict
 import glm
 from ...formats import pmx_loader, pmd_loader
 from ...formats.transform import Transform
+from ...formats.humanoid_bones import HumanoidBone
 from ..node import Node
 from ..mesh_renderer import MeshRenderer
 from .pmd_builder import reverse_z
@@ -14,12 +15,15 @@ def build(pmx: pmx_loader.Pmx) -> Node:
     nodes: List[Node] = []
     for i, b in enumerate(pmx.bones):
         node = Node(i, b.name_ja, Transform.identity())
+        node.has_weighted_vertices = i in pmx.deform_bones
         nodes.append(node)
 
+    bone_map: Dict[HumanoidBone, Node] = {}
     for i, (node, bone) in enumerate(zip(nodes, pmx.bones)):
         assert isinstance(bone, pmx_loader.Bone)
         if humanoid_bone := pmd_loader.BONE_HUMANOID_MAP.get(node.name):
             node.humanoid_bone = humanoid_bone
+            bone_map[humanoid_bone] = node
 
         t = glm.vec3(*bone.position)
         if bone.parent_index == -1:
@@ -34,6 +38,31 @@ def build(pmx: pmx_loader.Pmx) -> Node:
         if bone.tail_position:
             node.add_child(
                 Node(-1, f'{bone.name_ja}先', Transform(reverse_z(glm.vec3(*bone.tail_position)), glm.quat(), glm.vec3(1))))
+
+    leftUpperLegD = root.find(lambda x: x.name == '左足D')
+    leftLowerLegD = root.find(lambda x: x.name == '左ひざD')
+    leftFootD = root.find(lambda x: x.name == '左足首D')
+    leftToesD = root.find(lambda x: x.name == '左足先EX')
+    leftTip = root.find(lambda x: x.name == '左足先EX先')
+    rightUpperLegD = root.find(lambda x: x.name == '右足D')
+    rightLowerLegD = root.find(lambda x: x.name == '右ひざD')
+    rightFootD = root.find(lambda x: x.name == '右足首D')
+    rightToesD = root.find(lambda x: x.name == '右足先EX')
+    rightTip = root.find(lambda x: x.name == '右足先EX先')
+    if leftUpperLegD and leftLowerLegD and leftFootD and rightUpperLegD and rightLowerLegD and rightFootD:
+        def replace(humanoid_bone: HumanoidBone, node: Node, tail: Node):
+            bone_map[humanoid_bone].humanoid_bone = None
+            bone_map[humanoid_bone].humanoid_tail = None
+            node.humanoid_bone = humanoid_bone
+            node.humanoid_tail = tail
+        replace(HumanoidBone.leftUpperLeg, leftUpperLegD, leftLowerLegD)
+        replace(HumanoidBone.leftLowerLeg, leftLowerLegD, leftFootD)
+        replace(HumanoidBone.leftFoot, leftFootD, leftToesD)
+        replace(HumanoidBone.leftToes, leftToesD, leftTip)
+        replace(HumanoidBone.rightUpperLeg, rightUpperLegD, rightLowerLegD)
+        replace(HumanoidBone.rightLowerLeg, rightLowerLegD, rightFootD)
+        replace(HumanoidBone.rightFoot, rightFootD, rightToesD)
+        replace(HumanoidBone.rightToes, rightToesD, rightTip)
 
     # reverse z
     for i, v in enumerate(pmx.vertices):

@@ -34,12 +34,14 @@ class BoneTree:
                 | ImGui.ImGuiTableFlags_.RowBg
                 | ImGui.ImGuiTableFlags_.NoBordersInBody
             )
-            if ImGui.BeginTable("jsontree_table", 2, flags):
+            if ImGui.BeginTable("jsontree_table", 3, flags):
                 # header
                 ImGui.TableSetupColumn(
                     'name')
                 ImGui.TableSetupColumn(
                     'humanoid bone', ImGui.ImGuiTableColumnFlags_.WidthFixed, 24)
+                ImGui.TableSetupColumn(
+                    'deform', ImGui.ImGuiTableColumnFlags_.WidthFixed, 10)
 
                 ImGui.TableHeadersRow()
 
@@ -90,6 +92,10 @@ class BoneTree:
             self.scene.selected = node
         elif ImGui.IsItemClicked():
             self.scene.selected = None
+
+        # col 2
+        ImGui.TableNextColumn()
+        ImGui.TextUnformatted(f'O' if node.has_weighted_vertices else '')
 
         ImGui.PopStyleColor()
 
