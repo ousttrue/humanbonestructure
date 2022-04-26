@@ -90,17 +90,8 @@ class Scene:
         self._setup_model()
 
     def create_tpose_from(self, scene: 'Scene'):
-        def copy_tree(src: Node, dst: Node):
+        self.root = scene.root.copy_tree()
 
-            for s in src.children:
-                d = Node(s.index, s.name, s.init_trs,
-                         humanoid_bone=s.humanoid_bone)
-
-                dst.add_child(d)
-                copy_tree(s, d)
-
-        self.root = Node(-1, '__root__', Transform.identity())
-        copy_tree(scene.root, self.root)
         self._setup_model()
 
         # inverted pelvis

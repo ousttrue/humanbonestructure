@@ -171,3 +171,13 @@ class Node:
         self.world_matrix = parent * self._get_local()
         for child in self.children:
             child.calc_skinning(self.world_matrix)
+
+    def copy_tree(self) -> 'Node':
+        node = Node(self.index, self.name, self.init_trs,
+                    humanoid_bone=self.humanoid_bone)
+
+        for child in self.children:
+            child_copy = child.copy_tree()
+            node.add_child(child_copy)
+
+        return node
