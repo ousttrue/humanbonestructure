@@ -35,14 +35,11 @@ def build(gltf: gltf_loader.Gltf) -> Node:
 
     vrm = None
 
-    # vrm-0.x
-    human_bone_map: Dict[int, HumanoidBone] = gltf.get_vrm0_human_bone_map()
-    if human_bone_map:
+    if human_bone_map := gltf.get_vrm0_human_bone_map():
+        # vrm-0.x
         vrm = 0
-
-    # vrm-1.0
-    human_bone_map = gltf.get_vrm1_human_bone_map()
-    if human_bone_map:
+    elif human_bone_map := gltf.get_vrm1_human_bone_map():
+        # vrm-1.0
         vrm = 1
 
     def set_human_bone(i: int, node: Node):
