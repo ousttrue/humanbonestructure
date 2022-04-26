@@ -74,6 +74,10 @@ class Motion(abc.ABC):
         self.name = name
         self._parts_cache = None
 
+    @ abc.abstractmethod
+    def get_info(self) -> str:
+        raise NotImplementedError()
+
     def get_humanboneparts(self) -> Set[HumanoidBodyParts]:
         if self._parts_cache is None:
             self._parts_cache = set(bone.get_part()
@@ -96,6 +100,9 @@ class Empty(Motion):
     def __init__(self) -> None:
         super().__init__('__empty__')
         self.pose = Pose(self.name)
+
+    def get_info(self) -> str:
+        return 'empty'
 
     def get_humanbones(self) -> Set[HumanoidBone]:
         return set()

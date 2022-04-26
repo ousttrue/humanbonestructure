@@ -23,6 +23,8 @@ class GUI(dockspace.DockingGui):
         self.docks = [
             dockspace.Dock('pose_selector', self.selector.show,
                            (ctypes.c_bool * 1)(True)),
+            dockspace.Dock('pose_prop', self.selector.show_selected,
+                           (ctypes.c_bool * 1)(True)),
             dockspace.Dock('tcp_listener', self.tcp_listener.show,
                            (ctypes.c_bool * 1)(True)),
             dockspace.Dock('metrics', ImGui.ShowMetricsWindow,

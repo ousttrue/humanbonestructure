@@ -82,6 +82,8 @@ class TableSelector(Generic[T]):
         self.on_show = on_show
 
     def show(self, p_open):
+        if not p_open[0]:
+            return
         ImGui.SetNextWindowSize((100, 100), ImGui.ImGuiCond_.Once)
         if ImGui.Begin(self.name, p_open):
             if self.on_show:

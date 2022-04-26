@@ -63,6 +63,9 @@ class Vmd(Motion):
 
         return Vmd(name, model, list(bone_curves.values()))
 
+    def get_info(self) -> str:
+        return 'vmd: left-handed, A-stance, inverted-pelvis, ?seconds'
+
     def get_humanbones(self) -> Set[HumanoidBone]:
         return self._humanbones
 

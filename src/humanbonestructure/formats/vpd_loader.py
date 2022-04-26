@@ -35,6 +35,9 @@ class Vpd(Motion):
         self._humanbones = list(
             set(bone.humanoid_bone for bone in self.pose.bones if bone.humanoid_bone))
 
+    def get_info(self) -> str:
+        return 'vpd: left-handed, A-stance, inverted-pelvis'
+
     def __str__(self) -> str:
         return f'<{self.name}:{len(self.pose.bones)}bones>'
 
