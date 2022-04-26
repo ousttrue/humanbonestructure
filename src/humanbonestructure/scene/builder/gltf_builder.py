@@ -92,7 +92,7 @@ def build(gltf: gltf_loader.Gltf) -> Node:
 
             for i, src in enumerate(zip(*values)):
                 dst = vertices[vertex_offset]
-                if human_bone_map:
+                if vrm == 0:
                     dst.position = src[position_ref].rotate_y180()
                     dst.normal = src[normal_ref].rotate_y180()
                 else:
@@ -100,13 +100,17 @@ def build(gltf: gltf_loader.Gltf) -> Node:
                     dst.normal = src[normal_ref]
                 dst.uv = src[uv_ref]
 
-                if bone_ref and weight_ref:
+                if isinstance(bone_ref, int) and isinstance(weight_ref, int):
                     bones = src[bone_ref]
                     weights = src[weight_ref]
 
                     dst.bone = buffer_types.Float4(
                         bones.x, bones.y, bones.z, bones.w)
                     dst.weight = weights
+                else:
+                    # 0 番に identity 行列を入れて rendering する
+                    dst.bone = buffer_types.Float4(0, 0, 0, 0)
+                    dst.weight = buffer_types.Float4(1, 1, 1, 1)
 
                 vertex_offset += 1
 

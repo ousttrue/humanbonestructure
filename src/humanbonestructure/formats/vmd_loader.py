@@ -74,4 +74,4 @@ class Vmd(Motion):
         for curve in self.curves:
             t = curve.get_transform(frame)
             self._pose.bones.append(
-                BonePose(curve.name, curve.humanoid_bone, t))
+                BonePose(curve.name, curve.humanoid_bone, t).reverse_z())

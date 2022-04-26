@@ -11,6 +11,10 @@ class BonePose(NamedTuple):
     humanoid_bone: Optional[HumanoidBone]
     transform: Transform
 
+    def reverse_z(self) -> 'BonePose':
+        t = self.transform.reverse_z()
+        return self._replace(transform=t)
+
 
 class Pose:
     def __init__(self, name: str):
@@ -33,21 +37,26 @@ class Pose:
             self._parts[part] = value
         return value
 
-    def to_json(self, root: Node) -> Dict[str, Tuple[float, float, float, float]]:
+    def to_json(self) -> Dict[str, Tuple[float, float, float, float]]:
 
-        node_map = {node.humanoid_bone: node for node,
-                    _ in root.traverse_node_and_parent() if node.humanoid_bone and node.humanoid_bone != HumanoidBone.endSite}
+        # node_map = {node.humanoid_bone: node for node,
+        #             _ in root.traverse_node_and_parent() if node.humanoid_bone and node.humanoid_bone != HumanoidBone.endSite}
 
         def float4(q) -> Tuple[float, float, float, float]:
             return (q.x, q.y, q.z, q.w)
         bone_map: Dict[str, Tuple[float, float, float, float]] = {}
         for bone in self.bones:
             assert bone.humanoid_bone
-            node = node_map[bone.humanoid_bone]
-            if node and node.pose:
-                q = glm.inverse(node.pose.rotation) * bone.transform.rotation
-                bone_map[bone.humanoid_bone.name] = float4(q)
+            # node = node_map[bone.humanoid_bone]
+            # if node and node.pose:
+            #     q = glm.inverse(node.pose.rotation) * bone.transform.rotation
+            #     bone_map[bone.humanoid_bone.name] = float4(q)
+            if bone.humanoid_bone:
+                bone_map[bone.humanoid_bone.name] = float4(
+                    bone.transform.rotation)
 
+        if not bone_map:
+            pass
         return bone_map
 
     @staticmethod

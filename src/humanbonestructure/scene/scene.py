@@ -25,7 +25,6 @@ class Scene:
         # scene
         self.root = Node(-1, '__root__', Transform.identity())
         self.is_mmd = False
-        self.mask = None
         self.gizmo = Gizmo()
         self.skeleton = None
         self.selected: Optional[Node] = None
@@ -176,17 +175,18 @@ class Scene:
 
         self.root.clear_pose()
 
-        def conv(bone: vpd_loader.BonePose):
-            t = bone.transform.reverse_z()
-            return t
+        # debug
+        # pose = Pose.from_json(pose.name, pose.to_json())
 
         # assign pose to node hierarchy
         for bone in pose.bones:
             if bone.humanoid_bone:
                 node = self.humanoid_node_map.get(bone.humanoid_bone)
                 if node:
-                    if self.mask and not self.mask(bone.humanoid_bone):
-                        continue
-                    node.pose = conv(bone)
+                    node.pose = bone.transform
+                else:
+                    raise RuntimeError()
+            else:
+                raise RuntimeError()
 
         self.root.calc_skinning(glm.mat4())

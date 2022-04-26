@@ -31,7 +31,10 @@ class MeshRenderer:
             joints = []
         self.joints = joints
         self.drawable: Optional[glo.Drawable] = None
-        self.bone_matrices = glm.array.zeros(len(self.joints), glm.mat4)
+        if self.joints:
+            self.bone_matrices = glm.array.zeros(len(self.joints), glm.mat4)
+        else:
+            self.bone_matrices = glm.array.zeros(1, glm.mat4)
 
     def render(self, camera: Camera, node: Optional[Node] = None):
         if not self.vertices or not self.indices:
@@ -50,7 +53,7 @@ class MeshRenderer:
 
             def update_bone_matrices():
                 bone_matrices.set_mat4(
-                    self.bone_matrices.ptr, count=len(self.joints))
+                    self.bone_matrices.ptr, count=len(self.bone_matrices))
 
             props.append(update_bone_matrices)
 
@@ -99,8 +102,11 @@ class MeshRenderer:
         #     self.drawable.vao.vbo.set_vertices(self.vertices)
 
         # gpu skinning
-        for i, joint in enumerate(self.joints):
-            self.bone_matrices[i] = joint.skinning_matrix
+        if self.joints:
+            for i, joint in enumerate(self.joints):
+                self.bone_matrices[i] = joint.skinning_matrix
+        else:
+            self.bone_matrices[0] = glm.mat4()
 
         GL.glEnable(GL.GL_CULL_FACE)
         GL.glEnable(GL.GL_DEPTH_TEST)

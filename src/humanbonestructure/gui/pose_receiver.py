@@ -40,6 +40,7 @@ class PoseReceiver:
 
                 body = await reader.read(length)
                 data = json.loads(body)
+                print(json.dumps(data, indent=2))
 
                 pose = Pose.from_json(f'pose#{count}', data)
                 self.status = str(pose)

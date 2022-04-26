@@ -31,6 +31,7 @@ class Vpd(Motion):
     def __init__(self, pose: Pose):
         super().__init__(pose.name)
         self.pose = pose
+
         self._humanbones = list(
             set(bone.humanoid_bone for bone in self.pose.bones if bone.humanoid_bone))
 
@@ -86,4 +87,6 @@ class Vpd(Motion):
 
         assert len(pose.bones) == count
 
+        for i, bone in enumerate(pose.bones):
+            pose.bones[i] = bone.reverse_z()
         return Vpd(pose)

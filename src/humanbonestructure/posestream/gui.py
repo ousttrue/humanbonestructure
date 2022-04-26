@@ -16,8 +16,6 @@ class GUI(dockspace.DockingGui):
         from .motion_selector import MotionSelector
         self.selector = MotionSelector()
 
-        self.selector.pose_generator.pose_event += self._on_pose
-
         from pydear.utils.loghandler import ImGuiLogHandler
         log_handler = ImGuiLogHandler()
         log_handler.register_root(append=True)
@@ -39,6 +37,9 @@ class GUI(dockspace.DockingGui):
         scene = self._load_scene(model_path.name)
         scene.load_model(model_path)
         tpose.make_tpose(scene.root, is_inverted_pelvis=scene.is_mmd)
+
+        # must be after scene set_pose
+        self.selector.pose_generator.pose_event += self._on_pose
 
     def _load_scene(self, name: str) -> Scene:
         self.scene = Scene(name)
@@ -77,7 +78,9 @@ class GUI(dockspace.DockingGui):
         io.Fonts.Build()
 
     def _on_pose(self, pose: Pose):
-        data = pose.to_json(self.scene.root)
+        data = pose.to_json()
         import json
         bin = json.dumps(data)
+        # debug
+        print(json.dumps(data, indent=2))
         self.tcp_listener.send(bin.encode('utf-8'))
