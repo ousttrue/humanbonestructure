@@ -103,19 +103,20 @@ class Scene:
         copy_tree(scene.root, self.root)
         self._setup_model()
 
-        if scene.is_mmd:
-            node_pos_map: Dict[HumanoidBone, glm.vec3] = {
-                node.humanoid_bone: node.world_matrix[3].xyz for node, _ in scene.root.traverse_node_and_parent() if node.humanoid_bone}
+        # inverted pelvis
+        # if scene.is_mmd:
+        #     node_pos_map: Dict[HumanoidBone, glm.vec3] = {
+        #         node.humanoid_bone: node.world_matrix[3].xyz for node, _ in scene.root.traverse_node_and_parent() if node.humanoid_bone}
 
-            hips = self.root.find_humanoid_bone(HumanoidBone.hips)
-            assert hips
-            spine = self.root.find_humanoid_bone(HumanoidBone.spine)
-            assert spine
-            spine.init_trs = spine.init_trs._replace(
-                translation=node_pos_map[HumanoidBone.hips.spine]-node_pos_map[HumanoidBone.hips])
-            hips.name = 'hips'
-            hips.add_child(spine, insert=True)
-            hips.humanoid_tail = spine
+        #     hips = self.root.find_humanoid_bone(HumanoidBone.hips)
+        #     assert hips
+        #     spine = self.root.find_humanoid_bone(HumanoidBone.spine)
+        #     assert spine
+        #     spine.init_trs = spine.init_trs._replace(
+        #         translation=node_pos_map[HumanoidBone.hips.spine]-node_pos_map[HumanoidBone.hips])
+        #     hips.name = 'hips'
+        #     hips.add_child(spine, insert=True)
+        #     hips.humanoid_tail = spine
 
         # tpose
         tpose.make_tpose(self.root)

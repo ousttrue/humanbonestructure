@@ -5,14 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "posestream",
+            "name": "mmdpose",
             "type": "python",
             "request": "launch",
-            "module": "humanbonestructure.posestream",
+            "module": "humanbonestructure.mmdpose",
             "args": [
-                "${env:MMD_DATA}/Tda式初音ミクアペンドVer1.10/Tda式初音ミクアペンド_Ver1.10.pmx",
-                "--asset_dir",
                 "${env:MMD_DATA}",
+                "${env:MMD_DATA}/Tda式初音ミクアペンドVer1.10/Tda式初音ミクアペンド_Ver1.10.pmx",
             ],
             "env": {
                 "PYTHONPATH": "${workspaceFolder}/src",
@@ -21,16 +20,16 @@
             "justMyCode": false
         },
         {
-            "name": "pose",
+            "name": "recv",
             "type": "python",
             "request": "launch",
-            "module": "humanbonestructure",
+            "module": "humanbonestructure.recv",
             "args": [
                 // "${env:MMD_DATA}/Model/カイト.pmd",
                 // "${env:MMD_DATA}/Tda式初音ミクアペンドVer1.10/Tda式初音ミクアペンド_Ver1.10.pmx",
                 // "${env:GLTF_SAMPLE_MODELS}/2.0/CesiumMan/glTF-Binary/CesiumMan.glb",
-                // "${env:VRM_SAMPLES}/vroid/vivi.vrm",
-                "${env:MMD_DATA}/Model/unitychan.vrm",
+                "${env:VRM_SAMPLES}/vroid/vivi.vrm",
+                // "${env:MMD_DATA}/Model/unitychan.vrm",
                 // "--create",
                 // "--tpose",
                 // "--asset_dir",

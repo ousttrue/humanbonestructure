@@ -18,7 +18,7 @@ class GUI(dockspace.DockingGui):
         log_handler = ImGuiLogHandler()
         log_handler.register_root(append=True)
 
-        from .pose_receiver import PoseReceiver
+        from ..gui.pose_receiver import PoseReceiver
         self.receiver = PoseReceiver()
 
         self.docks = [
@@ -52,19 +52,19 @@ class GUI(dockspace.DockingGui):
         self.receiver.pose_event += scene.set_pose
 
         tree_name = f'tree:{name}'
-        from .bone_tree import BoneTree
+        from ..gui.bone_tree import BoneTree
         tree = BoneTree(tree_name, scene)
         self.views.append(dockspace.Dock(tree_name, tree.show,
                                          (ctypes.c_bool * 1)(True)))
 
         prop_name = f'prop:{name}'
-        from .bone_prop import BoneProp
+        from ..gui.bone_prop import BoneProp
         prop = BoneProp(prop_name, scene)
         self.views.append(dockspace.Dock(
             prop_name, prop.show, (ctypes.c_bool*1)(True)))
 
         view_name = f'view:{name}'
-        from .scene_view import SceneView
+        from ..gui.scene_view import SceneView
         view = SceneView(view_name, scene)
         self.views.append(dockspace.Dock(view_name, view.show,
                                          (ctypes.c_bool * 1)(True)))

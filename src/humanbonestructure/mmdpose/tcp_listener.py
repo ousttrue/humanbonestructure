@@ -52,7 +52,7 @@ class TcpListener:
         if self.last_data:
             connection.send(self.last_data)
 
-    def start(self, loop: asyncio.events.AbstractEventLoop, *, port=12721):
+    def start(self, loop: asyncio.events.AbstractEventLoop, port: int):
         loop.create_task(self._task(port))
 
     def show(self, p_open):
