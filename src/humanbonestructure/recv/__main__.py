@@ -22,11 +22,6 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('model')
-    parser.add_argument('--asset_dir')
-    # parser.add_argument('--create', action='store_true',
-    #                     help='create model procedual')
-    # parser.add_argument('--tpose', action='store_true',
-    #                     help='tpose')
 
     args = parser.parse_args()
 
@@ -38,17 +33,6 @@ def main():
 
     # load model
     gui.add_model(pathlib.Path(args.model))
-
-    # if args.create:
-    #     gui.create_model()
-
-    gui.add_tpose()
-
-    # if gui.scenes:
-    #     scene = gui.scenes[0]
-    #     from .formats.tpose import TPose
-    #     gui.pose_generator.motion_list.items.insert(
-    #         1, TPose(scene.name, scene.root))
 
     app.loop.create_task(gui.receiver.connect_async('127.0.0.1', 12721))
 

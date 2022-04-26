@@ -75,6 +75,11 @@ class GUI(dockspace.DockingGui):
         scene = self._add_scene(path.stem)
         scene.load_model(path)
 
+        # tpose にして受けれるようにする
+        from ..formats import tpose
+        tpose.make_tpose(scene.root)
+        delta_map = tpose.pose_to_init(scene.root)
+
     def create_model(self):
         scene = self._add_scene('generate')
         scene.create_model()
