@@ -1,4 +1,4 @@
-from typing import Optional, List, Tuple
+from typing import Optional
 import logging
 import ctypes
 from OpenGL import GL
@@ -69,37 +69,6 @@ class MeshRenderer:
 
             self.drawable = glo.Drawable(vao)
             self.drawable.push_submesh(shader, len(self.indices), props)
-
-        # cpu skinning
-        # if self.skinning_info and self.joints:
-        #     for info, v in zip(self.skinning_info, self.vertices):
-
-        #         mat_sum = glm.mat4(0)
-
-        #         if info.weight4.x > 0:
-        #             node = self.joints[info.bone4.x]
-        #             mat = node.skinning_matrix
-        #             mat_sum += mat * info.weight4.x
-        #         if info.weight4.y > 0:
-        #             node = self.joints[info.bone4.y]
-        #             mat = node.skinning_matrix
-        #             mat_sum += mat * info.weight4.y
-        #         if info.weight4.z > 0:
-        #             node = self.joints[info.bone4.z]
-        #             mat = node.skinning_matrix
-        #             mat_sum += mat * info.weight4.z
-        #         if info.weight4.w > 0:
-        #             node = self.joints[info.bone4.w]
-        #             mat = node.skinning_matrix
-        #             mat_sum += mat * info.weight4.w
-
-        #         p = info.position
-        #         dst = mat_sum * glm.vec3(p.x, p.y, p.z)
-        #         v.position.x = dst.x
-        #         v.position.y = dst.y
-        #         v.position.z = dst.z
-
-        #     self.drawable.vao.vbo.set_vertices(self.vertices)
 
         # gpu skinning
         if self.joints:

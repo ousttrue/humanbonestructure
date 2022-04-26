@@ -5,10 +5,10 @@ import logging
 import glm
 from pydear.scene.camera import Camera
 from pydear.scene.gizmo import Gizmo
-from ..formats import pmd_loader, gltf_loader, vpd_loader, pmx_loader, bvh_parser
+from ..formats import pmd_loader, gltf_loader, pmx_loader, bvh_parser
 from ..formats import tpose
 from ..formats.transform import Transform
-from ..formats.pose import Pose, Motion
+from ..formats.pose import Pose
 from ..formats.humanoid_bones import HumanoidBone
 from .node import Node
 from .skeleton import Skeleton
@@ -139,14 +139,18 @@ class Scene:
             # self.gizmo.axis(1)
             self.gizmo.ground_mark()
 
+            # bone gizmo
+            selected = None
             for bone, _ in self.root.traverse_node_and_parent():
                 if bone.humanoid_bone:
                     assert bone.humanoid_tail
                     # bone
-                    self.gizmo.bone_head_tail(bone.humanoid_bone.name,
-                                              bone.world_matrix[3].xyz, bone.humanoid_tail.world_matrix[3].xyz, glm.vec3(
-                                                  0, 0, 1),
-                                              is_selected=bone == self.selected)
+                    if self.gizmo.bone_head_tail(bone.humanoid_bone.name,
+                                                 bone.world_matrix[3].xyz, bone.humanoid_tail.world_matrix[3].xyz, glm.vec3(
+                                                     0, 0, 1),
+                                                 is_selected=(bone == self.selected)):
+                        selected = bone
+
                     # axis
                     self.gizmo.matrix = (
                         bone.world_matrix * glm.mat4(bone.local_axis))
@@ -156,6 +160,10 @@ class Scene:
                     self.gizmo.line(glm.vec3(0), glm.vec3(0, 0.02, 0))
                     self.gizmo.color = glm.vec4(0, 0, 1, 1)
                     self.gizmo.line(glm.vec3(0), glm.vec3(0, 0, 0.02))
+
+            if selected:
+                LOGGER.debug(f'selected: {selected}')
+                self.selected = selected
 
             self.gizmo.end()
 
@@ -174,9 +182,6 @@ class Scene:
             return
 
         self.root.clear_pose()
-
-        # debug
-        # pose = Pose.from_json(pose.name, pose.to_json())
 
         # assign pose to node hierarchy
         for bone in pose.bones:
