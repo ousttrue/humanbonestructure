@@ -1,4 +1,3 @@
-import math
 import logging
 import array
 import ctypes
@@ -34,12 +33,8 @@ void main()
 """
 
 
-def to_radian(degree):
-    return degree / 180.0 * math.pi
-
-
 class Bone(NamedTuple):
-    offset: bvh_parser.Float3
+    offset: glm.vec3
     head: bvh_parser.Node
     tail: Optional[bvh_parser.Node] = None
 
@@ -49,9 +44,10 @@ class BvhSkeleton:
         self.bvh = bvh
         self.channel_count = bvh.root.get_channel_count()
         self.bones: List[Bone] = []
-        self._build(bvh.root, bvh_parser.Float3(0, 0, 0))
+        self._build(bvh.root, glm.vec3(0, 0, 0))
         self.channels = []
         # glo
+        self.vertices = None
         self.drawable = None
         self.shader = None
         self.props = []
@@ -93,8 +89,7 @@ class BvhSkeleton:
             self.props.append(set_vp)
 
             # vertices
-
-            vertices = (bvh_parser.Float3 * len(self.bones))()
+            self.vertices = (ctypes.c_float * (3 * len(self.bones)))()
             self.indices = array.array('H')
 
             def get_index(node: bvh_parser.Node):
@@ -103,15 +98,21 @@ class BvhSkeleton:
                         return i
                 raise Exception()
 
+            j = 0
             for i, bone in enumerate(self.bones):
                 head = bone.offset + bone.head.offset
-                vertices[i] = head
+                self.vertices[j] = head.x
+                j += 1
+                self.vertices[j] = head.y
+                j += 1
+                self.vertices[j] = head.z
+                j += 1
                 if bone.tail:
                     self.indices.append(i)
                     self.indices.append(get_index(bone.tail))
 
             vbo = glo.Vbo()
-            vbo.set_vertices(vertices, is_dynamic=True)
+            vbo.set_vertices(self.vertices, is_dynamic=True)
 
             ibo = glo.Ibo()
             ibo.set_indices(
@@ -130,23 +131,11 @@ class BvhSkeleton:
         '''
         行ベクトル。左右逆で
         '''
-        offset = glm.translate(node.offset.x, node.offset.y, node.offset.z)
-        match node.channels:
-            case bvh_parser.Channels.PosXYZ_RotZXY:
-                t = glm.translate(next(it), next(it), next(it))
-                z = glm.angleAxis(to_radian(next(it)), glm.vec3(0, 0, 1))
-                x = glm.angleAxis(to_radian(next(it)), glm.vec3(1, 0, 0))
-                y = glm.angleAxis(to_radian(next(it)), glm.vec3(0, 1, 0))
-                # m = y * x * z * t * offset * parent
-                m = parent * offset * t * z * x * y
-            case bvh_parser.Channels.RotZXY:
-                z = glm.angleAxis(to_radian(next(it)), glm.vec3(0, 0, 1))
-                x = glm.angleAxis(to_radian(next(it)), glm.vec3(1, 0, 0))
-                y = glm.angleAxis(to_radian(next(it)), glm.vec3(0, 1, 0))
-                # m = y * x * z * offset * parent
-                m = parent * offset * z * x * y
-            case _:
-                m = parent * offset
+        offset = glm.translate(node.offset)
+        if node.channels:
+            m = parent * offset * node.channels.get_matrix(it)
+        else:
+            m = parent * offset
 
         self.matrices.append(m)
         for child in node.children:
@@ -159,9 +148,15 @@ class BvhSkeleton:
         self._set_frame(iter(data), self.bvh.root,
                         glm.mat4())
 
-        vertices = (bvh_parser.Float3 * len(self.matrices))()
+        assert self.vertices
+        j = 0
         for i, m in enumerate(self.matrices):
             p = m[3].xyz
-            vertices[i] = bvh_parser.Float3(p.x, p.y, p.z)
+            self.vertices[j] = p.x
+            j += 1
+            self.vertices[j] = p.y
+            j += 1
+            self.vertices[j] = p.z
+            j += 1
         if self.drawable:
-            self.drawable.vbo.update(vertices)
+            self.drawable.vbo.update(self.vertices)

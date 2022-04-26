@@ -1,47 +1,68 @@
 from typing import Iterable, NamedTuple, Iterator, Optional, List
 from enum import Enum, auto
 import ctypes
+import math
+import glm
+
+
+def to_radian(degree):
+    return degree / 180.0 * math.pi
 
 
 class Channels(Enum):
+    # ZXY
     PosXYZ_RotZXY = auto()
     RotZXY = auto()
+    # ZYX
+    PosXYZ_RotZYX = auto()
+    RotZYX = auto()
+
+    def count(self) -> int:
+        match self:
+            case (Channels.PosXYZ_RotZXY | Channels.PosXYZ_RotZYX):
+                return 6
+            case (Channels.RotZXY | Channels.RotZYX):
+                return 3
+            case _:
+                return 0
+
+    def get_matrix(self, it) -> glm.mat4:
+        match self:
+            # zxy
+            case Channels.PosXYZ_RotZXY:
+                t = glm.translate(glm.vec3(next(it), next(it), next(it)))
+                z = glm.angleAxis(to_radian(next(it)), glm.vec3(0, 0, 1))
+                x = glm.angleAxis(to_radian(next(it)), glm.vec3(1, 0, 0))
+                y = glm.angleAxis(to_radian(next(it)), glm.vec3(0, 1, 0))
+                return t * glm.mat4(z * x * y)
+            case Channels.RotZXY:
+                z = glm.angleAxis(to_radian(next(it)), glm.vec3(0, 0, 1))
+                x = glm.angleAxis(to_radian(next(it)), glm.vec3(1, 0, 0))
+                y = glm.angleAxis(to_radian(next(it)), glm.vec3(0, 1, 0))
+                return glm.mat4(z * x * y)
+            # zyx
+            case Channels.PosXYZ_RotZYX:
+                t = glm.translate(glm.vec3(next(it), next(it), next(it)))
+                z = glm.angleAxis(to_radian(next(it)), glm.vec3(0, 0, 1))
+                y = glm.angleAxis(to_radian(next(it)), glm.vec3(0, 1, 0))
+                x = glm.angleAxis(to_radian(next(it)), glm.vec3(1, 0, 0))
+                return t * glm.mat4(z * y * x)
+            case Channels.RotZYX:
+                z = glm.angleAxis(to_radian(next(it)), glm.vec3(0, 0, 1))
+                y = glm.angleAxis(to_radian(next(it)), glm.vec3(0, 1, 0))
+                x = glm.angleAxis(to_radian(next(it)), glm.vec3(1, 0, 0))
+                return glm.mat4(z * y * x)
+            case _:
+                raise NotImplementedError()
 
 
-def channel_count(channels: Optional[Channels]):
-    match channels:
-        case Channels.PosXYZ_RotZXY:
-            return 6
-        case Channels.RotZXY:
-            return 3
-        case _:
-            return 0
-
-
-class BvhExceptin(RuntimeError):
+class BvhException(RuntimeError):
     pass
-
-
-class Float3(ctypes.Structure):
-    _fields_ = [
-        ('x', ctypes.c_float),
-        ('y', ctypes.c_float),
-        ('z', ctypes.c_float),
-    ]
-
-    def __str__(self) -> str:
-        return f'[{self.x}, {self.y}, {self.z}]'
-
-    def __add__(self, rhs: 'Float3') -> 'Float3':
-        return Float3(self.x + rhs.x, self.y + rhs.y, self.z + rhs.z)
-
-    def __mul__(self, f: float) -> 'Float3':
-        return Float3(self.x * f, self.y * f, self.z * f)
 
 
 class Node(NamedTuple):
     name: Optional[str]  # End site has no name
-    offset: Float3
+    offset: glm.vec3
     channels: Optional[Channels]
     children: List['Node']
 
@@ -60,26 +81,34 @@ class Node(NamedTuple):
     def get_channel_count(self) -> int:
         count = 0
         for node in self.traverse():
-            count += channel_count(node.channels)
+            if node.channels:
+                count += node.channels.count()
         return count
 
 
 def parse_offset_channels(it: Iterator[str], name: Optional[str]) -> Node:
     if next(it).strip() != '{':
-        raise BvhExceptin()
+        raise BvhException()
     offset = next(it).strip()
     node = None
     match offset.split():
         case 'OFFSET', x, y, z:
-            offset = Float3(float(x), float(y), float(z))
+            offset = glm.vec3(float(x), float(y), float(z))
             if name:
                 channels = next(it).strip()
                 node = None
                 match channels.split():
+                    # ZXY
                     case 'CHANNELS', '6', 'Xposition', 'Yposition', 'Zposition', 'Zrotation', 'Xrotation', 'Yrotation':
                         node = Node(name, offset, Channels.PosXYZ_RotZXY, [])
                     case 'CHANNELS', '3', 'Zrotation', 'Xrotation', 'Yrotation':
                         node = Node(name, offset, Channels.RotZXY, [])
+                    # ZYX
+                    case 'CHANNELS', '6', 'Xposition', 'Yposition', 'Zposition', 'Zrotation', 'Yrotation', 'Xrotation':
+                        node = Node(name, offset, Channels.PosXYZ_RotZYX, [])
+                    case 'CHANNELS', '3', 'Zrotation', 'Yrotation', 'Xrotation':
+                        node = Node(name, offset, Channels.RotZYX, [])
+                    #
                     case _:
                         # CHANNELS 6 Xposition Yposition Zposition Yrotation Xrotation Zrotation
                         # CHANNELS 6 Xposition Yposition Zposition Zrotation Yrotation Xrotation
@@ -96,9 +125,9 @@ def parse_offset_channels(it: Iterator[str], name: Optional[str]) -> Node:
                 node = Node(name, offset, None, [])
                 close = next(it).strip()
                 if close != '}':
-                    raise BvhExceptin()
+                    raise BvhException()
         case _:
-            raise BvhExceptin('OFFSET not found')
+            raise BvhException('OFFSET not found')
     return node
 
 
@@ -114,11 +143,12 @@ def parse_recursive(it: Iterator[str], head: str) -> Node:
             raise NotImplementedError()
 
 
-class Bvh(NamedTuple):
-    root: Node
-    frametime: float
-    frames: int
-    data: ctypes.Array
+class Bvh:
+    def __init__(self, root: Node, frametime: float, frames: int, data: ctypes.Array) -> None:
+        self.root = root
+        self.frametime = frametime
+        self.frames = frames
+        self.data = data
 
     def get_seconds(self):
         return self.frametime * self.frames
@@ -127,24 +157,24 @@ class Bvh(NamedTuple):
 def parse(src: str) -> Bvh:
     it = iter(src.splitlines())
     if next(it) != 'HIERARCHY':
-        raise BvhExceptin('HIERARCHY not found')
+        raise BvhException('HIERARCHY not found')
 
     head = next(it).strip()
     root = parse_recursive(it, head)
     if not root:
-        raise BvhExceptin('no ROOT')
+        raise BvhException('no ROOT')
 
     if next(it) != 'MOTION':
-        raise BvhExceptin('MOTION not found')
+        raise BvhException('MOTION not found')
 
     frames = next(it).strip()
     if not frames.startswith('Frames:'):
-        raise BvhExceptin('Frames: not found')
+        raise BvhException('Frames: not found')
     frames = int(frames[7:])
 
     frametime = next(it).strip()
     if not frametime.startswith('Frame Time:'):
-        raise BvhExceptin('Frame Time: not found')
+        raise BvhException('Frame Time: not found')
     frametime = float(frametime[11:])
 
     channel_count = root.get_channel_count()

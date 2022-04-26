@@ -19,6 +19,12 @@
         "TEXCOORD",
         "tobytes",
         "toon",
-        "tpose"
+        "tpose",
+        "Xposition",
+        "Xrotation",
+        "Yposition",
+        "Yrotation",
+        "Zposition",
+        "Zrotation"
     ],
 }
