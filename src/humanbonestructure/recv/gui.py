@@ -77,8 +77,9 @@ class GUI(dockspace.DockingGui):
 
         # tpose にして受けれるようにする
         from ..formats import tpose
-        tpose.make_tpose(scene.root)
+        tpose.make_tpose(scene.root, is_inverted_pelvis=scene.is_mmd)
         delta_map = tpose.pose_to_init(scene.root)
+        tpose.local_axis_fit_world(scene.root)
 
     def create_model(self):
         scene = self._add_scene('generate')

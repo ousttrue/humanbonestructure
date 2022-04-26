@@ -44,11 +44,18 @@ class GUI(dockspace.DockingGui):
         scene.load_model(model_path)
         # make tpose for pose conversion
         tpose.make_tpose(scene.root, is_inverted_pelvis=True)
+        tpose.local_axis_fit_world(scene.root)
         self.tpose_delta: Dict[HumanoidBone, glm.quat] = {}
         for node, _ in scene.root.traverse_node_and_parent():
             if node.humanoid_bone and node.pose:
-                self.tpose_delta[node.humanoid_bone] = glm.inverse(
+                self.tpose_delta[node.humanoid_bone] = glm.inverse(node.local_axis) * glm.inverse(
                     node.pose.rotation)
+
+        # clear
+        for node, _ in scene.root.traverse_node_and_parent():
+            if node.humanoid_bone and node.pose:
+                node.local_axis = glm.quat()
+                node.pose = None
 
         # must be after scene set_pose
         self.selector.pose_generator.pose_event += self._on_pose
