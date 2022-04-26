@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 import ctypes
 import glm
 from ...formats import gltf_loader, buffer_types
@@ -31,15 +31,24 @@ CESIUMMAN_HUMANOID_MAP = {
 }
 
 
-def build(gltf) -> Node:
+def build(gltf: gltf_loader.Gltf) -> Node:
+
+    vrm = None
 
     # vrm-0.x
-    human_bone_map = gltf.get_vrm_human_bone_map()
+    human_bone_map: Dict[int, HumanoidBone] = gltf.get_vrm0_human_bone_map()
+    if human_bone_map:
+        vrm = 0
+
+    # vrm-1.0
+    human_bone_map = gltf.get_vrm1_human_bone_map()
+    if human_bone_map:
+        vrm = 1
 
     def set_human_bone(i: int, node: Node):
         human_bone = human_bone_map.get(i)
         if human_bone:
-            node.humanoid_bone = HumanoidBone(human_bone)
+            node.humanoid_bone = human_bone
             return
 
         # cesium man !
@@ -58,7 +67,6 @@ def build(gltf) -> Node:
         indices = (ctypes.c_uint16 * indices_len)()
         vertex_offset = 0
         index_offset = 0
-        # skinning_info = [None] * vertices_len
 
         for prim in gltf_mesh['primitives']:
             # merge indices
@@ -78,8 +86,8 @@ def build(gltf) -> Node:
             position_ref = keys['POSITION']
             normal_ref = keys['NORMAL']
             uv_ref = keys['TEXCOORD_0']
-            bone_ref = keys['JOINTS_0']
-            weight_ref = keys['WEIGHTS_0']
+            bone_ref = keys.get('JOINTS_0')
+            weight_ref = keys.get('WEIGHTS_0')
             values = [v for k, v, in attributes]
 
             for i, src in enumerate(zip(*values)):
@@ -92,16 +100,15 @@ def build(gltf) -> Node:
                     dst.normal = src[normal_ref]
                 dst.uv = src[uv_ref]
 
-                bones = src[bone_ref]
-                weights = src[weight_ref]
+                if bone_ref and weight_ref:
+                    bones = src[bone_ref]
+                    weights = src[weight_ref]
 
-                dst.bone = buffer_types.Float4(
-                    bones.x, bones.y, bones.z, bones.w)
-                dst.weight = weights
+                    dst.bone = buffer_types.Float4(
+                        bones.x, bones.y, bones.z, bones.w)
+                    dst.weight = weights
 
                 vertex_offset += 1
-
-            # vertex_offset += len(values[0])
 
         assert vertex_offset == len(vertices)
         assert index_offset == len(indices)
@@ -112,14 +119,14 @@ def build(gltf) -> Node:
     for i, gltf_node in enumerate(gltf.gltf.get('nodes', [])):
         name = gltf_node.get('name', f'{i}')
         t, r, s = gltf_loader.get_trs(gltf_node)
-        if human_bone_map:
+        if vrm == 0:
             # vrm-0.x: rotate y180
+            # TODO: if not normalized
             t = glm.vec3(-t.x, t.y, -t.z)
         node = Node(i, name, Transform(t, r, s))
-        # if human_bones
         set_human_bone(i, node)
-
         nodes.append(node)
+
     for gltf_node, node in zip(gltf.gltf.get('nodes', []), nodes):
         for child_index in gltf_node.get('children', []):
             child = nodes[child_index]
@@ -149,7 +156,8 @@ def build(gltf) -> Node:
                     node.renderer = MeshRenderer("assets/shader",
                                                  vertices, indices)
             else:
-                raise NotImplementedError()
+                node.renderer = MeshRenderer("assets/shader",
+                                             vertices, indices)
 
     root = Node(-1, '__root__', Transform.identity())
     for node in nodes:

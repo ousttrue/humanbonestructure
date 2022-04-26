@@ -7,6 +7,7 @@ import logging
 import glm
 from . import typed_gltf
 from .buffer_types import Float2, Float3, Float4, UShort4, Mat4
+from .humanoid_bones import HumanoidBone
 LOGGER = logging.getLogger(__name__)
 
 
@@ -31,12 +32,22 @@ class Gltf:
         self.bin = bin
         self.base_dir = base_dir
 
-    def get_vrm_human_bone_map(self) -> Dict[int, str]:
-        if extensinos := self.gltf.get('extensions'):
-            if vrm := extensinos.get('VRM'):
-                if humanoid := vrm.get('humanoid'):
+    def get_vrm0_human_bone_map(self) -> Dict[int, HumanoidBone]:
+        if extensions := self.gltf.get('extensions'):
+            if vrm0 := extensions.get('VRM'):
+                # vrm-0.x
+                if humanoid := vrm0.get('humanoid'):
                     if human_bones := humanoid.get('humanBones'):
-                        return {b['node']: b['bone'] for b in human_bones}
+                        return {b['node']: HumanoidBone(b['bone']) for b in human_bones}
+        return {}
+
+    def get_vrm1_human_bone_map(self) -> Dict[int, HumanoidBone]:
+        if extensions := self.gltf.get('extensions'):
+            if vrm1 := extensions.get('VRMC_vrm'):
+                # vrm-1.0
+                if humanoid := vrm1.get('humanoid'):
+                    if human_bones := humanoid.get('humanBones'):
+                        return {v['node']: HumanoidBone(k) for k, v in human_bones.items()}
         return {}
 
     @staticmethod
