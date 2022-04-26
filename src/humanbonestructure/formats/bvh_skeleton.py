@@ -4,7 +4,7 @@ import ctypes
 from typing import List, NamedTuple, Iterator, Optional
 from OpenGL import GL
 import glm
-from . import bvh_parser
+from ..formats import bvh_parser
 from pydear import glo
 from pydear.scene.camera import Camera
 

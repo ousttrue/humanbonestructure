@@ -5,7 +5,7 @@ import logging
 import glm
 from pydear.scene.camera import Camera
 from pydear.scene.gizmo import Gizmo
-from ..formats import pmd_loader, gltf_loader, vpd_loader, pmx_loader
+from ..formats import pmd_loader, gltf_loader, vpd_loader, pmx_loader, bvh_parser
 from ..formats import tpose
 from ..formats.transform import Transform
 from ..formats.pose import Pose, Motion
@@ -76,6 +76,13 @@ class Scene:
         LOGGER.debug(gltf)
         from .builder import gltf_builder
         self.root = gltf_builder.build(gltf)
+        self._setup_model()
+
+    def load_bvh(self, path: pathlib.Path):
+        bvh = bvh_parser.parse(path.read_text(encoding='utf-8'))
+        LOGGER.debug(bvh)
+        from .builder import bvh_builder
+        self.root = bvh_builder.build(bvh)
         self._setup_model()
 
     def create_model(self):

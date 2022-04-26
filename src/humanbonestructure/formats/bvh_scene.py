@@ -1,7 +1,9 @@
 from OpenGL import GL
 from pydear.scene.camera import Camera
 from pydear.scene.gizmo import Gizmo
-from . import bvh_skeleton, bvh_parser
+
+from ..formats import bvh_parser
+from . import bvh_skeleton
 
 
 class BvhScene:
