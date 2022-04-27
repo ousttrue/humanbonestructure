@@ -15,6 +15,9 @@ def trs_matrix(t: glm.vec3, r: glm.quat, s: glm.vec3) -> glm.mat4:
     return m
 
 
+NODE_ID = 1
+
+
 class Node:
     '''
     SkinnigMatrix = WorldMatrix x InvereBindMatrix
@@ -25,10 +28,12 @@ class Node:
     Pose = inv(local_axis) x Pose
     '''
 
-    def __init__(self, index: int, name: str, local_trs: Transform, *,
+    def __init__(self, name: str, local_trs: Transform, *,
                  humanoid_bone: Optional[HumanoidBone] = None,
                  children: Optional[List['Node']] = None) -> None:
-        self.index = index
+        global NODE_ID
+        self.index = NODE_ID
+        NODE_ID += 1
         self.name = name
         self.children = children[:] if children else []
         self.parent: Optional[Node] = None
@@ -73,7 +78,7 @@ class Node:
         if not len(self.children):
             # add dummy tail
             LOGGER.warn(f'no tail: {self}')
-            tail = Node(-1, self.name+'先', Transform(glm.vec3(0,
+            tail = Node(self.name+'先', Transform(glm.vec3(0,
                         0, 0.05), glm.quat(), glm.vec3(1)))
             self.add_child(tail)
             self.humanoid_tail = tail
@@ -103,7 +108,7 @@ class Node:
         if self.humanoid_bone == HumanoidBone.head:
             # leftEye, rightEye, jaw is not expected
             LOGGER.warn(f'no tail: {self}')
-            tail = Node(-1, 'head tail', Transform(glm.vec3(0,
+            tail = Node('head tail', Transform(glm.vec3(0,
                         0.18, 0), glm.quat(), glm.vec3(1)))
             self.add_child(tail)
             self.humanoid_tail = tail
@@ -173,7 +178,7 @@ class Node:
             child.calc_skinning(self.world_matrix)
 
     def copy_tree(self) -> 'Node':
-        node = Node(self.index, self.name, self.init_trs,
+        node = Node(self.name, self.init_trs,
                     humanoid_bone=self.humanoid_bone)
 
         for child in self.children:

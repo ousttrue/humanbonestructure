@@ -5,15 +5,110 @@ from ...formats.humanoid_bones import HumanoidBone
 from ...formats.transform import Transform
 
 
-def _create_hand(i: int, forward: glm.vec3, up: glm.vec3, thumb: glm.vec3, bones: List[HumanoidBone]) -> Node:
+BODY = [
+    HumanoidBone.hips,
+    HumanoidBone.spine,
+    HumanoidBone.chest,
+    HumanoidBone.neck,
+    HumanoidBone.head,
+    HumanoidBone.endSite,
+]
+
+LEFT_LEG = [
+    HumanoidBone.leftUpperLeg,
+    HumanoidBone.leftLowerLeg,
+    HumanoidBone.leftFoot,
+    HumanoidBone.leftToes,
+    HumanoidBone.endSite,
+]
+
+LEFT_ARM = [
+    HumanoidBone.leftShoulder,
+    HumanoidBone.leftUpperArm,
+    HumanoidBone.leftLowerArm,
+    HumanoidBone.leftHand,
+    HumanoidBone.endSite,
+]
+
+LEFT_BONES = [
+    HumanoidBone.leftThumbProximal,
+    HumanoidBone.leftThumbIntermediate,
+    HumanoidBone.leftThumbDistal,
+    HumanoidBone.endSite,
+
+    HumanoidBone.leftIndexProximal,
+    HumanoidBone.leftIndexIntermediate,
+    HumanoidBone.leftIndexDistal,
+    HumanoidBone.endSite,
+
+    HumanoidBone.leftMiddleProximal,
+    HumanoidBone.leftMiddleIntermediate,
+    HumanoidBone.leftMiddleDistal,
+    HumanoidBone.endSite,
+
+    HumanoidBone.leftRingProximal,
+    HumanoidBone.leftRingIntermediate,
+    HumanoidBone.leftRingDistal,
+    HumanoidBone.endSite,
+
+    HumanoidBone.leftLittleProximal,
+    HumanoidBone.leftLittleIntermediate,
+    HumanoidBone.leftLittleDistal,
+    HumanoidBone.endSite,
+]
+
+RIGHT_ARM = [
+    HumanoidBone.rightShoulder,
+    HumanoidBone.rightUpperArm,
+    HumanoidBone.rightLowerArm,
+    HumanoidBone.rightHand,
+]
+
+RIGHT_BONES = [
+    HumanoidBone.rightThumbProximal,
+    HumanoidBone.rightThumbIntermediate,
+    HumanoidBone.rightThumbDistal,
+    HumanoidBone.endSite,
+
+    HumanoidBone.rightIndexProximal,
+    HumanoidBone.rightIndexIntermediate,
+    HumanoidBone.rightIndexDistal,
+    HumanoidBone.endSite,
+
+    HumanoidBone.rightMiddleProximal,
+    HumanoidBone.rightMiddleIntermediate,
+    HumanoidBone.rightMiddleDistal,
+    HumanoidBone.endSite,
+
+    HumanoidBone.rightRingProximal,
+    HumanoidBone.rightRingIntermediate,
+    HumanoidBone.rightRingDistal,
+    HumanoidBone.endSite,
+
+    HumanoidBone.rightLittleProximal,
+    HumanoidBone.rightLittleIntermediate,
+    HumanoidBone.rightLittleDistal,
+    HumanoidBone.endSite,
+]
+
+RIGHT_LEG = [
+    HumanoidBone.rightUpperLeg,
+    HumanoidBone.rightLowerLeg,
+    HumanoidBone.rightFoot,
+    HumanoidBone.rightToes,
+    HumanoidBone.endSite,
+]
+
+
+def _create_hand(forward: glm.vec3, up: glm.vec3, thumb: glm.vec3, bones: List[HumanoidBone]) -> Node:
     fl = 0.015
     d = 0.015
-    return Node(i+0, bones[0].name, Transform.from_translation(forward * fl), humanoid_bone=bones[0], children=[
+    return Node(bones[0].name, Transform.from_translation(forward * fl), humanoid_bone=bones[0], children=[
         # thumb
-        Node(i+1, bones[1].name, Transform.from_translation(-thumb*d-up*fl), humanoid_bone=bones[1], children=[
-            Node(i+2, bones[2].name, Transform.from_translation(forward*fl*2), humanoid_bone=bones[2], children=[
-                Node(i+3, bones[3].name, Transform.from_translation(forward*fl), humanoid_bone=bones[3], children=[
-                    Node(i+4, bones[4].name, Transform.from_translation(forward*fl), humanoid_bone=bones[4], children=[
+        Node(bones[1].name, Transform.from_translation(-thumb*d-up*fl), humanoid_bone=bones[1], children=[
+            Node(bones[2].name, Transform.from_translation(forward*fl*2), humanoid_bone=bones[2], children=[
+                Node(bones[3].name, Transform.from_translation(forward*fl), humanoid_bone=bones[3], children=[
+                    Node(bones[4].name, Transform.from_translation(forward*fl), humanoid_bone=bones[4], children=[
                     ])
                 ])
             ])
@@ -54,60 +149,37 @@ def _create_hand(i: int, forward: glm.vec3, up: glm.vec3, thumb: glm.vec3, bones
     ])
 
 
-LEFT_BONES = [
-    HumanoidBone.leftHand,
-    HumanoidBone.leftThumbProximal,
-    HumanoidBone.leftThumbIntermediate,
-    HumanoidBone.leftThumbDistal,
-    HumanoidBone.leftThumbTip,
+def _create(pos: glm.vec3, dir: glm.vec3, human_bones: List[HumanoidBone], *values) -> Node:
+    '''
+    shoulder, upperArm, lowerArm, hand
+    '''
+    root = Node(human_bones[0].name, Transform.from_translation(
+        pos), humanoid_bone=human_bones[0])
+    parent = root
+    for humanoid_bone, value in zip(human_bones[1:], values):
+        node = Node(humanoid_bone.name, Transform.from_translation(
+            dir * value), humanoid_bone=humanoid_bone)
+        parent.add_child(node)
+        parent = node
 
-    HumanoidBone.leftIndexProximal,
-    HumanoidBone.leftIndexIntermediate,
-    HumanoidBone.leftIndexDistal,
-    HumanoidBone.leftIndexTip,
+    return root
 
-    HumanoidBone.leftMiddleProximal,
-    HumanoidBone.leftMiddleIntermediate,
-    HumanoidBone.leftMiddleDistal,
-    HumanoidBone.leftMiddleTip,
 
-    HumanoidBone.leftRingProximal,
-    HumanoidBone.leftRingIntermediate,
-    HumanoidBone.leftRingDistal,
-    HumanoidBone.leftRingTip,
+def _create_body(*values: float) -> Node:
+    '''
+    hips, spine, chest, neck, head, head_end
+    '''
+    bones: List[Node] = []
+    for humanoid_bone, value in zip(BODY, values):
+        node = Node(humanoid_bone.name, Transform.from_translation(
+            glm.vec3(0, value, 0)), humanoid_bone=humanoid_bone)
+        if bones:
+            bones[-1].add_child(node)
+        bones.append(node)
 
-    HumanoidBone.leftLittleProximal,
-    HumanoidBone.leftLittleIntermediate,
-    HumanoidBone.leftLittleDistal,
-    HumanoidBone.leftLittleTip,
-]
-RIGHT_BONES = [
-    HumanoidBone.rightHand,
-    HumanoidBone.rightThumbProximal,
-    HumanoidBone.rightThumbIntermediate,
-    HumanoidBone.rightThumbDistal,
-    HumanoidBone.rightThumbTip,
 
-    HumanoidBone.rightIndexProximal,
-    HumanoidBone.rightIndexIntermediate,
-    HumanoidBone.rightIndexDistal,
-    HumanoidBone.rightIndexTip,
 
-    HumanoidBone.rightMiddleProximal,
-    HumanoidBone.rightMiddleIntermediate,
-    HumanoidBone.rightMiddleDistal,
-    HumanoidBone.rightMiddleTip,
-
-    HumanoidBone.rightRingProximal,
-    HumanoidBone.rightRingIntermediate,
-    HumanoidBone.rightRingDistal,
-    HumanoidBone.rightRingTip,
-
-    HumanoidBone.rightLittleProximal,
-    HumanoidBone.rightLittleIntermediate,
-    HumanoidBone.rightLittleDistal,
-    HumanoidBone.rightLittleTip,
-]
+    return bones[0]
 
 
 def create() -> Node:
@@ -119,13 +191,36 @@ def create() -> Node:
     ロロ/  thumb->
     <-x
     '''
-    root = Node(-1, 'root', Transform.identity())
+    root = Node('root', Transform.identity())
+
+    body = _create(glm.vec3(0, 0.8, 0), glm.vec3(0, 1, 0), BODY,
+                       0.3, 0.3, 0.1, 0.2)
+
+    #
+    left_arm = _create(glm.vec3(0.1, 0, 0), glm.vec3(1, 0, 0), LEFT_ARM,
+                       0.1, 0.3, 0.3, 0.2)
+    body.find_humanoid_bone(HumanoidBone.chest).add_child(left_arm) # type: ignore
+    #
+    right_arm = _create(glm.vec3(-0.1, 0, 0), glm.vec3(-1, 0, 0), LEFT_ARM,
+                        0.1, 0.3, 0.3, 0.2)
+    body.find_humanoid_bone(HumanoidBone.chest).add_child(right_arm) # type: ignore
+    #
+    left_leg = _create(glm.vec3(0.1, 0, 0), glm.vec3(0, -1, 0), LEFT_ARM,
+                       0.3, 0.3, 0.2, 0.1)
+    body.find_humanoid_bone(HumanoidBone.hips).add_child(left_leg) # type: ignore
+    #
+    right_leg = _create(glm.vec3(-0.1, 0, 0), glm.vec3(0, -1, 0), LEFT_ARM,
+                       0.3, 0.3, 0.2, 0.1)
+    body.find_humanoid_bone(HumanoidBone.hips).add_child(right_leg) # type: ignore
+
     left = _create_hand(0, glm.vec3(1, 0, 0), glm.vec3(
         0, 1, 0), glm.vec3(0, 0, -1), LEFT_BONES)
-    root.add_child(left)
     right = _create_hand(21, glm.vec3(-1, 0, 0), glm.vec3(
         0, 1, 0), glm.vec3(0, 0, -1), RIGHT_BONES)
-    root.add_child(right)
+
+    # body = _create_body(0.8, 0.2, 0.2, 0.2, 0.2)
+    root.add_child(body)
+
     return root
 
     # _create_hand(glm.vec3(0, 1, 0), )

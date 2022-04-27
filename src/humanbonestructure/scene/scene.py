@@ -23,7 +23,7 @@ class Scene:
     def __init__(self, name: str) -> None:
         self.name = name
         # scene
-        self.root = Node(-1, '__root__', Transform.identity())
+        self.root = Node('__root__', Transform.identity())
         self.is_mmd = False
         self.gizmo = Gizmo()
         self.skeleton = None

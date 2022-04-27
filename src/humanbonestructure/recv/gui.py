@@ -51,19 +51,19 @@ class GUI(dockspace.DockingGui):
 
         self.receiver.pose_event += scene.set_pose
 
-        tree_name = f'tree:{name}'
+        tree_name = f'tree'
         from ..gui.bone_tree import BoneTree
         tree = BoneTree(tree_name, scene)
         self.views.append(dockspace.Dock(tree_name, tree.show,
                                          (ctypes.c_bool * 1)(True)))
 
-        prop_name = f'prop:{name}'
+        prop_name = f'bone'
         from ..gui.bone_prop import BoneProp
         prop = BoneProp(prop_name, scene)
         self.views.append(dockspace.Dock(
             prop_name, prop.show, (ctypes.c_bool*1)(True)))
 
-        view_name = f'view:{name}'
+        view_name = f'view'
         from ..gui.scene_view import SceneView
         view = SceneView(view_name, scene)
         self.views.append(dockspace.Dock(view_name, view.show,
@@ -72,22 +72,20 @@ class GUI(dockspace.DockingGui):
         return scene
 
     def add_model(self, path: pathlib.Path):
+        '''
+        モデルをロードし T-Pose 化する
+        '''
         scene = self._add_scene(path.stem)
         scene.load_model(path)
 
-        # tpose にして受けれるようにする
         from ..formats import tpose
         tpose.make_tpose(scene.root, is_inverted_pelvis=scene.is_mmd)
         delta_map = tpose.pose_to_init(scene.root)
         tpose.local_axis_fit_world(scene.root)
 
-    def create_model(self):
-        scene = self._add_scene('generate')
-        scene.create_model()
-
     def add_tpose(self):
-        if not self.scenes:
-            return
-
+        '''
+        論理 T-Pose
+        '''
         scene = self._add_scene('tpose')
-        scene.create_tpose_from(self.scenes[0])
+        scene.create_model()
