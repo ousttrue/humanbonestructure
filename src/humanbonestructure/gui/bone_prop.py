@@ -16,21 +16,25 @@ class BoneProp:
             return
 
         if ImGui.Begin(self.name, p_open):
-            selected = self.scene.selected
-            if selected:
-                ImGui.TextUnformatted(selected.name)
-                humanoid_bone = selected.humanoid_bone
+            node = self.scene.selected
+            if node:
+                ImGui.TextUnformatted(f'{node.index}: {node.name}')
+                humanoid_bone = node.humanoid_bone
                 if humanoid_bone:
                     ImGui.TextUnformatted(humanoid_bone.name)
+                    ImGui.TextUnformatted(f'init: {node.init_trs.rotation}')
+                    if node.pose:
+                        ImGui.TextUnformatted(f'pose: {node.pose}')
+
                     if ImGui.Button('force tpose'):
-                        assert selected.humanoid_tail
+                        assert node.humanoid_tail
                         dir = humanoid_bone.get_world_axis()
                         from ..formats import tpose
                         tpose.force_axis(
-                            selected, selected.humanoid_tail, glm.vec3(*dir))
+                            node, node.humanoid_tail, glm.vec3(*dir))
 
                     if ImGui.Button('force tpose(recursive)'):
-                        for node, _ in selected.traverse_node_and_parent():
+                        for node, _ in node.traverse_node_and_parent():
                             if node.humanoid_bone and node.humanoid_tail:
                                 dir = node.humanoid_bone.get_world_axis()
                                 from ..formats import tpose

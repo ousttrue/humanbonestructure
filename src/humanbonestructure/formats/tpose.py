@@ -21,9 +21,7 @@ def force_axis(head: Node, tail: Node, to: glm.vec3):
 def make_tpose(root: Node, *, is_inverted_pelvis=False):
 
     for node, _ in root.traverse_node_and_parent():
-        if not node.humanoid_bone:
-            continue
-        if node.humanoid_tail:
+        if node.humanoid_bone and node.humanoid_tail and node.humanoid_tail.humanoid_bone:
             root.calc_skinning(glm.mat4())
             if node.humanoid_bone == HumanoidBone.hips and is_inverted_pelvis:
                 dir = (0, -1, 0)

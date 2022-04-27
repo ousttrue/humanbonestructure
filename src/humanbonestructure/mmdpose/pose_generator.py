@@ -1,5 +1,5 @@
 from typing import Optional
-from ..gui.bone_mask import BoneMask
+from .bone_mask import BoneMask
 from ..eventproperty import EventProperty
 from ..formats.pose import Pose
 from .motion_list import MotionList, Motion

@@ -9,9 +9,14 @@ from ..formats import pmd_loader, gltf_loader, pmx_loader, bvh_parser
 from ..formats import tpose
 from ..formats.transform import Transform
 from ..formats.pose import Pose, BonePose
+from ..formats.humanoid_bones import HumanoidBone
 from .node import Node
 from .skeleton import Skeleton
 LOGGER = logging.getLogger(__name__)
+
+RED = glm.vec4(1, 0, 0, 1)
+GREEN = glm.vec4(0, 1, 0, 1)
+BLUE = glm.vec4(0, 0, 1, 1)
 
 
 class Scene:
@@ -27,6 +32,7 @@ class Scene:
         self.gizmo = Gizmo()
         self.skeleton = None
         self.selected: Optional[Node] = None
+        self.tpose_delta_map: Dict[HumanoidBone, glm.quat] = {}
 
         # GUI check box
         self.visible_mesh = (ctypes.c_bool * 1)(False)
@@ -42,7 +48,16 @@ class Scene:
         self.skeleton = Skeleton(self.root)
         self.root.calc_skinning(glm.mat4())
         self.humanoid_node_map = {node.humanoid_bone: node for node,
-                                  _ in self.root.traverse_node_and_parent() if node.humanoid_bone}
+                                  _ in self.root.traverse_node_and_parent(only_human_bone=True)}
+
+        # make tpose for pose conversion
+        tpose.make_tpose(self.root, is_inverted_pelvis=self.is_mmd)
+        self.tpose_delta_map: Dict[HumanoidBone, glm.quat] = {node.humanoid_bone: node.pose.rotation if node.pose else glm.quat(
+        ) for node, _ in self.root.traverse_node_and_parent(only_human_bone=True)}
+        tpose.local_axis_fit_world(self.root)
+        self.root.clear_pose()
+        self.root.calc_skinning(glm.mat4())
+        # tpose.pose_to_delta(scene.root)
 
     def load_model(self, path: pathlib.Path):
         match path.suffix.lower():
@@ -91,37 +106,6 @@ class Scene:
         self.root = create.create()
         self._setup_model()
 
-    def create_tpose_from(self, scene: 'Scene'):
-        self.root = scene.root.copy_tree()
-
-        self._setup_model()
-
-        # inverted pelvis
-        # if scene.is_mmd:
-        #     node_pos_map: Dict[HumanoidBone, glm.vec3] = {
-        #         node.humanoid_bone: node.world_matrix[3].xyz for node, _ in scene.root.traverse_node_and_parent() if node.humanoid_bone}
-
-        #     hips = self.root.find_humanoid_bone(HumanoidBone.hips)
-        #     assert hips
-        #     spine = self.root.find_humanoid_bone(HumanoidBone.spine)
-        #     assert spine
-        #     spine.init_trs = spine.init_trs._replace(
-        #         translation=node_pos_map[HumanoidBone.hips.spine]-node_pos_map[HumanoidBone.hips])
-        #     hips.name = 'hips'
-        #     hips.add_child(spine, insert=True)
-        #     hips.humanoid_tail = spine
-
-        # tpose
-        tpose.make_tpose(self.root)
-        delta_map = tpose.pose_to_init(self.root)
-        tpose.local_axis_fit_world(self.root)
-        # restore pose
-        for node, _ in self.root.traverse_node_and_parent():
-            delta = delta_map.get(node)
-            if delta:
-                node.delta = delta
-        self._setup_model()
-
     def render(self, camera: Camera):
         if self.visible_mesh[0]:
             if root := self.root:
@@ -136,7 +120,7 @@ class Scene:
             # bone gizmo
             selected = None
             for bone, _ in self.root.traverse_node_and_parent():
-                if bone.humanoid_bone:
+                if bone.humanoid_bone and bone.humanoid_bone != HumanoidBone.endSite:
                     assert bone.humanoid_tail
                     # bone
                     if self.gizmo.bone_head_tail(bone.humanoid_bone.name,
@@ -148,11 +132,11 @@ class Scene:
                     # axis
                     self.gizmo.matrix = (
                         bone.world_matrix * glm.mat4(bone.local_axis))
-                    self.gizmo.color = glm.vec4(1, 0, 0, 1)
+                    self.gizmo.color = RED
                     self.gizmo.line(glm.vec3(0), glm.vec3(0.02, 0, 0))
-                    self.gizmo.color = glm.vec4(0, 1, 0, 1)
+                    self.gizmo.color = GREEN
                     self.gizmo.line(glm.vec3(0), glm.vec3(0, 0.02, 0))
-                    self.gizmo.color = glm.vec4(0, 0, 1, 1)
+                    self.gizmo.color = BLUE
                     self.gizmo.line(glm.vec3(0), glm.vec3(0, 0, 0.02))
 
             if selected:
@@ -194,5 +178,6 @@ class Scene:
         #
         # raise TPose相対ポーズ
         #
-        pose = self.root.create_relative_pose()
-        self.pose_changed.set(pose)
+        if self.pose_changed.callbacks:
+            pose = self.root.create_relative_pose(self.tpose_delta_map)
+            self.pose_changed.set(pose)

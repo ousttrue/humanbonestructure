@@ -1,15 +1,9 @@
-from typing import Dict
 import ctypes
 import pathlib
 import asyncio
-import glm
 from pydear import imgui as ImGui
 from pydear.utils import dockspace
-from ..formats.pose import Pose
-from ..formats.transform import Transform
-from ..formats.humanoid_bones import HumanoidBone
 from ..scene.scene import Scene
-from ..formats import tpose
 
 
 class GUI(dockspace.DockingGui):
@@ -40,19 +34,21 @@ class GUI(dockspace.DockingGui):
         super().__init__(loop, docks=self.docks)
 
         # load model
-        scene = self._load_scene(model_path.name)
+        scene = self._add_scene(model_path.name)
         scene.load_model(model_path)
-        # make tpose for pose conversion
-        tpose.make_tpose(scene.root, is_inverted_pelvis=True)
-        tpose.local_axis_fit_world(scene.root)
-        scene.root.clear_pose()
-        scene.root.calc_skinning(glm.mat4())
-        # tpose.pose_to_delta(scene.root)
 
         # create tpose
-        t_scene = self._load_scene('tpose')
-        t_scene.create_model()
+        t_scene = self._add_scene('tpose')
+        if False:
+            t_scene.root = scene.root.copy_tree()
+            from ..formats import tpose
+            tpose.make_tpose(t_scene.root)
+            tpose.pose_to_init(t_scene.root)
+            t_scene._setup_model()
+        else:
+            t_scene.create_model()
 
+        # pose event
         def _on_pose(pose):
             t_scene.set_pose(pose)
 
@@ -61,11 +57,11 @@ class GUI(dockspace.DockingGui):
             bin = json.dumps(data)
             self.tcp_listener.send(bin.encode('utf-8'))
 
+        self.selector.pose_generator.pose_event += scene.set_pose
         scene.pose_changed += _on_pose
 
-    def _load_scene(self, name: str) -> Scene:
+    def _add_scene(self, name: str) -> Scene:
         self.scene = Scene(name)
-        self.selector.pose_generator.pose_event += self.scene.set_pose
 
         tree_name = f'tree:{name}'
         from ..gui.bone_tree import BoneTree

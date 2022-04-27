@@ -8,7 +8,7 @@ LOGGER = logging.getLogger(__name__)
 
 class BoneMask:
     def __init__(self) -> None:
-        self.use_except_finger = (ctypes.c_bool * 1)(False)
+        self.use_except_finger = (ctypes.c_bool * 1)(True)
         self.use_finger = (ctypes.c_bool * 1)(True)
         self.pred = lambda x: True
         self.changed = Event()

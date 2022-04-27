@@ -1,4 +1,5 @@
-from typing import Optional, Iterable, List, Tuple, Callable
+from typing import Optional, Iterable, List, Tuple, Callable, Dict
+import math
 import logging
 import glm
 from ..formats.transform import Transform
@@ -60,10 +61,11 @@ class Node:
             if parent:
                 node.parent = parent
 
-    def traverse_node_and_parent(self, parent: Optional['Node'] = None) -> Iterable[Tuple['Node', Optional['Node']]]:
-        yield self, parent
+    def traverse_node_and_parent(self, parent: Optional['Node'] = None, *, only_human_bone=False) -> Iterable[Tuple['Node', Optional['Node']]]:
+        if not only_human_bone or self.humanoid_bone and self.humanoid_bone != HumanoidBone.endSite:
+            yield self, parent
         for child in self.children:
-            for x, y in child.traverse_node_and_parent(self):
+            for x, y in child.traverse_node_and_parent(self, only_human_bone=only_human_bone):
                 yield x, y
 
     def find(self, pred: Callable[['Node'], bool]) -> Optional['Node']:
@@ -194,17 +196,23 @@ class Node:
 
         return node
 
-    def create_relative_pose(self) -> Pose:
+    def create_relative_pose(self, tpose_delta_map: Dict[HumanoidBone, glm.quat]) -> Pose:
+        print('#')
         pose = Pose(self.name)
 
         # convert pose relative from TPose
-        for node, _ in self.traverse_node_and_parent():
-            if node.humanoid_bone and node.humanoid_tail:
-                r = glm.inverse(node.delta)
-                if self.pose:
-                    r = r * self.pose.rotation
-                # r = r * glm.inverse(node.local_axis)
-                pose.bones.append(
-                    BonePose(node.name, node.humanoid_bone, Transform.from_rotation(r)))
+        for node, _ in self.traverse_node_and_parent(only_human_bone=True):
+            if node.pose:
+                p = glm.inverse(node.local_axis) * \
+                    node.pose.rotation * node.local_axis
+            else:
+                p = glm.quat()
+
+            r = glm.inverse(tpose_delta_map[node.humanoid_bone]) * p
+            angle = 180 * glm.angle(r)/math.pi
+            if angle > 10:
+                print(f'{node.humanoid_bone}: {angle:.2f}')
+            pose.bones.append(
+                BonePose(node.name, node.humanoid_bone, Transform.from_rotation(r)))
 
         return pose
