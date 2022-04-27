@@ -73,6 +73,12 @@ class Node:
     def find_humanoid_bone(self, humanoid_bone: HumanoidBone) -> Optional['Node']:
         return self.find(lambda x: x.humanoid_bone == humanoid_bone)
 
+    def __getitem__(self, key: HumanoidBone) -> 'Node':
+        found = self.find_humanoid_bone(key)
+        if not found:
+            raise KeyError(key)
+        return found
+
     def find_tail(self) -> Optional['Node']:
         assert self.humanoid_bone
         if not len(self.children):

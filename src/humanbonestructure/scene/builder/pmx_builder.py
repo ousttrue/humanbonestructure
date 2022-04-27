@@ -9,12 +9,12 @@ from .pmd_builder import reverse_z
 
 
 def build(pmx: pmx_loader.Pmx) -> Node:
-    root = Node(-1, '__root__',  Transform.identity())
+    root = Node('__root__',  Transform.identity())
 
     # build node hierarchy
     nodes: List[Node] = []
     for i, b in enumerate(pmx.bones):
-        node = Node(i, b.name_ja, Transform.identity())
+        node = Node(b.name_ja, Transform.identity())
         node.has_weighted_vertices = i in pmx.deform_bones
         nodes.append(node)
 
@@ -37,7 +37,7 @@ def build(pmx: pmx_loader.Pmx) -> Node:
 
         if bone.tail_position:
             node.add_child(
-                Node(-1, f'{bone.name_ja}先', Transform(reverse_z(glm.vec3(*bone.tail_position)), glm.quat(), glm.vec3(1))))
+                Node(f'{bone.name_ja}先', Transform(reverse_z(glm.vec3(*bone.tail_position)), glm.quat(), glm.vec3(1))))
 
     leftUpperLegD = root.find(lambda x: x.name == '左足D')
     leftLowerLegD = root.find(lambda x: x.name == '左ひざD')

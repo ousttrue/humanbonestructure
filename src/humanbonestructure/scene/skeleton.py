@@ -126,8 +126,9 @@ class Skeleton:
                                 height = 0.03
                             case (HumanoidBone.leftUpperLeg | HumanoidBone.leftLowerLeg | HumanoidBone.leftFoot | HumanoidBone.leftToes |
                                   HumanoidBone.rightUpperLeg | HumanoidBone.rightLowerLeg | HumanoidBone.rightFoot | HumanoidBone.rightToes):
-                                color = Float3(0.3, 0.6, 0.1) if 'Lower' in node.humanoid_bone.name else Float3(
-                                    0.7, 0.9, 0.2)
+                                color = Float3(0.3, 0.6, 0.1)
+                                if node.humanoid_bone in (HumanoidBone.leftUpperLeg, HumanoidBone.leftFoot, HumanoidBone.rightUpperLeg, HumanoidBone.rightFoot):
+                                    color = Float3(0.7, 0.9, 0.2)
                                 up = glm.vec3(0, 0, 1)
                                 width = 0.01
                                 height = 0.005
