@@ -56,6 +56,15 @@ def pose_to_init(root: Node) -> Dict[Node, glm.quat]:
     return delta_map
 
 
+def pose_to_delta(root: Node):
+    for node, parent in root.traverse_node_and_parent():
+        r = glm.quat()
+        if node.pose:
+            r = node.pose.rotation
+        node.delta = r
+        node.pose = None
+
+
 def local_axis_fit_world(root: Node):
     for node, parent in root.traverse_node_and_parent():
         node.local_axis = glm.inverse(

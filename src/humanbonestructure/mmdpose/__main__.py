@@ -25,7 +25,7 @@ def main():
     args = parser.parse_args()
 
     from pydear.utils import glfw_app
-    app = glfw_app.GlfwApp('posestream')
+    app = glfw_app.GlfwApp('mmdpose')
     gui = GUI(app.loop, pathlib.Path(args.model))
     asset_dir = pathlib.Path(args.asset_dir)
     for root, dirs, files in os.walk(asset_dir):

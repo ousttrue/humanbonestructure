@@ -3,7 +3,6 @@ import abc
 import glm
 from .transform import Transform
 from .humanoid_bones import HumanoidBone, HumanoidBodyParts
-from ..scene.node import Node
 
 
 class BonePose(NamedTuple):

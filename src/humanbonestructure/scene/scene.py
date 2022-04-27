@@ -8,8 +8,7 @@ from pydear.scene.gizmo import Gizmo
 from ..formats import pmd_loader, gltf_loader, pmx_loader, bvh_parser
 from ..formats import tpose
 from ..formats.transform import Transform
-from ..formats.pose import Pose
-from ..formats.humanoid_bones import HumanoidBone
+from ..formats.pose import Pose, BonePose
 from .node import Node
 from .skeleton import Skeleton
 LOGGER = logging.getLogger(__name__)
@@ -33,6 +32,9 @@ class Scene:
         self.visible_mesh = (ctypes.c_bool * 1)(False)
         self.visible_gizmo = (ctypes.c_bool * 1)(True)
         self.visible_skeleton = (ctypes.c_bool * 1)(False)
+
+        from ..eventproperty import OptionalEventProperty
+        self.pose_changed = OptionalEventProperty[Pose]()
 
     def _setup_model(self):
         self.root.initialize(glm.mat4())
@@ -182,8 +184,15 @@ class Scene:
                 if node:
                     node.pose = bone.transform
                 else:
-                    raise RuntimeError()
+                    pass
+                    # raise RuntimeError()
             else:
                 raise RuntimeError()
 
         self.root.calc_skinning(glm.mat4())
+
+        #
+        # raise TPose相対ポーズ
+        #
+        pose = self.root.create_relative_pose()
+        self.pose_changed.set(pose)

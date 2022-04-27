@@ -9,7 +9,7 @@ from ..scene.scene import Scene
 class SceneView:
     def __init__(self, name: str, scene: Scene) -> None:
         self.name = name
-        self.camera = Camera(distance=4, y=-0.8)
+        self.camera = Camera(distance=8, y=-0.8)
         self.scene = scene
         # imgui
         self.clear_color = (ctypes.c_float * 4)(0.1, 0.2, 0.2, 1)

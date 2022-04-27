@@ -3,6 +3,7 @@ import logging
 import glm
 from ..formats.transform import Transform
 from ..formats.humanoid_bones import HumanoidBone
+from ..formats.pose import Pose, BonePose
 
 LOGGER = logging.getLogger(__name__)
 
@@ -174,7 +175,7 @@ class Node:
 
         t, r, s = self.init_trs
         if self.pose:
-            return trs_matrix(t + self.pose.translation, r * self.delta * self.local_axis * self.pose.rotation, s * self.pose.scale)
+            return trs_matrix(t + self.pose.translation, r * self.delta * self.pose.rotation, s * self.pose.scale)
         else:
             return trs_matrix(t, r * self.delta, s)
 
@@ -192,3 +193,18 @@ class Node:
             node.add_child(child_copy)
 
         return node
+
+    def create_relative_pose(self) -> Pose:
+        pose = Pose(self.name)
+
+        # convert pose relative from TPose
+        for node, _ in self.traverse_node_and_parent():
+            if node.humanoid_bone and node.humanoid_tail:
+                r = glm.inverse(node.delta)
+                if self.pose:
+                    r = r * self.pose.rotation
+                # r = r * glm.inverse(node.local_axis)
+                pose.bones.append(
+                    BonePose(node.name, node.humanoid_bone, Transform.from_rotation(r)))
+
+        return pose

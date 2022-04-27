@@ -45,20 +45,23 @@ class GUI(dockspace.DockingGui):
         # make tpose for pose conversion
         tpose.make_tpose(scene.root, is_inverted_pelvis=True)
         tpose.local_axis_fit_world(scene.root)
-        self.tpose_delta: Dict[HumanoidBone, glm.quat] = {}
-        for node, _ in scene.root.traverse_node_and_parent():
-            if node.humanoid_bone and node.pose:
-                self.tpose_delta[node.humanoid_bone] = glm.inverse(node.local_axis) * glm.inverse(
-                    node.pose.rotation)
+        scene.root.clear_pose()
+        scene.root.calc_skinning(glm.mat4())
+        # tpose.pose_to_delta(scene.root)
 
-        # clear
-        for node, _ in scene.root.traverse_node_and_parent():
-            if node.humanoid_bone and node.pose:
-                node.local_axis = glm.quat()
-                node.pose = None
+        # create tpose
+        t_scene = self._load_scene('tpose')
+        t_scene.create_model()
 
-        # must be after scene set_pose
-        self.selector.pose_generator.pose_event += self._on_pose
+        def _on_pose(pose):
+            t_scene.set_pose(pose)
+
+            data = pose.to_json()
+            import json
+            bin = json.dumps(data)
+            self.tcp_listener.send(bin.encode('utf-8'))
+
+        scene.pose_changed += _on_pose
 
     def _load_scene(self, name: str) -> Scene:
         self.scene = Scene(name)
@@ -96,16 +99,3 @@ class GUI(dockspace.DockingGui):
                         font_range, merge=True, monospace=True)
 
         io.Fonts.Build()
-
-    def _on_pose(self, pose: Pose):
-        # convert pose relative from TPose
-        def convert(humanoid_bone: HumanoidBone, t: Transform) -> Transform:
-            inv = self.tpose_delta[humanoid_bone]
-            return t._replace(rotation=inv * t.rotation)
-        pose.bones = [bone._replace(transform=convert(bone.humanoid_bone, bone.transform))
-                      for bone in pose.bones if bone.humanoid_bone]
-
-        data = pose.to_json()
-        import json
-        bin = json.dumps(data)
-        self.tcp_listener.send(bin.encode('utf-8'))
