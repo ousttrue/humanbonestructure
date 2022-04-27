@@ -119,25 +119,25 @@ class Scene:
 
             # bone gizmo
             selected = None
-            for bone, _ in self.root.traverse_node_and_parent():
-                if bone.humanoid_bone and bone.humanoid_bone != HumanoidBone.endSite:
-                    assert bone.humanoid_tail
-                    # bone
-                    if self.gizmo.bone_head_tail(bone.humanoid_bone.name,
-                                                 bone.world_matrix[3].xyz, bone.humanoid_tail.world_matrix[3].xyz, glm.vec3(
-                                                     0, 0, 1),
-                                                 is_selected=(bone == self.selected)):
-                        selected = bone
+            for bone, _ in self.root.traverse_node_and_parent(only_human_bone=True):
+                assert bone.humanoid_bone
+                assert bone.humanoid_tail
+                # bone
+                if self.gizmo.bone_head_tail(bone.humanoid_bone.name,
+                                             bone.world_matrix[3].xyz, bone.humanoid_tail.world_matrix[3].xyz, glm.vec3(
+                                                 0, 0, 1),
+                                             is_selected=(bone == self.selected)):
+                    selected = bone
 
-                    # axis
-                    self.gizmo.matrix = (
-                        bone.world_matrix * glm.mat4(bone.local_axis))
-                    self.gizmo.color = RED
-                    self.gizmo.line(glm.vec3(0), glm.vec3(0.02, 0, 0))
-                    self.gizmo.color = GREEN
-                    self.gizmo.line(glm.vec3(0), glm.vec3(0, 0.02, 0))
-                    self.gizmo.color = BLUE
-                    self.gizmo.line(glm.vec3(0), glm.vec3(0, 0, 0.02))
+                # axis
+                self.gizmo.matrix = (
+                    bone.world_matrix * glm.mat4(bone.local_axis))
+                self.gizmo.color = RED
+                self.gizmo.line(glm.vec3(0), glm.vec3(0.02, 0, 0))
+                self.gizmo.color = GREEN
+                self.gizmo.line(glm.vec3(0), glm.vec3(0, 0.02, 0))
+                self.gizmo.color = BLUE
+                self.gizmo.line(glm.vec3(0), glm.vec3(0, 0, 0.02))
 
             if selected:
                 LOGGER.debug(f'selected: {selected}')

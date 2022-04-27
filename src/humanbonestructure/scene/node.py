@@ -93,42 +93,54 @@ class Node:
             self.humanoid_tail = tail
             return tail
 
-        # mmd
-        match self.name:
-            case '下半身' | '頭':
-                return next(iter(node for node, _ in self.traverse_node_and_parent() if node.name == self.name + '先'))
+        human_bones = []
+        for child in self.children:
+            for x, _ in child.traverse_node_and_parent():
+                if x.humanoid_bone:
+                    human_bones.append(x)
+                    break
 
-        match self.humanoid_bone:
-            case HumanoidBone.chest | HumanoidBone.upperChest:
-                for x, _ in self.traverse_node_and_parent():
-                    if x.humanoid_bone == HumanoidBone.neck:
-                        return x
-            case HumanoidBone.rightHand:
-                for x, _ in self.traverse_node_and_parent():
-                    if x.humanoid_bone == HumanoidBone.rightMiddleProximal:
-                        return x
-            case HumanoidBone.leftHand:
-                for x, _ in self.traverse_node_and_parent():
-                    if x.humanoid_bone == HumanoidBone.leftMiddleProximal:
-                        return x
-            case _:
-                pass
-
-        if self.humanoid_bone == HumanoidBone.head:
-            # leftEye, rightEye, jaw is not expected
-            LOGGER.warn(f'no tail: {self}')
-            tail = Node('head tail', Transform(glm.vec3(0,
-                        0.18, 0), glm.quat(), glm.vec3(1)))
-            self.add_child(tail)
-            self.humanoid_tail = tail
-            return tail
+        if not human_bones:
+            return self.children[0]
+        elif len(human_bones) == 1:
+            return human_bones[0]
         else:
-            for child in self.children:
-                for node, _ in child.traverse_node_and_parent():
-                    if node.humanoid_bone:
-                        return node
+            # mmd
+            match self.name:
+                case '下半身' | '頭':
+                    return next(iter(node for node, _ in self.traverse_node_and_parent() if node.name == self.name + '先'))
 
-        return self.children[0]
+            match self.humanoid_bone:
+                case HumanoidBone.chest | HumanoidBone.upperChest:
+                    for x, _ in self.traverse_node_and_parent():
+                        if x.humanoid_bone == HumanoidBone.neck:
+                            return x
+                case HumanoidBone.rightHand:
+                    for x, _ in self.traverse_node_and_parent():
+                        if x.humanoid_bone == HumanoidBone.rightMiddleProximal:
+                            return x
+                case HumanoidBone.leftHand:
+                    for x, _ in self.traverse_node_and_parent():
+                        if x.humanoid_bone == HumanoidBone.leftMiddleProximal:
+                            return x
+                case _:
+                    pass
+
+            if self.humanoid_bone == HumanoidBone.head:
+                # leftEye, rightEye, jaw is not expected
+                LOGGER.warn(f'no tail: {self}')
+                tail = Node('head tail', Transform(glm.vec3(0,
+                            0.18, 0), glm.quat(), glm.vec3(1)))
+                self.add_child(tail)
+                self.humanoid_tail = tail
+                return tail
+            else:
+                for child in self.children:
+                    for node, _ in child.traverse_node_and_parent():
+                        if node.humanoid_bone:
+                            return node
+
+            return human_bones[0]
 
     def clear_pose(self):
         for node, _ in self.traverse_node_and_parent():
@@ -196,15 +208,21 @@ class Node:
 
         return node
 
-    def create_relative_pose(self, tpose_delta_map: Dict[HumanoidBone, glm.quat]) -> Pose:
+    def create_relative_pose(self, tpose_delta_map: Dict[HumanoidBone, glm.quat], *, inverted_pelvis=False) -> Pose:
         print('#')
         pose = Pose(self.name)
 
         # convert pose relative from TPose
         for node, _ in self.traverse_node_and_parent(only_human_bone=True):
             if node.pose:
-                p = glm.inverse(node.local_axis) * \
-                    node.pose.rotation * node.local_axis
+                if inverted_pelvis and node.humanoid_bone == HumanoidBone.spine:
+                    sp_r = glm.inverse(node.init_trs.rotation) * \
+                        glm.mat(node.local_matrix)
+                    p = glm.inverse(node.local_axis) * \
+                        sp_r * node.local_axis
+                else:
+                    p = glm.inverse(node.local_axis) * \
+                        node.pose.rotation * node.local_axis
             else:
                 p = glm.quat()
 

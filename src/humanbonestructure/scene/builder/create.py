@@ -149,7 +149,7 @@ def create() -> Node:
     root = Node('root', Transform.identity())
 
     body = _create(UP, BODY,
-                   glm.vec3(0, 0.8, 0), 0.2, 0.2, 0.2, 0.1, 0.2)
+                   glm.vec3(0, 0.8, 0), 0.1, 0.1, 0.2, 0.1, 0.2)
 
     # arms
     arms = [0.1, 0.3, 0.3, 0.05]
