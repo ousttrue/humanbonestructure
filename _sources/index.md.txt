@@ -2,62 +2,34 @@
 
 <https://github.com/ousttrue/humanbonestructure>
 
-```{blockdiag}
-blockdiag {
-  orientation = portrait
+{term}`ヒューマノイド` 向け {term}`ポーズ` の標準化の調査と python 実装。
 
-  // before  
-  MoCap -> FK-T-Pose;
-  Dedicated-Motion -> Rig -> Bone-Quaternion;
-  Bone-Quaternion -> FK-T-Pose
-  FK-T-Pose[color = pink];
-
-  // after
-  FK-T-Pose -> Hierarchy;
-  Hierarchy -> Secondary;
-  Secondary -> Skinning;
-
-  //
-  Bone-Quaternion -> Hierarchy[color = red, style = dashed]
-
-  group {
-      Dedicated-Motion; Rig; Bone-Quaternion
-      label = "bone local axis";
-      color = "#DDFFDD";
-  }
-
-  FK-T-Pose[color = pink];
-
-  group {
-      Hierarchy; Secondary; Skinning;
-      label = "bone local axis";
-      color = "#DDFFDD";
-  }
+```{graphviz}
+digraph tpose {
+  "vpd/vmd(A stance + world coord)" -> "strict tpose";
+  "motion capture / bvh (T stance + world coord)" -> "strict tpose";
+  "mediapipe / kinect (position based)" -> "strict tpose";
+  "strict tpose" -> "vrm-0.x (T stance world coord)";
+  "strict tpose" -> "vrm-1.0 (T stance local coord)";
 }
 ```
 
-```{note}
-* bone local axis
-  * モデル間の互換性は無い
-
-* Rig
-  * IK
-  * Constraint
-
-* Secondary
-  * SpringBone
-  * Constraint
-    * LookAt
-    * ねじり分散
-    * 衣装連動
-  * Cloth
-  * Physics
 ```
+D = TPOSE_DELTA
+A = LOCAL_AXIS_DELTA
+P = POSE
+```
+
+```{math}
+P' = D^{-1} \cdot A^{-1} \cdot P \cdot A
+```
+
 
 ```{toctree}
 :maxdepth: 2
-implements/index
+retarget/index
 appendix/index
+implements/index
 glossary
 ```
 
@@ -66,3 +38,4 @@ glossary
 * {ref}`genindex`
 * {ref}`modindex`
 * {ref}`search`
+

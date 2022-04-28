@@ -1,5 +1,9 @@
 # Hand Pose Estimation
 
+## mediapipe
+
+* <https://google.github.io/mediapipe/solutions/hands.html>
+
 ## InterHand2.6M 
 
 * <https://github.com/facebookresearch/InterHand2.6M>
@@ -8,3 +12,4 @@
 ## NYU Hand Pose Dataset
 
 * <https://jonathantompson.github.io/NYU_Hand_Pose_Dataset.htm>
+
