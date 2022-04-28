@@ -13,6 +13,7 @@ jobs:
       ACTIONS_ALLOW_UNSECURE_COMMANDS: true
     steps:
       - uses: actions/checkout@v1
+      - run: sudo apt install graphviz
       - run: pip install -r requirements.txt
       - run: sphinx-build docs build
       - name: Deploy
