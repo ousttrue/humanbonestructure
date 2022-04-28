@@ -28,8 +28,9 @@ P' = D^{-1} \cdot A^{-1} \cdot P \cdot A
 ```{toctree}
 :maxdepth: 2
 retarget/index
-appendix/index
+humanbone/index
 implements/index
+appendix/index
 glossary
 ```
 

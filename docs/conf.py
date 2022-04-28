@@ -13,6 +13,10 @@
 # import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
+import os
+if os.name == 'nt':
+    # windows で dot.exe にパスを通してやる例
+    os.environ['PATH'] = f"{os.environ['PATH']};C:\\Program Files\\Graphviz\\bin"
 
 
 # -- Project information -----------------------------------------------------
