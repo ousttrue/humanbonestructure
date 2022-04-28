@@ -3,6 +3,7 @@
 ```{glossary}
 ジョイント
 joint
+node
   position + rotation。簡単のために本記事では scale は除外する。
 
 骨格
@@ -20,6 +21,7 @@ humanoid
   ヒューマノイドは、hips 以外は移動せずに回転しかしない。
 
 ヒューマンボーン
+humanbone
   ヒューマノイドを構成するボーン。
   体幹として、hips, spine, chest, neck, head
   腕として左右に、shoulder, upperArm, lowerArm, hand
@@ -33,9 +35,10 @@ humanoid
 ポーズ
 pose
   hipsの移動と各ヒューマンボーンの回転のセット。
-  ヒューマノイド一体の姿勢をあらわす。
+  skeleton の初期姿勢からの相対値で表される。
 
 スキニング
+skinning
   Mesh の頂点を複数のノードでかさみ付けして移動回転変形させる。
   初期姿勢での joint の 位置 + 回転から決まる InverseBindMatrix と、
   各フレームの joint の World 行列により変形させる。
@@ -50,4 +53,3 @@ TPose
   異なるモデルに対するリターゲットが想定される。
   前者はvrmの正規化前後で発生し、後者は正規化ポーズをモデル間でやり取りするときに発生する。
 ```
-

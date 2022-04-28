@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="索引" href="genindex.html" /><link rel="search" title="検索" href="search.html" /><link rel="prev" title="Armature to Unity" href="implements/armature_unity.html" />
+<link rel="index" title="索引" href="genindex.html" /><link rel="search" title="検索" href="search.html" /><link rel="prev" title="Hand Pose Estimation" href="appendix/hand_pose_estimation.html" />
 
     <meta name="generator" content="sphinx-4.5.0, furo 2022.04.07"/>
         <title>用語集 - HumanBoneStructure ドキュメント</title>
@@ -157,17 +157,25 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="retarget/index.html">retarget</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="appendix/index.html">参考</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="humanbone/index.html">human bone</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="humanbone/body.html">体幹</a></li>
+<li class="toctree-l2"><a class="reference internal" href="humanbone/arm.html">上肢</a></li>
+<li class="toctree-l2"><a class="reference internal" href="humanbone/leg.html">下肢</a></li>
+<li class="toctree-l2"><a class="reference internal" href="humanbone/fingers.html">指</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="implements/index.html">実装</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="implements/node.html">Node操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="implements/armature_unity.html">Armature to Unity</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="appendix/index.html">参考</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="appendix/vrm1.html">vrm1形式</a></li>
 <li class="toctree-l2"><a class="reference internal" href="appendix/vrm0.html">vrm0形式</a></li>
 <li class="toctree-l2"><a class="reference internal" href="appendix/bvh.html">BVH形式</a></li>
 <li class="toctree-l2"><a class="reference internal" href="appendix/hierarchy.html">Joint Hierarchy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="appendix/human_pose_estimation.html">Human Pose Estimation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="appendix/hand_pose_estimation.html">Hand Pose Estimation</a></li>
-</ul>
-</li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="implements/index.html">実装実験</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="implements/armature_unity.html">Armature to Unity</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">用語集</a></li>
@@ -206,7 +214,7 @@
           <section id="id1">
 <h1>用語集<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">#</a></h1>
 <dl class="glossary simple">
-<dt id="term-0">ジョイント<a class="headerlink" href="#term-0" title="この用語の解説へ">#</a></dt><dt id="term-joint">joint<a class="headerlink" href="#term-joint" title="この用語の解説へ">#</a></dt><dd><p>position + rotation。簡単のために本記事では scale は除外する。</p>
+<dt id="term-0">ジョイント<a class="headerlink" href="#term-0" title="この用語の解説へ">#</a></dt><dt id="term-joint">joint<a class="headerlink" href="#term-joint" title="この用語の解説へ">#</a></dt><dt id="term-node">node<a class="headerlink" href="#term-node" title="この用語の解説へ">#</a></dt><dd><p>position + rotation。簡単のために本記事では scale は除外する。</p>
 </dd>
 <dt id="term-1">骨格<a class="headerlink" href="#term-1" title="この用語の解説へ">#</a></dt><dt id="term-skeleton">skeleton<a class="headerlink" href="#term-skeleton" title="この用語の解説へ">#</a></dt><dd><p>joint の集合。
 初期姿勢の world 位置 と 方向を持つ。</p>
@@ -217,7 +225,7 @@
 必須ボーンと必須ボーン同士の親子関係が決まっている。
 ヒューマノイドは、hips 以外は移動せずに回転しかしない。</p>
 </dd>
-<dt id="term-4">ヒューマンボーン<a class="headerlink" href="#term-4" title="この用語の解説へ">#</a></dt><dd><p>ヒューマノイドを構成するボーン。
+<dt id="term-4">ヒューマンボーン<a class="headerlink" href="#term-4" title="この用語の解説へ">#</a></dt><dt id="term-humanbone">humanbone<a class="headerlink" href="#term-humanbone" title="この用語の解説へ">#</a></dt><dd><p>ヒューマノイドを構成するボーン。
 体幹として、hips, spine, chest, neck, head
 腕として左右に、shoulder, upperArm, lowerArm, hand
 足として左右に、upperLeg, lowerLeg, foot, toes
@@ -228,9 +236,9 @@
 末端の head, toes, 各指先 は指先を示す empty を明示すること。</p>
 </dd>
 <dt id="term-5">ポーズ<a class="headerlink" href="#term-5" title="この用語の解説へ">#</a></dt><dt id="term-pose">pose<a class="headerlink" href="#term-pose" title="この用語の解説へ">#</a></dt><dd><p>hipsの移動と各ヒューマンボーンの回転のセット。
-ヒューマノイド一体の姿勢をあらわす。</p>
+skeleton の初期姿勢からの相対値で表される。</p>
 </dd>
-<dt id="term-6">スキニング<a class="headerlink" href="#term-6" title="この用語の解説へ">#</a></dt><dd><p>Mesh の頂点を複数のノードでかさみ付けして移動回転変形させる。
+<dt id="term-6">スキニング<a class="headerlink" href="#term-6" title="この用語の解説へ">#</a></dt><dt id="term-skinning">skinning<a class="headerlink" href="#term-skinning" title="この用語の解説へ">#</a></dt><dd><p>Mesh の頂点を複数のノードでかさみ付けして移動回転変形させる。
 初期姿勢での joint の 位置 + 回転から決まる InverseBindMatrix と、
 各フレームの joint の World 行列により変形させる。</p>
 </dd>
@@ -251,14 +259,14 @@
         
         <div class="related-pages">
           
-          <a class="prev-page" href="implements/armature_unity.html">
+          <a class="prev-page" href="appendix/hand_pose_estimation.html">
               <svg><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Armature to Unity</div>
+                <div class="title">Hand Pose Estimation</div>
                 
               </div>
             </a>

@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="検索" href="../search.html" /><link rel="next" title="vrm0形式" href="vrm0.html" /><link rel="prev" title="参考" href="index.html" />
+<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="検索" href="../search.html" /><link rel="next" title="体幹" href="body.html" /><link rel="prev" title="retarget" href="../retarget/index.html" />
 
     <meta name="generator" content="sphinx-4.5.0, furo 2022.04.07"/>
-        <title>vrm1形式 - HumanBoneStructure ドキュメント</title>
+        <title>human bone - HumanBoneStructure ドキュメント</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
@@ -135,7 +135,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -157,11 +157,11 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../retarget/index.html">retarget</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../humanbone/index.html">human bone</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../humanbone/body.html">体幹</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../humanbone/arm.html">上肢</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../humanbone/leg.html">下肢</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../humanbone/fingers.html">指</a></li>
+<li class="toctree-l1 current has-children current-page"><a class="current reference internal" href="#">human bone</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="body.html">体幹</a></li>
+<li class="toctree-l2"><a class="reference internal" href="arm.html">上肢</a></li>
+<li class="toctree-l2"><a class="reference internal" href="leg.html">下肢</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fingers.html">指</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../implements/index.html">実装</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -169,13 +169,13 @@
 <li class="toctree-l2"><a class="reference internal" href="../implements/armature_unity.html">Armature to Unity</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">参考</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">vrm1形式</a></li>
-<li class="toctree-l2"><a class="reference internal" href="vrm0.html">vrm0形式</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bvh.html">BVH形式</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hierarchy.html">Joint Hierarchy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="human_pose_estimation.html">Human Pose Estimation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hand_pose_estimation.html">Hand Pose Estimation</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../appendix/index.html">参考</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/vrm1.html">vrm1形式</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/vrm0.html">vrm0形式</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/bvh.html">BVH形式</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/hierarchy.html">Joint Hierarchy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/human_pose_estimation.html">Human Pose Estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/hand_pose_estimation.html">Hand Pose Estimation</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../glossary.html">用語集</a></li>
@@ -205,14 +205,71 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
         <article role="main">
-          <section id="vrm1">
-<span id="index-0"></span><h1>vrm1形式<a class="headerlink" href="#vrm1" title="このヘッドラインへのパーマリンク">#</a></h1>
+          <section id="human-bone">
+<h1>human bone<a class="headerlink" href="#human-bone" title="このヘッドラインへのパーマリンク">#</a></h1>
+<figure class="align-default" id="id1">
+<img alt="../_images/metarig.jpg" src="../_images/metarig.jpg"/>
+<figcaption>
+<p><span class="caption-text">boneの向きを参考に</span><a class="headerlink" href="#id1" title="この画像へのパーマリンク">#</a></p>
+</figcaption>
+</figure>
+<ul class="simple">
+<li><p>ローカル軸要るかね？</p>
+<ul>
+<li><p>手だけとか、上半身だけなどの部分モーションを合体するときにローカル軸あった方が管理しやすい予感(実際にやってないので不明)。
+　* 一軸関節の表現を float にするときにわかりやすい
+　* 指モーションの生成とかするときにわかりやすい(ような気がする)</p></li>
+</ul>
+</li>
+</ul>
+<section id="bone">
+<h2>Bone<a class="headerlink" href="#bone" title="このヘッドラインへのパーマリンク">#</a></h2>
+<ul class="simple">
+<li><p>head-tail を結ぶ軸を roll 軸</p></li>
+<li><p>z+ 方向を up</p></li>
+</ul>
+<p>とする。</p>
+<figure class="align-default" id="id2">
+<img alt="../_images/roll_up.jpg" src="../_images/roll_up.jpg"/>
+<figcaption>
+<p><span class="caption-text">ロール軸(+Y)は自明なのだけど、
+UP(+Z) は恣意的に決める必要がある。
+<code class="docutils literal notranslate"><span class="pre">Rigify</span></code> と同じにするか思案中・・・</span><a class="headerlink" href="#id2" title="この画像へのパーマリンク">#</a></p>
+<div class="legend">
+<ul class="simple">
+<li><p>肘、膝、指だけ X+により自然な方向に曲がるように UP を決めたいしたい</p></li>
+<li><p>他は適当で</p></li>
+</ul>
+</div>
+</figcaption>
+</figure>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="body.html">体幹</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="body.html#hips">hips</a></li>
+<li class="toctree-l2"><a class="reference internal" href="body.html#spine-chest-neck-head">spine, chest, neck, head</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="arm.html">上肢</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="arm.html#id2">左腕</a></li>
+<li class="toctree-l2"><a class="reference internal" href="arm.html#id3">右腕</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="leg.html">下肢</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fingers.html">指</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="fingers.html#index-middle-ring-little">index, middle, ring, little</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fingers.html#thumb">thumb</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
 </section>
 
         </article>
@@ -220,23 +277,23 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="vrm0.html">
+          <a class="next-page" href="body.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">vrm0形式</div>
+                <div class="title">体幹</div>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="index.html">
+          <a class="prev-page" href="../retarget/index.html">
               <svg><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">参考</div>
+                <div class="title">retarget</div>
                 
               </div>
             </a>
@@ -260,8 +317,27 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            コンテンツ
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">human bone</a><ul>
+<li><a class="reference internal" href="#bone">Bone</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>

@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="検索" href="../search.html" /><link rel="next" title="Armature to Unity" href="armature_unity.html" /><link rel="prev" title="Hand Pose Estimation" href="../appendix/hand_pose_estimation.html" />
+<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="検索" href="../search.html" /><link rel="next" title="Node操作" href="node.html" /><link rel="prev" title="指" href="../humanbone/fingers.html" />
 
     <meta name="generator" content="sphinx-4.5.0, furo 2022.04.07"/>
-        <title>実装実験 - HumanBoneStructure ドキュメント</title>
+        <title>実装 - HumanBoneStructure ドキュメント</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
@@ -157,17 +157,25 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../retarget/index.html">retarget</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../appendix/index.html">参考</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../humanbone/index.html">human bone</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../humanbone/body.html">体幹</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../humanbone/arm.html">上肢</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../humanbone/leg.html">下肢</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../humanbone/fingers.html">指</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current has-children current-page"><a class="current reference internal" href="#">実装</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="node.html">Node操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="armature_unity.html">Armature to Unity</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../appendix/index.html">参考</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../appendix/vrm1.html">vrm1形式</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../appendix/vrm0.html">vrm0形式</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../appendix/bvh.html">BVH形式</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../appendix/hierarchy.html">Joint Hierarchy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../appendix/human_pose_estimation.html">Human Pose Estimation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../appendix/hand_pose_estimation.html">Hand Pose Estimation</a></li>
-</ul>
-</li>
-<li class="toctree-l1 current has-children current-page"><a class="current reference internal" href="#">実装実験</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="armature_unity.html">Armature to Unity</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../glossary.html">用語集</a></li>
@@ -204,9 +212,15 @@
         </div>
         <article role="main">
           <section id="id1">
-<h1>実装実験<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">#</a></h1>
+<h1>実装<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">#</a></h1>
 <div class="toctree-wrapper compound">
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="node.html">Node操作</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="node.html#skinning">Skinning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="node.html#id1">ローカル軸を追加</a></li>
+<li class="toctree-l2"><a class="reference internal" href="node.html#t-pose">厳格T-Poseにする</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="armature_unity.html">Armature to Unity</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="armature_unity.html#blender">Blender</a></li>
 <li class="toctree-l2"><a class="reference internal" href="armature_unity.html#unity">Unity</a></li>
@@ -229,23 +243,23 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="armature_unity.html">
+          <a class="next-page" href="node.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Armature to Unity</div>
+                <div class="title">Node操作</div>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="../appendix/hand_pose_estimation.html">
+          <a class="prev-page" href="../humanbone/fingers.html">
               <svg><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Hand Pose Estimation</div>
+                <div class="title">指</div>
                 
               </div>
             </a>
@@ -281,7 +295,7 @@
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">実装実験</a><ul>
+<li><a class="reference internal" href="#">実装</a><ul>
 <li><a class="reference internal" href="#todo">ToDo</a></li>
 </ul>
 </li>

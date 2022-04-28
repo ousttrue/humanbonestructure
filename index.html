@@ -157,17 +157,25 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul>
 <li class="toctree-l1"><a class="reference internal" href="retarget/index.html">retarget</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="appendix/index.html">参考</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="humanbone/index.html">human bone</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="humanbone/body.html">体幹</a></li>
+<li class="toctree-l2"><a class="reference internal" href="humanbone/arm.html">上肢</a></li>
+<li class="toctree-l2"><a class="reference internal" href="humanbone/leg.html">下肢</a></li>
+<li class="toctree-l2"><a class="reference internal" href="humanbone/fingers.html">指</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="implements/index.html">実装</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="implements/node.html">Node操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="implements/armature_unity.html">Armature to Unity</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="appendix/index.html">参考</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="appendix/vrm1.html">vrm1形式</a></li>
 <li class="toctree-l2"><a class="reference internal" href="appendix/vrm0.html">vrm0形式</a></li>
 <li class="toctree-l2"><a class="reference internal" href="appendix/bvh.html">BVH形式</a></li>
 <li class="toctree-l2"><a class="reference internal" href="appendix/hierarchy.html">Joint Hierarchy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="appendix/human_pose_estimation.html">Human Pose Estimation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="appendix/hand_pose_estimation.html">Hand Pose Estimation</a></li>
-</ul>
-</li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="implements/index.html">実装実験</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="implements/armature_unity.html">Armature to Unity</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="glossary.html">用語集</a></li>
@@ -207,13 +215,15 @@
 <h1>HumanBoneStructure<a class="headerlink" href="#humanbonestructure" title="このヘッドラインへのパーマリンク">#</a></h1>
 <p><a class="reference external" href="https://github.com/ousttrue/humanbonestructure">https://github.com/ousttrue/humanbonestructure</a></p>
 <p><a class="reference internal" href="glossary.html#term-3"><span class="xref std std-term">ヒューマノイド</span></a> 向け <a class="reference internal" href="glossary.html#term-5"><span class="xref std std-term">ポーズ</span></a> の標準化の調査と python 実装。</p>
-digraph tpose {
+<div class="graphviz"><object class="graphviz" data="_images/graphviz-baf58b87339b897ad2b830e74e10b6fd61783687.svg" type="image/svg+xml">
+<p class="warning">digraph tpose {
   "vpd/vmd(A stance + world coord)" -&gt; "strict tpose";
   "motion capture / bvh (T stance + world coord)" -&gt; "strict tpose";
   "mediapipe / kinect (position based)" -&gt; "strict tpose";
   "strict tpose" -&gt; "vrm-0.x (T stance world coord)";
   "strict tpose" -&gt; "vrm-1.0 (T stance local coord)";
-}<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">D</span> <span class="o">=</span> <span class="n">TPOSE_DELTA</span>
+}</p></object></div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">D</span> <span class="o">=</span> <span class="n">TPOSE_DELTA</span>
 <span class="n">A</span> <span class="o">=</span> <span class="n">LOCAL_AXIS_DELTA</span>
 <span class="n">P</span> <span class="o">=</span> <span class="n">POSE</span>
 </pre></div>
@@ -237,6 +247,16 @@ digraph tpose {
 <li class="toctree-l2"><a class="reference internal" href="retarget/index.html#id9">自動化に必要な追加情報</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="humanbone/index.html">human bone</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="humanbone/index.html#bone">Bone</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="implements/index.html">実装</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="implements/node.html">Node操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="implements/armature_unity.html">Armature to Unity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="implements/index.html#todo">ToDo</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="appendix/index.html">参考</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="appendix/vrm1.html">vrm1形式</a></li>
 <li class="toctree-l2"><a class="reference internal" href="appendix/vrm0.html">vrm0形式</a></li>
@@ -244,11 +264,6 @@ digraph tpose {
 <li class="toctree-l2"><a class="reference internal" href="appendix/hierarchy.html">Joint Hierarchy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="appendix/human_pose_estimation.html">Human Pose Estimation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="appendix/hand_pose_estimation.html">Hand Pose Estimation</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="implements/index.html">実装実験</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="implements/armature_unity.html">Armature to Unity</a></li>
-<li class="toctree-l2"><a class="reference internal" href="implements/index.html#todo">ToDo</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="glossary.html">用語集</a></li>
