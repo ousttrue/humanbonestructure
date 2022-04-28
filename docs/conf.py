@@ -29,19 +29,9 @@ author = 'ousttrue'
 # ones.
 extensions = [
     'myst_parser',
-    'sphinxcontrib.blockdiag',
-    'sphinxcontrib.seqdiag',
-    'sphinxcontrib.actdiag',
-    'sphinxcontrib.nwdiag',
-    'sphinxcontrib.rackdiag',
-    'sphinxcontrib.packetdiag',
+    'sphinx.ext.graphviz',
 ]
-blockdiag_html_image_format = 'SVG'
-seqdiag_html_image_format = 'SVG'
-actdiag_html_image_format = 'SVG'
-nwdiag_html_image_format = 'SVG'
-rackiag_html_image_format = 'SVG'
-packetdiag_html_image_format = 'SVG'
+graphviz_output_format = 'svg'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -64,7 +54,7 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'nature'
+html_theme = 'furo'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

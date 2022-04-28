@@ -6,7 +6,7 @@
         {
             "label": "sphinx-autobuild",
             "type": "shell",
-            "command": ".venv/scripts/sphinx-autobuild docs build --open-browser",
+            "command": ".venv/Scripts/sphinx-autobuild docs build",
             "problemMatcher": [],
             "isBackground": true
         }
