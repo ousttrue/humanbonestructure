@@ -6,7 +6,7 @@
         {
             "label": "sphinx-autobuild",
             "type": "shell",
-            "command": ".venv/Scripts/sphinx-autobuild docs build",
+            "command": "sphinx-autobuild docs build",
             "problemMatcher": [],
             "isBackground": true
         }
