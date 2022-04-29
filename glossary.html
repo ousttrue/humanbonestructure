@@ -214,41 +214,51 @@
           <section id="id1">
 <h1>用語集<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">#</a></h1>
 <dl class="glossary simple">
-<dt id="term-0">ジョイント<a class="headerlink" href="#term-0" title="この用語の解説へ">#</a></dt><dt id="term-joint">joint<a class="headerlink" href="#term-joint" title="この用語の解説へ">#</a></dt><dt id="term-node">node<a class="headerlink" href="#term-node" title="この用語の解説へ">#</a></dt><dd><p>position + rotation。簡単のために本記事では scale は除外する。</p>
+<dt id="term-Node">Node<a class="headerlink" href="#term-Node" title="この用語の解説へ">#</a></dt><dt id="term-0">ジョイント<a class="headerlink" href="#term-0" title="この用語の解説へ">#</a></dt><dt id="term-Joint">Joint<a class="headerlink" href="#term-Joint" title="この用語の解説へ">#</a></dt><dd><p>position + rotation。簡単のために本記事では scale は除外する。</p>
 </dd>
-<dt id="term-1">骨格<a class="headerlink" href="#term-1" title="この用語の解説へ">#</a></dt><dt id="term-skeleton">skeleton<a class="headerlink" href="#term-skeleton" title="この用語の解説へ">#</a></dt><dd><p>joint の集合。
-初期姿勢の world 位置 と 方向を持つ。</p>
+<dt id="term-1">骨格<a class="headerlink" href="#term-1" title="この用語の解説へ">#</a></dt><dt id="term-Skeleton">Skeleton<a class="headerlink" href="#term-Skeleton" title="この用語の解説へ">#</a></dt><dd><p>Joint の集合。
+各Joint は初期姿勢として World 位置を持つ。
+初期姿勢に回転が含まれるなら、それをローカル軸と言う。</p>
 </dd>
-<dt id="term-2">姿勢<a class="headerlink" href="#term-2" title="この用語の解説へ">#</a></dt><dd><p>joint が移動回転した骨格の状態。</p>
+<dt id="term-2">モデル<a class="headerlink" href="#term-2" title="この用語の解説へ">#</a></dt><dd><p>スキニングモデルのことを指すかもしれないが、注意する。</p>
 </dd>
-<dt id="term-3">ヒューマノイド<a class="headerlink" href="#term-3" title="この用語の解説へ">#</a></dt><dt id="term-humanoid">humanoid<a class="headerlink" href="#term-humanoid" title="この用語の解説へ">#</a></dt><dd><p>決まったボーン構成を持つ骨格。
+<dt id="term-3">ボーンローカル軸<a class="headerlink" href="#term-3" title="この用語の解説へ">#</a></dt><dt id="term-4">ローカル軸<a class="headerlink" href="#term-4" title="この用語の解説へ">#</a></dt><dd><p>初期姿勢での Joint の向き。
+ヒューマンボーンの稼働方向とローカル軸が一致しているデータ表現がありうるが、
+保証されておらず、判定する方法も無い。誤判定してローカル軸をヒューマンボーンとして使ってしまうと、
+ワールド軸から推定するよりも結果が悪化することもありえる。
+もし、有効なローカル軸から厳格TPoseを作ることができれば、精度を高めることができて、
+親指の斜めさを解決することが期待できる。
+ユーザーモデルに決まった軸付けを要求するのは難しい(技量的、使用ツール的にできない可能性)。
+厳格TPoseでは <code class="docutils literal notranslate"><span class="pre">Blender流</span></code> に割り当てるので ロール軸がY、yaw 軸が Z である1種類しか考慮しない。</p>
+</dd>
+<dt id="term-5">ボーン<a class="headerlink" href="#term-5" title="この用語の解説へ">#</a></dt><dt id="term-Bone">Bone<a class="headerlink" href="#term-Bone" title="この用語の解説へ">#</a></dt><dt id="term-6">ヒューマンボーン<a class="headerlink" href="#term-6" title="この用語の解説へ">#</a></dt><dt id="term-HumanBone">HumanBone<a class="headerlink" href="#term-HumanBone" title="この用語の解説へ">#</a></dt><dd><p>Bone は Joint を拡張して、tail と up を決めることにより３次元の空間を明示する。
+ヒューマノイドを構成する。
+本記事では、joint(node) と bone を明確に区別する。</p>
+</dd>
+<dt id="term-7">ヒューマノイド<a class="headerlink" href="#term-7" title="この用語の解説へ">#</a></dt><dt id="term-Humanoid">Humanoid<a class="headerlink" href="#term-Humanoid" title="この用語の解説へ">#</a></dt><dd><p>決まったボーン構成を持つ骨格。
 必須ボーンと必須ボーン同士の親子関係が決まっている。
 ヒューマノイドは、hips 以外は移動せずに回転しかしない。</p>
 </dd>
-<dt id="term-4">ヒューマンボーン<a class="headerlink" href="#term-4" title="この用語の解説へ">#</a></dt><dt id="term-humanbone">humanbone<a class="headerlink" href="#term-humanbone" title="この用語の解説へ">#</a></dt><dd><p>ヒューマノイドを構成するボーン。
-体幹として、hips, spine, chest, neck, head
-腕として左右に、shoulder, upperArm, lowerArm, hand
-足として左右に、upperLeg, lowerLeg, foot, toes
-以上21ボーンが体。
-追加して親指、人差し指、中指、薬指、小指に対して 3 関節
-左右で30ボーンが指。
-また、各ボーンは tail を持たなければならない。
-末端の head, toes, 各指先 は指先を示す empty を明示すること。</p>
-</dd>
-<dt id="term-5">ポーズ<a class="headerlink" href="#term-5" title="この用語の解説へ">#</a></dt><dt id="term-pose">pose<a class="headerlink" href="#term-pose" title="この用語の解説へ">#</a></dt><dd><p>hipsの移動と各ヒューマンボーンの回転のセット。
+<dt id="term-8">ポーズ<a class="headerlink" href="#term-8" title="この用語の解説へ">#</a></dt><dt id="term-Pose">Pose<a class="headerlink" href="#term-Pose" title="この用語の解説へ">#</a></dt><dd><p>hipsの移動と各ヒューマンボーンの回転のセット。
 skeleton の初期姿勢からの相対値で表される。</p>
 </dd>
-<dt id="term-6">スキニング<a class="headerlink" href="#term-6" title="この用語の解説へ">#</a></dt><dt id="term-skinning">skinning<a class="headerlink" href="#term-skinning" title="この用語の解説へ">#</a></dt><dd><p>Mesh の頂点を複数のノードでかさみ付けして移動回転変形させる。
-初期姿勢での joint の 位置 + 回転から決まる InverseBindMatrix と、
-各フレームの joint の World 行列により変形させる。</p>
+<dt id="term-9">姿勢<a class="headerlink" href="#term-9" title="この用語の解説へ">#</a></dt><dd><p>骨格にポーズを適用した状態。
+本記事では骨格の見た目全体を姿勢と呼び、ポーズはモーションの１フレーム分のデータというニュアンスで使い分ける。
+<code class="docutils literal notranslate"><span class="pre">boneの姿勢</span></code> は、Transform(pos + rot)という意味で使うかも。</p>
 </dd>
 <dt id="term-TPose">TPose<a class="headerlink" href="#term-TPose" title="この用語の解説へ">#</a></dt><dd><p>モーションキャプチャーの初期ポーズとして使われることが多い。
 直立して、両腕を水平にして、手の平を下向きにする。
 モーションキャプチャーでは指を扱わないことが多いこともあり、指はあいまい。</p>
 </dd>
-<dt id="term-7">リターゲット<a class="headerlink" href="#term-7" title="この用語の解説へ">#</a></dt><dd><p>同一モデルの初期姿勢、ローカル軸違いのリターゲットと、
-異なるモデルに対するリターゲットが想定される。
-前者はvrmの正規化前後で発生し、後者は正規化ポーズをモデル間でやり取りするときに発生する。</p>
+<dt id="term-10">リターゲット<a class="headerlink" href="#term-10" title="この用語の解説へ">#</a></dt><dd><p>同一体格の初期姿勢、ローカル軸違いのリターゲット。これは座標変換で、変換前後で同じ姿勢を取ることができるはずである。
+異なる体格に対する体格差リターゲット。IKなどでモーションを補正する(回転を変更する)需要が発生しうる。
+本記事では、２種類のリターゲットを区別する。
+前者はモデルを扱いやすいように変換する前後で発生し、後者はポーズを異なるモデル間でやり取りするときに発生する。
+単にリターゲットと言ったときに２つは区別されてないので、内容に注意する。
+vrmの正規化は前者である。
+Unity の mecanim、モーションビルダーのキャラクタライズは両者が混ざっているんでないか。
+具体的には、(元モデルの座標系)=&gt;座標変換=&gt;(TPose的な処理用の座標系)=&gt;ポーズ転送=&gt;座標変換=&gt;(対象モデルの座標系)
+というような一連の操作がパイプラインのようになっている。</p>
 </dd>
 </dl>
 </section>

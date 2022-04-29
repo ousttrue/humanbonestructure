@@ -216,15 +216,6 @@
 <figure class="align-default">
 <img alt="../_images/logic.jpg" src="../_images/logic.jpg"/>
 </figure>
-<ul class="simple">
-<li><p>ローカル軸要るかね？</p>
-<ul>
-<li><p>手だけとか、上半身だけなどの部分モーションを合体するときにローカル軸あった方が管理しやすい予感(実際にやってないので不明)</p></li>
-<li><p>一軸関節の表現を float にするときにわかりやすい</p></li>
-<li><p>指モーションの生成とかするときにわかりやすい(ような気がする)</p></li>
-</ul>
-</li>
-</ul>
 <section id="tpose-humanbone">
 <h2>厳格TPose 向けの HumanBone 定義<a class="headerlink" href="#tpose-humanbone" title="このヘッドラインへのパーマリンク">#</a></h2>
 <ul class="simple">
@@ -232,7 +223,11 @@
 <li><p>ボーンを TPose のときに連続して同じ方向に進むものに分類</p>
 <ul>
 <li><p>連続の最後に末端ボーンが必要(bvhのendSite)</p></li>
-<li><p>hand を中指に接続していたが、hand と finger 分離したほうがよさそう(中指の開始位置が厳格TPoseで変わらない方がよい)</p></li>
+<li><p>hand を中指に接続していたが、hand と finger 分離したほうがよさそう(中指の開始位置が厳格TPoseで変わらない方がよい)</p>
+<ul>
+<li><p>やっぱり中指で良さそう。hand-end 追加するのめんどくさいし、中指になるでしょ。</p></li>
+</ul>
+</li>
 <li><p>同じ分類のものは同じローカル軸を持つ</p></li>
 </ul>
 </li>
@@ -243,6 +238,7 @@
 <th class="head"><p>bone</p></th>
 <th class="head"><p>Roll軸(進行方向)</p></th>
 <th class="head"><p>Yaw軸(UP方向)</p></th>
+<th class="head"><p>memo</p></th>
 </tr>
 </thead>
 <tbody>
@@ -250,28 +246,34 @@
 <td><p>hips, spine, chest, neck, head, endSite</p></td>
 <td><p>上</p></td>
 <td><p>前</p></td>
+<td><p>あえてupperChest言及せず</p></td>
 </tr>
 <tr class="row-odd"><td><p>左腕</p></td>
 <td><p>leftShoulder, leftUpperArm, leftLowerArm, leftHand, endSite</p></td>
 <td><p>左</p></td>
 <td><p>前</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-even"><td><p>左脚</p></td>
 <td><p>leftUpperLeg, leftLowerLeg, leftFoot, leftToes, endSite</p></td>
 <td><p>下</p></td>
 <td><p>後</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p>右腕</p></td>
 <td><p>rightShoulder, rightUpperArm, rightLowerArm, rightHand, endSite</p></td>
 <td><p>右</p></td>
 <td><p>前</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-even"><td><p>右脚</p></td>
 <td><p>rightUpperLeg, rightLowerLeg, rightFoot, rightToes, endSite</p></td>
 <td><p>下</p></td>
 <td><p>後</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p></p></td>
+<td><p></p></td>
 <td><p></p></td>
 <td><p></p></td>
 <td><p></p></td>
@@ -280,21 +282,25 @@
 <td><p>index, middle, ring, little の proximal, intermediate, distal, endSite</p></td>
 <td><p>左</p></td>
 <td><p>下</p></td>
+<td><p>2,1,1くらいの長さ比</p></td>
 </tr>
 <tr class="row-odd"><td><p>左親指</p></td>
 <td><p>metaCarpal, proximal, distal, endSite</p></td>
 <td><p>左</p></td>
 <td><p>後</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-even"><td><p>右親指以外の四指</p></td>
 <td><p>index, middle, ring, little, endSite</p></td>
 <td><p>右</p></td>
 <td><p>下</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p>右親指</p></td>
 <td><p>metaCarpal, proximal, distal, endSite</p></td>
 <td><p>右</p></td>
 <td><p>後</p></td>
+<td><p></p></td>
 </tr>
 </tbody>
 </table></div>
@@ -308,6 +314,9 @@
 </ul>
 </li>
 </ul>
+<p>厳密TPoseでこの数字が同じ骨格は同じ体格であると言えて、完全に同じ姿勢にすることができる。
+この数字が違うも骨格では差異が生じる。
+体格差リターゲットの必要性が生じる。</p>
 </section>
 <section id="xyz">
 <h2>XYZ<a class="headerlink" href="#xyz" title="このヘッドラインへのパーマリンク">#</a></h2>
