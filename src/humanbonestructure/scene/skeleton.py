@@ -60,7 +60,7 @@ class Skeleton:
 
         for node, _ in root.traverse_node_and_parent():
             if node.humanoid_bone and not node.humanoid_bone == HumanoidBone.endSite:
-                if node.humanoid_bone:
+                if node.humanoid_bone.is_enable():
                     assert node.humanoid_tail
 
                     color = Float3(1, 1, 1)

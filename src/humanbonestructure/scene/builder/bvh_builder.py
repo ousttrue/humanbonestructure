@@ -48,9 +48,11 @@ def build(bvh: bvh_parser.Bvh) -> Node:
 
     def build(src: bvh_parser.Node, parent: Optional[Node] = None):
         index = get_counter()
-        node = Node(src.name if src.name else f'bone#{index}', Transform.from_translation(src.offset))
-        if src.name:
-            node.humanoid_bone = HUMANOID_MAP.get(src.name)
+        humanoid_bone = HUMANOID_MAP[src.name] if src.name else HumanoidBone.endSite
+        node = Node(
+            src.name if src.name else f'bone#{index}', Transform.from_translation(
+                src.offset),
+            humanoid_bone=humanoid_bone)
 
         for child in src.children:
             child_node = build(child, node)

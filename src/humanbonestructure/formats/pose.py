@@ -7,7 +7,7 @@ from .humanoid_bones import HumanoidBone, HumanoidBodyParts
 
 class BonePose(NamedTuple):
     name: str
-    humanoid_bone: Optional[HumanoidBone]
+    humanoid_bone: HumanoidBone
     transform: Transform
 
     def reverse_z(self) -> 'BonePose':
@@ -28,11 +28,8 @@ class Pose:
     def get_parts(self, part: HumanoidBodyParts) -> bool:
         value = self._parts.get(part)
         if not isinstance(value, bool):
-            def has_part(bone: BonePose) -> bool:
-                if not bone.humanoid_bone:
-                    return False
-                return bone.humanoid_bone.get_part() == part
-            value = any(has_part(bone) for bone in self.bones)
+            value = any(bone.humanoid_bone.get_part()
+                        == part for bone in self.bones)
             self._parts[part] = value
         return value
 
@@ -45,14 +42,12 @@ class Pose:
             return (q.x, q.y, q.z, q.w)
         bone_map: Dict[str, Tuple[float, float, float, float]] = {}
         for bone in self.bones:
-            assert bone.humanoid_bone
+            assert bone.humanoid_bone.is_enable()
             # node = node_map[bone.humanoid_bone]
             # if node and node.pose:
             #     q = glm.inverse(node.pose.rotation) * bone.transform.rotation
             #     bone_map[bone.humanoid_bone.name] = float4(q)
-            if bone.humanoid_bone:
-                bone_map[bone.humanoid_bone.name] = float4(
-                    bone.transform.rotation)
+            bone_map[bone.humanoid_bone.name] = float4(bone.transform.rotation)
 
         if not bone_map:
             pass

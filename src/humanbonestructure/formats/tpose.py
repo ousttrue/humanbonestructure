@@ -21,7 +21,7 @@ def force_axis(head: Node, tail: Node, to: glm.vec3):
 def make_tpose(root: Node, *, is_inverted_pelvis=False):
 
     for node, _ in root.traverse_node_and_parent():
-        if node.humanoid_bone and node.humanoid_tail and node.humanoid_tail.humanoid_bone:
+        if node.humanoid_bone.is_enable() and node.humanoid_tail:
             root.calc_skinning(glm.mat4())
             if node.humanoid_bone == HumanoidBone.hips and is_inverted_pelvis:
                 dir = (0, -1, 0)
@@ -75,7 +75,7 @@ class TPose(Motion):
     def __init__(self, model_name: str, root: Node) -> None:
         super().__init__(f'TPose [{model_name}]')
         self.humanoid_bones = set([node.humanoid_bone for node,
-                                   _ in root.traverse_node_and_parent() if node.humanoid_bone])
+                                   _ in root.traverse_node_and_parent() if node.humanoid_bone.is_enable()])
         make_tpose(root)
         self.pose = Pose(self.name)
         for node, _ in root.traverse_node_and_parent():

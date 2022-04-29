@@ -12,6 +12,8 @@ class HumanoidBodyParts(Enum):
 
 
 class HumanoidBone(Enum):
+    unknown = ""
+    #
     hips = "hips"
     spine = "spine"
     chest = "chest"
@@ -75,6 +77,9 @@ class HumanoidBone(Enum):
     rightLittleDistal = "rightLittleDistal"
     # bvh
     endSite = "endSite"
+
+    def is_enable(self) -> bool:
+        return self != HumanoidBone.unknown and self != HumanoidBone.endSite
 
     def get_part(self) -> HumanoidBodyParts:
         return HUMANOIDBONE_PART_MAP[self]

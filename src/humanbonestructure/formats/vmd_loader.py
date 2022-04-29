@@ -26,7 +26,8 @@ class KeyFrame(ctypes.Structure):
 class BoneCurve:
     def __init__(self, name: str) -> None:
         self.name = name
-        self.humanoid_bone = BONE_HUMANOID_MAP.get(name)
+        self.humanoid_bone = BONE_HUMANOID_MAP.get(
+            name) or HumanoidBone.unknown
         self.key_frames: List[KeyFrame] = []
 
     def get_transform(self, frame: int) -> Transform:
@@ -40,7 +41,7 @@ class Vmd(Motion):
         self.model = model
         self.curves = curves
         self._humanbones = set(
-            curve.humanoid_bone for curve in self.curves if curve.humanoid_bone)
+            curve.humanoid_bone for curve in self.curves if curve.humanoid_bone.is_enable())
         self.set_frame(0)
 
     @staticmethod

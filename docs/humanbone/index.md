@@ -1,6 +1,6 @@
 # human bone
 
-```{figure} ../logic.jpg
+```{figure} ../retarget/logic.jpg
 ```
 
 * ローカル軸要るかね？
@@ -16,18 +16,18 @@
   * hand を中指に接続していたが、hand と finger 分離したほうがよさそう(中指の開始位置が厳格TPoseで変わらない方がよい)
   * 同じ分類のものは同じローカル軸を持つ
 
-| 分類                                                                                    | Roll軸(進行方向) | Yaw軸(UP方向) |
-| --------------------------------------------------------------------------------------- | ---------------- | ------------- |
-| 体幹 hips, spine, chest, neck, head, endSite                                            | 上               | 前            |
-| 左腕 leftShoulder, leftUpperArm, leftLowerArm, leftHand, endSite                        | 左               | 前            |
-| 左脚 leftUpperLeg, leftLowerLeg, leftFoot, leftToes, endSite                            | 下               | 後            |
-| 右腕 rightShoulder, rightUpperArm, rightLowerArm, rightHand, endSite                    | 右               | 前            |
-| 右脚 rightUpperLeg, rightLowerLeg, rightFoot, rightToes, endSite                        | 下               | 後            |
-|                                                                                         |                  |
-| 左親指以外の四指 index, middle, ring, little の proximal, intermediate, distal, endSite | 左               | 下            |
-| 左親指 metaCarpal, proximal, distal, endSite                                            | 左               | 後            |
-| 右親指以外の四指 index, middle, ring, little, endSite                                   | 右               | 下            |
-| 右親指 metaCarpal, proximal, distal, endSite                                            | 右               | 後            |
+| 分類             | bone                                                                   | Roll軸(進行方向) | Yaw軸(UP方向) |
+| ---------------- | ---------------------------------------------------------------------- | ---------------- | ------------- |
+| 体幹             | hips, spine, chest, neck, head, endSite                                | 上               | 前            |
+| 左腕             | leftShoulder, leftUpperArm, leftLowerArm, leftHand, endSite            | 左               | 前            |
+| 左脚             | leftUpperLeg, leftLowerLeg, leftFoot, leftToes, endSite                | 下               | 後            |
+| 右腕             | rightShoulder, rightUpperArm, rightLowerArm, rightHand, endSite        | 右               | 前            |
+| 右脚             | rightUpperLeg, rightLowerLeg, rightFoot, rightToes, endSite            | 下               | 後            |
+|                  |                                                                        |                  |
+| 左親指以外の四指 | index, middle, ring, little の proximal, intermediate, distal, endSite | 左               | 下            |
+| 左親指           | metaCarpal, proximal, distal, endSite                                  | 左               | 後            |
+| 右親指以外の四指 | index, middle, ring, little, endSite                                   | 右               | 下            |
+| 右親指           | metaCarpal, proximal, distal, endSite                                  | 右               | 後            |
 
 * 体で5分類、21ボーン
 * 指で10分類, 30ボーン
@@ -41,7 +41,7 @@
 
 ```{figure} roll_up.jpg
 
-Blend流にしよう。
+Blender 流にしよう。
 ロール軸(+Y)
 UP(+Z)
 ```

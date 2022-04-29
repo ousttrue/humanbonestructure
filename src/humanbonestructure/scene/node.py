@@ -31,7 +31,7 @@ class Node:
     '''
 
     def __init__(self, name: str, local_trs: Transform, *,
-                 humanoid_bone: Optional[HumanoidBone] = None,
+                 humanoid_bone: HumanoidBone = HumanoidBone.unknown,
                  children: Optional[List['Node']] = None) -> None:
         global NODE_ID
         self.index = NODE_ID
@@ -62,7 +62,7 @@ class Node:
                 node.parent = parent
 
     def traverse_node_and_parent(self, parent: Optional['Node'] = None, *, only_human_bone=False) -> Iterable[Tuple['Node', Optional['Node']]]:
-        if not only_human_bone or self.humanoid_bone and self.humanoid_bone != HumanoidBone.endSite:
+        if not only_human_bone or self.humanoid_bone.is_enable():
             yield self, parent
         for child in self.children:
             for x, y in child.traverse_node_and_parent(self, only_human_bone=only_human_bone):
@@ -83,7 +83,7 @@ class Node:
         return found
 
     def find_tail(self) -> Optional['Node']:
-        assert self.humanoid_bone
+        assert self.humanoid_bone.is_enable()
         if not len(self.children):
             # add dummy tail
             LOGGER.warn(f'no tail: {self}')
@@ -96,7 +96,7 @@ class Node:
         human_bones = []
         for child in self.children:
             for x, _ in child.traverse_node_and_parent():
-                if x.humanoid_bone:
+                if x.humanoid_bone.is_enable():
                     human_bones.append(x)
                     break
 
@@ -137,7 +137,7 @@ class Node:
             else:
                 for child in self.children:
                     for node, _ in child.traverse_node_and_parent():
-                        if node.humanoid_bone:
+                        if node.humanoid_bone.is_enable():
                             return node
 
             return human_bones[0]
@@ -173,7 +173,7 @@ class Node:
         self.bind_matrix = parent * trs_matrix(*self.init_trs)
 
         has = False
-        if self.humanoid_bone:
+        if self.humanoid_bone.is_enable():
             has = True
             self.humanoid_tail = self.find_tail()
 
