@@ -213,8 +213,11 @@
         <article role="main">
           <section id="human-bone">
 <h1>Human bone<a class="headerlink" href="#human-bone" title="このヘッドラインへのパーマリンク">#</a></h1>
-<figure class="align-default">
+<figure class="align-default" id="id1">
 <img alt="../_images/logic.jpg" src="../_images/logic.jpg"/>
+<figcaption>
+<p><span class="caption-text">すべてのボーンが <code class="docutils literal notranslate"><span class="pre">完全に</span></code> ワールド軸平行</span><a class="headerlink" href="#id1" title="この画像へのパーマリンク">#</a></p>
+</figcaption>
 </figure>
 <section id="tpose-humanbone">
 <h2>厳格TPose 向けの HumanBone 定義<a class="headerlink" href="#tpose-humanbone" title="このヘッドラインへのパーマリンク">#</a></h2>
@@ -249,25 +252,25 @@
 <td><p>あえてupperChest言及せず</p></td>
 </tr>
 <tr class="row-odd"><td><p>左腕</p></td>
-<td><p>leftShoulder, leftUpperArm, leftLowerArm, leftHand, endSite</p></td>
+<td><p>leftShoulder, leftUpperArm, leftLowerArm, leftHand, endSite(もしくはleftMiddleFinger)</p></td>
 <td><p>左</p></td>
 <td><p>前</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p>左脚</p></td>
-<td><p>leftUpperLeg, leftLowerLeg, leftFoot, leftToes, endSite</p></td>
+<td><p>leftUpperLeg, leftLowerLeg, leftFoot, endSite</p></td>
 <td><p>下</p></td>
 <td><p>後</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p>右腕</p></td>
-<td><p>rightShoulder, rightUpperArm, rightLowerArm, rightHand, endSite</p></td>
+<td><p>rightShoulder, rightUpperArm, rightLowerArm, rightHand, endSite(もしくはrightMiddleFinger)</p></td>
 <td><p>右</p></td>
 <td><p>前</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p>右脚</p></td>
-<td><p>rightUpperLeg, rightLowerLeg, rightFoot, rightToes, endSite</p></td>
+<td><p>rightUpperLeg, rightLowerLeg, rightFoot, endSite</p></td>
 <td><p>下</p></td>
 <td><p>後</p></td>
 <td><p></p></td>
@@ -278,25 +281,43 @@
 <td><p></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>左親指以外の四指</p></td>
+<tr class="row-even"><td><p>左つま先</p></td>
+<td><p>leftToes, endSite</p></td>
+<td><p>前</p></td>
+<td><p>上</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>右つま先</p></td>
+<td><p>rightToes, endSite</p></td>
+<td><p>前</p></td>
+<td><p>上</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>左親指以外の四指</p></td>
 <td><p>index, middle, ring, little の proximal, intermediate, distal, endSite</p></td>
 <td><p>左</p></td>
 <td><p>下</p></td>
 <td><p>2,1,1くらいの長さ比</p></td>
 </tr>
-<tr class="row-odd"><td><p>左親指</p></td>
+<tr class="row-even"><td><p>左親指</p></td>
 <td><p>metaCarpal, proximal, distal, endSite</p></td>
 <td><p>左</p></td>
 <td><p>後</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>右親指以外の四指</p></td>
+<tr class="row-odd"><td><p>右親指以外の四指</p></td>
 <td><p>index, middle, ring, little, endSite</p></td>
 <td><p>右</p></td>
 <td><p>下</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>右親指</p></td>
+<tr class="row-even"><td><p>右親指</p></td>
 <td><p>metaCarpal, proximal, distal, endSite</p></td>
 <td><p>右</p></td>
 <td><p>後</p></td>
@@ -305,11 +326,11 @@
 </tbody>
 </table></div>
 <ul class="simple">
-<li><p>体で5分類、21ボーン</p></li>
-<li><p>指で10分類, 30ボーン</p></li>
+<li><p>体で7分類、21ボーン</p></li>
+<li><p>手指10分類, 30ボーン</p></li>
 <li><p>各分類ごとに先頭の位置が必要で、後続は長さだけで良い</p>
 <ul>
-<li><p>体で 5 pos, 21 length (float 36)</p></li>
+<li><p>体で 7 pos, 21 length (float 36)</p></li>
 <li><p>指で 10 pos, 30 length (float 60)</p></li>
 </ul>
 </li>
@@ -321,12 +342,12 @@
 <section id="xyz">
 <h2>XYZ<a class="headerlink" href="#xyz" title="このヘッドラインへのパーマリンク">#</a></h2>
 <p>実装に向けて、Yaw, Pitch, Roll の XYZ 割当をきめる。</p>
-<figure class="align-default" id="id1">
+<figure class="align-default" id="id2">
 <img alt="../_images/roll_up.jpg" src="../_images/roll_up.jpg"/>
 <figcaption>
 <p><span class="caption-text">Blender 流にしよう。
 ロール軸(+Y)
-UP(+Z)</span><a class="headerlink" href="#id1" title="この画像へのパーマリンク">#</a></p>
+UP(+Z)</span><a class="headerlink" href="#id2" title="この画像へのパーマリンク">#</a></p>
 </figcaption>
 </figure>
 <p>とする。</p>

@@ -1,6 +1,7 @@
 # Human bone
 
-```{figure} ../retarget/logic.jpg
+```{figure} logic.jpg
+すべてのボーンが `完全に` ワールド軸平行
 ```
 
 ## 厳格TPose 向けの HumanBone 定義
@@ -12,23 +13,27 @@
     * やっぱり中指で良さそう。hand-end 追加するのめんどくさいし、中指になるでしょ。
   * 同じ分類のものは同じローカル軸を持つ
 
-| 分類             | bone                                                                   | Roll軸(進行方向) | Yaw軸(UP方向) | memo                     |
-| ---------------- | ---------------------------------------------------------------------- | ---------------- | ------------- | ------------------------ |
-| 体幹             | hips, spine, chest, neck, head, endSite                                | 上               | 前            | あえてupperChest言及せず |
-| 左腕             | leftShoulder, leftUpperArm, leftLowerArm, leftHand, endSite            | 左               | 前            |
-| 左脚             | leftUpperLeg, leftLowerLeg, leftFoot, leftToes, endSite                | 下               | 後            |
-| 右腕             | rightShoulder, rightUpperArm, rightLowerArm, rightHand, endSite        | 右               | 前            |
-| 右脚             | rightUpperLeg, rightLowerLeg, rightFoot, rightToes, endSite            | 下               | 後            |
-|                  |                                                                        |                  |
-| 左親指以外の四指 | index, middle, ring, little の proximal, intermediate, distal, endSite | 左               | 下            | 2,1,1くらいの長さ比      |
-| 左親指           | metaCarpal, proximal, distal, endSite                                  | 左               | 後            |
-| 右親指以外の四指 | index, middle, ring, little, endSite                                   | 右               | 下            |
-| 右親指           | metaCarpal, proximal, distal, endSite                                  | 右               | 後            |
+| 分類             | bone                                                                                       | Roll軸(進行方向) | Yaw軸(UP方向) | memo                     |
+| ---------------- | ------------------------------------------------------------------------------------------ | ---------------- | ------------- | ------------------------ |
+| 体幹             | hips, spine, chest, neck, head, endSite                                                    | 上               | 前            | あえてupperChest言及せず |
+| 左腕             | leftShoulder, leftUpperArm, leftLowerArm, leftHand, endSite(もしくはleftMiddleFinger)      | 左               | 前            |
+| 左脚             | leftUpperLeg, leftLowerLeg, leftFoot, endSite                                              | 下               | 後            |
+| 右腕             | rightShoulder, rightUpperArm, rightLowerArm, rightHand, endSite(もしくはrightMiddleFinger) | 右               | 前            |
+| 右脚             | rightUpperLeg, rightLowerLeg, rightFoot, endSite                                           | 下               | 後            |
+|                  |                                                                                            |                  |
+| 左つま先         | leftToes, endSite                                                                          | 前               | 上            |
+| 右つま先         | rightToes, endSite                                                                         | 前               | 上            |
+|                  |                                                                                            |                  |
+| 左親指以外の四指 | index, middle, ring, little の proximal, intermediate, distal, endSite                     | 左               | 下            | 2,1,1くらいの長さ比      |
+| 左親指           | metaCarpal, proximal, distal, endSite                                                      | 左               | 後            |
+| 右親指以外の四指 | index, middle, ring, little, endSite                                                       | 右               | 下            |
+| 右親指           | metaCarpal, proximal, distal, endSite                                                      | 右               | 後            |
 
-* 体で5分類、21ボーン
-* 指で10分類, 30ボーン
+* 体で7分類、21ボーン
+* 手指10分類, 30ボーン
+
 * 各分類ごとに先頭の位置が必要で、後続は長さだけで良い
-  * 体で 5 pos, 21 length (float 36)
+  * 体で 7 pos, 21 length (float 36)
   * 指で 10 pos, 30 length (float 60)
 
 厳密TPoseでこの数字が同じ骨格は同じ体格であると言えて、完全に同じ姿勢にすることができる。
