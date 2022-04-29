@@ -1,4 +1,4 @@
-# human bone
+# Human bone
 
 ```{figure} ../retarget/logic.jpg
 ```
