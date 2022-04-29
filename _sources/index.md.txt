@@ -3,6 +3,7 @@
 <https://github.com/ousttrue/humanbonestructure>
 
 {term}`ヒューマノイド` 向け {term}`ポーズ` の標準化の調査と python 実装。
+あるいは strict な bvh ?
 
 ```{graphviz}
 digraph tpose {
@@ -24,7 +25,6 @@ P = POSE
 P' = D^{-1} \cdot A^{-1} \cdot P \cdot A
 ```
 
-
 ```{toctree}
 :maxdepth: 2
 retarget/index
@@ -39,4 +39,3 @@ glossary
 * {ref}`genindex`
 * {ref}`modindex`
 * {ref}`search`
-
