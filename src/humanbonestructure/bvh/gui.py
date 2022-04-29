@@ -9,11 +9,16 @@ from ..scene.scene import Scene
 class GUI(dockspace.DockingGui):
     def __init__(self, loop: asyncio.AbstractEventLoop) -> None:
 
+        from ..gui.motion_selector import MotionSelected
+        self.motion = MotionSelected()
+
         from pydear.utils.loghandler import ImGuiLogHandler
         log_handler = ImGuiLogHandler()
         log_handler.register_root(append=True)
 
         self.docks = [
+            dockspace.Dock('bvh', self.motion.show,
+                           (ctypes.c_bool * 1)(True)),
             dockspace.Dock('metrics', ImGui.ShowMetricsWindow,
                            (ctypes.c_bool * 1)(True)),
             dockspace.Dock('logger', log_handler.show,
@@ -22,7 +27,7 @@ class GUI(dockspace.DockingGui):
 
         super().__init__(loop, docks=self.docks)
 
-        self.scene = self._load_scene('bvh')
+        self.scene = self._add_scene('bvh')
 
     def _setup_font(self):
         io = ImGui.GetIO()
@@ -37,7 +42,7 @@ class GUI(dockspace.DockingGui):
 
         io.Fonts.Build()
 
-    def _load_scene(self, name: str) -> Scene:
+    def _add_scene(self, name: str) -> Scene:
         self.scene = Scene(name)
         tree_name = f'tree:{name}'
         from ..gui.bone_tree import BoneTree

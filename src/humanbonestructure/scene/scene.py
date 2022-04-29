@@ -94,16 +94,22 @@ class Scene:
         self.root = gltf_builder.build(gltf)
         self._setup_model()
 
-    def load_bvh(self, path: pathlib.Path):
-        bvh = bvh_parser.parse(path.read_text(encoding='utf-8'))
+    def load_bvh(self, path: pathlib.Path) -> bvh_parser.Bvh:
+        '''
+        BVH をロードしてヒエラルキーを Scene に構築する
+
+        return parsed Bvh
+        '''
+        bvh = bvh_parser.from_path(path)
         LOGGER.debug(bvh)
         from .builder import bvh_builder
         self.root = bvh_builder.build(bvh)
         self._setup_model()
+        return bvh
 
     def create_model(self):
-        from .builder import create
-        self.root = create.create()
+        from .builder import strict_tpose
+        self.root = strict_tpose.create()
         self._setup_model()
 
     def render(self, camera: Camera):

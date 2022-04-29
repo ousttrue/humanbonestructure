@@ -48,8 +48,7 @@ def build(bvh: bvh_parser.Bvh) -> Node:
 
     def build(src: bvh_parser.Node, parent: Optional[Node] = None):
         index = get_counter()
-        node = Node(
-            index, src.name if src.name else f'bone#{index}', Transform.from_translation(src.offset))
+        node = Node(src.name if src.name else f'bone#{index}', Transform.from_translation(src.offset))
         if src.name:
             node.humanoid_bone = HUMANOID_MAP.get(src.name)
 
@@ -83,7 +82,7 @@ def build(bvh: bvh_parser.Bvh) -> Node:
             translation=node.init_trs.translation * scale)
 
     # hips が root なので root を追加
-    root = Node(-1, '__root__', Transform.identity())
+    root = Node('__root__', Transform.identity())
 
     # 接地させる
     hips_pos = hips.init_trs.translation

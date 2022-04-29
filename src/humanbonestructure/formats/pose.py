@@ -73,10 +73,6 @@ class Motion(abc.ABC):
         self.name = name
         self._parts_cache = None
 
-    @ abc.abstractmethod
-    def get_info(self) -> str:
-        raise NotImplementedError()
-
     def get_humanboneparts(self) -> Set[HumanoidBodyParts]:
         if self._parts_cache is None:
             self._parts_cache = set(bone.get_part()
@@ -84,15 +80,20 @@ class Motion(abc.ABC):
         return self._parts_cache
 
     @ abc.abstractmethod
+    def get_info(self) -> str:
+        raise NotImplementedError()
+
+    @ abc.abstractmethod
     def get_humanbones(self) -> Set[HumanoidBone]:
+        raise NotImplementedError()
+
+    @ abc.abstractmethod
+    def set_frame(self, frame: int):
         raise NotImplementedError()
 
     @ abc.abstractmethod
     def get_current_pose(self) -> Pose:
         raise NotImplementedError()
-
-    def set_frame(self, frame: int):
-        pass
 
 
 class Empty(Motion):

@@ -1,8 +1,11 @@
-from typing import Iterable, NamedTuple, Iterator, Optional, List
+from typing import Iterable, NamedTuple, Iterator, Optional, List, Set
+import pathlib
 from enum import Enum, auto
 import ctypes
 import math
 import glm
+from .humanoid_bones import HumanoidBone
+from .pose import Motion, Pose, Empty
 
 
 def to_radian(degree):
@@ -143,18 +146,33 @@ def parse_recursive(it: Iterator[str], head: str) -> Node:
             raise NotImplementedError()
 
 
-class Bvh:
-    def __init__(self, root: Node, frametime: float, frames: int, data: ctypes.Array) -> None:
+class Bvh(Motion):
+    def __init__(self, name: str, root: Node, frametime: float, frame_count: int, data: ctypes.Array) -> None:
+        super().__init__(name)
         self.root = root
         self.frametime = frametime
-        self.frames = frames
+        self.frame_count = frame_count
         self.data = data
+        self.pose = self.set_frame(0)
 
     def get_seconds(self):
-        return self.frametime * self.frames
+        return self.frametime * self.frame_count
+
+    def get_info(self) -> str:
+        return f'{self.frame_count}frames, {self.get_seconds()}sec'
+
+    def get_humanbones(self) -> Set[HumanoidBone]:
+        return set()
+
+    def set_frame(self, frame: int):
+        self.pose = Pose('tmp')
+        return self.pose
+
+    def get_current_pose(self) -> Pose:
+        return self.pose
 
 
-def parse(src: str) -> Bvh:
+def parse(name: str, src: str) -> Bvh:
     it = iter(src.splitlines())
     if next(it) != 'HIERARCHY':
         raise BvhException('HIERARCHY not found')
@@ -185,4 +203,8 @@ def parse(src: str) -> Bvh:
             data[i] = float(x)
             i += 1
 
-    return Bvh(root, frametime, frames, data)
+    return Bvh(name, root, frametime, frames, data)
+
+
+def from_path(path: pathlib.Path) -> Bvh:
+    return parse(path.stem, path.read_text(encoding='utf-8'))

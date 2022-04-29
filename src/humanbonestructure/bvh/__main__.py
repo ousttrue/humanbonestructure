@@ -14,7 +14,8 @@ def main():
     from .gui import GUI
     gui = GUI(app.loop)
 
-    gui.scene.load_bvh(pathlib.Path(sys.argv[1]))
+    bvh = gui.scene.load_bvh(pathlib.Path(sys.argv[1]))
+    gui.motion.set_motion(bvh)
 
     from pydear.backends import impl_glfw
     impl_glfw = impl_glfw.ImplGlfwInput(app.window)
