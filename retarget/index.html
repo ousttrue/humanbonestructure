@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="検索" href="../search.html" /><link rel="next" title="human bone" href="../humanbone/index.html" /><link rel="prev" title="HumanBoneStructure" href="../index.html" />
+<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="検索" href="../search.html" /><link rel="next" title="Human bone" href="../humanbone/index.html" /><link rel="prev" title="HumanBoneStructure" href="../index.html" />
 
     <meta name="generator" content="sphinx-4.5.0, furo 2022.04.07"/>
-        <title>retarget - HumanBoneStructure ドキュメント</title>
+        <title>Retarget - HumanBoneStructure ドキュメント</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
@@ -156,8 +156,8 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">retarget</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../humanbone/index.html">human bone</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Retarget</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../humanbone/index.html">Human bone</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../humanbone/body.html">体幹</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../humanbone/arm.html">上肢</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../humanbone/leg.html">下肢</a></li>
@@ -212,7 +212,7 @@
         </div>
         <article role="main">
           <section id="retarget">
-<h1>retarget<a class="headerlink" href="#retarget" title="このヘッドラインへのパーマリンク">#</a></h1>
+<h1>Retarget<a class="headerlink" href="#retarget" title="このヘッドラインへのパーマリンク">#</a></h1>
 <section id="id1">
 <h2>骨格とは<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">#</a></h2>
 <ul class="simple">
@@ -231,13 +231,13 @@
 </ul>
 </section>
 <section id="id3">
-<h2>retarget とは<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">#</a></h2>
+<h2>Retarget とは<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">#</a></h2>
 <ul class="simple">
 <li><p>体格、初期姿勢が異なるヒューマノイド間で同じ姿勢になるようにポーズを変換する。</p></li>
 </ul>
 </section>
-<section id="joint-bone">
-<h2>joint から bone への拡張<a class="headerlink" href="#joint-bone" title="このヘッドラインへのパーマリンク">#</a></h2>
+<section id="joint-human-bone">
+<h2>Joint から Human bone への拡張<a class="headerlink" href="#joint-human-bone" title="このヘッドラインへのパーマリンク">#</a></h2>
 <ul class="simple">
 <li><p>すべてのjoint を head-tail のペアにしてロール軸を確定。</p></li>
 <li><p>追加のupベクトルも明示することで３次元姿勢を一意にする。</p></li>
@@ -262,10 +262,10 @@ TPose 時に</p>
 <section id="id4">
 <h2>厳格な TPose の定義を作ろう<a class="headerlink" href="#id4" title="このヘッドラインへのパーマリンク">#</a></h2>
 <p>TPose から ヒューマンボーン の向きを確定できるように作った。</p>
-<figure class="align-default" id="id9">
+<figure class="align-default" id="id11">
 <img alt="../_images/logic.jpg" src="../_images/logic.jpg"/>
 <figcaption>
-<p><span class="caption-text">すべてのボーンが <code class="docutils literal notranslate"><span class="pre">完全に</span></code> ワールド軸平行</span><a class="headerlink" href="#id9" title="この画像へのパーマリンク">#</a></p>
+<p><span class="caption-text">すべてのボーンが <code class="docutils literal notranslate"><span class="pre">完全に</span></code> ワールド軸平行</span><a class="headerlink" href="#id11" title="この画像へのパーマリンク">#</a></p>
 </figcaption>
 </figure>
 <p><a class="reference internal" href="../humanbone/index.html"><span class="doc std std-doc">ヒューマンボーン</span></a></p>
@@ -288,27 +288,7 @@ TPose 時に</p>
 </div>
 <p>という感じを想定している。</p>
 <p>骨格とポーズのどちらかに <code class="docutils literal notranslate"><span class="pre">姿勢の個性</span></code> が入っていればよくて、
-厳格TPose になる前は、両方に <code class="docutils literal notranslate"><span class="pre">姿勢の個性</span></code> が含まれていた。</p>
-<p>ポーズの由来によって、骨格側に姿勢の個性が入っていることが期待されるか変わると思う。</p>
-<div class="table-wrapper"><table class="colwidths-auto docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>由来</p></th>
-<th class="head"><p></p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>モーションキャプチャー(もともと厳格TPoseに近いのではないか)</p></td>
-<td><p>骨格に姿勢の個性入ってないほうがよいのでは？</p></td>
-</tr>
-<tr class="row-odd"><td><p>手付ポーズを厳格TPoseに変換したもの</p></td>
-<td><p>ポーズ側に個性入っているはず</p></td>
-</tr>
-<tr class="row-even"><td><p>ある骨格専用のポーズ</p></td>
-<td><p>違う骨格(厳格TPose含む)では変わる</p></td>
-</tr>
-</tbody>
-</table></div>
-<p>骨格とポーズの組を帰ることが許されるか否かで判断。</p>
+厳格TPose になる前は、骨格に <code class="docutils literal notranslate"><span class="pre">姿勢の個性</span></code> が含まれていた。</p>
 </section>
 <section id="id7">
 <h2>同体格に対するリターゲット<a class="headerlink" href="#id7" title="このヘッドラインへのパーマリンク">#</a></h2>
@@ -322,8 +302,8 @@ TPose 時に</p>
 <p>狭義のリターゲット。
 体格差のある骨格にポーズを転送すること。
 このときに、ポーズを <code class="docutils literal notranslate"><span class="pre">いい感じ！</span></code> に加工する。
-<code class="docutils literal notranslate"><span class="pre">異なる体格の厳格TPose間でのポーズ転送</span></code> だけをリターゲットと呼ぼう。</p>
-<p>本記事ではポーズを無加工でコピーすることを想定しているが、
+<code class="docutils literal notranslate"><span class="pre">異なる体格の厳格TPose間でのポーズ転送</span></code> を 厳格リターゲット と呼ぼう。</p>
+<p>本記事ではポーズを無加工で、元の厳格TPose から 対象の厳格TPose へとコピーすることを想定しているが、
 接地のために <code class="docutils literal notranslate"><span class="pre">hips</span></code> のだけは、初期姿勢での高さを基準に位置をスケールすることを想定している。</p>
 <div class="graphviz"><object class="graphviz" data="../_images/graphviz-b0907cbf23822c878d3542c2b0d7208f35809916.svg" type="image/svg+xml">
 <p class="warning">digraph tpose {
@@ -355,6 +335,7 @@ TPose 時に</p>
 <ul>
 <li><p>ヒューマンボーンの割当がわかればよい。</p></li>
 <li><p>左右非対称であるとかメカニムの0ポーズはやめたほうがいい気はする。</p></li>
+<li><p>曖昧TPose が <code class="docutils literal notranslate"><span class="pre">骨格の姿勢の個性</span></code> を持っていると考えると、<code class="docutils literal notranslate"><span class="pre">曖昧</span> <span class="pre">T-Pose</span></code> がよいと言える。</p></li>
 </ul>
 </li>
 </ul>
@@ -372,10 +353,10 @@ TPose 時に</p>
 </ul>
 </li>
 </ul>
-<figure class="align-default" id="id10">
+<figure class="align-default" id="id12">
 <img alt="../_images/thumb.gif" src="../_images/thumb.gif"/>
 <figcaption>
-<p><span class="caption-text">他モデルリターゲット例。親指の補正(ポーズあるいは骨格)を実験する予定。</span><a class="headerlink" href="#id10" title="この画像へのパーマリンク">#</a></p>
+<p><span class="caption-text">他モデルリターゲット例。親指の補正(ポーズあるいは骨格)を実験する予定。</span><a class="headerlink" href="#id12" title="この画像へのパーマリンク">#</a></p>
 </figcaption>
 </figure>
 <ul class="simple">
@@ -398,6 +379,84 @@ TPose 時に</p>
 </li>
 </ul>
 </section>
+<section id="id9">
+<h2>後で<a class="headerlink" href="#id9" title="このヘッドラインへのパーマリンク">#</a></h2>
+<p>座標変換とリターゲットの２本立て。</p>
+<ul class="simple">
+<li><p>リターゲットは、やってみたら問題は出てくるであろう(想定される人体からの逸脱)。</p>
+<ul>
+<li><p>ある程度リアルな人体を要求するかもしれない。</p></li>
+<li><p>BVH が使える範囲では有効かな。</p></li>
+<li><p>リターゲットの設定を自動化できない問題と同じで、ユースケース次第。</p></li>
+<li><p>IK等を追加する基盤にはなると思う。</p></li>
+</ul>
+</li>
+</ul>
+<p>現状、まじめにリターゲットしてないからこそ、なんとなく動いている気がしてきた。
+曖昧TPose は、わりと合理的である。</p>
+<section id="foot">
+<h3>Foot固有の問題<a class="headerlink" href="#foot" title="このヘッドラインへのパーマリンク">#</a></h3>
+<p>肩と並んで人体の骨というよりモデリングの都合が全面に出てきそう。
+footの斜めさは個体差を残す必要がある。
+toes を非連続として強制 TPose 時に伸ばさないのがいいかも。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>| upperLeg
+v
+| lowerLeg
+v
+| foot
+v
+o footEnd(追加。接地) toes-&gt;toesEnd
+</pre></div>
+</div>
+</section>
+<section id="id10">
+<h3>姿勢の個性(Retarget)<a class="headerlink" href="#id10" title="このヘッドラインへのパーマリンク">#</a></h3>
+<p>曖昧TPose と 厳格TPose の差分を姿勢の個性と呼べそう。
+極端なデフォルメが含まれる場合に考慮が必要かもしれない。</p>
+<p>たとえば、人体でやりすぎなレベルで腰が反っているモデルは、その反りを残すべきだ。
+手足指のような棒状(limb)の部位や首頭は厳格TPoseで大丈夫なことが多いと思う。
+今は <code class="docutils literal notranslate"><span class="pre">モーションキャプチャー</span> <span class="pre">+</span> <span class="pre">比較的リアルな骨格</span></code> を想定しているので、姿勢の個性が少ないこと(モーキャプしたときに中の人が再現できるレベル)を想定している。</p>
+<ul class="simple">
+<li><p>部分的に 厳格TPose を適用する</p></li>
+<li><p>厳格TPose を使わないフラグ</p>
+<ul>
+<li><p>入力ポーズに厳格TPoseとの差分を乗算するのと同じ意味(たぶん)</p></li>
+</ul>
+</li>
+</ul>
+<div class="table-wrapper"><table class="colwidths-auto docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>部位</p></th>
+<th class="head"><p>memo</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>首, 頭</p></td>
+<td><p>厳格TPoseでいいと思う</p></td>
+</tr>
+<tr class="row-odd"><td><p>肩、上腕、指</p></td>
+<td><p>厳格TPoseでいいと思う</p></td>
+</tr>
+<tr class="row-even"><td><p>hips, spine, chest</p></td>
+<td><p>元骨格がすごいモデル立ちみたいなのだと 厳格TPose は向いてないかもしれない。</p></td>
+</tr>
+<tr class="row-odd"><td><p>upperLeg, lowerLeg</p></td>
+<td><p>厳格TPose でいいと思う</p></td>
+</tr>
+</tbody>
+</table></div>
+<ul class="simple">
+<li><p>厳格 TPose は、曖昧 TPose からの初期姿勢と、ローカル軸の変更。</p>
+<ul>
+<li><p>ロール軸が一致してほしい</p></li>
+<li><p>変な方向に曲がると気付かれやすい</p></li>
+<li><p>膝、肘、指</p></li>
+<li><p>逆に胴体には必要ないかもしれない</p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
 </section>
 
         </article>
@@ -410,7 +469,7 @@ TPose 時に</p>
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">human bone</div>
+                <div class="title">Human bone</div>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -457,11 +516,11 @@ TPose 時に</p>
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">retarget</a><ul>
+<li><a class="reference internal" href="#">Retarget</a><ul>
 <li><a class="reference internal" href="#id1">骨格とは</a></li>
 <li><a class="reference internal" href="#id2">ポーズとは</a></li>
-<li><a class="reference internal" href="#id3">retarget とは</a></li>
-<li><a class="reference internal" href="#joint-bone">joint から bone への拡張</a></li>
+<li><a class="reference internal" href="#id3">Retarget とは</a></li>
+<li><a class="reference internal" href="#joint-human-bone">Joint から Human bone への拡張</a></li>
 <li><a class="reference internal" href="#tpose">曖昧なTPose</a></li>
 <li><a class="reference internal" href="#id4">厳格な TPose の定義を作ろう</a></li>
 <li><a class="reference internal" href="#id5">これではモデルの個性が失われるのでは ?</a></li>
@@ -469,6 +528,11 @@ TPose 時に</p>
 <li><a class="reference internal" href="#id7">同体格に対するリターゲット</a></li>
 <li><a class="reference internal" href="#id8">体格差に対するリターゲット</a></li>
 <li><a class="reference internal" href="#tpose-retarget">厳格Tpose を介した retarget まとめ</a></li>
+<li><a class="reference internal" href="#id9">後で</a><ul>
+<li><a class="reference internal" href="#foot">Foot固有の問題</a></li>
+<li><a class="reference internal" href="#id10">姿勢の個性(Retarget)</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
