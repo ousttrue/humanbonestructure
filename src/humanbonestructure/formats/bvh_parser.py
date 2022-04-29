@@ -5,7 +5,36 @@ import ctypes
 import math
 import glm
 from .humanoid_bones import HumanoidBone
-from .pose import Motion, Pose, Empty
+from .pose import Motion, Pose, BonePose
+from .transform import Transform
+
+HUMANOID_MAP = {
+    'Hips': HumanoidBone.hips,
+    'Spine': HumanoidBone.spine,
+    'Spine1': HumanoidBone.chest,
+    'Neck': HumanoidBone.neck,
+    'Head': HumanoidBone.head,
+
+    'LeftShoulder': HumanoidBone.leftShoulder,
+    'LeftArm': HumanoidBone.leftUpperArm,
+    'LeftForeArm': HumanoidBone.leftLowerArm,
+    'LeftHand': HumanoidBone.leftHand,
+
+    'RightShoulder': HumanoidBone.rightShoulder,
+    'RightArm': HumanoidBone.rightUpperArm,
+    'RightForeArm': HumanoidBone.rightLowerArm,
+    'RightHand': HumanoidBone.rightHand,
+
+    'LeftUpLeg': HumanoidBone.leftUpperLeg,
+    'LeftLeg': HumanoidBone.leftLowerLeg,
+    'LeftFoot': HumanoidBone.leftFoot,
+    'LeftToeBase': HumanoidBone.leftToes,
+
+    'RightUpLeg': HumanoidBone.rightUpperLeg,
+    'RightLeg': HumanoidBone.rightLowerLeg,
+    'RightFoot': HumanoidBone.rightFoot,
+    'RightToeBase': HumanoidBone.rightToes,
+}
 
 
 def to_radian(degree):
@@ -58,16 +87,53 @@ class Channels(Enum):
             case _:
                 raise NotImplementedError()
 
+    def get_transform(self, it, scale: float) -> Transform:
+        match self:
+            # zxy
+            case Channels.PosXYZ_RotZXY:
+                t = glm.vec3(next(it), next(it), next(it)) * scale
+                z = glm.angleAxis(to_radian(next(it)), glm.vec3(0, 0, 1))
+                x = glm.angleAxis(to_radian(next(it)), glm.vec3(1, 0, 0))
+                y = glm.angleAxis(to_radian(next(it)), glm.vec3(0, 1, 0))
+                return Transform(t, z * x * y, glm.vec3(1))
+            case Channels.RotZXY:
+                z = glm.angleAxis(to_radian(next(it)), glm.vec3(0, 0, 1))
+                x = glm.angleAxis(to_radian(next(it)), glm.vec3(1, 0, 0))
+                y = glm.angleAxis(to_radian(next(it)), glm.vec3(0, 1, 0))
+                return Transform.from_rotation(z * x * y)
+            # zyx
+            case Channels.PosXYZ_RotZYX:
+                t = glm.vec3(next(it), next(it), next(it)) * scale
+                z = glm.angleAxis(to_radian(next(it)), glm.vec3(0, 0, 1))
+                y = glm.angleAxis(to_radian(next(it)), glm.vec3(0, 1, 0))
+                x = glm.angleAxis(to_radian(next(it)), glm.vec3(1, 0, 0))
+                return Transform(t, z * y * x, glm.vec3(1))
+            case Channels.RotZYX:
+                z = glm.angleAxis(to_radian(next(it)), glm.vec3(0, 0, 1))
+                y = glm.angleAxis(to_radian(next(it)), glm.vec3(0, 1, 0))
+                x = glm.angleAxis(to_radian(next(it)), glm.vec3(1, 0, 0))
+                return Transform.from_rotation(z * y * x)
+            case _:
+                raise NotImplementedError()
+
 
 class BvhException(RuntimeError):
     pass
 
 
-class Node(NamedTuple):
-    name: Optional[str]  # End site has no name
-    offset: glm.vec3
-    channels: Optional[Channels]
-    children: List['Node']
+class Node:
+
+    def __init__(self,
+                 name: Optional[str],
+                 humanoid_bone: HumanoidBone,
+                 offset: glm.vec3,
+                 channels: Optional[Channels],
+                 children: List['Node']):
+        self.name = name
+        self.humanoid_bone = humanoid_bone
+        self.offset = offset
+        self.channels = channels
+        self.children = children
 
     def __str__(self) -> str:
         if self.name:
@@ -99,18 +165,23 @@ def parse_offset_channels(it: Iterator[str], name: Optional[str]) -> Node:
             offset = glm.vec3(float(x), float(y), float(z))
             if name:
                 channels = next(it).strip()
+                humanoid_bone = HUMANOID_MAP.get(name, HumanoidBone.unknown)
                 node = None
                 match channels.split():
                     # ZXY
                     case 'CHANNELS', '6', 'Xposition', 'Yposition', 'Zposition', 'Zrotation', 'Xrotation', 'Yrotation':
-                        node = Node(name, offset, Channels.PosXYZ_RotZXY, [])
+                        node = Node(name, humanoid_bone, offset,
+                                    Channels.PosXYZ_RotZXY, [])
                     case 'CHANNELS', '3', 'Zrotation', 'Xrotation', 'Yrotation':
-                        node = Node(name, offset, Channels.RotZXY, [])
+                        node = Node(name, humanoid_bone,
+                                    offset, Channels.RotZXY, [])
                     # ZYX
                     case 'CHANNELS', '6', 'Xposition', 'Yposition', 'Zposition', 'Zrotation', 'Yrotation', 'Xrotation':
-                        node = Node(name, offset, Channels.PosXYZ_RotZYX, [])
+                        node = Node(name, humanoid_bone, offset,
+                                    Channels.PosXYZ_RotZYX, [])
                     case 'CHANNELS', '3', 'Zrotation', 'Yrotation', 'Xrotation':
-                        node = Node(name, offset, Channels.RotZYX, [])
+                        node = Node(name, humanoid_bone,
+                                    offset, Channels.RotZYX, [])
                     #
                     case _:
                         # CHANNELS 6 Xposition Yposition Zposition Yrotation Xrotation Zrotation
@@ -125,7 +196,7 @@ def parse_offset_channels(it: Iterator[str], name: Optional[str]) -> Node:
                     node.children.append(child)
             else:
                 # End Site
-                node = Node(name, offset, None, [])
+                node = Node(name, HumanoidBone.endSite, offset, None, [])
                 close = next(it).strip()
                 if close != '}':
                     raise BvhException()
@@ -146,6 +217,28 @@ def parse_recursive(it: Iterator[str], head: str) -> Node:
             raise NotImplementedError()
 
 
+class ToMeterScale:
+    def __init__(self, root: Node):
+        self.hips_y = 0
+        self.min_y = 0
+        self.traverse(root)
+
+        self.hips_height = self.hips_y - self.min_y
+        self.scale = 1
+        if self.hips_height > 70 and self.hips_height < 100:
+            # cm to meter
+            self.scale = 0.01
+
+    def traverse(self, node: Node, parent_y=0):
+        y = parent_y + node.offset.y
+        if node.humanoid_bone == HumanoidBone.hips:
+            self.hips_y = y
+        if y < self.min_y:
+            self.min_y = y
+        for child in node.children:
+            self.traverse(child, y)
+
+
 class Bvh(Motion):
     def __init__(self, name: str, root: Node, frametime: float, frame_count: int, data: ctypes.Array) -> None:
         super().__init__(name)
@@ -153,20 +246,61 @@ class Bvh(Motion):
         self.frametime = frametime
         self.frame_count = frame_count
         self.data = data
-        self.pose = self.set_frame(0)
+
+        self._meter_scale()
+
+        # frame
+        self.channel_count = self.root.get_channel_count()
+        self.current_frame = -1
+        self.set_frame(0)
+
+    def _meter_scale(self):
+        # modify scale
+        h = ToMeterScale(self.root)
+        self.scale = h.scale
+
+        for node in self.root.traverse():
+            node.offset *= self.scale
+
+        # 接地させる
+        # self.root.offset.y = h.hips_height * self.scale
+        # ヒエラルキーでは原点だが、モーションは接地していた。
+
+    def set_frame(self, frame: int):
+        if frame == self.current_frame:
+            return
+        self.current_frame = frame
+        begin = self.channel_count * frame
+        data = self.data[begin:begin+self.channel_count]
+
+        self.pose = Pose(f'{frame}')
+        it = iter(data)
+
+        def traverse(node: Node):
+            if not node.name:
+                # endsite
+                return
+            if node.channels:
+                t = node.channels.get_transform(it, self.scale)
+            else:
+                t = Transform.identity()
+            self.pose.bones.append(BonePose(node.name, node.humanoid_bone, t))
+
+            for child in node.children:
+                traverse(child)
+        traverse(self.root)
 
     def get_seconds(self):
         return self.frametime * self.frame_count
+
+    def get_frame_count(self) -> int:
+        return self.frame_count
 
     def get_info(self) -> str:
         return f'{self.frame_count}frames, {self.get_seconds()}sec'
 
     def get_humanbones(self) -> Set[HumanoidBone]:
         return set()
-
-    def set_frame(self, frame: int):
-        self.pose = Pose('tmp')
-        return self.pose
 
     def get_current_pose(self) -> Pose:
         return self.pose

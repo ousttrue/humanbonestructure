@@ -9,8 +9,8 @@ from ..scene.scene import Scene
 class GUI(dockspace.DockingGui):
     def __init__(self, loop: asyncio.AbstractEventLoop) -> None:
 
-        from ..gui.motion_selector import MotionSelected
-        self.motion = MotionSelected()
+        from ..gui.pose_generator import PoseGenerator
+        self.motion = PoseGenerator()
 
         from pydear.utils.loghandler import ImGuiLogHandler
         log_handler = ImGuiLogHandler()
@@ -28,6 +28,7 @@ class GUI(dockspace.DockingGui):
         super().__init__(loop, docks=self.docks)
 
         self.scene = self._add_scene('bvh')
+        self.motion.pose_event += self.scene.set_pose
 
     def _setup_font(self):
         io = ImGui.GetIO()

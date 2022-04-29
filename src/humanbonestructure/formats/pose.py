@@ -74,6 +74,9 @@ class Motion(abc.ABC):
                                     for bone in self.get_humanbones())
         return self._parts_cache
 
+    def get_frame_count(self) -> int:
+        return 1
+
     @ abc.abstractmethod
     def get_info(self) -> str:
         raise NotImplementedError()
