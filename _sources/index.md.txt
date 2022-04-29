@@ -5,6 +5,8 @@
 {term}`ヒューマノイド` 向け {term}`ポーズ` の標準化の調査と python 実装。
 あるいは strict な bvh ?
 
+TODO: ポーズの右手左手の変換の考慮。quaternion ではなく axis + angle 記述？
+
 ```{graphviz}
 digraph tpose {
   "vpd/vmd(A stance + world coord)" -> "strict tpose";
