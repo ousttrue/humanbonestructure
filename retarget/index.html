@@ -213,50 +213,39 @@
         <article role="main">
           <section id="retarget">
 <h1>retarget<a class="headerlink" href="#retarget" title="このヘッドラインへのパーマリンク">#</a></h1>
-<div class="graphviz"><object class="graphviz" data="../_images/graphviz-b0907cbf23822c878d3542c2b0d7208f35809916.svg" type="image/svg+xml">
-<p class="warning">digraph tpose {
-    graph [
-        rankdir = LR
-    ];
-
-    src -&gt; src_tpose [
-        style = "dashed",
-        label = "座標変換"
-    ];
-    src_tpose -&gt; dst_tpose [
-        label = "体格差retarget"
-    ];
-    dst_tpose -&gt; dst [
-        style = "dashed",
-        label = "座標変換"
-    ];
-}</p></object></div>
-<section id="pose">
-<h2>pose とは<a class="headerlink" href="#pose" title="このヘッドラインへのパーマリンク">#</a></h2>
-<ul class="simple">
-<li><p>ある骨格に対する回転差分の集合</p></li>
-</ul>
-</section>
 <section id="id1">
 <h2>骨格とは<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">#</a></h2>
 <ul class="simple">
-<li><p>joint の集合</p></li>
-<li><p>各 joint の初期姿勢でのワールド位置</p></li>
-<li><p>各 joint の初期姿勢での向き</p></li>
+<li><p><a class="reference internal" href="../glossary.html#term-Joint"><span class="xref std std-term">Joint</span></a> の集合。</p></li>
+<li><p>各 joint の初期姿勢での位置。</p></li>
+<li><p>各 joint の初期姿勢での回転。</p></li>
+<li><p>本記事では <a class="reference internal" href="../glossary.html#term-7"><span class="xref std std-term">ヒューマノイド</span></a> 骨格 のみを扱います。</p></li>
 </ul>
 </section>
 <section id="id2">
-<h2>retarget とは<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">#</a></h2>
+<h2>ポーズとは<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">#</a></h2>
 <ul class="simple">
-<li><p>異なる骨格間で同じ姿勢になるようにポーズを変換する</p></li>
+<li><p>各 joint の初期姿勢からの回転差分。</p></li>
+<li><p>root joint の初期姿勢からの移動。</p></li>
+<li><p>本記事では root(hips) のみが移動し、他の joint は回転のみとします。</p></li>
 </ul>
 </section>
 <section id="id3">
-<h2>同じ姿勢とは<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">#</a></h2>
+<h2>retarget とは<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">#</a></h2>
 <ul class="simple">
-<li><p>すべての <a class="reference internal" href="../humanbone/index.html"><span class="doc std std-doc">ヒューマンボーン</span></a> が同じ向き</p></li>
+<li><p>体格、初期姿勢が異なるヒューマノイド間で同じ姿勢になるようにポーズを変換する。</p></li>
 </ul>
-<p>ヒューマンボーン を XYZ ではなく Yaw, Pitch, Roll で定義した。</p>
+</section>
+<section id="joint-bone">
+<h2>joint から bone への拡張<a class="headerlink" href="#joint-bone" title="このヘッドラインへのパーマリンク">#</a></h2>
+<ul class="simple">
+<li><p>すべてのjoint を head-tail のペアにしてロール軸を確定。</p></li>
+<li><p>追加のupベクトルも明示することで３次元姿勢を一意にする。</p></li>
+</ul>
+<p>ボーンが <code class="docutils literal notranslate"><span class="pre">人間の骨</span></code> と解釈できるようにする。</p>
+</section>
+<section id="tpose">
+<h2>曖昧なTPose<a class="headerlink" href="#tpose" title="このヘッドラインへのパーマリンク">#</a></h2>
 <ul class="simple">
 <li><p><a class="reference internal" href="../glossary.html#term-TPose"><span class="xref std std-term">TPose</span></a> から初期姿勢でのヒューマンボーンの向きが <code class="docutils literal notranslate"><span class="pre">だいたい</span></code> わかる</p></li>
 </ul>
@@ -270,63 +259,66 @@ TPose 時に</p>
 </ul>
 <p>等の TPose 時の個体差が混入する。</p>
 </section>
-<section id="tpose">
-<h2>厳格な TPose の定義を作ろう<a class="headerlink" href="#tpose" title="このヘッドラインへのパーマリンク">#</a></h2>
-<p>作った。</p>
+<section id="id4">
+<h2>厳格な TPose の定義を作ろう<a class="headerlink" href="#id4" title="このヘッドラインへのパーマリンク">#</a></h2>
+<p>TPose から ヒューマンボーン の向きを確定できるように作った。</p>
 <figure class="align-default" id="id9">
 <img alt="../_images/logic.jpg" src="../_images/logic.jpg"/>
 <figcaption>
 <p><span class="caption-text">すべてのボーンが <code class="docutils literal notranslate"><span class="pre">完全に</span></code> ワールド軸平行</span><a class="headerlink" href="#id9" title="この画像へのパーマリンク">#</a></p>
 </figcaption>
 </figure>
-<p>以下の情報で TPose が記述される。</p>
-<ul class="simple">
-<li><p>各ボーンの長さ</p></li>
-<li><p>非接続ボーン(hips, upperLeg, upperSholder, 各指)の開始位置</p></li>
-</ul>
+<p><a class="reference internal" href="../humanbone/index.html"><span class="doc std std-doc">ヒューマンボーン</span></a></p>
 </section>
-<section id="joint-bone">
-<h2>joint から bone への拡張<a class="headerlink" href="#joint-bone" title="このヘッドラインへのパーマリンク">#</a></h2>
-<ul class="simple">
-<li><p>すべての<a class="reference internal" href="../glossary.html#term-6"><span class="xref std std-term">ヒューマンボーン</span></a> を head-tail のペアにしてロール軸を明示</p></li>
-<li><p>追加のupベクトルも定義することで３次元姿勢を一意に表現できるようにする</p></li>
-</ul>
-<p>ボーンの姿勢が同じを <code class="docutils literal notranslate"><span class="pre">人間の骨が同じ向き</span></code> と解釈できるようにする。</p>
-</section>
-<section id="id4">
-<h2>これではモデルの個性が失われるのでは ?<a class="headerlink" href="#id4" title="このヘッドラインへのパーマリンク">#</a></h2>
+<section id="id5">
+<h2>これではモデルの個性が失われるのでは ?<a class="headerlink" href="#id5" title="このヘッドラインへのパーマリンク">#</a></h2>
 <ul class="simple">
 <li><p>曖昧TPose から 厳格TPose への差分を pose として得ることができるのでこれを加味すればよい(たぶん)</p></li>
 <li><p>ポーズに姿勢の個性が入っているか否かで切り分けできるかもしれない</p></li>
 <li><p>アプリ内で内部変換用に使うもので、この状態でエクスポートすることは想定していません</p></li>
 </ul>
 </section>
-<section id="id5">
-<h2>姿勢は、<code class="docutils literal notranslate"><span class="pre">受け入れ骨格</span> <span class="pre">+</span> <span class="pre">ポーズの組</span></code> で表される<a class="headerlink" href="#id5" title="このヘッドラインへのパーマリンク">#</a></h2>
-<p>例えば、mmd のポーズを厳格TPose化すると</p>
-<p><code class="docutils literal notranslate"><span class="pre">vpd</span> <span class="pre">+</span> <span class="pre">受け入れpmd</span></code> =&gt; <code class="docutils literal notranslate"><span class="pre">正規化ポーズに対する相対回転</span> <span class="pre">+</span> <span class="pre">厳格TPoseに変換されたpmd</span></code></p>
-<p>となり左と右のポーズ適用結果は完全に一致している。
-正規化ポーズには 受け入れ pmd と 厳格TPose の差分が含まれる。
-受け入れpmdの姿勢の個性が正規化ポーズに移動する。</p>
-<p>ここで、</p>
-<p><code class="docutils literal notranslate"><span class="pre">正規化ポーズに対する相対回転</span> <span class="pre">+</span> <span class="pre">厳格TPoseのCPUモデル</span></code></p>
-<p>というように受け入れ骨格を入れ替えると他モデルに対するリターゲットが発生する。</p>
-<figure class="align-default" id="id10">
-<img alt="../_images/thumb.gif" src="../_images/thumb.gif"/>
-<figcaption>
-<p><span class="caption-text">他モデルリターゲット例</span><a class="headerlink" href="#id10" title="この画像へのパーマリンク">#</a></p>
-</figcaption>
-</figure>
-</section>
 <section id="id6">
-<h2>同体格に対するリターゲット<a class="headerlink" href="#id6" title="このヘッドラインへのパーマリンク">#</a></h2>
+<h2>姿勢は、<code class="docutils literal notranslate"><span class="pre">骨格とポーズの組</span></code> で表される<a class="headerlink" href="#id6" title="このヘッドラインへのパーマリンク">#</a></h2>
+<p>例えば、mmd の vpdポーズを厳格TPose化する例</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pmd</span> <span class="o">+</span> <span class="n">vpd</span>
+<span class="o">=</span> <span class="p">(</span><span class="n">pmd</span> <span class="o">-</span> <span class="n">pmdの姿勢の個性</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">vpd</span> <span class="o">+</span> <span class="n">pmdの姿勢の個性</span><span class="p">)</span>
+<span class="o">=</span> <span class="n">厳格TPoseに変換されたpmd</span> <span class="o">+</span> <span class="n">厳格Tposeに対するポーズ</span>
+</pre></div>
+</div>
+<p>という感じを想定している。</p>
+<p>骨格とポーズのどちらかに <code class="docutils literal notranslate"><span class="pre">姿勢の個性</span></code> が入っていればよくて、
+厳格TPose になる前は、両方に <code class="docutils literal notranslate"><span class="pre">姿勢の個性</span></code> が含まれていた。</p>
+<p>ポーズの由来によって、骨格側に姿勢の個性が入っていることが期待されるか変わると思う。</p>
+<div class="table-wrapper"><table class="colwidths-auto docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>由来</p></th>
+<th class="head"><p></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>モーションキャプチャー(もともと厳格TPoseに近いのではないか)</p></td>
+<td><p>骨格に姿勢の個性入ってないほうがよいのでは？</p></td>
+</tr>
+<tr class="row-odd"><td><p>手付ポーズを厳格TPoseに変換したもの</p></td>
+<td><p>ポーズ側に個性入っているはず</p></td>
+</tr>
+<tr class="row-even"><td><p>ある骨格専用のポーズ</p></td>
+<td><p>違う骨格(厳格TPose含む)では変わる</p></td>
+</tr>
+</tbody>
+</table></div>
+<p>骨格とポーズの組を帰ることが許されるか否かで判断。</p>
+</section>
+<section id="id7">
+<h2>同体格に対するリターゲット<a class="headerlink" href="#id7" title="このヘッドラインへのパーマリンク">#</a></h2>
 <p>同じ体格で <code class="docutils literal notranslate"><span class="pre">初期姿勢</span></code>, <code class="docutils literal notranslate"><span class="pre">ローカル軸</span></code> の座標変換を行う。
 リターゲットシステムに暗黙に含まれるという感じになるかもしれない。
 本記事では、リターゲットに含めないことにしたい。
 変換と呼ぼう。</p>
 </section>
-<section id="id7">
-<h2>体格差に対するリターゲット<a class="headerlink" href="#id7" title="このヘッドラインへのパーマリンク">#</a></h2>
+<section id="id8">
+<h2>体格差に対するリターゲット<a class="headerlink" href="#id8" title="このヘッドラインへのパーマリンク">#</a></h2>
 <p>狭義のリターゲット。
 体格差のある骨格にポーズを転送すること。
 このときに、ポーズを <code class="docutils literal notranslate"><span class="pre">いい感じ！</span></code> に加工する。
@@ -352,47 +344,56 @@ TPose 時に</p>
     ];
 }</p></object></div>
 </section>
-<section id="id8">
-<h2>できること / 必要な追加情報<a class="headerlink" href="#id8" title="このヘッドラインへのパーマリンク">#</a></h2>
+<section id="tpose-retarget">
+<h2>厳格Tpose を介した retarget まとめ<a class="headerlink" href="#tpose-retarget" title="このヘッドラインへのパーマリンク">#</a></h2>
 <ul class="simple">
-<li><p>厳格TPose は 曖昧TPose や Aスタンスからプログラムで機械的に作れる</p>
+<li><p>厳格TPose は 曖昧TPose や Aスタンスからプログラムで機械的に作れる。</p>
 <ul>
-<li><p>納品物は曖昧TPoseでよい</p></li>
-<li><p>Aスタンスでも良い</p></li>
+<li><p>納品物は曖昧TPoseでよい。</p></li>
+<li><p>Aスタンスでも良い。</p></li>
 <li><p>どんなポーズでもよいか？</p>
 <ul>
-<li><p>左右非対称であるとかメカニムの0ポーズはやめたほうがいい気はする</p></li>
+<li><p>ヒューマンボーンの割当がわかればよい。</p></li>
+<li><p>左右非対称であるとかメカニムの0ポーズはやめたほうがいい気はする。</p></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><p>すべてのヒューマンボーンの向きが完全に確定する</p>
+<li><p>すべてのヒューマンボーンの向きが完全に確定する。</p>
 <ul>
-<li><p>厳格TPose == ヒューマンボーンの向き</p></li>
+<li><p>厳格TPose == ヒューマンボーンの向き。</p></li>
 </ul>
 </li>
-<li><p>曖昧だった親指を補正する余地が生まれる</p>
+<li><p>曖昧だった親指を補正する余地が生まれる。</p>
 <ul>
-<li><p>プログラムからの入力ポーズがよろしくない(親指の第2, 3関節に対して yaw, roll してる)</p></li>
-<li><p>受け入れ側のモデルのロール軸がずれている</p></li>
-<li><p>切り分ける</p></li>
+<li><p>プログラムからの入力ポーズが厳格TPoseに対してずれている、そもそも無理な方向に可動している(親指の第2, 3関節に対して yaw, roll してる)。</p></li>
+<li><p>受け入れ側のモデルのロール軸が厳格TPoseに対してずれている。</p></li>
+<li><p>切り分ける。</p></li>
 </ul>
 </li>
+</ul>
+<figure class="align-default" id="id10">
+<img alt="../_images/thumb.gif" src="../_images/thumb.gif"/>
+<figcaption>
+<p><span class="caption-text">他モデルリターゲット例。親指の補正(ポーズあるいは骨格)を実験する予定。</span><a class="headerlink" href="#id10" title="この画像へのパーマリンク">#</a></p>
+</figcaption>
+</figure>
+<ul class="simple">
 <li><p>厳格TPose に対するポーズ(回転差分)を、ポーズの標準フォーマットにできるのでは？</p>
 <ul>
-<li><p>便利な bvh</p></li>
-<li><p>mmd とは路線が異なる。mmd はリグに対するキーフレームアニメーションなのでレイヤーが異なる</p>
+<li><p>便利な bvh。</p></li>
+<li><p>mmd とは路線が異なる。mmd はリグに対するキーフレームアニメーションなのでレイヤーが異なる。</p>
 <ul>
-<li><p>FK のポーズが想定されるので下のレイヤー</p></li>
+<li><p>FK のポーズが想定されるので下のレイヤー。</p></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><p>ヒューマンボーンの先端を示す empty joint(head, toes, 各指)</p></li>
-<li><p>親指などのポールターゲットもしくはローカル軸を使うというヒント情報</p>
+<li><p>厳格TPose を作るのに、ヒューマンボーンの先端を示す empty joint が追加で必要(head, toes, 各指)</p></li>
+<li><p>親指などの斜めなボーンを厳格TPose化する際に、ポールターゲットもしくはローカル軸を使うというヒント情報が欲しい。</p>
 <ul>
-<li><p>例えば vc であればアバターをロードしたあとで、ユーザーが自ら、親指のロールをGUIで設定することも可能だと思う</p></li>
-<li><p>vroid の指や足が変になる件</p></li>
+<li><p>例えば vc であればアバターをロードしたあとで、ユーザーが自ら、親指のロールをGUIで設定することも可能だと思う。</p></li>
+<li><p>vroid の指や足が変になる問題。</p></li>
 </ul>
 </li>
 </ul>
@@ -457,17 +458,17 @@ TPose 時に</p>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">retarget</a><ul>
-<li><a class="reference internal" href="#pose">pose とは</a></li>
 <li><a class="reference internal" href="#id1">骨格とは</a></li>
-<li><a class="reference internal" href="#id2">retarget とは</a></li>
-<li><a class="reference internal" href="#id3">同じ姿勢とは</a></li>
-<li><a class="reference internal" href="#tpose">厳格な TPose の定義を作ろう</a></li>
+<li><a class="reference internal" href="#id2">ポーズとは</a></li>
+<li><a class="reference internal" href="#id3">retarget とは</a></li>
 <li><a class="reference internal" href="#joint-bone">joint から bone への拡張</a></li>
-<li><a class="reference internal" href="#id4">これではモデルの個性が失われるのでは ?</a></li>
-<li><a class="reference internal" href="#id5">姿勢は、<code class="docutils literal notranslate"><span class="pre">受け入れ骨格</span> <span class="pre">+</span> <span class="pre">ポーズの組</span></code> で表される</a></li>
-<li><a class="reference internal" href="#id6">同体格に対するリターゲット</a></li>
-<li><a class="reference internal" href="#id7">体格差に対するリターゲット</a></li>
-<li><a class="reference internal" href="#id8">できること / 必要な追加情報</a></li>
+<li><a class="reference internal" href="#tpose">曖昧なTPose</a></li>
+<li><a class="reference internal" href="#id4">厳格な TPose の定義を作ろう</a></li>
+<li><a class="reference internal" href="#id5">これではモデルの個性が失われるのでは ?</a></li>
+<li><a class="reference internal" href="#id6">姿勢は、<code class="docutils literal notranslate"><span class="pre">骨格とポーズの組</span></code> で表される</a></li>
+<li><a class="reference internal" href="#id7">同体格に対するリターゲット</a></li>
+<li><a class="reference internal" href="#id8">体格差に対するリターゲット</a></li>
+<li><a class="reference internal" href="#tpose-retarget">厳格Tpose を介した retarget まとめ</a></li>
 </ul>
 </li>
 </ul>
