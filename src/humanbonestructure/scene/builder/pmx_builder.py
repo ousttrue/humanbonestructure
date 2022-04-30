@@ -14,7 +14,8 @@ def build(pmx: pmx_loader.Pmx) -> Node:
     # build node hierarchy
     nodes: List[Node] = []
     for i, b in enumerate(pmx.bones):
-        node = Node(b.name_ja, Transform.identity())
+        node = Node(b.name_ja, Transform.identity(), pmd_loader.BONE_HUMANOID_MAP.get(
+            b.name_ja, HumanoidBone.unknown))
         node.has_weighted_vertices = i in pmx.deform_bones
         nodes.append(node)
 

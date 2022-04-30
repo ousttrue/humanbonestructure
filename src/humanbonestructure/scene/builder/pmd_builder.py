@@ -12,12 +12,14 @@ def reverse_z(v: glm.vec3) -> glm.vec3:
 
 
 def build(pmd: pmd_loader.Pmd) -> Node:
-    root = Node(-1, '__root__', Transform.identity())
+    root = Node('__root__', Transform.identity())
 
     # build node hierarchy
     nodes: List[Node] = []
     for i, b in enumerate(pmd.bones):
-        node = Node(i, bytesreader.bytes_to_str(b.name), Transform.identity())
+        name = bytesreader.bytes_to_str(b.name)
+        node = Node(name, Transform.identity(), pmd_loader.BONE_HUMANOID_MAP.get(
+            name, HumanoidBone.unknown))
         node.has_weighted_vertices = i in pmd.deform_bones
         nodes.append(node)
 

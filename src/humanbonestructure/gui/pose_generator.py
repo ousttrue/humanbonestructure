@@ -9,11 +9,11 @@ from pydear import imgui as ImGui
 
 class PoseGenerator:
     def __init__(self) -> None:
-        # self.bone_mask = BoneMask()
         self.pose_event = EventProperty(Pose('empty'))
         self.motion: Optional[Motion] = None
         self.frame = (ctypes.c_int32*1)(0)
 
+        # self.bone_mask = BoneMask()
         # def refilter():
         #     self.set_motion(self.motion)
         # self.bone_mask.changed += refilter

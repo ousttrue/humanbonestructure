@@ -30,13 +30,12 @@ class Node:
     Pose = inv(local_axis) x Pose
     '''
 
-    def __init__(self, name: str, local_trs: Transform, *,
-                 humanoid_bone: HumanoidBone = HumanoidBone.unknown,
-                 children: Optional[List['Node']] = None) -> None:
-        assert humanoid_bone
+    def __init__(self, name: str, local_trs: Transform, humanoid_bone: HumanoidBone = HumanoidBone.unknown,
+                 *, children: Optional[List['Node']] = None) -> None:
         global NODE_ID
         self.index = NODE_ID
         NODE_ID += 1
+
         self.name = name
         self.children = children[:] if children else []
         self.parent: Optional[Node] = None
@@ -52,6 +51,7 @@ class Node:
         self.renderer: Optional[MeshRenderer] = None
         # UI
         self.has_weighted_vertices = False
+        assert humanoid_bone
         self.humanoid_bone = humanoid_bone
         self.humanoid_tail: Optional[Node] = None
         self.descendants_has_humanoid = False
@@ -96,10 +96,8 @@ class Node:
 
         human_bones = []
         for child in self.children:
-            for x, _ in child.traverse_node_and_parent():
-                if x.humanoid_bone.is_enable():
-                    human_bones.append(x)
-                    break
+            for x, _ in child.traverse_node_and_parent(only_human_bone=True):
+                human_bones.append(x)
 
         if not human_bones:
             return self.children[0]
