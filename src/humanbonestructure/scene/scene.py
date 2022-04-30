@@ -43,10 +43,11 @@ class Scene:
         self.pose_changed = OptionalEventProperty[Pose]()
 
     def _setup_model(self):
-        self.root.initialize(glm.mat4())
-        self.root.calc_skinning(glm.mat4())
+        self.root.init_human_bones()
+        self.root.calc_bind_matrix(glm.mat4())
+        self.root.calc_world_matrix(glm.mat4())
         self.skeleton = Skeleton(self.root)
-        self.root.calc_skinning(glm.mat4())
+        self.root.calc_world_matrix(glm.mat4())
         self.humanoid_node_map = {node.humanoid_bone: node for node,
                                   _ in self.root.traverse_node_and_parent(only_human_bone=True)}
 
@@ -56,7 +57,7 @@ class Scene:
         ) for node, _ in self.root.traverse_node_and_parent(only_human_bone=True)}
         tpose.local_axis_fit_world(self.root)
         self.root.clear_pose()
-        self.root.calc_skinning(glm.mat4())
+        self.root.calc_world_matrix(glm.mat4())
         # tpose.pose_to_delta(scene.root)
 
     def load(self, value):
@@ -193,7 +194,7 @@ class Scene:
                 else:
                     raise RuntimeError()
 
-        self.root.calc_skinning(glm.mat4())
+        self.root.calc_world_matrix(glm.mat4())
 
         #
         # raise TPose相対ポーズ

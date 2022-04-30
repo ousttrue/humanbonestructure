@@ -32,9 +32,9 @@ def build(bvh: bvh_parser.Bvh) -> Node:
         return node
 
     hips = build(bvh.root)
-
-    hips.initialize(glm.mat4())
-    hips.calc_skinning(glm.mat4())
+    hips.init_human_bones()
+    hips.calc_bind_matrix(glm.mat4())
+    hips.calc_world_matrix(glm.mat4())
 
     # hips が root なので root を追加
     root = Node('__root__', Transform.identity())

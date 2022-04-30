@@ -170,9 +170,15 @@ class Node:
             self.children.append(child)
         child.parent = self
 
-    def initialize(self, parent: glm.mat4) -> bool:
+    def calc_bind_matrix(self, parent: glm.mat4):
         self.bind_matrix = parent * trs_matrix(*self.init_trs)
+        for child in self.children:
+            child.calc_bind_matrix(self.bind_matrix)
 
+    def init_human_bones(self) -> bool:
+        '''
+        setup humanoid bone tail
+        '''
         has = False
         if self.humanoid_bone.is_enable():
             has = True
@@ -180,7 +186,7 @@ class Node:
 
         if self.children:
             for child in self.children:
-                if child.initialize(self.bind_matrix):
+                if child.init_human_bones():
                     self.descendants_has_humanoid = True
                     has = True
         return has
@@ -194,10 +200,10 @@ class Node:
         else:
             return trs_matrix(t, r * self.delta, s)
 
-    def calc_skinning(self, parent: glm.mat4):
+    def calc_world_matrix(self, parent: glm.mat4):
         self.world_matrix = parent * self._get_local()
         for child in self.children:
-            child.calc_skinning(self.world_matrix)
+            child.calc_world_matrix(self.world_matrix)
 
     def copy_tree(self) -> 'Node':
         node = Node(self.name, self.init_trs,

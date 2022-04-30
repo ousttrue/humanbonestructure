@@ -15,21 +15,21 @@ def force_axis(head: Node, tail: Node, to: glm.vec3):
     r = glm.angleAxis(glm.acos(cos), axis)
     head.pose = Transform.from_rotation(r)
     parent_matrix = head.parent.world_matrix if head.parent else glm.mat4()
-    head.calc_skinning(parent_matrix)
+    head.calc_world_matrix(parent_matrix)
 
 
 def make_tpose(root: Node, *, is_inverted_pelvis=False):
 
     for node, _ in root.traverse_node_and_parent():
         if node.humanoid_bone.is_enable() and node.humanoid_tail:
-            root.calc_skinning(glm.mat4())
+            root.calc_world_matrix(glm.mat4())
             if node.humanoid_bone == HumanoidBone.hips and is_inverted_pelvis:
                 dir = (0, -1, 0)
             else:
                 dir = HUMANOIDBONE_WORLD_AXIS[node.humanoid_bone]
             force_axis(node, node.humanoid_tail, glm.vec3(*dir))
 
-    root.calc_skinning(glm.mat4())
+    root.calc_world_matrix(glm.mat4())
 
 
 def pose_to_init(root: Node) -> Dict[Node, glm.quat]:
@@ -68,7 +68,7 @@ def local_axis_fit_world(root: Node):
         node.local_axis = glm.inverse(
             glm.quat(node.world_matrix))  # * glm.mat4
 
-    root.calc_skinning(glm.mat4())
+    root.calc_world_matrix(glm.mat4())
 
 
 class TPose(Motion):
@@ -83,7 +83,7 @@ class TPose(Motion):
                 self.pose.bones.append(
                     BonePose(node.name, node.humanoid_bone, node.pose))
         root.clear_pose()
-        root.calc_skinning(glm.mat4())
+        root.calc_world_matrix(glm.mat4())
 
     def get_humanbones(self) -> Set[HumanoidBone]:
         return self.humanoid_bones
