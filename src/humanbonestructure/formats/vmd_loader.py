@@ -26,8 +26,7 @@ class KeyFrame(ctypes.Structure):
 class BoneCurve:
     def __init__(self, name: str) -> None:
         self.name = name
-        self.humanoid_bone = BONE_HUMANOID_MAP.get(
-            name) or HumanoidBone.unknown
+        self.humanoid_bone = BONE_HUMANOID_MAP.get(name, HumanoidBone.unknown)
         self.key_frames: List[KeyFrame] = []
 
     def get_transform(self, frame: int) -> Transform:

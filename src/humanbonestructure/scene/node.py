@@ -33,6 +33,7 @@ class Node:
     def __init__(self, name: str, local_trs: Transform, *,
                  humanoid_bone: HumanoidBone = HumanoidBone.unknown,
                  children: Optional[List['Node']] = None) -> None:
+        assert humanoid_bone
         global NODE_ID
         self.index = NODE_ID
         NODE_ID += 1

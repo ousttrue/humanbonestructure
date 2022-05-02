@@ -1,1 +1,0 @@
-from .bone_prop import BoneProp

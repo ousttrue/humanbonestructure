@@ -18,46 +18,58 @@ class PoseFilter(Filter[Motion]):
         super().__init__(self.filter)
 
     def filter(self, item: Motion):
-        if self.filter_has_trunk[0] and not any(bone.get_part() == HumanoidBodyParts.Trunk for bone in item.get_humanbones()):
+        def pose_has_parts(*parts: HumanoidBodyParts) -> bool:
+            for bone in item.get_humanbones():
+                if bone.is_enable() and bone.get_part() in parts:
+                    return True
             return False
-        if self.filter_has_legs[0] and not any(bone.get_part() == HumanoidBodyParts.Legs for bone in item.get_humanbones()):
+
+        def pose_has_bones(*bones: HumanoidBone) -> bool:
+            for bone in item.get_humanbones():
+                if bone in bones:
+                    return True
             return False
-        if self.filter_has_leftArm[0] and not any(bone.get_part() == HumanoidBodyParts.LeftArm for bone in item.get_humanbones()):
+
+        if self.filter_has_trunk[0] and pose_has_parts(HumanoidBodyParts.Trunk):
             return False
-        if self.filter_has_leftFingers[0] and not any(bone.get_part() == HumanoidBodyParts.LeftFingers for bone in item.get_humanbones()):
+        if self.filter_has_legs[0] and pose_has_parts(HumanoidBodyParts.Legs):
             return False
-        if self.filter_has_rightArm[0] and not any(bone.get_part() == HumanoidBodyParts.RightArm for bone in item.get_humanbones()):
+        if self.filter_has_leftArm[0] and pose_has_parts(HumanoidBodyParts.LeftArm):
             return False
-        if self.filter_has_rightFingers[0] and not any(bone.get_part() == HumanoidBodyParts.RightFingers for bone in item.get_humanbones()):
+        if self.filter_has_leftFingers[0] and pose_has_parts(HumanoidBodyParts.LeftFingers):
             return False
-        if self.filter_has_thumbnail0[0] and not any(bone == HumanoidBone.leftThumbProximal or bone == HumanoidBone.rightThumbProximal for bone in item.get_humanbones()):
+        if self.filter_has_rightArm[0] and pose_has_parts(HumanoidBodyParts.RightArm):
+            return False
+        if self.filter_has_rightFingers[0] and pose_has_parts(HumanoidBodyParts.RightFingers):
+            return False
+        if self.filter_has_thumbnail0[0] and pose_has_bones(HumanoidBone.leftThumbProximal, HumanoidBone.rightThumbProximal):
             return False
         return True
 
     def show(self):
-        chcked = False
+        checked = False
         if ImGui.Checkbox("幹", self.filter_has_trunk):
-            chcked = True
+            checked = True
         ImGui.SameLine()
         if ImGui.Checkbox("脚", self.filter_has_legs):
-            chcked = True
+            checked = True
         ImGui.SameLine()
         if ImGui.Checkbox("左腕", self.filter_has_leftArm):
-            chcked = True
+            checked = True
         ImGui.SameLine()
         if ImGui.Checkbox("左指", self.filter_has_leftFingers):
-            chcked = True
+            checked = True
         ImGui.SameLine()
         if ImGui.Checkbox("右腕", self.filter_has_rightArm):
-            chcked = True
+            checked = True
         ImGui.SameLine()
         if ImGui.Checkbox("右指", self.filter_has_rightFingers):
-            chcked = True
+            checked = True
         ImGui.SameLine()
         if ImGui.Checkbox("has thumb0", self.filter_has_thumbnail0):
-            chcked = True
+            checked = True
 
-        if chcked:
+        if checked:
             self.fire()
 
 

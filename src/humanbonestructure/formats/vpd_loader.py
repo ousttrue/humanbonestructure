@@ -44,6 +44,9 @@ class Vpd(Motion):
     def get_humanbones(self) -> List[HumanoidBone]:
         return self._humanbones
 
+    def set_frame(self, frame: int):
+        pass
+
     def get_current_pose(self) -> Pose:
         return self.pose
 
@@ -84,7 +87,7 @@ class Vpd(Motion):
             assert close == '}'
 
             name = get_name(open)
-            humanoid_bone = BONE_HUMANOID_MAP.get(name)
+            humanoid_bone = BONE_HUMANOID_MAP.get(name, HumanoidBone.unknown)
             pose.bones.append(
                 BonePose(name, humanoid_bone, Transform(get_t(t), get_r(r), glm.vec3(1))))
 

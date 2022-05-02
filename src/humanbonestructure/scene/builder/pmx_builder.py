@@ -21,9 +21,10 @@ def build(pmx: pmx_loader.Pmx) -> Node:
     bone_map: Dict[HumanoidBone, Node] = {}
     for i, (node, bone) in enumerate(zip(nodes, pmx.bones)):
         assert isinstance(bone, pmx_loader.Bone)
-        if humanoid_bone := pmd_loader.BONE_HUMANOID_MAP.get(node.name):
-            node.humanoid_bone = humanoid_bone
-            bone_map[humanoid_bone] = node
+        node.humanoid_bone = pmd_loader.BONE_HUMANOID_MAP.get(
+            node.name, HumanoidBone.unknown)
+        if node.humanoid_bone.is_enable():
+            bone_map[node.humanoid_bone] = node
 
         t = glm.vec3(*bone.position)
         if bone.parent_index == -1:
@@ -51,7 +52,7 @@ def build(pmx: pmx_loader.Pmx) -> Node:
     rightTip = root.find(lambda x: x.name == '右足先EX先')
     if leftUpperLegD and leftLowerLegD and leftFootD and rightUpperLegD and rightLowerLegD and rightFootD:
         def replace(humanoid_bone: HumanoidBone, node: Node, tail: Node):
-            bone_map[humanoid_bone].humanoid_bone = None
+            bone_map[humanoid_bone].humanoid_bone = HumanoidBone.unknown
             bone_map[humanoid_bone].humanoid_tail = None
             node.humanoid_bone = humanoid_bone
             node.humanoid_tail = tail

@@ -2,6 +2,7 @@ from typing import List
 import glm
 from ...formats import pmd_loader, bytesreader, buffer_types
 from ...formats.transform import Transform
+from ...formats.humanoid_bones import HumanoidBone
 from ..node import Node
 from ..mesh_renderer import MeshRenderer
 
@@ -21,8 +22,8 @@ def build(pmd: pmd_loader.Pmd) -> Node:
         nodes.append(node)
 
     for i, (node, bone) in enumerate(zip(nodes, pmd.bones)):
-        if humanoid_bone := pmd_loader.BONE_HUMANOID_MAP.get(node.name):
-            node.humanoid_bone = humanoid_bone
+        node.humanoid_bone = pmd_loader.BONE_HUMANOID_MAP.get(
+            node.name, HumanoidBone.unknown)
 
         t = glm.vec3(*bone.position)
         if bone.parent_index == 65535:

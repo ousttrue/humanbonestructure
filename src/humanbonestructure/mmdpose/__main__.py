@@ -37,15 +37,15 @@ def main():
                     from ..formats import vpd_loader
                     vpd = vpd_loader.Vpd.load(f.read_bytes())
                     vpd.name = f.name
-                    gui.selector.pose_generator.motion_list.items.append(
+                    gui.selector.motion_list.items.append(
                         vpd)
                 case '.vmd':
                     from ..formats import vmd_loader
                     vpd = vmd_loader.Vmd.load(f.stem, f.read_bytes())
                     vpd.name = f.name
-                    gui.selector.pose_generator.motion_list.items.append(
+                    gui.selector.motion_list.items.append(
                         vpd)
-    gui.selector.pose_generator.motion_list.apply()
+    gui.selector.motion_list.apply()
     gui.tcp_listener.start(app.loop, args.port)
 
     from pydear.backends import impl_glfw

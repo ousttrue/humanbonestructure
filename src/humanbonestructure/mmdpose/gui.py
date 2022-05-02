@@ -11,9 +11,10 @@ class GUI(dockspace.DockingGui):
         from .tcp_listener import TcpListener
         self.tcp_listener = TcpListener()
 
-        from ..gui.motion_selector import MotionSelector, MotionSelected
+        from ..gui.motion_selector import MotionSelector
         self.selector = MotionSelector()
-        self.selected = MotionSelected()
+        from ..gui.pose_generator import PoseGenerator
+        self.selected = PoseGenerator()
         self.selector.selected += self.selected.set_motion
 
         from pydear.utils.loghandler import ImGuiLogHandler

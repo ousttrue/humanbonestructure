@@ -43,16 +43,14 @@ def build(gltf: gltf_loader.Gltf) -> Node:
         vrm = 1
 
     def set_human_bone(i: int, node: Node):
-        human_bone = human_bone_map.get(i)
+        human_bone = human_bone_map.get(i, HumanoidBone.unknown)
         if human_bone:
             node.humanoid_bone = human_bone
             return
 
         # cesium man !
-        human_bone = CESIUMMAN_HUMANOID_MAP.get(node.name)
-        if human_bone:
-            node.humanoid_bone = human_bone
-            return
+        node.humanoid_bone = CESIUMMAN_HUMANOID_MAP.get(
+            node.name, HumanoidBone.unknown)
 
     meshes = []
     for gltf_mesh in gltf.gltf.get('meshes', []):

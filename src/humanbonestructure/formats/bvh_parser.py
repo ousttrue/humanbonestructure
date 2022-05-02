@@ -129,6 +129,7 @@ class Node:
                  offset: glm.vec3,
                  channels: Optional[Channels],
                  children: List['Node']):
+        assert humanoid_bone
         self.name = name
         self.humanoid_bone = humanoid_bone
         self.offset = offset

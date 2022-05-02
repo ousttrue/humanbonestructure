@@ -74,16 +74,5 @@
             "console": "integratedTerminal",
             "justMyCode": false
         },
-        {
-            "name": "humanoidview",
-            "type": "python",
-            "request": "launch",
-            "module": "humanbonestructure.humanoid",
-            "env": {
-                "PYTHONPATH": "${workspaceFolder}\\src"
-            },
-            "console": "integratedTerminal",
-            "justMyCode": false
-        },
     ]
 }

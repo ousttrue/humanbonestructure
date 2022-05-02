@@ -84,7 +84,7 @@ class BoneTree:
 
         # col 1
         ImGui.TableNextColumn()
-        humanoid_bone = node.humanoid_bone.value if node.humanoid_bone else ''
+        humanoid_bone = node.humanoid_bone.is_enable() if node.humanoid_bone else ''
         # ImGui.TextUnformatted(humanoid_bone)
         selected = ImGui.Selectable(f'{humanoid_bone}##{node.index}', node ==
                                     self.scene.selected, ImGui.ImGuiSelectableFlags_.SpanAllColumns)
