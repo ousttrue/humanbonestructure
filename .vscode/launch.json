@@ -5,6 +5,18 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "humanbonestructure",
+            "type": "python",
+            "request": "launch",
+            "module": "humanbonestructure",
+            "args": [],
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/src",
+            },
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
             "name": "mmdpose",
             "type": "python",
             "request": "launch",
