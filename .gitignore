@@ -1,7 +1,8 @@
+src/humanbonestructure/_version.py
 build
 .venv
-imgui.ini
 *.pyc
-src/humanbonestructure/_version.py
 *.egg-info
+imgui.ini
 glfw.ini
+imnodes.ini
