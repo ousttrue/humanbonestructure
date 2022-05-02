@@ -59,6 +59,19 @@ class Scene:
         self.root.calc_skinning(glm.mat4())
         # tpose.pose_to_delta(scene.root)
 
+    def load(self, value):
+        from ..formats.bvh_parser import Bvh
+        match value:
+            case Bvh() as bvh:
+                from .builder import bvh_builder
+                self.root = bvh_builder.build(bvh)
+                self._setup_model()
+            case None:
+                self.root = Node('__root__', Transform.identity())
+                self.skeleton = None
+            case _:
+                raise NotImplementedError(value)
+
     def load_model(self, path: pathlib.Path):
         match path.suffix.lower():
             case '.pmd':
@@ -168,16 +181,17 @@ class Scene:
         self.root.clear_pose()
 
         # assign pose to node hierarchy
-        for bone in pose.bones:
-            if bone.humanoid_bone:
-                node = self.humanoid_node_map.get(bone.humanoid_bone)
-                if node:
-                    node.pose = bone.transform
+        if pose and pose.bones:
+            for bone in pose.bones:
+                if bone.humanoid_bone:
+                    node = self.humanoid_node_map.get(bone.humanoid_bone)
+                    if node:
+                        node.pose = bone.transform
+                    else:
+                        pass
+                        # raise RuntimeError()
                 else:
-                    pass
-                    # raise RuntimeError()
-            else:
-                raise RuntimeError()
+                    raise RuntimeError()
 
         self.root.calc_skinning(glm.mat4())
 

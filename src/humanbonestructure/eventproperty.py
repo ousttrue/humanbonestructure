@@ -52,7 +52,7 @@ class OptionalEventProperty(Generic[T]):
         self.callbacks.append(callback)
         return self
 
-    def set(self, value: T):
+    def set(self, value: Optional[T]):
         self.value = value
 
         self.fire()

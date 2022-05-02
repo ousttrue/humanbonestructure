@@ -9,18 +9,18 @@ LOGGER = logging.getLogger(__name__)
 
 
 class GUI(dockspace.DockingGui):
-    def __init__(self, loop: asyncio.AbstractEventLoop) -> None:
+    def __init__(self, loop: asyncio.AbstractEventLoop, ini_file: pathlib.Path) -> None:
         from pydear.utils.loghandler import ImGuiLogHandler
         log_handler = ImGuiLogHandler()
         log_handler.register_root(append=True)
-
-        from .gui.posegraph import PoseGraph
-        self.graph = PoseGraph()
 
         from .scene.scene import Scene
         self.scene = Scene('view')
         from .gui.scene_view import SceneView
         self.view = SceneView('view', self.scene)
+
+        from .gui.pose_graph.graph import PoseGraph
+        self.graph = PoseGraph(self.scene, ini_file)
 
         self.docks = [
             dockspace.Dock('view', self.view.show,
@@ -62,7 +62,8 @@ def main():
 
     from pydear.utils import glfw_app
     app = glfw_app.GlfwApp('humanbonestructure')
-    gui = GUI(app.loop)
+
+    gui = GUI(app.loop, pathlib.Path('imnodes.ini'))
 
     for motion in args.motion:
         gui.graph.load_bvh(pathlib.Path(motion))
