@@ -17,7 +17,14 @@ class GUI(dockspace.DockingGui):
         from .gui.posegraph import PoseGraph
         self.graph = PoseGraph()
 
+        from .scene.scene import Scene
+        self.scene = Scene('view')
+        from .gui.scene_view import SceneView
+        self.view = SceneView('view', self.scene)
+
         self.docks = [
+            dockspace.Dock('view', self.view.show,
+                           (ctypes.c_bool * 1)(True)),
             dockspace.Dock('posegraph', self.graph.show,
                            (ctypes.c_bool * 1)(True)),
             dockspace.Dock('metrics', ImGui.ShowMetricsWindow,
@@ -50,11 +57,16 @@ def main():
 
     # args
     parser = argparse.ArgumentParser()
+    parser.add_argument('--motion', nargs='*')
     args = parser.parse_args()
 
     from pydear.utils import glfw_app
     app = glfw_app.GlfwApp('humanbonestructure')
     gui = GUI(app.loop)
+
+    for motion in args.motion:
+        gui.graph.load_bvh(pathlib.Path(motion))
+
     from pydear.backends import impl_glfw
     impl_glfw = impl_glfw.ImplGlfwInput(app.window)
     while app.clear():

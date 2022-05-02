@@ -9,7 +9,10 @@
             "type": "python",
             "request": "launch",
             "module": "humanbonestructure",
-            "args": [],
+            "args": [
+                "--motion",
+                "${env:MMD_DATA}/Motion/test_motion.bvh"
+            ],
             "env": {
                 "PYTHONPATH": "${workspaceFolder}/src",
             },

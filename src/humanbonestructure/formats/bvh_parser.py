@@ -241,8 +241,9 @@ class ToMeterScale:
 
 
 class Bvh(Motion):
-    def __init__(self, name: str, root: Node, frametime: float, frame_count: int, data: ctypes.Array) -> None:
-        super().__init__(name)
+    def __init__(self, path: pathlib.Path, root: Node, frametime: float, frame_count: int, data: ctypes.Array) -> None:
+        super().__init__(path.stem)
+        self.path = path
         self.root = root
         self.frametime = frametime
         self.frame_count = frame_count
@@ -307,7 +308,7 @@ class Bvh(Motion):
         return self.pose
 
 
-def parse(name: str, src: str) -> Bvh:
+def parse(path: pathlib.Path, src: str) -> Bvh:
     it = iter(src.splitlines())
     if next(it) != 'HIERARCHY':
         raise BvhException('HIERARCHY not found')
@@ -338,8 +339,8 @@ def parse(name: str, src: str) -> Bvh:
             data[i] = float(x)
             i += 1
 
-    return Bvh(name, root, frametime, frames, data)
+    return Bvh(path, root, frametime, frames, data)
 
 
 def from_path(path: pathlib.Path) -> Bvh:
-    return parse(path.stem, path.read_text(encoding='utf-8'))
+    return parse(path, path.read_text(encoding='utf-8'))

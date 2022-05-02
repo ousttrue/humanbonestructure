@@ -13,6 +13,7 @@
         "glfw",
         "gltf",
         "imgui",
+        "imnodes",
         "procedual",
         "pydear",
         "specularity",
