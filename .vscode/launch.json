@@ -10,8 +10,8 @@
             "request": "launch",
             "module": "humanbonestructure",
             "args": [
-                "--motion",
-                "${env:MMD_DATA}/Motion/test_motion.bvh"
+                "--ini",
+                "humanbonestructure.toml",
             ],
             "env": {
                 "PYTHONPATH": "${workspaceFolder}/src",

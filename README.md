@@ -2,7 +2,9 @@
 
 <https://ousttrue.github.io/humanbonestructure/>
 
-## pip
+## document depencencies
+
+`pip`
 
 * sphinx
 * sphinx-autobuild

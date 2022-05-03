@@ -1,3 +1,4 @@
+from typing import Optional
 from pydear.utils import dockspace
 from pydear import imgui as ImGui
 import asyncio
@@ -5,26 +6,29 @@ import ctypes
 import logging
 import pathlib
 import argparse
+from pydear.utils.setting import SettingInterface
 LOGGER = logging.getLogger(__name__)
 
 
 class GUI(dockspace.DockingGui):
-    def __init__(self, loop: asyncio.AbstractEventLoop, ini_file: pathlib.Path) -> None:
+    def __init__(self, loop: asyncio.AbstractEventLoop, *, setting: Optional[SettingInterface] = None) -> None:
         from pydear.utils.loghandler import ImGuiLogHandler
         log_handler = ImGuiLogHandler()
         log_handler.register_root(append=True)
 
-        from .scene.scene import Scene
-        self.scene = Scene('view')
-        from .gui.scene_view import SceneView
-        self.view = SceneView('view', self.scene)
+        # from .scene.scene import Scene
+        # self.scene = Scene('view')
+        # from .gui.scene_view import SceneView
+        # self.view = SceneView('view', self.scene)
+        # dockspace.Dock('view', self.view.show,
+        #                (ctypes.c_bool * 1)(True)),
 
         from .gui.pose_graph.graph import PoseGraph
-        self.graph = PoseGraph(self.scene, ini_file)
+        self.graph = PoseGraph(setting=setting)
+
+        
 
         self.docks = [
-            dockspace.Dock('view', self.view.show,
-                           (ctypes.c_bool * 1)(True)),
             dockspace.Dock('posegraph', self.graph.show,
                            (ctypes.c_bool * 1)(True)),
             dockspace.Dock('metrics', ImGui.ShowMetricsWindow,
@@ -33,7 +37,7 @@ class GUI(dockspace.DockingGui):
                            (ctypes.c_bool * 1)(True)),
         ]
 
-        super().__init__(loop, docks=self.docks)
+        super().__init__(loop, docks=self.docks, setting=setting)
 
     def _setup_font(self):
         io = ImGui.GetIO()
@@ -57,23 +61,30 @@ def main():
 
     # args
     parser = argparse.ArgumentParser()
-    parser.add_argument('--motion', nargs='*')
+    parser.add_argument('--ini', type=pathlib.Path)
     args = parser.parse_args()
 
+    setting = None
+    if args.ini:
+        from pydear.utils.setting import TomlSetting
+        setting = TomlSetting(args.ini)
+
     from pydear.utils import glfw_app
-    app = glfw_app.GlfwApp('humanbonestructure')
+    app = glfw_app.GlfwApp('humanbonestructure', setting=setting)
 
-    gui = GUI(app.loop, pathlib.Path('imnodes.ini'))
-
-    for motion in args.motion:
-        gui.graph.load_bvh(pathlib.Path(motion))
+    gui = GUI(app.loop, setting=setting)
 
     from pydear.backends import impl_glfw
     impl_glfw = impl_glfw.ImplGlfwInput(app.window)
     while app.clear():
         impl_glfw.process_inputs()
         gui.render()
-    del gui
+
+    if setting:
+        gui.graph.save()
+        gui.save()
+        app.save()
+        setting.write()
 
 
 if __name__ == '__main__':

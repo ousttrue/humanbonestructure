@@ -1,3 +1,4 @@
+from typing import Optional
 import ctypes
 from pydear import imgui as ImGui
 from pydear import imgui_internal
@@ -20,7 +21,10 @@ class SceneView:
         self.hover = False
         self.xy = (ctypes.c_float * 2)(0, 0)
 
-    def show(self, p_open):
+    def show(self, p_open: Optional[ctypes.Array]):
+        if p_open and not p_open[0]:
+            return
+
         ImGui.SetNextWindowSize((200, 200), ImGui.ImGuiCond_.Once)
         ImGui.PushStyleVar_2(ImGui.ImGuiStyleVar_.WindowPadding, (0, 0))
         if ImGui.Begin(self.name, p_open,
