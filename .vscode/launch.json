@@ -11,7 +11,9 @@
             "module": "humanbonestructure",
             "args": [
                 "--ini",
-                "humanbonestructure.toml",
+                "humanbonestructure.dat",
+                "--asset",
+                "${env:MMD_DATA}",
             ],
             "env": {
                 "PYTHONPATH": "${workspaceFolder}/src",

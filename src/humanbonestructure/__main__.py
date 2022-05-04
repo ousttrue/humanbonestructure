@@ -6,12 +6,12 @@ import ctypes
 import logging
 import pathlib
 import argparse
-from pydear.utils.setting import SettingInterface
+from pydear.utils.setting import BinSetting
 LOGGER = logging.getLogger(__name__)
 
 
 class GUI(dockspace.DockingGui):
-    def __init__(self, loop: asyncio.AbstractEventLoop, *, setting: Optional[SettingInterface] = None) -> None:
+    def __init__(self, loop: asyncio.AbstractEventLoop, *, setting: Optional[BinSetting] = None) -> None:
         from pydear.utils.loghandler import ImGuiLogHandler
         log_handler = ImGuiLogHandler()
         log_handler.register_root(append=True)
@@ -25,8 +25,6 @@ class GUI(dockspace.DockingGui):
 
         from .gui.pose_graph.graph import PoseGraph
         self.graph = PoseGraph(setting=setting)
-
-        
 
         self.docks = [
             dockspace.Dock('posegraph', self.graph.show,
@@ -62,12 +60,17 @@ def main():
     # args
     parser = argparse.ArgumentParser()
     parser.add_argument('--ini', type=pathlib.Path)
+    parser.add_argument('--asset', type=pathlib.Path)
     args = parser.parse_args()
 
     setting = None
     if args.ini:
-        from pydear.utils.setting import TomlSetting
-        setting = TomlSetting(args.ini)
+        from pydear.utils.setting import BinSetting
+        setting = BinSetting(args.ini)
+
+    if args.asset:
+        from .gui.pose_graph import nodes
+        nodes.ASSET_DIR = args.asset
 
     from pydear.utils import glfw_app
     app = glfw_app.GlfwApp('humanbonestructure', setting=setting)
@@ -84,7 +87,7 @@ def main():
         gui.graph.save()
         gui.save()
         app.save()
-        setting.write()
+        setting.save()
 
 
 if __name__ == '__main__':
