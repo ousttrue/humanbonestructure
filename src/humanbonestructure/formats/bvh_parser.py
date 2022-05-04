@@ -27,50 +27,115 @@ class Unit(Enum):
                 return 1
 
 
+'''
+guess human bone
+'''
+
 HUMANOID_MAP = {
-    'Hips': HumanoidBone.hips,
-    'Spine': HumanoidBone.spine,
-    'Spine1': HumanoidBone.chest,
-    'Chest': HumanoidBone.chest,
+    'hip': HumanoidBone.hips,
+    'abdomen': HumanoidBone.spine,
+    'hips': HumanoidBone.hips,
+    'spine': HumanoidBone.spine,
+    'spine1': HumanoidBone.chest,
+    'chest': HumanoidBone.chest,
     # 'Chest2': HumanoidBone.ch # uppser chest ?
-    'Neck': HumanoidBone.neck,
-    'Head': HumanoidBone.head,
+    'neck': HumanoidBone.neck,
+    'head': HumanoidBone.head,
 
-    'LeftShoulder': HumanoidBone.leftShoulder,
-    'LeftArm': HumanoidBone.leftUpperArm,
-    'LeftForeArm': HumanoidBone.leftLowerArm,
-    'LeftHand': HumanoidBone.leftHand,
+    'leftshoulder': HumanoidBone.leftShoulder,
+    'leftarm': HumanoidBone.leftUpperArm,
+    'leftforearm': HumanoidBone.leftLowerArm,
+    'lefthand': HumanoidBone.leftHand,
     #
-    'LeftCollar': HumanoidBone.leftShoulder,
-    'LeftElbow': HumanoidBone.leftLowerArm,
-    'LeftWrist': HumanoidBone.leftHand,
+    'leftcollar': HumanoidBone.leftShoulder,
+    'leftelbow': HumanoidBone.leftLowerArm,
+    'leftwrist': HumanoidBone.leftHand,
+    #
+    'lcollar': HumanoidBone.leftShoulder,
+    'lshldr': HumanoidBone.leftUpperArm,
+    'lforearm': HumanoidBone.leftLowerArm,
+    'lhand': HumanoidBone.leftHand,
 
-    'RightShoulder': HumanoidBone.rightShoulder,
-    'RightArm': HumanoidBone.rightUpperArm,
-    'RightForeArm': HumanoidBone.rightLowerArm,
-    'RightHand': HumanoidBone.rightHand,
+    'rightshoulder': HumanoidBone.rightShoulder,
+    'rightarm': HumanoidBone.rightUpperArm,
+    'rightforearm': HumanoidBone.rightLowerArm,
+    'righthand': HumanoidBone.rightHand,
     #
-    'RightCollar': HumanoidBone.rightShoulder,
-    'RightElbow': HumanoidBone.rightLowerArm,
-    'RightWrist': HumanoidBone.rightHand,
+    'rightcollar': HumanoidBone.rightShoulder,
+    'rightelbow': HumanoidBone.rightLowerArm,
+    'rightwrist': HumanoidBone.rightHand,
+    #
+    'rcollar': HumanoidBone.rightShoulder,
+    'rshldr': HumanoidBone.rightUpperArm,
+    'rforearm': HumanoidBone.rightLowerArm,
+    'rhand': HumanoidBone.rightHand,
 
-    'LeftUpLeg': HumanoidBone.leftUpperLeg,
-    'LeftLeg': HumanoidBone.leftLowerLeg,
-    'LeftFoot': HumanoidBone.leftFoot,
-    'LeftToeBase': HumanoidBone.leftToes,
+    'leftupleg': HumanoidBone.leftUpperLeg,
+    'leftleg': HumanoidBone.leftLowerLeg,
+    'leftfoot': HumanoidBone.leftFoot,
+    'lefttoebase': HumanoidBone.leftToes,
     #
-    'LeftHip': HumanoidBone.leftUpperLeg,
-    'LeftKnee': HumanoidBone.leftLowerLeg,
-    'LeftAnkle': HumanoidBone.leftFoot,
+    'lefthip': HumanoidBone.leftUpperLeg,
+    'leftknee': HumanoidBone.leftLowerLeg,
+    'leftankle': HumanoidBone.leftFoot,
+    #
+    'lthigh': HumanoidBone.leftUpperLeg,
+    'lshin': HumanoidBone.leftLowerLeg,
+    'lfoot': HumanoidBone.leftFoot,
 
-    'RightUpLeg': HumanoidBone.rightUpperLeg,
-    'RightLeg': HumanoidBone.rightLowerLeg,
-    'RightFoot': HumanoidBone.rightFoot,
-    'RightToeBase': HumanoidBone.rightToes,
+    'rightupleg': HumanoidBone.rightUpperLeg,
+    'rightleg': HumanoidBone.rightLowerLeg,
+    'rightfoot': HumanoidBone.rightFoot,
+    'righttoebase': HumanoidBone.rightToes,
     #
-    'RightHip': HumanoidBone.rightUpperLeg,
-    'RightKnee': HumanoidBone.rightLowerLeg,
-    'RightAnkle': HumanoidBone.rightFoot,
+    'righthip': HumanoidBone.rightUpperLeg,
+    'rightknee': HumanoidBone.rightLowerLeg,
+    'rightankle': HumanoidBone.rightFoot,
+    #
+    'rthigh': HumanoidBone.rightUpperLeg,
+    'rshin': HumanoidBone.rightLowerLeg,
+    'rfoot': HumanoidBone.rightFoot,
+
+    #
+    'lThumb1': HumanoidBone.leftThumbProximal,
+    'lThumb2': HumanoidBone.leftThumbIntermediate,
+    'lIndex1': HumanoidBone.leftIndexProximal,
+    'lIndex2': HumanoidBone.leftIndexIntermediate,
+    'lMid1': HumanoidBone.leftMiddleProximal,
+    'lMid2': HumanoidBone.leftMiddleIntermediate,
+    'lRing1': HumanoidBone.leftRingProximal,
+    'lRing2': HumanoidBone.leftRingIntermediate,
+    'lPinky1': HumanoidBone.leftLittleProximal,
+    'lPinky2': HumanoidBone.leftLittleIntermediate,
+    #
+    'rThumb1': HumanoidBone.rightThumbProximal,
+    'rThumb2': HumanoidBone.rightThumbIntermediate,
+    'rIndex1': HumanoidBone.rightIndexProximal,
+    'rIndex2': HumanoidBone.rightIndexIntermediate,
+    'rMid1': HumanoidBone.rightMiddleProximal,
+    'rMid2': HumanoidBone.rightMiddleIntermediate,
+    'rRing1': HumanoidBone.rightRingProximal,
+    'rRing2': HumanoidBone.rightRingIntermediate,
+    'rPinky1': HumanoidBone.rightLittleProximal,
+    'rPinky2': HumanoidBone.rightLittleIntermediate,
+    #
+
+    'shoulder_l': HumanoidBone.leftShoulder,
+    'upperarm_l': HumanoidBone.leftUpperArm,
+    'lowerarm_l': HumanoidBone.leftLowerArm,
+    'hand_l': HumanoidBone.leftHand,
+    'shoulder_r': HumanoidBone.rightShoulder,
+    'upperarm_r': HumanoidBone.rightUpperArm,
+    'lowerarm_r': HumanoidBone.rightLowerArm,
+    'hand_r': HumanoidBone.rightHand,
+    'upperleg_l': HumanoidBone.leftUpperLeg,
+    'lowerleg_l': HumanoidBone.leftLowerLeg,
+    'foot_l': HumanoidBone.leftFoot,
+    'toes_l': HumanoidBone.leftToes,
+    'upperleg_r': HumanoidBone.rightUpperLeg,
+    'lowerleg_r': HumanoidBone.rightLowerLeg,
+    'foot_r': HumanoidBone.rightFoot,
+    'toes_r': HumanoidBone.rightToes,
 }
 
 
@@ -203,7 +268,8 @@ def parse_offset_channels(it: Iterator[str], name: Optional[str]) -> Node:
             offset = glm.vec3(float(x), float(y), float(z))
             if name:
                 channels = next(it).strip()
-                humanoid_bone = HUMANOID_MAP.get(name, HumanoidBone.unknown)
+                humanoid_bone = HUMANOID_MAP.get(
+                    name.lower(), HumanoidBone.unknown)
                 if humanoid_bone == HumanoidBone.unknown:
                     LOGGER.debug(f'{name} is unknown')
                 node = None
