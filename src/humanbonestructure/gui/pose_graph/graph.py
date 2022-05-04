@@ -28,7 +28,12 @@ class PoseGraph(NodeEditor):
             click_pos = ImGui.GetMousePosOnOpeningCurrentPopup()
             if ImGui.MenuItem("bvh"):
                 from .nodes import BvhNode
-                node = BvhNode(self.graph.get_next_id())
+                node = BvhNode(self.graph.get_next_id)
+                self.graph.nodes.append(node)
+                ImNodes.SetNodeScreenSpacePos(node.id, click_pos)
+            if ImGui.MenuItem("view"):
+                from .nodes import ViewNode
+                node = ViewNode(self.graph.get_next_id)
                 self.graph.nodes.append(node)
                 ImNodes.SetNodeScreenSpacePos(node.id, click_pos)
 
