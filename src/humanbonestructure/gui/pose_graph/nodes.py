@@ -26,12 +26,15 @@ class BvhNodeRuntime(NodeRuntime):
     def load(self, path: pathlib.Path):
         from ...formats import bvh_parser
         self.bvh = bvh_parser.from_path(path)
+        if self.frame[0] >= self.bvh.frame_count:
+            self.frame[0] = self.bvh.frame_count-1
 
     def show(self):
         if self.bvh:
             ImGui.TextUnformatted(f'bvh: {self.bvh.path.name}')
             end_frame = self.bvh.get_frame_count()-1
-            ImGui.TextUnformatted(self.bvh.get_info())
+            for info in self.bvh.get_info():
+                ImGui.TextUnformatted(info)
             ImGui.SetNextItemWidth(200)
             if ImGui.SliderInt('frame', self.frame, 0, end_frame):
                 self.bvh.set_frame(self.frame[0])
@@ -60,6 +63,12 @@ class BvhNode(Node):
         super().__init__(get_next_id(), 'bvh', [], [])
         self.path: Optional[pathlib.Path] = None
         self.runtime = BvhNodeRuntime()
+        # skeleton
+        out_skeleton = BvhSkeletonOutputPin(get_next_id())
+        self.outputs.append(out_skeleton)
+        # pose
+        out_pose = BvhPoseOutputPin(get_next_id())
+        self.outputs.append(out_pose)
 
     def __str__(self):
         return f'T stance, World axis'
@@ -70,14 +79,6 @@ class BvhNode(Node):
     def load(self, path: pathlib.Path, graph=None):
         self.path = path
         self.runtime.load(self.path)
-        if graph:
-            # skeleton
-            out_skeleton = BvhSkeletonOutputPin(graph.get_next_id())
-            self.outputs.append(out_skeleton)
-
-            # pose
-            out_pose = BvhPoseOutputPin(graph.get_next_id())
-            self.outputs.append(out_pose)
 
     def show_content(self, graph):
         if ImGui.Button('open'):
@@ -85,7 +86,8 @@ class BvhNode(Node):
 
             async def open_task():
                 from pydear.utils import filedialog
-                selected = await filedialog.open_async(asyncio.get_event_loop(), ASSET_DIR)
+                dir = self.path.parent if self.path else ASSET_DIR
+                selected = await filedialog.open_async(asyncio.get_event_loop(), dir)
                 if selected:
                     self.load(selected, graph)
             asyncio.get_event_loop().create_task(open_task())

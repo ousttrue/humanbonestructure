@@ -1,4 +1,5 @@
 from typing import Iterable, NamedTuple, Iterator, Optional, List, Set
+import logging
 import pathlib
 from enum import Enum, auto
 import ctypes
@@ -8,10 +9,30 @@ from .humanoid_bones import HumanoidBone
 from .pose import Motion, Pose, BonePose
 from .transform import Transform
 
+LOGGER = logging.getLogger(__name__)
+
+
+class Unit(Enum):
+    Unknown = auto()
+    CentiMeter = auto()
+    TenCentiMeter = auto()
+
+    def to_meter(self):
+        match self:
+            case Unit.TenCentiMeter:
+                return 1/10
+            case Unit.CentiMeter:
+                return 1/100
+            case Unit.Unknown:
+                return 1
+
+
 HUMANOID_MAP = {
     'Hips': HumanoidBone.hips,
     'Spine': HumanoidBone.spine,
     'Spine1': HumanoidBone.chest,
+    'Chest': HumanoidBone.chest,
+    # 'Chest2': HumanoidBone.ch # uppser chest ?
     'Neck': HumanoidBone.neck,
     'Head': HumanoidBone.head,
 
@@ -19,21 +40,37 @@ HUMANOID_MAP = {
     'LeftArm': HumanoidBone.leftUpperArm,
     'LeftForeArm': HumanoidBone.leftLowerArm,
     'LeftHand': HumanoidBone.leftHand,
+    #
+    'LeftCollar': HumanoidBone.leftShoulder,
+    'LeftElbow': HumanoidBone.leftLowerArm,
+    'LeftWrist': HumanoidBone.leftHand,
 
     'RightShoulder': HumanoidBone.rightShoulder,
     'RightArm': HumanoidBone.rightUpperArm,
     'RightForeArm': HumanoidBone.rightLowerArm,
     'RightHand': HumanoidBone.rightHand,
+    #
+    'RightCollar': HumanoidBone.rightShoulder,
+    'RightElbow': HumanoidBone.rightLowerArm,
+    'RightWrist': HumanoidBone.rightHand,
 
     'LeftUpLeg': HumanoidBone.leftUpperLeg,
     'LeftLeg': HumanoidBone.leftLowerLeg,
     'LeftFoot': HumanoidBone.leftFoot,
     'LeftToeBase': HumanoidBone.leftToes,
+    #
+    'LeftHip': HumanoidBone.leftUpperLeg,
+    'LeftKnee': HumanoidBone.leftLowerLeg,
+    'LeftAnkle': HumanoidBone.leftFoot,
 
     'RightUpLeg': HumanoidBone.rightUpperLeg,
     'RightLeg': HumanoidBone.rightLowerLeg,
     'RightFoot': HumanoidBone.rightFoot,
     'RightToeBase': HumanoidBone.rightToes,
+    #
+    'RightHip': HumanoidBone.rightUpperLeg,
+    'RightKnee': HumanoidBone.rightLowerLeg,
+    'RightAnkle': HumanoidBone.rightFoot,
 }
 
 
@@ -167,6 +204,8 @@ def parse_offset_channels(it: Iterator[str], name: Optional[str]) -> Node:
             if name:
                 channels = next(it).strip()
                 humanoid_bone = HUMANOID_MAP.get(name, HumanoidBone.unknown)
+                if humanoid_bone == HumanoidBone.unknown:
+                    LOGGER.debug(f'{name} is unknown')
                 node = None
                 match channels.split():
                     # ZXY
@@ -218,26 +257,42 @@ def parse_recursive(it: Iterator[str], head: str) -> Node:
             raise NotImplementedError()
 
 
-class ToMeterScale:
+class SkeletonChecker:
     def __init__(self, root: Node):
         self.hips_y = 0
         self.min_y = 0
+        self.forward = 'UNKNOWN'
         self.traverse(root)
-
         self.hips_height = self.hips_y - self.min_y
-        self.scale = 1
+
+    def traverse(self, node: Node, parent=glm.vec3(0)):
+        current = parent + node.offset
+        if node.humanoid_bone == HumanoidBone.hips:
+            self.hips_y = current.y
+        elif node.humanoid_bone == HumanoidBone.leftUpperLeg:
+            if current.x > 0:
+                self.forward = 'Z_POSITIVE'
+            elif current.x < 0:
+                self.forward = 'Z_NEGATIVE'
+            else:
+                self.forward = 'UNKNOWN?'
+        if current.y < self.min_y:
+            self.min_y = current.y
+        for child in node.children:
+            self.traverse(child, current)
+
+    def get_unit(self) -> Unit:
+        # self.scale = 1
         if self.hips_height > 70 and self.hips_height < 100:
             # cm to meter
-            self.scale = 0.01
+            # self.scale = 0.01
+            return Unit.CentiMeter
+        elif self.hips_height > 7 and self.hips_height < 10:
+            # 10cm to meter ?
+            # self.scale = 0.1
+            return Unit.TenCentiMeter
 
-    def traverse(self, node: Node, parent_y=0):
-        y = parent_y + node.offset.y
-        if node.humanoid_bone == HumanoidBone.hips:
-            self.hips_y = y
-        if y < self.min_y:
-            self.min_y = y
-        for child in node.children:
-            self.traverse(child, y)
+        return Unit.Unknown
 
 
 class Bvh(Motion):
@@ -249,17 +304,12 @@ class Bvh(Motion):
         self.frame_count = frame_count
         self.data = data
 
-        self._meter_scale()
-
-        # frame
-        self.channel_count = self.root.get_channel_count()
-        self.current_frame = -1
-        self.set_frame(0)
-
-    def _meter_scale(self):
         # modify scale
-        h = ToMeterScale(self.root)
-        self.scale = h.scale
+        checker = SkeletonChecker(self.root)
+        self.forward = checker.forward
+        self.unit = checker.get_unit()
+        # h = ToMeterScale(self.root)
+        self.scale = self.unit.to_meter()
 
         for node in self.root.traverse():
             node.offset *= self.scale
@@ -267,6 +317,11 @@ class Bvh(Motion):
         # 接地させる
         # self.root.offset.y = h.hips_height * self.scale
         # ヒエラルキーでは原点だが、モーションは接地していた。
+
+        # frame
+        self.channel_count = self.root.get_channel_count()
+        self.current_frame = -1
+        self.set_frame(0)
 
     def set_frame(self, frame: int):
         if frame == self.current_frame:
@@ -298,8 +353,9 @@ class Bvh(Motion):
     def get_frame_count(self) -> int:
         return self.frame_count
 
-    def get_info(self) -> str:
-        return f'{self.frame_count}frames, {self.get_seconds()}sec'
+    def get_info(self) -> Iterable[str]:
+        yield f'unit: {self.unit}'
+        yield f'{self.frame_count}frames, {self.get_seconds():0.2f}sec'
 
     def get_humanbones(self) -> Set[HumanoidBone]:
         return set()
