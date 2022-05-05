@@ -7,37 +7,10 @@ from pydear import imgui_internal
 from pydear import imnodes as ImNodes
 from ...formats.bvh.bvh_parser import Bvh
 from ...scene.scene import Scene
-from pydear.utils.node_editor import Node, InputPin, OutputPin, NodeRuntime
+from pydear.utils.node_editor.node import Node, InputPin, OutputPin, Serialized
 
 LOGGER = logging.getLogger(__name__)
 ASSET_DIR: Optional[pathlib.Path] = None
-
-
-class BvhNodeRuntime(NodeRuntime):
-    def __init__(self) -> None:
-        super().__init__()
-        self.bvh: Optional[Bvh] = None
-        self.frame = (ctypes.c_int * 1)()
-
-    def process(self, node: 'BvhNode'):
-        if not self.bvh and node.path:
-            self.load(node.path)
-
-    def load(self, path: pathlib.Path):
-        from ...formats.bvh import bvh_parser
-        self.bvh = bvh_parser.from_path(path)
-        if self.frame[0] >= self.bvh.frame_count:
-            self.frame[0] = self.bvh.frame_count-1
-
-    def show(self):
-        if self.bvh:
-            ImGui.TextUnformatted(f'bvh: {self.bvh.path.name}')
-            end_frame = self.bvh.get_frame_count()-1
-            for info in self.bvh.get_info():
-                ImGui.TextUnformatted(info)
-            ImGui.SetNextItemWidth(200)
-            if ImGui.SliderInt('frame', self.frame, 0, end_frame):
-                self.bvh.set_frame(self.frame[0])
 
 
 class BvhSkeletonOutputPin(OutputPin):
@@ -45,8 +18,8 @@ class BvhSkeletonOutputPin(OutputPin):
         super().__init__(id, 'skeleton')
 
     def process(self, node: 'BvhNode', input: InputPin):
-        if node.runtime.bvh:
-            input.value = node.runtime.bvh
+        if node.bvh:
+            input.value = node.bvh
 
 
 class BvhPoseOutputPin(OutputPin):
@@ -54,21 +27,33 @@ class BvhPoseOutputPin(OutputPin):
         super().__init__(id, 'pose')
 
     def process(self, node: 'BvhNode', input: InputPin):
-        if node.runtime.bvh:
-            input.value = node.runtime.bvh.get_current_pose()
+        if node.bvh:
+            input.value = node.bvh.get_current_pose()
 
 
 class BvhNode(Node):
-    def __init__(self, get_next_id) -> None:
-        super().__init__(get_next_id(), 'bvh', [], [])
-        self.path: Optional[pathlib.Path] = None
-        self.runtime = BvhNodeRuntime()
+    def __init__(self, id: int, skeleton_pin_id: int, pose_pin_id: int, path: Optional[pathlib.Path] = None) -> None:
+        super().__init__(id, 'bvh', [], [])
+        if isinstance(path, str):
+            path = pathlib.Path(path)
+        self.path: Optional[pathlib.Path] = path
         # skeleton
-        out_skeleton = BvhSkeletonOutputPin(get_next_id())
+        out_skeleton = BvhSkeletonOutputPin(skeleton_pin_id)
         self.outputs.append(out_skeleton)
         # pose
-        out_pose = BvhPoseOutputPin(get_next_id())
+        out_pose = BvhPoseOutputPin(pose_pin_id)
         self.outputs.append(out_pose)
+
+        self.bvh: Optional[Bvh] = None
+        self.frame = (ctypes.c_int * 1)()
+
+    def to_json(self) -> Serialized:
+        return Serialized('BvhNode', {
+            'id': self.id,
+            'path': str(self.path) if self.path else None,
+            'skeleton_pin_id': self.outputs[0].id,
+            'pose_pin_id': self.outputs[1].id,
+        })
 
     def __str__(self):
         return f'T stance, World axis'
@@ -76,9 +61,12 @@ class BvhNode(Node):
     def get_right_indent(self) -> int:
         return 160
 
-    def load(self, path: pathlib.Path, graph=None):
+    def load(self, path: pathlib.Path):
         self.path = path
-        self.runtime.load(self.path)
+        from ...formats.bvh import bvh_parser
+        self.bvh = bvh_parser.from_path(path)
+        if self.frame[0] >= self.bvh.frame_count:
+            self.frame[0] = self.bvh.frame_count-1
 
     def show_content(self, graph):
         if ImGui.Button('open'):
@@ -89,15 +77,30 @@ class BvhNode(Node):
                 dir = self.path.parent if self.path else ASSET_DIR
                 selected = await filedialog.open_async(asyncio.get_event_loop(), dir)
                 if selected:
-                    self.load(selected, graph)
+                    self.load(selected)
             asyncio.get_event_loop().create_task(open_task())
 
-        self.runtime.show()
+        if self.bvh:
+            ImGui.TextUnformatted(f'bvh: {self.bvh.path.name}')
+            end_frame = self.bvh.get_frame_count()-1
+            for info in self.bvh.get_info():
+                ImGui.TextUnformatted(info)
+            ImGui.SetNextItemWidth(200)
+            if ImGui.SliderInt('frame', self.frame, 0, end_frame):
+                self.bvh.set_frame(self.frame[0])
+
+    def process_self(self):
+        if not self.bvh and self.path:
+            self.load(self.path)
 
 
-class ViewNodeRuntime(NodeRuntime):
-    def __init__(self) -> None:
-        super().__init__()
+class ViewNode(Node):
+    def __init__(self, id: int, skeleton_pin_id: int, pose_pin_id: int) -> None:
+        super().__init__(id, 'view',
+                         [InputPin(skeleton_pin_id, 'skeleton'),
+                          InputPin(pose_pin_id, 'pose')],
+                         [])
+
         self.skeleton = None
         self.in_skeleton = None
         self.pose = None
@@ -116,25 +119,14 @@ class ViewNodeRuntime(NodeRuntime):
         self.hover = False
         self.xy = (ctypes.c_float * 2)(0, 0)
 
-    def process(self, node: Node):
-        if not self.in_skeleton:
-            self.in_skeleton = next(
-                iter(in_pin for in_pin in node.inputs if in_pin.name == 'skeleton'))
-        if not self.in_pose:
-            self.in_pose = next(
-                iter(in_pin for in_pin in node.inputs if in_pin.name == 'pose'))
+    def to_json(self) -> Serialized:
+        return Serialized('ViewNode', {
+            'id': self.id,
+            'skeleton_pin_id': self.inputs[0].id,
+            'pose_pin_id': self.inputs[1].id
+        })
 
-        if self.in_skeleton.value != self.skeleton:
-            # update skeleton
-            self.skeleton = self.in_skeleton.value
-            self.scene.load(self.skeleton)
-
-        if self.in_skeleton.value != self.skeleton or self.in_pose.value != self.pose:
-            # update pose
-            self.pose = self.in_pose.value
-            self.scene.set_pose(self.in_pose.value)
-
-    def show(self, node_id: int):
+    def show_content(self, graph):
         w = 400
         h = 400
         self.camera.projection.resize(w, h)
@@ -150,7 +142,7 @@ class ViewNodeRuntime(NodeRuntime):
                                           ImGui.ImGuiButtonFlags_.MouseButtonMiddle | ImGui.ImGuiButtonFlags_.MouseButtonRight)
 
             io = ImGui.GetIO()
-            x, y = ImNodes.GetNodeScreenSpacePos(node_id)
+            x, y = ImNodes.GetNodeScreenSpacePos(self.id)
             y += 43
             x += 8
             if ImGui.IsItemActive():
@@ -178,14 +170,20 @@ class ViewNodeRuntime(NodeRuntime):
             # ImGui.TextUnformatted(
             #     f'{int(io.MousePos.x-x)}/{w}, {int(io.MousePos.y-y)}/{h}')
 
+    def process_self(self):
+        if not self.in_skeleton:
+            self.in_skeleton = next(
+                iter(in_pin for in_pin in self.inputs if in_pin.name == 'skeleton'))
+        if not self.in_pose:
+            self.in_pose = next(
+                iter(in_pin for in_pin in self.inputs if in_pin.name == 'pose'))
 
-class ViewNode(Node):
-    def __init__(self, get_next_id) -> None:
-        super().__init__(get_next_id(), 'view',
-                         [InputPin(get_next_id(), 'skeleton'),
-                          InputPin(get_next_id(), 'pose')],
-                         [])
-        self.runtime = ViewNodeRuntime()
+        if self.in_skeleton.value != self.skeleton:
+            # update skeleton
+            self.skeleton = self.in_skeleton.value
+            self.scene.load(self.skeleton)
 
-    def show_content(self, graph):
-        self.runtime.show(self.id)
+        if self.in_skeleton.value != self.skeleton or self.in_pose.value != self.pose:
+            # update pose
+            self.pose = self.in_pose.value
+            self.scene.set_pose(self.in_pose.value)
