@@ -5,7 +5,7 @@ import ctypes
 from pydear import imgui as ImGui
 from pydear import imgui_internal
 from pydear import imnodes as ImNodes
-from ...formats.bvh_parser import Bvh
+from ...formats.bvh.bvh_parser import Bvh
 from ...scene.scene import Scene
 from pydear.utils.node_editor import Node, InputPin, OutputPin, NodeRuntime
 
@@ -24,7 +24,7 @@ class BvhNodeRuntime(NodeRuntime):
             self.load(node.path)
 
     def load(self, path: pathlib.Path):
-        from ...formats import bvh_parser
+        from ...formats.bvh import bvh_parser
         self.bvh = bvh_parser.from_path(path)
         if self.frame[0] >= self.bvh.frame_count:
             self.frame[0] = self.bvh.frame_count-1

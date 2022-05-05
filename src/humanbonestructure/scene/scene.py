@@ -5,7 +5,9 @@ import logging
 import glm
 from pydear.scene.camera import Camera
 from pydear.scene.gizmo import Gizmo
-from ..formats import pmd_loader, gltf_loader, pmx_loader, bvh_parser
+
+from ..formats.bvh import bvh_parser
+from ..formats import pmd_loader, gltf_loader, pmx_loader
 from ..formats import tpose
 from ..formats.transform import Transform
 from ..formats.pose import Pose, BonePose
@@ -61,7 +63,7 @@ class Scene:
         # tpose.pose_to_delta(scene.root)
 
     def load(self, value):
-        from ..formats.bvh_parser import Bvh
+        from ..formats.bvh.bvh_parser import Bvh
         match value:
             case Bvh() as bvh:
                 from .builder import bvh_builder

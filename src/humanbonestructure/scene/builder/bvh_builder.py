@@ -2,7 +2,7 @@ from typing import Optional
 import logging
 import glm
 from ..node import Node
-from ...formats import bvh_parser
+from ...formats.bvh import bvh_parser
 from ...formats.transform import Transform
 from ...formats.humanoid_bones import HumanoidBone
 
