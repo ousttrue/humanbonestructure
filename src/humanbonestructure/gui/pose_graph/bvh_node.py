@@ -77,7 +77,7 @@ class BvhNode(Node):
             async def open_task():
                 from pydear.utils import filedialog
                 dir = self.path.parent if self.path else ASSET_DIR
-                selected = await filedialog.open_async(asyncio.get_event_loop(), dir)
+                selected = await filedialog.open_async(asyncio.get_event_loop(), dir, filter=filedialog.Filter('.bvh'))
                 if selected:
                     self.load(selected)
             asyncio.get_event_loop().create_task(open_task())
