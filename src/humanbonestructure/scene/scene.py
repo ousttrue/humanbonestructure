@@ -65,10 +65,20 @@ class Scene:
 
     def load(self, value):
         from ..formats.bvh.bvh_parser import Bvh
+        from ..formats.pmd_loader import Pmd
+        from ..formats.pmx_loader import Pmx
         match value:
             case Bvh() as bvh:
                 from .builder import bvh_builder
                 self.root = bvh_builder.build(bvh)
+                self._setup_model()
+            case Pmd() as pmd:
+                from .builder import pmd_builder
+                self.root = pmd_builder.build(pmd)
+                self._setup_model()
+            case Pmx() as pmx:
+                from .builder import pmx_builder
+                self.root = pmx_builder.build(pmx)
                 self._setup_model()
             case None:
                 self.root = Node('__root__', Transform.identity())

@@ -1,7 +1,7 @@
 '''
 https://blog.goo.ne.jp/torisu_tetosuki/e/209ad341d3ece2b1b4df24abf619d6e4
 '''
-from typing import List, Dict
+from typing import List, Dict, Iterable
 import ctypes
 from .bytesreader import BytesReader
 from .humanoid_bones import HumanoidBone
@@ -211,3 +211,8 @@ class Pmd:
 
     def __str__(self) -> str:
         return f'<pmd {self.name}: {len(self.vertices)}vert, {len(self.indices)//3}tri, {len(self.submeshes)}materials, {len(self.bones)}bones, {len(self.ik)}IK, {len(self.morphs)}morphs>'
+
+    def get_info(self) -> Iterable[str]:
+        yield 'left-handed, A-stance'
+        yield 'world-axis, inverted-pelvis'
+        yield 'unit: 20/1.63'

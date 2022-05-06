@@ -1,4 +1,4 @@
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Iterable
 import ctypes
 from .bytesreader import BytesReader
 from .buffer_types import Vertex4BoneWeights, RenderVertex, Float3, Float4
@@ -254,3 +254,8 @@ class Pmx:
 
     def __str__(self) -> str:
         return f'<pmx {self.name_ja}: {len(self.vertices)}vert, {len(self.indices)//3}tri, {len(self.bones)}bones>'
+
+    def get_info(self) -> Iterable[str]:
+        yield 'left-handed, A-stance'
+        yield 'world-axis, inverted-pelvis'
+        yield 'unit: 20/1.63'

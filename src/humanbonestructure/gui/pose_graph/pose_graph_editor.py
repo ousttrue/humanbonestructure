@@ -20,6 +20,8 @@ class PoseGraphEditor(NodeEditor):
         self.register_type(ViewNode)
         from .mmd_pose_node import MmdPoseNode
         self.register_type(MmdPoseNode)
+        from .mmd_model_node import MmdModelNode
+        self.register_type(MmdModelNode)
 
     def on_node_editor(self):
         open_popup = False
