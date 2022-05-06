@@ -22,6 +22,8 @@ class PoseGraphEditor(NodeEditor):
         self.register_type(MmdPoseNode)
         from .mmd_model_node import MmdModelNode
         self.register_type(MmdModelNode)
+        from .gltf_node import GltfNode
+        self.register_type(GltfNode)
 
     def on_node_editor(self):
         open_popup = False
@@ -51,6 +53,14 @@ class PoseGraphEditor(NodeEditor):
                 node = BvhNode(
                     self.graph.get_next_id(),
                     self.graph.get_next_id(),
+                    self.graph.get_next_id(),
+                    self.graph.get_next_id())
+                self.graph.nodes.append(node)
+                ImNodes.SetNodeScreenSpacePos(node.id, click_pos)
+
+            if ImGui.MenuItem("gltf/glb/vrm"):
+                from .gltf_node import GltfNode
+                node = GltfNode(
                     self.graph.get_next_id(),
                     self.graph.get_next_id())
                 self.graph.nodes.append(node)

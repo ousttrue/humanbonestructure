@@ -122,7 +122,7 @@ def build(gltf: gltf_loader.Gltf) -> Node:
             # vrm-0.x: rotate y180
             # TODO: if not normalized
             t = glm.vec3(-t.x, t.y, -t.z)
-        node = Node(i, name, Transform(t, r, s))
+        node = Node(name, Transform(t, r, s))
         set_human_bone(i, node)
         nodes.append(node)
 
@@ -158,7 +158,7 @@ def build(gltf: gltf_loader.Gltf) -> Node:
                 node.renderer = MeshRenderer("assets/shader",
                                              vertices, indices)
 
-    root = Node(-1, '__root__', Transform.identity())
+    root = Node('__root__', Transform.identity())
     for node in nodes:
         if not node.parent:
             root.add_child(node)

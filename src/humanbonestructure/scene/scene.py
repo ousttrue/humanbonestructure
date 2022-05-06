@@ -67,6 +67,7 @@ class Scene:
         from ..formats.bvh.bvh_parser import Bvh
         from ..formats.pmd_loader import Pmd
         from ..formats.pmx_loader import Pmx
+        from ..formats.gltf_loader import Gltf
         match value:
             case Bvh() as bvh:
                 from .builder import bvh_builder
@@ -79,6 +80,10 @@ class Scene:
             case Pmx() as pmx:
                 from .builder import pmx_builder
                 self.root = pmx_builder.build(pmx)
+                self._setup_model()
+            case Gltf() as gltf:
+                from .builder import gltf_builder
+                self.root = gltf_builder.build(gltf)
                 self._setup_model()
             case None:
                 self.root = Node('__root__', Transform.identity())

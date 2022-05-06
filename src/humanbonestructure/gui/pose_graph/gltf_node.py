@@ -1,0 +1,60 @@
+from typing import Optional
+import pathlib
+from pydear import imgui as ImGui
+from pydear.utils.node_editor.node import Node, InputPin, OutputPin, Serialized
+from .file_node import FileNode
+
+
+class GltfSkeletonOutputPin(OutputPin):
+    def __init__(self, id: int) -> None:
+        super().__init__(id, 'skeleton')
+
+    def process(self, node: 'GltfNode', input: InputPin):
+        if node.gltf:
+            input.value = node.gltf
+
+
+class GltfNode(FileNode):
+    '''
+    * out: skeleton
+    '''
+
+    def __init__(self, id: int, skeleton_pin_id, path: Optional[pathlib.Path] = None) -> None:
+        super().__init__(id, 'gltf/glb/vrm', path,
+                         [],
+                         [
+                             GltfSkeletonOutputPin(skeleton_pin_id)
+                         ],
+                         '.gltf', '.glb', '.vrm')
+        self.gltf = None
+
+    def get_right_indent(self) -> int:
+        return 160
+
+    def to_json(self) -> Serialized:
+        return Serialized(self.__class__.__name__, {
+            'id': self.id,
+            'path': str(self.path) if self.path else None,
+            'skeleton_pin_id': self.outputs[0].id,
+        })
+
+    def show_content(self, graph):
+        super().show_content(graph)
+
+        if self.gltf:
+            for info in self.gltf.get_info():
+                ImGui.TextUnformatted(info)
+
+    def load(self, path: pathlib.Path):
+        self.path = path
+
+        match path.suffix.lower():
+            case '.gltf':
+                raise NotImplementedError()
+            case '.glb' | '.vrm':
+                from ...formats import gltf_loader
+                self.gltf = gltf_loader.Gltf.load_glb(path.read_bytes())
+
+    def process_self(self):
+        if not self.gltf and self.path:
+            self.load(self.path)

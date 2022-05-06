@@ -1,4 +1,4 @@
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional, Tuple, Iterable
 import ctypes
 import struct
 import pathlib
@@ -31,6 +31,27 @@ class Gltf:
         self.gltf = gltf
         self.bin = bin
         self.base_dir = base_dir
+
+        self.vrm = None
+        if self.get_vrm0_human_bone_map():
+            self.vrm = 0
+        elif self.get_vrm1_human_bone_map():
+            self.vrm = 1
+
+    def get_info(self) -> Iterable[str]:
+        match self.vrm:
+            case 0:
+                yield 'left-handed, T-Stance'
+                yield 'world-axis'
+
+            case 1:
+                yield 'left-handed, T-Stance'
+                yield 'unknown_axis'
+
+            case _:
+                yield 'left-handed, unknown'
+
+        yield 'unit: meter'
 
     def get_vrm0_human_bone_map(self) -> Dict[int, HumanoidBone]:
         if extensions := self.gltf.get('extensions'):
