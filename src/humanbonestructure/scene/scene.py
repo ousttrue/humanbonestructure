@@ -85,6 +85,9 @@ class Scene:
                 from .builder import gltf_builder
                 self.root = gltf_builder.build(gltf)
                 self._setup_model()
+            case Node() as root:
+                self.root = root
+                self._setup_model()
             case None:
                 self.root = Node('__root__', Transform.identity())
                 self.skeleton = None

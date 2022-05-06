@@ -24,6 +24,8 @@ class PoseGraphEditor(NodeEditor):
         self.register_type(MmdModelNode)
         from .gltf_node import GltfNode
         self.register_type(GltfNode)
+        from .tpose_node import TPoseNode
+        self.register_type(TPoseNode)
 
     def on_node_editor(self):
         open_popup = False
@@ -47,6 +49,14 @@ class PoseGraphEditor(NodeEditor):
                 ImNodes.SetNodeScreenSpacePos(node.id, click_pos)
 
             ImGui.MenuItem("----")
+
+            if ImGui.MenuItem("tpose"):
+                from .tpose_node import TPoseNode
+                node = TPoseNode(
+                    self.graph.get_next_id(),
+                    self.graph.get_next_id())
+                self.graph.nodes.append(node)
+                ImNodes.SetNodeScreenSpacePos(node.id, click_pos)
 
             if ImGui.MenuItem("bvh"):
                 from .bvh_node import BvhNode
