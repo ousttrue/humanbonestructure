@@ -216,16 +216,6 @@
 <p><a class="reference external" href="https://github.com/ousttrue/humanbonestructure">https://github.com/ousttrue/humanbonestructure</a></p>
 <p><a class="reference internal" href="glossary.html#term-7"><span class="xref std std-term">ヒューマノイド</span></a> 向け <a class="reference internal" href="glossary.html#term-8"><span class="xref std std-term">ポーズ</span></a> の標準化の調査と python 実装。</p>
 <p>厳格なTPoseを介したポーズ転送 (retarget) について。</p>
-<p>TODO: ポーズの右手左手の変換の考慮。quaternion ではなく axis + angle 記述？</p>
-<ul class="simple">
-<li><p>ローカル軸要るかね？</p>
-<ul>
-<li><p>手だけとか、上半身だけなどの部分モーションを合体するときにローカル軸あった方が管理しやすい予感(実際にやってないので不明)</p></li>
-<li><p>一軸関節の表現を float にするときにわかりやすい</p></li>
-<li><p>指モーションの生成とかするときにわかりやすい(ような気がする)</p></li>
-</ul>
-</li>
-</ul>
 <div class="graphviz"><object class="graphviz" data="_images/graphviz-baf58b87339b897ad2b830e74e10b6fd61783687.svg" type="image/svg+xml">
 <p class="warning">digraph tpose {
   "vpd/vmd(A stance + world coord)" -&gt; "strict tpose";
@@ -234,6 +224,46 @@
   "strict tpose" -&gt; "vrm-0.x (T stance world coord)";
   "strict tpose" -&gt; "vrm-1.0 (T stance local coord)";
 }</p></object></div>
+<section id="id1">
+<h2>作業予定<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">#</a></h2>
+<section id="tpose">
+<h3>1. 厳格TPose + ワールド軸 によるポーズの相互変換<a class="headerlink" href="#tpose" title="このヘッドラインへのパーマリンク">#</a></h3>
+<ul class="simple">
+<li><p>正規化前後での変化</p>
+<ul>
+<li><p>それに伴うポーズ、コンストレイント、スプリングのパラメーター変化の追随</p></li>
+</ul>
+</li>
+</ul>
+<p>主に、同一モデルでの初期ポーズ、ローカル軸変化への対応を扱う。</p>
+</section>
+<section id="id2">
+<h3>2. 厳格TPose + ローカル軸 によるポーズの操作<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">厳格TPose</span> <span class="pre">+</span> <span class="pre">ローカル軸</span></code> に対する <code class="docutils literal notranslate"><span class="pre">ポーズ</span></code> の運用テスト。</p>
+<ul class="simple">
+<li><p>ポーズの手付け</p></li>
+<li><p>ポーズの生成(手など)</p></li>
+<li><p>ポーズの合成(部位別のポーズを統合する)、ブレンド、スイッチング</p></li>
+<li><p>他モデルへのリターゲット実験</p></li>
+<li><p>ポーズ単体でのアセット化、フォーマット</p></li>
+</ul>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="nt">"BONE0"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nt">"xzy"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span><span class="w"> </span><span class="mi">30</span><span class="p">],</span><span class="w"></span>
+<span class="w">  </span><span class="p">},</span><span class="w"></span>
+<span class="w">  </span><span class="nt">"BONE2"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nt">"x"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">10</span><span class="p">],</span><span class="w"></span>
+<span class="w">  </span><span class="p">},</span><span class="w"></span>
+<span class="w">  </span><span class="nt">"BONE1"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nt">"quat"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">],</span><span class="w"></span>
+<span class="w">  </span><span class="p">},</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id3">
+<h2>メモ<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">#</a></h2>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">D</span> <span class="o">=</span> <span class="n">TPOSE_DELTA</span>
 <span class="n">A</span> <span class="o">=</span> <span class="n">LOCAL_AXIS_DELTA</span>
 <span class="n">P</span> <span class="o">=</span> <span class="n">POSE</span>
@@ -281,6 +311,7 @@
 <li class="toctree-l1"><a class="reference internal" href="glossary.html">用語集</a></li>
 </ul>
 </div>
+</section>
 </section>
 <section id="indices-and-tables">
 <h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="このヘッドラインへのパーマリンク">#</a></h1>
@@ -338,7 +369,15 @@
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">HumanBoneStructure</a></li>
+<li><a class="reference internal" href="#">HumanBoneStructure</a><ul>
+<li><a class="reference internal" href="#id1">作業予定</a><ul>
+<li><a class="reference internal" href="#tpose">1. 厳格TPose + ワールド軸 によるポーズの相互変換</a></li>
+<li><a class="reference internal" href="#id2">2. 厳格TPose + ローカル軸 によるポーズの操作</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id3">メモ</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
 </ul>
 
