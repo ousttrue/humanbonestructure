@@ -15,8 +15,9 @@ class PoseGraph(NodeEditor):
 
     def get_klass_map(self) -> Dict[str, Type]:
         map = super().get_klass_map()
-        from .nodes import BvhNode, ViewNode
+        from .bvh_node import BvhNode
         map['BvhNode'] = BvhNode
+        from .view_node import ViewNode
         map['ViewNode'] = ViewNode
         return map
 
@@ -34,7 +35,7 @@ class PoseGraph(NodeEditor):
         if ImGui.BeginPopup("add node"):
             click_pos = ImGui.GetMousePosOnOpeningCurrentPopup()
             if ImGui.MenuItem("bvh"):
-                from .nodes import BvhNode
+                from .bvh_node import BvhNode
                 node = BvhNode(
                     self.graph.get_next_id(),
                     self.graph.get_next_id(),
@@ -42,7 +43,7 @@ class PoseGraph(NodeEditor):
                 self.graph.nodes.append(node)
                 ImNodes.SetNodeScreenSpacePos(node.id, click_pos)
             if ImGui.MenuItem("view"):
-                from .nodes import ViewNode
+                from .view_node import ViewNode
                 node = ViewNode(
                     self.graph.get_next_id(),
                     self.graph.get_next_id(),

@@ -69,8 +69,8 @@ def main():
         setting = BinSetting(args.ini)
 
     if args.asset:
-        from .gui.pose_graph import nodes
-        nodes.ASSET_DIR = args.asset
+        from .gui.pose_graph import bvh_node
+        bvh_node.ASSET_DIR = args.asset
 
     from pydear.utils import glfw_app
     app = glfw_app.GlfwApp('humanbonestructure', setting=setting)

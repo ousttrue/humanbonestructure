@@ -77,19 +77,5 @@
             "console": "integratedTerminal",
             "justMyCode": false
         },
-        {
-            "name": "bvhview",
-            "type": "python",
-            "request": "launch",
-            "module": "humanbonestructure.bvh",
-            "args": [
-                "${env:MMD_DATA}/Motion/test_motion.bvh"
-            ],
-            "env": {
-                "PYTHONPATH": "${workspaceFolder}\\src"
-            },
-            "console": "integratedTerminal",
-            "justMyCode": false
-        },
     ]
 }
