@@ -14,6 +14,8 @@
                 "humanbonestructure.dat",
                 "--asset",
                 "${env:MMD_DATA}",
+                "--nerdfont",
+                "${env:USERPROFILE}/AppData/Local/Microsoft/Windows/Fonts/HackGenNerdConsole-Regular.ttf",
             ],
             "env": {
                 "PYTHONPATH": "${workspaceFolder}/src",

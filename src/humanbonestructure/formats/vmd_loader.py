@@ -36,25 +36,26 @@ class BoneCurve:
 
 
 class Vmd(Motion):
-    def __init__(self, name: str, model: str, curves: List[BoneCurve]) -> None:
+    def __init__(self, name: str, target_model: str, curves: List[BoneCurve]) -> None:
         super().__init__(name)
-        self.model = model
+        self.target_model = target_model
         self.curves = curves
         self._humanbones = set(
             curve.humanoid_bone for curve in self.curves if curve.humanoid_bone.is_enable())
-        self.set_frame(0)
-        self.frame_count = 0
+        self.set_time(0)
+        self.max_frame = 0
         for curve in self.curves:
-            count = len(curve.key_frames)
-            if count > self.frame_count:
-                self.frame_count = count
+            # sort key frames by frame number
+            curve.key_frames.sort(key=lambda x: x.frame)
+
+            end_frame = curve.key_frames[-1].frame
+            if end_frame > self.max_frame:
+                self.max_frame = end_frame
+
         # fixed 30FPS
-        self.seconds = self.frame_count / 30
+        self.seconds = self.max_frame / 30
 
-    def get_frame_count(self) -> int:
-        return self.frame_count
-
-    def get_seconds(self) -> float:
+    def get_end_time(self) -> float:
         return self.seconds
 
     @staticmethod
@@ -78,9 +79,11 @@ class Vmd(Motion):
         return Vmd(name, model, list(bone_curves.values()))
 
     def get_info(self) -> Iterable[str]:
-        yield 'left-handed, A-stance, world-axis'
-        yield 'unit: 20/1.63, inverted-pelvis'
-        yield f'{self.get_frame_count()}frames, {self.get_seconds():0.2f}sec'
+        yield 'left-handed, A-stance'
+        yield 'world-axis, inverted-pelvis'
+        yield 'unit: 20/1.63'
+        yield 'origin: hips'
+        yield f'{self.max_frame}frames, {self.seconds:0.2f}sec'
 
     def get_humanbones(self) -> Set[HumanoidBone]:
         return self._humanbones
@@ -88,8 +91,9 @@ class Vmd(Motion):
     def get_current_pose(self) -> Pose:
         return self._pose
 
-    def set_frame(self, frame: int):
-        self._pose = Pose(f'{self.name}#{frame}')
+    def set_time(self, time_sec: float):
+        self._pose = Pose(f'{self.name}:{time_sec}sec')
+        frame = int(time_sec * 30)  # 30 FPS
         for curve in self.curves:
             t = curve.get_transform(frame)
             self._pose.bones.append(

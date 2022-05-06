@@ -1,5 +1,4 @@
-from typing import Optional, Dict, Type
-import pathlib
+from typing import Optional
 import logging
 from pydear import imgui as ImGui
 from pydear import imnodes as ImNodes
@@ -13,16 +12,14 @@ LOGGER = logging.getLogger(__name__)
 class PoseGraphEditor(NodeEditor):
     def __init__(self, *, setting: Optional[BinSetting] = None) -> None:
         super().__init__('pose_graph', setting=setting)
-
-    def get_klass_map(self) -> Dict[str, Type]:
-        map = super().get_klass_map()
+        from .time_node import TimeNode
+        self.register_type(TimeNode)
         from .bvh_node import BvhNode
-        map['BvhNode'] = BvhNode
+        self.register_type(BvhNode)
         from .view_node import ViewNode
-        map['ViewNode'] = ViewNode
+        self.register_type(ViewNode)
         from .mmd_pose_node import MmdPoseNode
-        map['MmdPoseNode'] = MmdPoseNode
-        return map
+        self.register_type(MmdPoseNode)
 
     def on_node_editor(self):
         open_popup = False
@@ -37,18 +34,37 @@ class PoseGraphEditor(NodeEditor):
 
         if ImGui.BeginPopup("add node"):
             click_pos = ImGui.GetMousePosOnOpeningCurrentPopup()
+
+            if ImGui.MenuItem("time"):
+                from .time_node import TimeNode
+                node = TimeNode(self.graph.get_next_id(),
+                                self.graph.get_next_id(), 60)
+                self.graph.nodes.append(node)
+                ImNodes.SetNodeScreenSpacePos(node.id, click_pos)
+
+            ImGui.MenuItem("----")
+
             if ImGui.MenuItem("bvh"):
                 from .bvh_node import BvhNode
                 node = BvhNode(
+                    self.graph.get_next_id(),
                     self.graph.get_next_id(),
                     self.graph.get_next_id(),
                     self.graph.get_next_id())
                 self.graph.nodes.append(node)
                 ImNodes.SetNodeScreenSpacePos(node.id, click_pos)
 
+            if ImGui.MenuItem("pmd/pmx"):
+                from .mmd_model_node import MmdModelNode
+                node = MmdModelNode(self.graph.get_next_id(),
+                                    self.graph.get_next_id())
+                self.graph.nodes.append(node)
+                ImNodes.SetNodeScreenSpacePos(node.id, click_pos)
+
             if ImGui.MenuItem("vmd/vpd"):
                 from .mmd_pose_node import MmdPoseNode
                 node = MmdPoseNode(
+                    self.graph.get_next_id(),
                     self.graph.get_next_id(),
                     self.graph.get_next_id())
                 self.graph.nodes.append(node)

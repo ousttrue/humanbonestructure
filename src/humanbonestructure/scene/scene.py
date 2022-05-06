@@ -35,6 +35,7 @@ class Scene:
         self.skeleton = None
         self.selected: Optional[Node] = None
         self.tpose_delta_map: Dict[HumanoidBone, glm.quat] = {}
+        self.humanoid_node_map: Dict[HumanoidBone, Node] = {}
 
         # GUI check box
         self.visible_mesh = (ctypes.c_bool * 1)(False)
@@ -178,7 +179,7 @@ class Scene:
             self.render_node(camera, child)
 
     def set_pose(self, pose: Pose):
-        if not self.root:
+        if not self.root or not self.humanoid_node_map:
             return
 
         self.root.clear_pose()

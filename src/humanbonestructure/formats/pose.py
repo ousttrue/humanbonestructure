@@ -74,9 +74,6 @@ class Motion(abc.ABC):
                                     for bone in self.get_humanbones() if bone.is_enable())
         return self._parts_cache
 
-    def get_frame_count(self) -> int:
-        return 1
-
     @ abc.abstractmethod
     def get_info(self) -> str:
         raise NotImplementedError()
@@ -86,7 +83,11 @@ class Motion(abc.ABC):
         raise NotImplementedError()
 
     @ abc.abstractmethod
-    def set_frame(self, frame: int):
+    def get_end_time(self) -> float:
+        raise NotImplementedError()
+
+    @ abc.abstractmethod
+    def set_time(self, time_sec: float):
         raise NotImplementedError()
 
     @ abc.abstractmethod
@@ -94,19 +95,19 @@ class Motion(abc.ABC):
         raise NotImplementedError()
 
 
-class Empty(Motion):
-    def __init__(self) -> None:
-        super().__init__('__empty__')
-        self.pose = Pose(self.name)
+# class Empty(Motion):
+#     def __init__(self) -> None:
+#         super().__init__('__empty__')
+#         self.pose = Pose(self.name)
 
-    def get_info(self) -> str:
-        return 'empty'
+#     def get_info(self) -> str:
+#         return 'empty'
 
-    def get_humanbones(self) -> Set[HumanoidBone]:
-        return set()
+#     def get_humanbones(self) -> Set[HumanoidBone]:
+#         return set()
 
-    def set_frame(self, frame: int):
-        pass
+#     def set_time(self, time_sec: float):
+#         pass
 
-    def get_current_pose(self) -> Pose:
-        return self.pose
+#     def get_current_pose(self) -> Pose:
+#         return self.pose

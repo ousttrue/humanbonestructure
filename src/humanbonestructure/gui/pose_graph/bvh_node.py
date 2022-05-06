@@ -3,8 +3,9 @@ import logging
 import pathlib
 import ctypes
 from pydear import imgui as ImGui
-from ...formats.bvh.bvh_parser import Bvh
 from pydear.utils.node_editor.node import Node, InputPin, OutputPin, Serialized
+from ...formats.bvh.bvh_parser import Bvh
+from .file_node import FileNode
 
 LOGGER = logging.getLogger(__name__)
 
@@ -27,28 +28,34 @@ class BvhPoseOutputPin(OutputPin):
             input.value = node.bvh.get_current_pose()
 
 
-class BvhNode(Node):
-    def __init__(self, id: int, skeleton_pin_id: int, pose_pin_id: int, path: Optional[pathlib.Path] = None) -> None:
-        super().__init__(id, 'bvh', [], [
-            BvhSkeletonOutputPin(skeleton_pin_id),
-            BvhPoseOutputPin(pose_pin_id)
-        ])
-        if isinstance(path, str):
-            path = pathlib.Path(path)
-        self.path: Optional[pathlib.Path] = path
+class BvhNode(FileNode):
+    '''
+    * out: skeleton
+    * out: pose
+    '''
+
+    def __init__(self, id: int,
+                 time_pin_id: int,
+                 skeleton_pin_id: int, pose_pin_id: int,
+                 path: Optional[pathlib.Path] = None) -> None:
+        super().__init__(id, 'bvh', path,
+                         [
+                             InputPin(time_pin_id, 'time')
+                         ],
+                         [
+                             BvhSkeletonOutputPin(skeleton_pin_id),
+                             BvhPoseOutputPin(pose_pin_id)
+                         ], '.bvh')
         self.bvh: Optional[Bvh] = None
-        self.frame = (ctypes.c_int * 1)()
 
     def to_json(self) -> Serialized:
-        return Serialized('BvhNode', {
+        return Serialized(self.__class__.__name__, {
             'id': self.id,
             'path': str(self.path) if self.path else None,
+            'time_pin_id': self.inputs[0].id,
             'skeleton_pin_id': self.outputs[0].id,
             'pose_pin_id': self.outputs[1].id,
         })
-
-    def __str__(self):
-        return f'T stance, World axis'
 
     def get_right_indent(self) -> int:
         return 160
@@ -57,30 +64,19 @@ class BvhNode(Node):
         self.path = path
         from ...formats.bvh import bvh_parser
         self.bvh = bvh_parser.from_path(path)
-        if self.frame[0] >= self.bvh.frame_count:
-            self.frame[0] = self.bvh.frame_count-1
 
     def show_content(self, graph):
-        if ImGui.Button('open'):
-            import asyncio
-
-            async def open_task():
-                from pydear.utils import filedialog
-                dir = self.path.parent if self.path else graph.current_dir
-                selected = await filedialog.open_async(asyncio.get_event_loop(), dir, filter=filedialog.Filter('.bvh'))
-                if selected:
-                    self.load(selected)
-            asyncio.get_event_loop().create_task(open_task())
+        super().show_content(graph)
 
         if self.bvh:
-            ImGui.TextUnformatted(f'bvh: {self.bvh.path.name}')
-            end_frame = self.bvh.get_frame_count()-1
             for info in self.bvh.get_info():
                 ImGui.TextUnformatted(info)
-            ImGui.SetNextItemWidth(200)
-            if ImGui.SliderInt('frame', self.frame, 0, end_frame):
-                self.bvh.set_frame(self.frame[0])
 
     def process_self(self):
         if not self.bvh and self.path:
             self.load(self.path)
+
+        if self.bvh:
+            time_sec = self.inputs[0].value
+            if isinstance(time_sec, (int, float)):
+                self.bvh.set_time(time_sec)

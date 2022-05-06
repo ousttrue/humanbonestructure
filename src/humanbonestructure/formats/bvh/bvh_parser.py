@@ -82,6 +82,7 @@ class Bvh(Motion):
         self.path = path
         self.root = root
         self.frametime = frametime
+        self.fps = 1 / self.frametime
         self.frame_count = frame_count
         self.data = data
 
@@ -107,11 +108,16 @@ class Bvh(Motion):
         # frame
         self.channel_count = self.root.get_channel_count()
         self.current_frame = -1
-        self.set_frame(0)
+        self.set_time(0)
 
-    def set_frame(self, frame: int):
+    def set_time(self, time_sec: float):
+        frame = int(time_sec * self.fps)
         if frame == self.current_frame:
             return
+        if frame < 0:
+            frame = 0
+        elif frame >= self.frame_count:
+            frame = self.frame_count-1
         self.current_frame = frame
         begin = self.channel_count * frame
         data = self.data[begin:begin+self.channel_count]
@@ -133,16 +139,17 @@ class Bvh(Motion):
                 traverse(child)
         traverse(self.root)
 
-    def get_seconds(self):
+    def get_end_time(self):
         return self.frametime * self.frame_count
 
     def get_frame_count(self) -> int:
         return self.frame_count
 
     def get_info(self) -> Iterable[str]:
-        yield 'right-handed, T-stance, world-axis'
-        yield f'unit: {self.unit}'
-        yield f'{self.frame_count}frames, {self.get_seconds():0.2f}sec'
+        yield 'right-handed, T-stance'
+        yield 'world-axis'
+        yield f'unit: {self.unit}, origin: world'
+        yield f'{self.frame_count}frames, {self.get_end_time():0.2f}sec'
 
     def get_humanbones(self) -> Set[HumanoidBone]:
         return set()

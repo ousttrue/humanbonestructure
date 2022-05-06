@@ -11,7 +11,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 class GUI(dockspace.DockingGui):
-    def __init__(self, loop: asyncio.AbstractEventLoop, *, setting: Optional[BinSetting] = None) -> None:
+    def __init__(self, loop: asyncio.AbstractEventLoop, *, setting: Optional[BinSetting] = None, nerdfont_path: Optional[pathlib.Path] = None) -> None:
         from pydear.utils.loghandler import ImGuiLogHandler
         log_handler = ImGuiLogHandler()
         log_handler.register_root(append=True)
@@ -35,6 +35,7 @@ class GUI(dockspace.DockingGui):
                            (ctypes.c_bool * 1)(True)),
         ]
 
+        self.nerdfont_path = nerdfont_path
         super().__init__(loop, docks=self.docks, setting=setting)
 
     def _setup_font(self):
@@ -43,10 +44,12 @@ class GUI(dockspace.DockingGui):
         from pydear.utils import fontloader
         fontloader.load(pathlib.Path(
             'C:/Windows/Fonts/MSGothic.ttc'), 20.0, io.Fonts.GetGlyphRangesJapanese())  # type: ignore
-        import fontawesome47
-        font_range = (ctypes.c_ushort * 3)(*fontawesome47.RANGE, 0)
-        fontloader.load(fontawesome47.get_path(), 20.0,
-                        font_range, merge=True, monospace=True)
+
+        if self.nerdfont_path and self.nerdfont_path.exists():
+            from pydear.utils import nerdfont
+            font_range = nerdfont.create_font_range()
+            fontloader.load(self.nerdfont_path, 20.0,
+                            font_range, merge=True, monospace=True)
 
         io.Fonts.Build()
 
@@ -61,6 +64,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--ini', type=pathlib.Path)
     parser.add_argument('--asset', type=pathlib.Path)
+    parser.add_argument('--nerdfont', type=pathlib.Path)
     args = parser.parse_args()
 
     setting = None
@@ -71,7 +75,7 @@ def main():
     from pydear.utils import glfw_app
     app = glfw_app.GlfwApp('humanbonestructure', setting=setting)
 
-    gui = GUI(app.loop, setting=setting)
+    gui = GUI(app.loop, setting=setting, nerdfont_path=args.nerdfont)
 
     if args.asset:
         gui.node_editor.graph.current_dir = args.asset
