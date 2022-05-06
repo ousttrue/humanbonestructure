@@ -3,16 +3,10 @@ import logging
 import pathlib
 import ctypes
 from pydear import imgui as ImGui
-from pydear import imgui_internal
-from pydear import imnodes as ImNodes
 from ...formats.bvh.bvh_parser import Bvh
-from ...scene.scene import Scene
 from pydear.utils.node_editor.node import Node, InputPin, OutputPin, Serialized
 
 LOGGER = logging.getLogger(__name__)
-
-
-ASSET_DIR: Optional[pathlib.Path] = None
 
 
 class BvhSkeletonOutputPin(OutputPin):
@@ -35,17 +29,13 @@ class BvhPoseOutputPin(OutputPin):
 
 class BvhNode(Node):
     def __init__(self, id: int, skeleton_pin_id: int, pose_pin_id: int, path: Optional[pathlib.Path] = None) -> None:
-        super().__init__(id, 'bvh', [], [])
+        super().__init__(id, 'bvh', [], [
+            BvhSkeletonOutputPin(skeleton_pin_id),
+            BvhPoseOutputPin(pose_pin_id)
+        ])
         if isinstance(path, str):
             path = pathlib.Path(path)
         self.path: Optional[pathlib.Path] = path
-        # skeleton
-        out_skeleton = BvhSkeletonOutputPin(skeleton_pin_id)
-        self.outputs.append(out_skeleton)
-        # pose
-        out_pose = BvhPoseOutputPin(pose_pin_id)
-        self.outputs.append(out_pose)
-
         self.bvh: Optional[Bvh] = None
         self.frame = (ctypes.c_int * 1)()
 
@@ -76,7 +66,7 @@ class BvhNode(Node):
 
             async def open_task():
                 from pydear.utils import filedialog
-                dir = self.path.parent if self.path else ASSET_DIR
+                dir = self.path.parent if self.path else graph.current_dir
                 selected = await filedialog.open_async(asyncio.get_event_loop(), dir, filter=filedialog.Filter('.bvh'))
                 if selected:
                     self.load(selected)

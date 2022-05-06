@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Iterable
 import re
 import glm
 from .transform import Transform
@@ -35,8 +35,8 @@ class Vpd(Motion):
         self._humanbones = list(
             set(bone.humanoid_bone for bone in self.pose.bones if bone.humanoid_bone))
 
-    def get_info(self) -> str:
-        return 'vpd: left-handed, A-stance, inverted-pelvis'
+    def get_info(self) -> Iterable[str]:
+        yield 'left-handed, A-stance, inverted-pelvis'
 
     def __str__(self) -> str:
         return f'<{self.name}:{len(self.pose.bones)}bones>'
@@ -51,7 +51,7 @@ class Vpd(Motion):
         return self.pose
 
     @staticmethod
-    def load(data: bytes) -> 'Vpd':
+    def load(name: str, data: bytes) -> 'Vpd':
         text = data.decode('cp932', errors='ignore')
 
         def cleanup_line(src: str) -> str:
@@ -68,7 +68,8 @@ class Vpd(Motion):
 
         # target osm ?
         l = lines.pop(0)
-        pose = Pose(l[:-1])
+        # l[:-1]
+        pose = Pose(name)
 
         m = re.match(r'^(\d+);$', lines.pop(0))
         if not m:
@@ -86,10 +87,11 @@ class Vpd(Motion):
             close = lines.pop(0)
             assert close == '}'
 
-            name = get_name(open)
-            humanoid_bone = BONE_HUMANOID_MAP.get(name, HumanoidBone.unknown)
+            bone_name = get_name(open)
+            humanoid_bone = BONE_HUMANOID_MAP.get(
+                bone_name, HumanoidBone.unknown)
             pose.bones.append(
-                BonePose(name, humanoid_bone, Transform(get_t(t), get_r(r), glm.vec3(1))))
+                BonePose(bone_name, humanoid_bone, Transform(get_t(t), get_r(r), glm.vec3(1))))
 
         assert len(pose.bones) == count
 

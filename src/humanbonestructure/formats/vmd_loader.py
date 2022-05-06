@@ -1,4 +1,4 @@
-from typing import Set, List
+from typing import Set, List, Iterable
 import ctypes
 import glm
 from .bytesreader import BytesReader, bytes_to_str
@@ -30,6 +30,7 @@ class BoneCurve:
         self.key_frames: List[KeyFrame] = []
 
     def get_transform(self, frame: int) -> Transform:
+        # TODO: set time
         k = self.key_frames[0]
         return Transform(glm.vec3(k.x, k.y, k.z), glm.quat(k.rw, k.rx, k.ry, k.rz), glm.vec3(1))
 
@@ -42,6 +43,19 @@ class Vmd(Motion):
         self._humanbones = set(
             curve.humanoid_bone for curve in self.curves if curve.humanoid_bone.is_enable())
         self.set_frame(0)
+        self.frame_count = 0
+        for curve in self.curves:
+            count = len(curve.key_frames)
+            if count > self.frame_count:
+                self.frame_count = count
+        # fixed 30FPS
+        self.seconds = self.frame_count / 30
+
+    def get_frame_count(self) -> int:
+        return self.frame_count
+
+    def get_seconds(self) -> float:
+        return self.seconds
 
     @staticmethod
     def load(name: str, data: bytes) -> 'Vmd':
@@ -63,8 +77,10 @@ class Vmd(Motion):
 
         return Vmd(name, model, list(bone_curves.values()))
 
-    def get_info(self) -> str:
-        return 'vmd: left-handed, A-stance, inverted-pelvis, ?seconds'
+    def get_info(self) -> Iterable[str]:
+        yield 'left-handed, A-stance, world-axis'
+        yield 'unit: 20/1.63, inverted-pelvis'
+        yield f'{self.get_frame_count()}frames, {self.get_seconds():0.2f}sec'
 
     def get_humanbones(self) -> Set[HumanoidBone]:
         return self._humanbones

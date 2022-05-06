@@ -1,4 +1,5 @@
 from typing import Optional, Dict, Type
+import pathlib
 import logging
 from pydear import imgui as ImGui
 from pydear import imnodes as ImNodes
@@ -9,7 +10,7 @@ from pydear.utils.setting import BinSetting
 LOGGER = logging.getLogger(__name__)
 
 
-class PoseGraph(NodeEditor):
+class PoseGraphEditor(NodeEditor):
     def __init__(self, *, setting: Optional[BinSetting] = None) -> None:
         super().__init__('pose_graph', setting=setting)
 
@@ -19,6 +20,8 @@ class PoseGraph(NodeEditor):
         map['BvhNode'] = BvhNode
         from .view_node import ViewNode
         map['ViewNode'] = ViewNode
+        from .mmd_pose_node import MmdPoseNode
+        map['MmdPoseNode'] = MmdPoseNode
         return map
 
     def on_node_editor(self):
@@ -42,6 +45,17 @@ class PoseGraph(NodeEditor):
                     self.graph.get_next_id())
                 self.graph.nodes.append(node)
                 ImNodes.SetNodeScreenSpacePos(node.id, click_pos)
+
+            if ImGui.MenuItem("vmd/vpd"):
+                from .mmd_pose_node import MmdPoseNode
+                node = MmdPoseNode(
+                    self.graph.get_next_id(),
+                    self.graph.get_next_id())
+                self.graph.nodes.append(node)
+                ImNodes.SetNodeScreenSpacePos(node.id, click_pos)
+
+            ImGui.MenuItem("----")
+
             if ImGui.MenuItem("view"):
                 from .view_node import ViewNode
                 node = ViewNode(

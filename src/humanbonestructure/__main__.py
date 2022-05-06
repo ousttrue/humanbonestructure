@@ -23,11 +23,11 @@ class GUI(dockspace.DockingGui):
         # dockspace.Dock('view', self.view.show,
         #                (ctypes.c_bool * 1)(True)),
 
-        from .gui.pose_graph.graph import PoseGraph
-        self.graph = PoseGraph(setting=setting)
+        from .gui.pose_graph.pose_graph_editor import PoseGraphEditor
+        self.node_editor = PoseGraphEditor(setting=setting)
 
         self.docks = [
-            dockspace.Dock('posegraph', self.graph.show,
+            dockspace.Dock('posegraph', self.node_editor.show,
                            (ctypes.c_bool * 1)(True)),
             dockspace.Dock('metrics', ImGui.ShowMetricsWindow,
                            (ctypes.c_bool * 1)(True)),
@@ -68,14 +68,13 @@ def main():
         from pydear.utils.setting import BinSetting
         setting = BinSetting(args.ini)
 
-    if args.asset:
-        from .gui.pose_graph import bvh_node
-        bvh_node.ASSET_DIR = args.asset
-
     from pydear.utils import glfw_app
     app = glfw_app.GlfwApp('humanbonestructure', setting=setting)
 
     gui = GUI(app.loop, setting=setting)
+
+    if args.asset:
+        gui.node_editor.graph.current_dir = args.asset
 
     from pydear.backends import impl_glfw
     impl_glfw = impl_glfw.ImplGlfwInput(app.window)
@@ -84,7 +83,7 @@ def main():
         gui.render()
 
     if setting:
-        gui.graph.save()
+        gui.node_editor.save()
         gui.save()
         app.save()
         setting.save()

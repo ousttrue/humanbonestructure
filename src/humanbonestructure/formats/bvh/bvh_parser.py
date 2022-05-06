@@ -140,6 +140,7 @@ class Bvh(Motion):
         return self.frame_count
 
     def get_info(self) -> Iterable[str]:
+        yield 'right-handed, T-stance, world-axis'
         yield f'unit: {self.unit}'
         yield f'{self.frame_count}frames, {self.get_seconds():0.2f}sec'
 
