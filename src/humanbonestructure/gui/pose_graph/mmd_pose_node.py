@@ -2,7 +2,9 @@ from typing import Optional, Union
 import ctypes
 import pathlib
 from pydear import imgui as ImGui
+from pydear import imnodes as ImNodes
 from pydear.utils.node_editor.node import Node, InputPin, OutputPin, Serialized
+from ...formats.pose import Pose
 from ...formats.vmd_loader import Vmd
 from ...formats.vpd_loader import Vpd
 from .file_node import FileNode
@@ -10,22 +12,23 @@ from .file_node import FileNode
 ASSET_DIR: Optional[pathlib.Path] = None
 
 
-class MmdPoseOutputPin(OutputPin):
+class MmdPoseOutputPin(OutputPin[Optional[Pose]]):
     def __init__(self, id: int) -> None:
         super().__init__(id, 'pose')
 
-    def process(self, node: 'MmdPoseNode', input: InputPin):
-        if node.vpd_vmd:
-            input.value = node.vpd_vmd.get_current_pose()
+    def get_value(self, node: 'MmdPoseNode') -> Optional[Pose]:
+        return node.vpd_vmd.get_current_pose() if node.vpd_vmd else None
 
 
 class MmdPoseNode(FileNode):
     def __init__(self, id: int,
                  input_pin_id: int,
                  pose_pin_id: int, path: Optional[pathlib.Path] = None) -> None:
+        from .time_node import TimeInputPin
+        self.in_time = TimeInputPin(input_pin_id)
         super().__init__(id, 'vmd/vpd', path,
                          [
-                             InputPin(input_pin_id, 'time')
+                             self.in_time
                          ],
                          [
                              MmdPoseOutputPin(pose_pin_id)
@@ -34,10 +37,22 @@ class MmdPoseNode(FileNode):
         self.vpd_vmd: Union[Vmd, Vpd, None] = None
         self.frame = (ctypes.c_int * 1)()
 
+    @classmethod
+    def imgui_menu(cls, graph, click_pos):
+        if ImGui.MenuItem("vmd/vpd"):
+            from .mmd_pose_node import MmdPoseNode
+            node = MmdPoseNode(
+                graph.get_next_id(),
+                graph.get_next_id(),
+                graph.get_next_id())
+            graph.nodes.append(node)
+            ImNodes.SetNodeScreenSpacePos(node.id, click_pos)
+
     def to_json(self) -> Serialized:
         return Serialized(self.__class__.__name__, {
             'id': self.id,
             'path': str(self.path) if self.path else None,
+            'input_pin_id': self.in_time.id,
             'pose_pin_id': self.outputs[0].id,
         })
 
@@ -65,6 +80,6 @@ class MmdPoseNode(FileNode):
             self.load(self.path)
 
         if self.vpd_vmd:
-            time_sec = self.inputs[0].value
+            time_sec = self.in_time.value
             if isinstance(time_sec, (int, float)):
                 self.vpd_vmd.set_time(time_sec)

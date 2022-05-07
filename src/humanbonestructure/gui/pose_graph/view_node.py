@@ -1,22 +1,55 @@
+from typing import Any, Optional, TypeAlias, Union, get_args
 import ctypes
 from pydear import imgui as ImGui
 from pydear import imgui_internal
 from pydear import imnodes as ImNodes
-from pydear.utils.node_editor.node import Node, InputPin, Serialized
+from pydear.utils.node_editor.node import Node, InputPin, Serialized, OutputPin
 from ...scene.scene import Scene
+from ...scene import node
+from ...formats.pose import Pose
+from ...formats.bvh.bvh_parser import Bvh
+from ...formats.gltf_loader import Gltf
+from ...formats.pmd_loader import Pmd
+from ...formats.pmx_loader import Pmx
+
+SkeletonType: TypeAlias = Union[Bvh, Gltf, Pmd, Pmx, node.Node]
+
+
+class SkeletonInputPin(InputPin[Optional[SkeletonType]]):
+    def __init__(self, id: int) -> None:
+        super().__init__(id, 'skeleton')
+        self.skeleton: Optional[SkeletonType] = None
+
+    def set_value(self, skeleton: Optional[SkeletonType]):
+        self.skeleton = skeleton
+
+    def is_acceptable(self, out: 'OutputPin') -> bool:
+        # src = get_args(self.__orig_bases__[0])[0]  # type: ignore
+        dst = get_args(out.__orig_bases__[0])[0]  # type: ignore
+        # return src == dst
+        # TODO
+        return True
+
+
+class PoseInputPin(InputPin[Optional[Pose]]):
+    def __init__(self, id: int) -> None:
+        super().__init__(id, 'pose')
+        self.pose: Optional[Pose] = None
+
+    def set_value(self, pose: Optional[Pose]):
+        self.pose = pose
 
 
 class ViewNode(Node):
     def __init__(self, id: int, skeleton_pin_id: int, pose_pin_id: int) -> None:
+        self.in_skeleton = SkeletonInputPin(skeleton_pin_id)
+        self.in_pose = PoseInputPin(pose_pin_id)
         super().__init__(id, 'view',
-                         [InputPin(skeleton_pin_id, 'skeleton'),
-                          InputPin(pose_pin_id, 'pose')],
+                         [self.in_skeleton, self.in_pose],
                          [])
 
-        self.skeleton = None
-        self.in_skeleton = None
-        self.pose = None
-        self.in_pose = None
+        self.skeleton: Optional[SkeletonType] = None
+        self.pose: Optional[Pose] = None
         #
         self.scene = Scene('view')
         from pydear.scene.camera import Camera
@@ -30,6 +63,17 @@ class ViewNode(Node):
         self.tint = ImGui.ImVec4(1, 1, 1, 1)
         self.hover = False
         self.xy = (ctypes.c_float * 2)(0, 0)
+
+    @classmethod
+    def imgui_menu(cls, graph, click_pos):
+        if ImGui.MenuItem("view"):
+            from .view_node import ViewNode
+            node = ViewNode(
+                graph.get_next_id(),
+                graph.get_next_id(),
+                graph.get_next_id())
+            graph.nodes.append(node)
+            ImNodes.SetNodeScreenSpacePos(node.id, click_pos)
 
     def to_json(self) -> Serialized:
         return Serialized('ViewNode', {
@@ -83,19 +127,12 @@ class ViewNode(Node):
             #     f'{int(io.MousePos.x-x)}/{w}, {int(io.MousePos.y-y)}/{h}')
 
     def process_self(self):
-        if not self.in_skeleton:
-            self.in_skeleton = next(
-                iter(in_pin for in_pin in self.inputs if in_pin.name == 'skeleton'))
-        if not self.in_pose:
-            self.in_pose = next(
-                iter(in_pin for in_pin in self.inputs if in_pin.name == 'pose'))
-
-        if self.in_skeleton.value != self.skeleton:
+        if self.in_skeleton.skeleton != self.skeleton:
             # update skeleton
-            self.skeleton = self.in_skeleton.value
+            self.skeleton = self.in_skeleton.skeleton
             self.scene.load(self.skeleton)
 
-        if self.in_skeleton.value != self.skeleton or self.in_pose.value != self.pose:
+        if self.in_skeleton.skeleton != self.skeleton or self.in_pose.pose != self.pose:
             # update pose
-            self.pose = self.in_pose.value
-            self.scene.set_pose(self.in_pose.value)
+            self.pose = self.in_pose.pose
+            self.scene.set_pose(self.in_pose.pose)

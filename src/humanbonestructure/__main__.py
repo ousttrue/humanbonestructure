@@ -1,12 +1,13 @@
 from typing import Optional
-from pydear.utils import dockspace
-from pydear import imgui as ImGui
 import asyncio
 import ctypes
 import logging
 import pathlib
 import argparse
+from pydear.utils import dockspace
+from pydear import imgui as ImGui
 from pydear.utils.setting import BinSetting
+from pydear.utils.node_editor.editor import NodeEditor
 LOGGER = logging.getLogger(__name__)
 
 
@@ -16,15 +17,10 @@ class GUI(dockspace.DockingGui):
         log_handler = ImGuiLogHandler()
         log_handler.register_root(append=True)
 
-        # from .scene.scene import Scene
-        # self.scene = Scene('view')
-        # from .gui.scene_view import SceneView
-        # self.view = SceneView('view', self.scene)
-        # dockspace.Dock('view', self.view.show,
-        #                (ctypes.c_bool * 1)(True)),
-
-        from .gui.pose_graph.pose_graph_editor import PoseGraphEditor
-        self.node_editor = PoseGraphEditor(setting=setting)
+        self.node_editor = NodeEditor('posegraph', setting=setting)
+        from .gui.pose_graph import TYPES
+        for t in TYPES:
+            self.node_editor.graph.register_type(t)
 
         self.docks = [
             dockspace.Dock('posegraph', self.node_editor.show,

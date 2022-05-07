@@ -1,17 +1,19 @@
-from typing import Optional, List
+from typing import Optional, List, Union
 import pathlib
 from pydear.utils.node_editor.node import Node, InputPin, OutputPin, Serialized
-from .file_node import FileNode
 from pydear import imgui as ImGui
+from pydear import imnodes as ImNodes
+from ...formats.pmd_loader import Pmd
+from ...formats.pmx_loader import Pmx
+from .file_node import FileNode
 
 
-class MmdSkeletonOutputPin(OutputPin):
+class MmdSkeletonOutputPin(OutputPin[Union[Pmd, Pmx, None]]):
     def __init__(self, id: int) -> None:
         super().__init__(id, 'skeleton')
 
-    def process(self, node: 'MmdModelNode', input: InputPin):
-        if node.pmd_pmx:
-            input.value = node.pmd_pmx
+    def get_value(self, node: 'MmdModelNode'):
+        return node.pmd_pmx
 
 
 class MmdModelNode(FileNode):
@@ -22,6 +24,15 @@ class MmdModelNode(FileNode):
                              MmdSkeletonOutputPin(skeleton_pin_id)
                          ], '.pmd', '.pmx')
         self.pmd_pmx = None
+
+    @classmethod
+    def imgui_menu(cls, graph, click_pos):
+        if ImGui.MenuItem("pmd/pmx"):
+            from .mmd_model_node import MmdModelNode
+            node = MmdModelNode(graph.get_next_id(),
+                                graph.get_next_id())
+            graph.nodes.append(node)
+            ImNodes.SetNodeScreenSpacePos(node.id, click_pos)
 
     def get_right_indent(self) -> int:
         return 160
@@ -45,11 +56,9 @@ class MmdModelNode(FileNode):
 
         match path.suffix.lower():
             case '.pmd':
-                from ...formats import pmd_loader
-                self.pmd_pmx = pmd_loader.Pmd(path.read_bytes())
+                self.pmd_pmx = Pmd(path.read_bytes())
             case '.pmx':
-                from ...formats import pmx_loader
-                self.pmd_pmx = pmx_loader.Pmx(path.read_bytes())
+                self.pmd_pmx = Pmx(path.read_bytes())
 
     def process_self(self):
         if not self.pmd_pmx and self.path:

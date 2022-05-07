@@ -196,7 +196,7 @@ class Scene:
         for child in node.children:
             self.render_node(camera, child)
 
-    def set_pose(self, pose: Pose):
+    def set_pose(self, pose: Optional[Pose]):
         if not self.root or not self.humanoid_node_map:
             return
 

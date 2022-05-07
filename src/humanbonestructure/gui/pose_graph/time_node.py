@@ -1,18 +1,28 @@
 import ctypes
 from pydear.utils.node_editor.node import Node, InputPin, OutputPin, Serialized
 from pydear import imgui as ImGui
+from pydear import imnodes as ImNodes
 import time
 
 NS = 1000000000
 NS_TO_SEC = 1/1000000000
 
 
-class TimeOutputPin(OutputPin):
+class TimeOutputPin(OutputPin[float]):
     def __init__(self, id: int) -> None:
         super().__init__(id, 'time')
 
-    def process(self, node: 'TimeNode', input: InputPin):
-        input.value = node.current_time[0]
+    def get_value(self, node: 'TimeNode') -> float:
+        return node.current_time[0]
+
+
+class TimeInputPin(InputPin[float]):
+    def __init__(self, id: int) -> None:
+        super().__init__(id, 'time')
+        self.value = 0.0
+
+    def set_value(self, value: float):
+        self.value = value
 
 
 class TimeNode(Node):
@@ -27,6 +37,15 @@ class TimeNode(Node):
         self.current_time = (ctypes.c_float * 1)(current_time)
         self.end_time = (ctypes.c_float * 1)(end_time)
         self.start = None
+
+    @classmethod
+    def imgui_menu(cls, graph, click_pos):
+        if ImGui.MenuItem("time"):
+            from .time_node import TimeNode
+            node = TimeNode(graph.get_next_id(),
+                            graph.get_next_id(), 60)
+            graph.nodes.append(node)
+            ImNodes.SetNodeScreenSpacePos(node.id, click_pos)
 
     def get_right_indent(self) -> int:
         return 200

@@ -1,17 +1,18 @@
 from typing import Optional
 import pathlib
 from pydear import imgui as ImGui
+from pydear import imnodes as ImNodes
 from pydear.utils.node_editor.node import Node, InputPin, OutputPin, Serialized
+from ...formats.gltf_loader import Gltf
 from .file_node import FileNode
 
 
-class GltfSkeletonOutputPin(OutputPin):
+class GltfSkeletonOutputPin(OutputPin[Optional[Gltf]]):
     def __init__(self, id: int) -> None:
         super().__init__(id, 'skeleton')
 
-    def process(self, node: 'GltfNode', input: InputPin):
-        if node.gltf:
-            input.value = node.gltf
+    def get_value(self, node: 'GltfNode') -> Optional[Gltf]:
+        return node.gltf
 
 
 class GltfNode(FileNode):
@@ -27,6 +28,15 @@ class GltfNode(FileNode):
                          ],
                          '.gltf', '.glb', '.vrm')
         self.gltf = None
+
+    @classmethod
+    def imgui_menu(cls, graph, click_pos):
+        if ImGui.MenuItem("gltf/glb/vrm"):
+            node = GltfNode(
+                graph.get_next_id(),
+                graph.get_next_id())
+            graph.nodes.append(node)
+            ImNodes.SetNodeScreenSpacePos(node.id, click_pos)
 
     def get_right_indent(self) -> int:
         return 160
@@ -52,8 +62,7 @@ class GltfNode(FileNode):
             case '.gltf':
                 raise NotImplementedError()
             case '.glb' | '.vrm':
-                from ...formats import gltf_loader
-                self.gltf = gltf_loader.Gltf.load_glb(path.read_bytes())
+                self.gltf = Gltf.load_glb(path.read_bytes())
 
     def process_self(self):
         if not self.gltf and self.path:

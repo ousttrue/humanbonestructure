@@ -1,31 +1,29 @@
 from typing import Optional
 import logging
 import pathlib
-import ctypes
 from pydear import imgui as ImGui
+from pydear import imnodes as ImNodes
 from pydear.utils.node_editor.node import Node, InputPin, OutputPin, Serialized
-from ...formats.bvh.bvh_parser import Bvh
+from ...formats.bvh.bvh_parser import Bvh, Pose
 from .file_node import FileNode
 
 LOGGER = logging.getLogger(__name__)
 
 
-class BvhSkeletonOutputPin(OutputPin):
+class BvhSkeletonOutputPin(OutputPin[Optional[Bvh]]):
     def __init__(self, id: int) -> None:
         super().__init__(id, 'skeleton')
 
-    def process(self, node: 'BvhNode', input: InputPin):
-        if node.bvh:
-            input.value = node.bvh
+    def get_value(self, node: 'BvhNode') -> Optional[Bvh]:
+        return node.bvh
 
 
-class BvhPoseOutputPin(OutputPin):
+class BvhPoseOutputPin(OutputPin[Optional[Pose]]):
     def __init__(self, id: int) -> None:
         super().__init__(id, 'pose')
 
-    def process(self, node: 'BvhNode', input: InputPin):
-        if node.bvh:
-            input.value = node.bvh.get_current_pose()
+    def get_value(self, node: 'BvhNode') -> Optional[Pose]:
+        return node.bvh.get_current_pose() if node.bvh else None
 
 
 class BvhNode(FileNode):
@@ -38,15 +36,29 @@ class BvhNode(FileNode):
                  time_pin_id: int,
                  skeleton_pin_id: int, pose_pin_id: int,
                  path: Optional[pathlib.Path] = None) -> None:
+        from .time_node import TimeInputPin
+        self.in_time = TimeInputPin(time_pin_id)
         super().__init__(id, 'bvh', path,
                          [
-                             InputPin(time_pin_id, 'time')
+                             self.in_time
                          ],
                          [
                              BvhSkeletonOutputPin(skeleton_pin_id),
                              BvhPoseOutputPin(pose_pin_id)
                          ], '.bvh')
         self.bvh: Optional[Bvh] = None
+
+    @classmethod
+    def imgui_menu(cls, graph, click_pos):
+        if ImGui.MenuItem("bvh"):
+            from .bvh_node import BvhNode
+            node = BvhNode(
+                graph.get_next_id(),
+                graph.get_next_id(),
+                graph.get_next_id(),
+                graph.get_next_id())
+            graph.nodes.append(node)
+            ImNodes.SetNodeScreenSpacePos(node.id, click_pos)
 
     def to_json(self) -> Serialized:
         return Serialized(self.__class__.__name__, {
@@ -77,6 +89,6 @@ class BvhNode(FileNode):
             self.load(self.path)
 
         if self.bvh:
-            time_sec = self.inputs[0].value
+            time_sec = self.in_time.value
             if isinstance(time_sec, (int, float)):
                 self.bvh.set_time(time_sec)
