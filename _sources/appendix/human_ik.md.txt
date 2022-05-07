@@ -1,6 +1,7 @@
-# Joint Hierarchy
+# HumanIK
 
-## HumanIK
+- `autodesk社` の Maya などのヒューマノイド。
+- `Unity` の `mecanim` との関係？
 
 setup 次第で向きが変わるので標準の向きを仮定することはできない。
 
@@ -13,9 +14,3 @@ setup 次第で向きが変わるので標準の向きを仮定することは�
 ![2](https://pbs.twimg.com/media/Dd83maMVMAAXMbZ.jpg:medium)
 
 ![3](https://pbs.twimg.com/media/Dd85mWIVQAEhHb1.jpg:medium)
-
-## Kinect
-
-<https://docs.microsoft.com/en-us/azure/kinect-dk/body-joints>
-
-![kinect_hierarchy](https://docs.microsoft.com/en-us/azure/kinect-dk/media/concepts/joint-coordinates.png)

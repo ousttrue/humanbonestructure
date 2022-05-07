@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="検索" href="../search.html" /><link rel="next" title="vrm1形式" href="vrm1.html" /><link rel="prev" title="Armature to Unity" href="../implements/armature_unity.html" />
+<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="検索" href="../search.html" /><link rel="next" title="用語集" href="../glossary.html" /><link rel="prev" title="LeapMotion" href="leapmotion.html" />
 
     <meta name="generator" content="sphinx-4.5.0, furo 2022.04.07"/>
-        <title>参考 - HumanBoneStructure ドキュメント</title>
+        <title>OpenXR - HumanBoneStructure ドキュメント</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
@@ -135,7 +135,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -169,7 +169,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../implements/armature_unity.html">Armature to Unity</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current has-children current-page"><a class="current reference internal" href="#">参考</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">参考</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="vrm1.html">vrm1形式</a></li>
 <li class="toctree-l2"><a class="reference internal" href="vrm0.html">vrm0形式</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bvh.html">BVH形式</a></li>
@@ -178,7 +178,7 @@
 <li class="toctree-l2"><a class="reference internal" href="human_ik.html">HumanIK</a></li>
 <li class="toctree-l2"><a class="reference internal" href="position_base.html">Positin based</a></li>
 <li class="toctree-l2"><a class="reference internal" href="leapmotion.html">LeapMotion</a></li>
-<li class="toctree-l2"><a class="reference internal" href="openxr.html">OpenXR</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">OpenXR</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../glossary.html">用語集</a></li>
@@ -208,58 +208,28 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
         <article role="main">
-          <section id="id1">
-<h1>参考<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">#</a></h1>
-<div class="table-wrapper"><table class="colwidths-auto docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p></p></th>
-<th class="head"><p>初期姿勢</p></th>
-<th class="head"><p>軸</p></th>
-<th class="head"><p></p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>vrm-1.0</p></td>
-<td><p>T スタンス</p></td>
-<td><p><a class="reference internal" href="../glossary.html#term-4"><span class="xref std std-term">ローカル軸</span></a> かもしれない</p></td>
-<td><p>右手系, meter単位</p></td>
-</tr>
-<tr class="row-odd"><td><p>vrm-0.x</p></td>
-<td><p>T スタンス</p></td>
-<td><p><span class="xref std std-term">ワールド軸</span></p></td>
-<td><p>右手系, meter単位</p></td>
-</tr>
-<tr class="row-even"><td><p>bvh</p></td>
-<td><p>T スタンスであることが多い</p></td>
-<td><p><span class="xref std std-term">ワールド軸</span></p></td>
-<td><p>右手系, 単位規定無し</p></td>
-</tr>
-<tr class="row-odd"><td><p>mmd</p></td>
-<td><p>A スタンス</p></td>
-<td><p><span class="xref std std-term">ワールド軸</span></p></td>
-<td><p>左手系, 20単位で初音ミクの身長くらい, inverted pelvis</p></td>
-</tr>
-</tbody>
-</table></div>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="vrm1.html">vrm1形式</a></li>
-<li class="toctree-l1"><a class="reference internal" href="vrm0.html">vrm0形式</a></li>
-<li class="toctree-l1"><a class="reference internal" href="bvh.html">BVH形式</a></li>
-<li class="toctree-l1"><a class="reference internal" href="mmd.html">Mmd関連</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usdskel.html">UsdSkel</a></li>
-<li class="toctree-l1"><a class="reference internal" href="human_ik.html">HumanIK</a></li>
-<li class="toctree-l1"><a class="reference internal" href="position_base.html">Positin based</a></li>
-<li class="toctree-l1"><a class="reference internal" href="leapmotion.html">LeapMotion</a></li>
-<li class="toctree-l1"><a class="reference internal" href="openxr.html">OpenXR</a></li>
+          <section id="openxr">
+<h1>OpenXR<a class="headerlink" href="#openxr" title="このヘッドラインへのパーマリンク">#</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">XR_EXT_hand_tracking</span></code></p>
+<section id="quest">
+<h2>quest<a class="headerlink" href="#quest" title="このヘッドラインへのパーマリンク">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.moguravr.com/oculus-quest-91/">https://www.moguravr.com/oculus-quest-91/</a></p></li>
+<li><p><a class="reference external" href="http://www.sigverse.org/wiki/jp/?Oculus%20Quest%202%E3%81%AE%E3%83%8F%E3%83%B3%E3%83%89%E3%83%88%E3%83%A9%E3%83%83%E3%82%AD%E3%83%B3%E3%82%B0%E3%81%A7VRoid%E3%82%A2%E3%83%90%E3%82%BF%E3%83%BC%E3%81%AE%E6%8C%87%E3%82%92%E5%8B%95%E3%81%8B%E3%81%99">http://www.sigverse.org/wiki/jp/?Oculus Quest 2のハンドトラッキングでVRoidアバターの指を動かす</a></p></li>
 </ul>
-</div>
+</section>
+<section id="leapmotion">
+<h2>leapmotion<a class="headerlink" href="#leapmotion" title="このヘッドラインへのパーマリンク">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://docs.ultraleap.com/ultralab/openxr-hand-tracking-in-unity.html">https://docs.ultraleap.com/ultralab/openxr-hand-tracking-in-unity.html</a></p></li>
+</ul>
+</section>
 </section>
 
         </article>
@@ -267,23 +237,23 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="vrm1.html">
+          <a class="next-page" href="../glossary.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">vrm1形式</div>
+                <div class="title">用語集</div>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="../implements/armature_unity.html">
+          <a class="prev-page" href="leapmotion.html">
               <svg><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Armature to Unity</div>
+                <div class="title">LeapMotion</div>
                 
               </div>
             </a>
@@ -307,8 +277,28 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            コンテンツ
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">OpenXR</a><ul>
+<li><a class="reference internal" href="#quest">quest</a></li>
+<li><a class="reference internal" href="#leapmotion">leapmotion</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>

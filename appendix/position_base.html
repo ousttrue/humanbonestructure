@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="検索" href="../search.html" /><link rel="next" title="Human Pose Estimation" href="human_pose_estimation.html" /><link rel="prev" title="BVH形式" href="bvh.html" />
+<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="検索" href="../search.html" /><link rel="next" title="LeapMotion" href="leapmotion.html" /><link rel="prev" title="HumanIK" href="human_ik.html" />
 
     <meta name="generator" content="sphinx-4.5.0, furo 2022.04.07"/>
-        <title>Joint Hierarchy - HumanBoneStructure ドキュメント</title>
+        <title>Positin based - HumanBoneStructure ドキュメント</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
@@ -173,9 +173,12 @@
 <li class="toctree-l2"><a class="reference internal" href="vrm1.html">vrm1形式</a></li>
 <li class="toctree-l2"><a class="reference internal" href="vrm0.html">vrm0形式</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bvh.html">BVH形式</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Joint Hierarchy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="human_pose_estimation.html">Human Pose Estimation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hand_pose_estimation.html">Hand Pose Estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mmd.html">Mmd関連</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usdskel.html">UsdSkel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="human_ik.html">HumanIK</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Positin based</a></li>
+<li class="toctree-l2"><a class="reference internal" href="leapmotion.html">LeapMotion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openxr.html">OpenXR</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../glossary.html">用語集</a></li>
@@ -211,25 +214,39 @@
           </label>
         </div>
         <article role="main">
-          <section id="joint-hierarchy">
-<h1>Joint Hierarchy<a class="headerlink" href="#joint-hierarchy" title="このヘッドラインへのパーマリンク">#</a></h1>
-<section id="humanik">
-<h2>HumanIK<a class="headerlink" href="#humanik" title="このヘッドラインへのパーマリンク">#</a></h2>
-<p>setup 次第で向きが変わるので標準の向きを仮定することはできない。</p>
-<ul class="simple">
-<li><p><a class="reference external" href="https://forums.autodesk.com/t5/maya-animation-and-rigging/humanik-not-working-with-motion-capture/td-p/5452144">https://forums.autodesk.com/t5/maya-animation-and-rigging/humanik-not-working-with-motion-capture/td-p/5452144</a></p></li>
-</ul>
-<p><img alt="1" src="https://forums.autodesk.com/t5/image/serverpage/image-id/146750iD28CD973182C3B9B/image-size/large?v=mpbl-1&amp;px=-1"/></p>
-<ul class="simple">
-<li><p><a class="reference external" href="https://togetter.com/li/1230523">https://togetter.com/li/1230523</a></p></li>
-</ul>
-<p><img alt="2" src="https://pbs.twimg.com/media/Dd83maMVMAAXMbZ.jpg:medium"/></p>
-<p><img alt="3" src="https://pbs.twimg.com/media/Dd85mWIVQAEhHb1.jpg:medium"/></p>
-</section>
+          <section id="positin-based">
+<h1>Positin based<a class="headerlink" href="#positin-based" title="このヘッドラインへのパーマリンク">#</a></h1>
+<p>WebCamera や Kinect のようなデバイスで画像から人間の姿勢を推測するタイプ。
+各関節の位置で <a class="reference internal" href="../glossary.html#term-8"><span class="xref std std-term">ポーズ</span></a> を得る。
+回転に変換するには工夫が必要。</p>
 <section id="kinect">
 <h2>Kinect<a class="headerlink" href="#kinect" title="このヘッドラインへのパーマリンク">#</a></h2>
-<p><a class="reference external" href="https://docs.microsoft.com/en-us/azure/kinect-dk/body-joints">https://docs.microsoft.com/en-us/azure/kinect-dk/body-joints</a></p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://docs.microsoft.com/en-us/azure/kinect-dk/body-joints">https://docs.microsoft.com/en-us/azure/kinect-dk/body-joints</a></p></li>
+</ul>
 <p><img alt="kinect_hierarchy" src="https://docs.microsoft.com/en-us/azure/kinect-dk/media/concepts/joint-coordinates.png"/></p>
+</section>
+<section id="mediapipe">
+<h2>mediapipe<a class="headerlink" href="#mediapipe" title="このヘッドラインへのパーマリンク">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://google.github.io/mediapipe/solutions/hands.html">https://google.github.io/mediapipe/solutions/hands.html</a></p></li>
+</ul>
+</section>
+<section id="interhand2-6m">
+<h2>InterHand2.6M<a class="headerlink" href="#interhand2-6m" title="このヘッドラインへのパーマリンク">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/facebookresearch/InterHand2.6M">https://github.com/facebookresearch/InterHand2.6M</a></p>
+<ul>
+<li><p>skeleton.txt <a class="reference external" href="https://github.com/facebookresearch/InterHand2.6M/issues/27#issuecomment-731902900">https://github.com/facebookresearch/InterHand2.6M/issues/27#issuecomment-731902900</a></p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="nyu-hand-pose-dataset">
+<h2>NYU Hand Pose Dataset<a class="headerlink" href="#nyu-hand-pose-dataset" title="このヘッドラインへのパーマリンク">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://jonathantompson.github.io/NYU_Hand_Pose_Dataset.htm">https://jonathantompson.github.io/NYU_Hand_Pose_Dataset.htm</a></p></li>
+</ul>
 </section>
 </section>
 
@@ -238,23 +255,23 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="human_pose_estimation.html">
+          <a class="next-page" href="leapmotion.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Human Pose Estimation</div>
+                <div class="title">LeapMotion</div>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="bvh.html">
+          <a class="prev-page" href="human_ik.html">
               <svg><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">BVH形式</div>
+                <div class="title">HumanIK</div>
                 
               </div>
             </a>
@@ -290,9 +307,11 @@
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">Joint Hierarchy</a><ul>
-<li><a class="reference internal" href="#humanik">HumanIK</a></li>
+<li><a class="reference internal" href="#">Positin based</a><ul>
 <li><a class="reference internal" href="#kinect">Kinect</a></li>
+<li><a class="reference internal" href="#mediapipe">mediapipe</a></li>
+<li><a class="reference internal" href="#interhand2-6m">InterHand2.6M</a></li>
+<li><a class="reference internal" href="#nyu-hand-pose-dataset">NYU Hand Pose Dataset</a></li>
 </ul>
 </li>
 </ul>
