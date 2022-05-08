@@ -68,7 +68,7 @@ class Gltf:
                 # vrm-1.0
                 if humanoid := vrm1.get('humanoid'):
                     if human_bones := humanoid.get('humanBones'):
-                        return {v['node']: HumanoidBone(k) for k, v in human_bones.items()}
+                        return {v['node']: HumanoidBone[k] for k, v in human_bones.items()}
         return {}
 
     @staticmethod

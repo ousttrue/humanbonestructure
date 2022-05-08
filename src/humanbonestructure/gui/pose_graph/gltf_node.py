@@ -4,15 +4,16 @@ from pydear import imgui as ImGui
 from pydear import imnodes as ImNodes
 from pydear.utils.node_editor.node import Node, InputPin, OutputPin, Serialized
 from ...formats.gltf_loader import Gltf
+from ...humanoid.humanoid_skeleton import HumanoidSkeleton
 from .file_node import FileNode
 
 
-class GltfSkeletonOutputPin(OutputPin[Optional[Gltf]]):
+class GltfSkeletonOutputPin(OutputPin[Optional[HumanoidSkeleton]]):
     def __init__(self, id: int) -> None:
         super().__init__(id, 'skeleton')
 
-    def get_value(self, node: 'GltfNode') -> Optional[Gltf]:
-        return node.gltf
+    def get_value(self, node: 'GltfNode') -> Optional[HumanoidSkeleton]:
+        return node.skeleton
 
 
 class GltfNode(FileNode):
@@ -28,6 +29,7 @@ class GltfNode(FileNode):
                          ],
                          '.gltf', '.glb', '.vrm')
         self.gltf = None
+        self.skeleton = None
 
     @classmethod
     def imgui_menu(cls, graph, click_pos):
@@ -63,6 +65,9 @@ class GltfNode(FileNode):
                 raise NotImplementedError()
             case '.glb' | '.vrm':
                 self.gltf = Gltf.load_glb(path.read_bytes())
+                from ...scene.builder import gltf_builder
+                root = gltf_builder.build(self.gltf)
+                self.skeleton = HumanoidSkeleton.from_node(root)
 
     def process_self(self):
         if not self.gltf and self.path:
