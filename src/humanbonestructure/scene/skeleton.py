@@ -1,9 +1,10 @@
 from typing import List, NamedTuple, Optional
+import math
 import logging
 import ctypes
 import glm
 from ..formats.buffer_types import Float3, Float4
-from ..humanoid.humanoid_bones import HumanoidBone
+from ..humanoid.humanoid_bones import HumanoidBone, Fingers
 from ..humanoid.transform import Transform
 from .node import Node
 from .mesh_renderer import MeshRenderer
@@ -12,6 +13,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 def vec3_to_float3(v: glm.vec3) -> Float3:
+    assert not math.isnan(v.x)
     return Float3(v.x, v.y, v.z)
 
 
@@ -67,7 +69,7 @@ class Skeleton:
                     up = None
                     width = 0.005
                     height = 0.001
-                    if node.humanoid_bone.get_classification().finger:
+                    if node.humanoid_bone.get_classification().finger != Fingers.NotFinger:
                         if 'Index' in node.humanoid_bone.name or 'Ring' in node.humanoid_bone.name:
                             if node.humanoid_bone.name.endswith("Intermediate"):
                                 color = Float3(0.1, 0.4, 0.8)
