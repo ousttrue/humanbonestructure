@@ -1,6 +1,6 @@
 from ..gui.selector import TableSelector
 from ..gui.motion_list import MotionList
-from ..formats.pose import Motion
+from ..humanoid.pose import Motion
 from .motion_list import MotionList
 
 

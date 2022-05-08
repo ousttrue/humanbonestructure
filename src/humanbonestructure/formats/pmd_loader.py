@@ -3,8 +3,8 @@ https://blog.goo.ne.jp/torisu_tetosuki/e/209ad341d3ece2b1b4df24abf619d6e4
 '''
 from typing import List, Dict, Iterable
 import ctypes
+from ..humanoid.humanoid_bones import HumanoidBone
 from .bytesreader import BytesReader
-from .humanoid_bones import HumanoidBone
 from .buffer_types import Float3, Float4, RenderVertex
 
 SCALING_FACTOR = 1.63/20

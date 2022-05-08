@@ -3,7 +3,7 @@ import ctypes
 import glm
 from ...formats import gltf_loader, buffer_types
 from ...formats.humanoid_bones import HumanoidBone
-from ...formats.transform import Transform
+from ...humanoid.transform import Transform
 from ..node import Node
 from ..mesh_renderer import MeshRenderer
 

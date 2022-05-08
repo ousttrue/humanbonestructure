@@ -29,7 +29,7 @@ class BoneProp:
                     if ImGui.Button('force tpose'):
                         assert node.humanoid_tail
                         dir = humanoid_bone.get_world_axis()
-                        from ..formats import tpose
+                        from ..humanoid import tpose
                         tpose.force_axis(
                             node, node.humanoid_tail, glm.vec3(*dir))
 
@@ -37,7 +37,7 @@ class BoneProp:
                         for node, _ in node.traverse_node_and_parent():
                             if node.humanoid_bone and node.humanoid_tail:
                                 dir = node.humanoid_bone.get_world_axis()
-                                from ..formats import tpose
+                                from ..humanoid import tpose
                                 tpose.force_axis(
                                     node, node.humanoid_tail, glm.vec3(*dir))
 

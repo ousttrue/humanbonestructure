@@ -1,6 +1,6 @@
 from typing import Dict, Set
 from ..bvh_node import Node
-from ...humanoid_bones import HumanoidBone
+from humanbonestructure.humanoid.humanoid_bones import HumanoidBone
 
 
 def keys_match_dict(keys: Set[str], dict: Dict[str, HumanoidBone]) -> bool:

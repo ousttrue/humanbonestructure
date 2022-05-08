@@ -2,7 +2,7 @@
 #  https://github.com/BandaiNamcoResearchInc/Bandai-Namco-Research-Motiondataset
 #
 from typing import Dict
-from ...humanoid_bones import HumanoidBone
+from humanbonestructure.humanoid.humanoid_bones import HumanoidBone
 
 MAP: Dict[str, HumanoidBone] = {
     'Hips': HumanoidBone.hips,

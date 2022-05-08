@@ -5,17 +5,18 @@ from pydear import imgui as ImGui
 from pydear import imnodes as ImNodes
 from pydear.utils.node_editor.node import Node, InputPin, OutputPin, Serialized
 from ...formats.bvh.bvh_parser import Bvh, Pose
+from ...humanoid.humanoid_skeleton import HumanoidSkeleton
 from .file_node import FileNode
 
 LOGGER = logging.getLogger(__name__)
 
 
-class BvhSkeletonOutputPin(OutputPin[Optional[Bvh]]):
+class BvhSkeletonOutputPin(OutputPin[Optional[HumanoidSkeleton]]):
     def __init__(self, id: int) -> None:
         super().__init__(id, 'skeleton')
 
-    def get_value(self, node: 'BvhNode') -> Optional[Bvh]:
-        return node.bvh
+    def get_value(self, node: 'BvhNode') -> Optional[HumanoidSkeleton]:
+        return node.skeleton
 
 
 class BvhPoseOutputPin(OutputPin[Optional[Pose]]):
@@ -76,6 +77,11 @@ class BvhNode(FileNode):
         self.path = path
         from ...formats.bvh import bvh_parser
         self.bvh = bvh_parser.from_path(path)
+        # scene
+        from ...scene.builder import bvh_builder
+        self.root = bvh_builder.build(self.bvh)
+        # skeleton
+        self.skeleton = HumanoidSkeleton.from_node(self.root)
 
     def show_content(self, graph):
         super().show_content(graph)

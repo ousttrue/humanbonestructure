@@ -4,7 +4,7 @@ import pathlib
 from pydear import imgui as ImGui
 from pydear import imnodes as ImNodes
 from pydear.utils.node_editor.node import Node, InputPin, OutputPin, Serialized
-from ...formats.pose import Pose
+from ...humanoid.pose import Pose
 from ...formats.vmd_loader import Vmd
 from ...formats.vpd_loader import Vpd
 from .file_node import FileNode

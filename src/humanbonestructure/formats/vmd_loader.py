@@ -2,8 +2,8 @@ from typing import Set, List, Iterable
 import ctypes
 import glm
 from .bytesreader import BytesReader, bytes_to_str
-from .pose import Motion, Pose, Transform, BonePose
-from .humanoid_bones import HumanoidBone
+from ..humanoid.pose import Motion, Pose, Transform, BonePose
+from ..humanoid.humanoid_bones import HumanoidBone
 from .pmd_loader import BONE_HUMANOID_MAP
 
 

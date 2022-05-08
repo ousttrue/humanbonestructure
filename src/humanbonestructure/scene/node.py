@@ -2,9 +2,9 @@ from typing import Optional, Iterable, List, Tuple, Callable, Dict
 import math
 import logging
 import glm
-from ..formats.transform import Transform
-from ..formats.humanoid_bones import HumanoidBone
-from ..formats.pose import Pose, BonePose
+from ..humanoid.transform import Transform
+from ..humanoid.humanoid_bones import HumanoidBone
+from ..humanoid.pose import Pose, BonePose
 
 LOGGER = logging.getLogger(__name__)
 

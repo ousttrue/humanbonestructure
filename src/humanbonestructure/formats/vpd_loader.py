@@ -1,10 +1,10 @@
 from typing import List, Iterable
 import re
 import glm
-from .transform import Transform
+from ..humanoid.transform import Transform
 from .pmd_loader import SCALING_FACTOR, BONE_HUMANOID_MAP
-from .pose import BonePose, Pose, Motion
-from .humanoid_bones import HumanoidBone
+from ..humanoid.pose import BonePose, Pose, Motion
+from ..humanoid.humanoid_bones import HumanoidBone
 
 COMMENT_PATTERN = re.compile(r'(.*?)//.*$')
 BONE_NAME_PATTERN = re.compile(r'Bone(\d+)\{(\w+)')

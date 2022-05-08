@@ -8,10 +8,10 @@ from pydear.scene.gizmo import Gizmo
 
 from ..formats.bvh import bvh_parser
 from ..formats import pmd_loader, gltf_loader, pmx_loader
-from ..formats import tpose
-from ..formats.transform import Transform
-from ..formats.pose import Pose, BonePose
-from ..formats.humanoid_bones import HumanoidBone
+from ..humanoid import tpose
+from ..humanoid.transform import Transform
+from ..humanoid.pose import Pose, BonePose
+from ..humanoid.humanoid_bones import HumanoidBone
 from .node import Node
 from .skeleton import Skeleton
 LOGGER = logging.getLogger(__name__)

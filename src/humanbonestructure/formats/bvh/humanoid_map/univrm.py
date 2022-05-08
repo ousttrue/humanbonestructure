@@ -2,7 +2,7 @@
 # https://github.com/vrm-c/UniVRM/blob/master/Assets/UniGLTF/Runtime/Resources/test_motion.txt
 #
 from typing import Dict
-from ...humanoid_bones import HumanoidBone
+from humanbonestructure.humanoid.humanoid_bones import HumanoidBone
 
 MAP: Dict[str, HumanoidBone] = {
     'Hips': HumanoidBone.hips,

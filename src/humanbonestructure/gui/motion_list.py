@@ -2,7 +2,7 @@ from typing import Iterable, List
 import ctypes
 from pydear import imgui as ImGui
 from ..gui.selector import ItemList, Filter, Header
-from ..formats.pose import Motion, Empty
+from ..humanoid.pose import Motion, Empty
 from ..formats.humanoid_bones import HumanoidBone, HumanoidBodyParts
 
 

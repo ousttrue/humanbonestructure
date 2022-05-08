@@ -78,7 +78,7 @@ class GUI(dockspace.DockingGui):
         scene = self._add_scene(path.stem)
         scene.load_model(path)
 
-        from ..formats import tpose
+        from ..humanoid import tpose
         tpose.make_tpose(scene.root, is_inverted_pelvis=scene.is_mmd)
         delta_map = tpose.pose_to_init(scene.root)
         tpose.local_axis_fit_world(scene.root)

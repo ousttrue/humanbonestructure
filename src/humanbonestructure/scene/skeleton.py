@@ -3,8 +3,8 @@ import logging
 import ctypes
 import glm
 from ..formats.buffer_types import Float3, Float4
-from ..formats.humanoid_bones import HumanoidBone
-from ..formats.transform import Transform
+from ..humanoid.humanoid_bones import HumanoidBone
+from ..humanoid.transform import Transform
 from .node import Node
 from .mesh_renderer import MeshRenderer
 

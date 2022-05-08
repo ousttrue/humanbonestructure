@@ -1,7 +1,7 @@
 from typing import List
 import glm
 from ...formats import pmd_loader, bytesreader, buffer_types
-from ...formats.transform import Transform
+from ...humanoid.transform import Transform
 from ...formats.humanoid_bones import HumanoidBone
 from ..node import Node
 from ..mesh_renderer import MeshRenderer

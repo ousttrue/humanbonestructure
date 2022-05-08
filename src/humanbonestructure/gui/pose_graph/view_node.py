@@ -6,7 +6,7 @@ from pydear import imnodes as ImNodes
 from pydear.utils.node_editor.node import Node, InputPin, Serialized, OutputPin
 from ...scene.scene import Scene
 from ...scene import node
-from ...formats.pose import Pose
+from ...humanoid.pose import Pose
 from ...formats.bvh.bvh_parser import Bvh
 from ...formats.gltf_loader import Gltf
 from ...formats.pmd_loader import Pmd

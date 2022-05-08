@@ -1,9 +1,9 @@
 from typing import Set
 import math
 import glm
-from .pose import Motion, Pose, BonePose
+from ..humanoid.pose import Motion, Pose, BonePose
 from .humanoid_bones import HumanoidBone
-from .transform import Transform
+from ..humanoid.transform import Transform
 
 
 class HandPose(Motion):

@@ -1,7 +1,7 @@
 from enum import Enum, auto
 import glm
 from .bvh_node import Node
-from ..humanoid_bones import HumanoidBone
+from humanbonestructure.humanoid.humanoid_bones import HumanoidBone
 
 
 class Unit(Enum):

@@ -2,7 +2,7 @@
 # http://drf.co.jp/liveanimation/
 #
 from typing import Dict
-from ...humanoid_bones import HumanoidBone
+from humanbonestructure.humanoid.humanoid_bones import HumanoidBone
 
 MAP: Dict[str, HumanoidBone] = {
     'Hips': HumanoidBone.hips,

@@ -2,8 +2,8 @@ from typing import Optional, List, Iterable
 import math
 from enum import Enum, auto
 import glm
-from ..humanoid_bones import HumanoidBone
-from ..transform import Transform
+from ...humanoid.humanoid_bones import HumanoidBone
+from ...humanoid.transform import Transform
 
 
 def to_radian(degree):

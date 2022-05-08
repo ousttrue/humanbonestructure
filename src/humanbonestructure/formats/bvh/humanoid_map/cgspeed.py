@@ -2,7 +2,7 @@
 # https://sites.google.com/a/cgspeed.com/cgspeed/motion-capture
 #
 from typing import Dict
-from ...humanoid_bones import HumanoidBone
+from humanbonestructure.humanoid.humanoid_bones import HumanoidBone
 
 MAP: Dict[str, HumanoidBone] = {
     'hip': HumanoidBone.hips,
