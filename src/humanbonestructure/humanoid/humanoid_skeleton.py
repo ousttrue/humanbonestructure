@@ -51,7 +51,7 @@ class HumanoidSkeletonTrunk(NamedTuple):
         ])
 
 
-class HumanoidSkeletonArm(NamedTuple):
+class HumanoidSkeletonLeftArm(NamedTuple):
     position: glm.vec3
     shoulder: float
     upper_arm: float
@@ -59,81 +59,103 @@ class HumanoidSkeletonArm(NamedTuple):
     hand: float
 
     @staticmethod
-    def from_node_map(node_map: NodeMap, left_right: LeftRight) -> Optional['HumanoidSkeletonArm']:
+    def from_node_map(node_map: NodeMap) -> Optional['HumanoidSkeletonLeftArm']:
         chest = node_map.get(HumanoidBone.chest)
         chest_position = chest.world_matrix[3].xyz if chest else glm.vec3(
             0)
-        if left_right == LeftRight.Left:
-            shoulder = node_map[HumanoidBone.leftShoulder].world_matrix[3].xyz
-            upper = node_map[HumanoidBone.leftUpperArm].world_matrix[3].xyz
-            lower = node_map[HumanoidBone.leftLowerArm].world_matrix[3].xyz
-            hand = node_map[HumanoidBone.leftHand].world_matrix[3].xyz
-            hand_end = node_map.get(HumanoidBone.leftMiddleProximal)
-            if not hand_end:
-                hand_end = node_map[HumanoidBone.leftHand].humanoid_tail
-                assert(hand_end)
-            return HumanoidSkeletonArm(shoulder-chest_position,
+        shoulder = node_map[HumanoidBone.leftShoulder].world_matrix[3].xyz
+        upper = node_map[HumanoidBone.leftUpperArm].world_matrix[3].xyz
+        lower = node_map[HumanoidBone.leftLowerArm].world_matrix[3].xyz
+        hand = node_map[HumanoidBone.leftHand].world_matrix[3].xyz
+        hand_end = node_map.get(HumanoidBone.leftMiddleProximal)
+        if not hand_end:
+            hand_end = node_map[HumanoidBone.leftHand].humanoid_tail
+            assert(hand_end)
+        return HumanoidSkeletonLeftArm(shoulder-chest_position,
                                        glm.length(upper-shoulder),
                                        glm.length(lower-upper),
                                        glm.length(hand-lower),
                                        glm.length(
                                            hand_end.world_matrix[3].xyz - hand),
                                        )
-        elif left_right == LeftRight.Right:
-            shoulder = node_map[HumanoidBone.rightShoulder].world_matrix[3].xyz
-            upper = node_map[HumanoidBone.rightUpperArm].world_matrix[3].xyz
-            lower = node_map[HumanoidBone.rightLowerArm].world_matrix[3].xyz
-            hand = node_map[HumanoidBone.rightHand].world_matrix[3].xyz
-            hand_end = node_map.get(HumanoidBone.rightMiddleProximal)
-            if not hand_end:
-                hand_end = node_map[HumanoidBone.leftHand].humanoid_tail
-                assert(hand_end)
-            return HumanoidSkeletonArm(shoulder-chest_position,
-                                       glm.length(upper-shoulder),
-                                       glm.length(lower-upper),
-                                       glm.length(hand-lower),
-                                       glm.length(
-                                           hand_end.world_matrix[3].xyz - hand),
-                                       )
-        else:
-            raise RuntimeError()
+
+    def to_node(self) -> Node:
+        d = glm.vec3(1, 0, 0)
+        return Node('leftSoulder', Transform.from_translation(self.position), HumanoidBone.leftShoulder, children=[
+            Node('leftUpperArm', Transform.from_translation(d*self.shoulder), HumanoidBone.leftUpperArm, children=[
+                Node('leftLowerArm', Transform.from_translation(d*self.upper_arm), HumanoidBone.leftLowerArm, children=[
+                    Node('leftHand', Transform.from_translation(d*self.lower_arm), HumanoidBone.leftHand, children=[
+                        Node('leftHandEnd', Transform.from_translation(
+                            d*self.hand), HumanoidBone.endSite)
+                    ])
+                ])
+            ])
+        ])
 
 
-class HumanoidSkeletonLeg(NamedTuple):
+class HumanoidSkeletonRightArm(NamedTuple):
+    position: glm.vec3
+    shoulder: float
+    upper_arm: float
+    lower_arm: float
+    hand: float
+
+    @staticmethod
+    def from_node_map(node_map: NodeMap) -> Optional['HumanoidSkeletonRightArm']:
+        chest = node_map.get(HumanoidBone.chest)
+        chest_position = chest.world_matrix[3].xyz if chest else glm.vec3(
+            0)
+        shoulder = node_map[HumanoidBone.rightShoulder].world_matrix[3].xyz
+        upper = node_map[HumanoidBone.rightUpperArm].world_matrix[3].xyz
+        lower = node_map[HumanoidBone.rightLowerArm].world_matrix[3].xyz
+        hand = node_map[HumanoidBone.rightHand].world_matrix[3].xyz
+        hand_end = node_map.get(HumanoidBone.rightMiddleProximal)
+        if not hand_end:
+            hand_end = node_map[HumanoidBone.rightHand].humanoid_tail
+            assert(hand_end)
+        return HumanoidSkeletonRightArm(shoulder-chest_position,
+                                        glm.length(upper-shoulder),
+                                        glm.length(lower-upper),
+                                        glm.length(hand-lower),
+                                        glm.length(
+                                            hand_end.world_matrix[3].xyz - hand),
+                                        )
+
+    def to_node(self) -> Node:
+        d = glm.vec3(-1, 0, 0)
+        return Node('rightSoulder', Transform.from_translation(self.position), HumanoidBone.rightShoulder, children=[
+            Node('rightUpperArm', Transform.from_translation(d*self.shoulder), HumanoidBone.rightUpperArm, children=[
+                Node('rightLowerArm', Transform.from_translation(d*self.upper_arm), HumanoidBone.rightLowerArm, children=[
+                    Node('rightHand', Transform.from_translation(d*self.lower_arm), HumanoidBone.rightHand, children=[
+                        Node('rightHandEnd', Transform.from_translation(
+                            d*self.hand), HumanoidBone.endSite)
+                    ])
+                ])
+            ])
+        ])
+
+
+class HumanoidSkeletonLeftLeg(NamedTuple):
     position: glm.vec3
     upper_leg: float
     lower_leg: float
     foot: float
 
     @staticmethod
-    def from_node_map(node_map: NodeMap, left_right: LeftRight) -> Optional['HumanoidSkeletonLeg']:
+    def from_node_map(node_map: NodeMap) -> Optional['HumanoidSkeletonLeftLeg']:
         hips = node_map[HumanoidBone.hips].world_matrix[3].xyz
-        if left_right == LeftRight.Left:
-            upper = node_map[HumanoidBone.leftUpperLeg].world_matrix[3].xyz
-            lower = node_map[HumanoidBone.leftLowerLeg].world_matrix[3].xyz
-            foot = node_map[HumanoidBone.leftFoot].world_matrix[3].xyz
-            foot_end = node_map[HumanoidBone.leftFoot].humanoid_tail
-            assert(foot_end)
-            return HumanoidSkeletonLeg(upper-hips,
+        upper = node_map[HumanoidBone.leftUpperLeg].world_matrix[3].xyz
+        lower = node_map[HumanoidBone.leftLowerLeg].world_matrix[3].xyz
+        foot = node_map[HumanoidBone.leftFoot].world_matrix[3].xyz
+        foot_end = node_map[HumanoidBone.leftFoot].humanoid_tail
+        assert(foot_end)
+        return HumanoidSkeletonLeftLeg(upper-hips,
                                        glm.length(lower-upper),
                                        glm.length(foot-lower),
                                        glm.length(
                                            foot_end.world_matrix[3].xyz-foot))
-        elif left_right == LeftRight.Right:
-            upper = node_map[HumanoidBone.rightUpperLeg].world_matrix[3].xyz
-            lower = node_map[HumanoidBone.rightLowerLeg].world_matrix[3].xyz
-            foot = node_map[HumanoidBone.rightFoot].world_matrix[3].xyz
-            foot_end = node_map[HumanoidBone.rightFoot].humanoid_tail
-            assert(foot_end)
-            return HumanoidSkeletonLeg(upper-hips,
-                                       glm.length(lower-upper),
-                                       glm.length(foot-lower),
-                                       glm.length(
-                                           foot_end.world_matrix[3].xyz-foot))
-        else:
-            raise RuntimeError()
 
-    def to_left_node(self) -> Node:
+    def to_node(self) -> Node:
         d = glm.vec3(0, -1, 0)
         return Node('leftUpperLeg', Transform.from_translation(self.position), HumanoidBone.leftUpperLeg, children=[
             Node('leftLowerLeg', Transform.from_translation(d*self.upper_leg), HumanoidBone.leftLowerLeg, children=[
@@ -144,7 +166,28 @@ class HumanoidSkeletonLeg(NamedTuple):
             ])
         ])
 
-    def to_right_node(self) -> Node:
+
+class HumanoidSkeletonRightLeg(NamedTuple):
+    position: glm.vec3
+    upper_leg: float
+    lower_leg: float
+    foot: float
+
+    @staticmethod
+    def from_node_map(node_map: NodeMap) -> Optional['HumanoidSkeletonRightLeg']:
+        hips = node_map[HumanoidBone.hips].world_matrix[3].xyz
+        upper = node_map[HumanoidBone.rightUpperLeg].world_matrix[3].xyz
+        lower = node_map[HumanoidBone.rightLowerLeg].world_matrix[3].xyz
+        foot = node_map[HumanoidBone.rightFoot].world_matrix[3].xyz
+        foot_end = node_map[HumanoidBone.rightFoot].humanoid_tail
+        assert(foot_end)
+        return HumanoidSkeletonRightLeg(upper-hips,
+                                        glm.length(lower-upper),
+                                        glm.length(foot-lower),
+                                        glm.length(
+                                            foot_end.world_matrix[3].xyz-foot))
+
+    def to_node(self) -> Node:
         d = glm.vec3(0, -1, 0)
         return Node('rightUpperLeg', Transform.from_translation(self.position), HumanoidBone.rightUpperLeg, children=[
             Node('rightLowerLeg', Transform.from_translation(d*self.upper_leg), HumanoidBone.rightLowerLeg, children=[
@@ -189,25 +232,19 @@ class HumanoidSkeletonFingers(NamedTuple):
 
 
 PARTS_MAP = {
-    'trunk': (HumanoidSkeletonTrunk, []),
-    'left_leg': (HumanoidSkeletonLeg, [LeftRight.Left]),
-    'right_leg': (HumanoidSkeletonLeg, [LeftRight.Right]),
-    'left_arm': (HumanoidSkeletonArm, [LeftRight.Left]),
-    'right_arm': (HumanoidSkeletonArm, [LeftRight.Right]),
-    #
-    'left_toes': (HumanoidSkeletonToes, [LeftRight.Left]),
-    'right_toes': (HumanoidSkeletonToes, [LeftRight.Right]),
-    #
-    'left_fingers': (HumanoidSkeletonFingers, [LeftRight.Left]),
-    'right_fingers': (HumanoidSkeletonFingers, [LeftRight.Right]),
+    'trunk': HumanoidSkeletonTrunk,
+    'left_leg': HumanoidSkeletonLeftLeg,
+    'right_leg': HumanoidSkeletonRightLeg,
+    'left_arm': HumanoidSkeletonLeftArm,
+    'right_arm': HumanoidSkeletonRightArm,
 }
 
 
 def to_dict(node_map: NodeMap) -> dict:
     parts_map = {}
 
-    for k, (t, args) in PARTS_MAP.items():
-        if value := t.from_node_map(node_map, *args):
+    for k, t in PARTS_MAP.items():
+        if value := t.from_node_map(node_map):
             parts_map[k] = value
 
     return parts_map
@@ -218,10 +255,10 @@ class HumanoidSkeleton:
     def __init__(self,
                  *,
                  trunk: HumanoidSkeletonTrunk,
-                 left_leg: HumanoidSkeletonLeg,
-                 right_leg: HumanoidSkeletonLeg,
-                 left_arm: HumanoidSkeletonArm,
-                 right_arm: HumanoidSkeletonArm,
+                 left_leg: HumanoidSkeletonLeftLeg,
+                 right_leg: HumanoidSkeletonRightLeg,
+                 left_arm: HumanoidSkeletonLeftArm,
+                 right_arm: HumanoidSkeletonRightArm,
                  #
                  left_toes: Optional[HumanoidSkeletonToes] = None,
                  right_toes: Optional[HumanoidSkeletonToes] = None,
@@ -259,10 +296,19 @@ class HumanoidSkeleton:
     def to_node(self) -> Node:
         root = Node('__root__', Transform.identity())
         hips = self.trunk.to_node()
-        left_leg = self.left_leg.to_left_node()
+        #
+        left_leg = self.left_leg.to_node()
         hips.add_child(left_leg)
-        right_leg = self.right_leg.to_right_node()
+        right_leg = self.right_leg.to_node()
         hips.add_child(right_leg)
+        #
+        chest = hips.find_humanoid_bone(HumanoidBone.chest)
+        assert(chest)
+        left_arm = self.left_arm.to_node()
+        chest.add_child(left_arm)
+        right_arm = self.right_arm.to_node()
+        chest.add_child(right_arm)
+        #
         root.add_child(hips)
 
         return root
