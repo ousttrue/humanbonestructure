@@ -20,3 +20,7 @@ position_base
 leapmotion
 openxr
 ```
+
+* <https://github.com/HAL9HARUKU/VMCtoMOP>
+* <https://github.com/tensorflow/tfjs-models/tree/master/posenet>
+* <https://github.com/kylemcdonald/ofxFaceTracker/releases>
