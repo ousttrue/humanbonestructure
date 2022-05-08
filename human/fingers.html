@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="検索" href="../search.html" /><link rel="next" title="体幹" href="body.html" /><link rel="prev" title="Retarget" href="../retarget/index.html" />
+<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="検索" href="../search.html" /><link rel="next" title="実装" href="../implements/index.html" /><link rel="prev" title="下肢" href="leg.html" />
 
     <meta name="generator" content="sphinx-4.5.0, furo 2022.04.07"/>
-        <title>Human bone - HumanBoneStructure ドキュメント</title>
+        <title>指 - HumanBoneStructure ドキュメント</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
@@ -157,11 +157,11 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../retarget/index.html">Retarget</a></li>
-<li class="toctree-l1 current has-children current-page"><a class="current reference internal" href="#">Human bone</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">Humanoid</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="body.html">体幹</a></li>
 <li class="toctree-l2"><a class="reference internal" href="arm.html">上肢</a></li>
 <li class="toctree-l2"><a class="reference internal" href="leg.html">下肢</a></li>
-<li class="toctree-l2"><a class="reference internal" href="fingers.html">指</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">指</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../implements/index.html">実装</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -214,166 +214,23 @@
           </label>
         </div>
         <article role="main">
-          <section id="human-bone">
-<h1>Human bone<a class="headerlink" href="#human-bone" title="このヘッドラインへのパーマリンク">#</a></h1>
-<figure class="align-default" id="id1">
-<img alt="../_images/logic.jpg" src="../_images/logic.jpg"/>
-<figcaption>
-<p><span class="caption-text">すべてのボーンが <code class="docutils literal notranslate"><span class="pre">完全に</span></code> ワールド軸平行</span><a class="headerlink" href="#id1" title="この画像へのパーマリンク">#</a></p>
-</figcaption>
+          <section id="id1">
+<h1>指<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">#</a></h1>
+<figure class="align-default">
+<img alt="../_images/fingers.jpg" src="../_images/fingers.jpg"/>
 </figure>
-<section id="tpose-humanbone">
-<h2>厳格TPose 向けの HumanBone 定義<a class="headerlink" href="#tpose-humanbone" title="このヘッドラインへのパーマリンク">#</a></h2>
+<section id="index-middle-ring-little">
+<h2>index, middle, ring, little<a class="headerlink" href="#index-middle-ring-little" title="このヘッドラインへのパーマリンク">#</a></h2>
 <ul class="simple">
-<li><p>ボーンローカル座標をXYZではなく、Yaw,Pitch,Roll で抽象的に規定する。+で右手系の方向に回転することにしよう(Yaw+左,Pitch+上,Roll+右)</p></li>
-<li><p>ボーンを TPose のときに連続して同じ方向に進むものに分類</p>
-<ul>
-<li><p>連続の最後に末端ボーンが必要(bvhのendSite)</p></li>
-<li><p>hand を中指に接続していたが、hand と finger 分離したほうがよさそう(中指の開始位置が厳格TPoseで変わらない方がよい)</p>
-<ul>
-<li><p>やっぱり中指で良さそう。hand-end 追加するのめんどくさいし、中指になるでしょ。</p></li>
+<li><p>UP は下方向</p></li>
 </ul>
-</li>
-<li><p>同じ分類のものは同じローカル軸を持つ</p></li>
-</ul>
-</li>
-</ul>
-<div class="table-wrapper"><table class="colwidths-auto docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>分類</p></th>
-<th class="head"><p>bone</p></th>
-<th class="head"><p>Roll軸(進行方向)</p></th>
-<th class="head"><p>Yaw軸(UP方向)</p></th>
-<th class="head"><p>memo</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>体幹</p></td>
-<td><p>hips, spine, chest, neck, head, endSite</p></td>
-<td><p>上</p></td>
-<td><p>前</p></td>
-<td><p>あえてupperChest言及せず</p></td>
-</tr>
-<tr class="row-odd"><td><p>左腕</p></td>
-<td><p>leftShoulder, leftUpperArm, leftLowerArm, leftHand, endSite(もしくはleftMiddleFinger)</p></td>
-<td><p>左</p></td>
-<td><p>前</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p>左脚</p></td>
-<td><p>leftUpperLeg, leftLowerLeg, leftFoot, endSite</p></td>
-<td><p>下</p></td>
-<td><p>後</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p>右腕</p></td>
-<td><p>rightShoulder, rightUpperArm, rightLowerArm, rightHand, endSite(もしくはrightMiddleFinger)</p></td>
-<td><p>右</p></td>
-<td><p>前</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p>右脚</p></td>
-<td><p>rightUpperLeg, rightLowerLeg, rightFoot, endSite</p></td>
-<td><p>下</p></td>
-<td><p>後</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p></p></td>
-<td><p></p></td>
-<td><p></p></td>
-<td><p></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p>左つま先</p></td>
-<td><p>leftToes, endSite</p></td>
-<td><p>前</p></td>
-<td><p>上</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p>右つま先</p></td>
-<td><p>rightToes, endSite</p></td>
-<td><p>前</p></td>
-<td><p>上</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p></p></td>
-<td><p></p></td>
-<td><p></p></td>
-<td><p></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p>左親指以外の四指</p></td>
-<td><p>index, middle, ring, little の proximal, intermediate, distal, endSite</p></td>
-<td><p>左</p></td>
-<td><p>下</p></td>
-<td><p>2,1,1くらいの長さ比</p></td>
-</tr>
-<tr class="row-even"><td><p>左親指</p></td>
-<td><p>metaCarpal, proximal, distal, endSite</p></td>
-<td><p>左</p></td>
-<td><p>後</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p>右親指以外の四指</p></td>
-<td><p>index, middle, ring, little, endSite</p></td>
-<td><p>右</p></td>
-<td><p>下</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p>右親指</p></td>
-<td><p>metaCarpal, proximal, distal, endSite</p></td>
-<td><p>右</p></td>
-<td><p>後</p></td>
-<td><p></p></td>
-</tr>
-</tbody>
-</table></div>
-<ul class="simple">
-<li><p>体で7分類、21ボーン</p></li>
-<li><p>手指10分類, 30ボーン</p></li>
-<li><p>各分類ごとに先頭の位置が必要で、後続は長さだけで良い</p>
-<ul>
-<li><p>体で 7 pos, 21 length (float 36)</p></li>
-<li><p>指で 10 pos, 30 length (float 60)</p></li>
-</ul>
-</li>
-</ul>
-<p>厳密TPoseでこの数字が同じ骨格は同じ体格であると言えて、完全に同じ姿勢にすることができる。
-この数字が違うも骨格では差異が生じる。
-体格差リターゲットの必要性が生じる。</p>
 </section>
-<section id="xyz">
-<h2>XYZ<a class="headerlink" href="#xyz" title="このヘッドラインへのパーマリンク">#</a></h2>
-<p>実装に向けて、Yaw, Pitch, Roll の XYZ 割当をきめる。</p>
-<figure class="align-default" id="id2">
-<img alt="../_images/roll_up.jpg" src="../_images/roll_up.jpg"/>
-<figcaption>
-<p><span class="caption-text">Blender 流にしよう。
-ロール軸(+Y)
-UP(+Z)</span><a class="headerlink" href="#id2" title="この画像へのパーマリンク">#</a></p>
-</figcaption>
-</figure>
-<p>とする。</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="body.html">体幹</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="body.html#hips">hips</a></li>
-<li class="toctree-l2"><a class="reference internal" href="body.html#spine-chest-neck-head">spine, chest, neck, head</a></li>
+<section id="thumb">
+<h2>thumb<a class="headerlink" href="#thumb" title="このヘッドラインへのパーマリンク">#</a></h2>
+<ul class="simple">
+<li><p>親指は他の四指とくらべて直角に配置する</p></li>
+<li><p>UP は後ろ</p></li>
 </ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="arm.html">上肢</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="arm.html#id2">左腕</a></li>
-<li class="toctree-l2"><a class="reference internal" href="arm.html#id3">右腕</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="leg.html">下肢</a></li>
-<li class="toctree-l1"><a class="reference internal" href="fingers.html">指</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="fingers.html#index-middle-ring-little">index, middle, ring, little</a></li>
-<li class="toctree-l2"><a class="reference internal" href="fingers.html#thumb">thumb</a></li>
-</ul>
-</li>
-</ul>
-</div>
 </section>
 </section>
 
@@ -382,23 +239,23 @@ UP(+Z)</span><a class="headerlink" href="#id2" title="この画像へのパー�
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="body.html">
+          <a class="next-page" href="../implements/index.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">体幹</div>
+                <div class="title">実装</div>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="../retarget/index.html">
+          <a class="prev-page" href="leg.html">
               <svg><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Retarget</div>
+                <div class="title">下肢</div>
                 
               </div>
             </a>
@@ -434,9 +291,9 @@ UP(+Z)</span><a class="headerlink" href="#id2" title="この画像へのパー�
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">Human bone</a><ul>
-<li><a class="reference internal" href="#tpose-humanbone">厳格TPose 向けの HumanBone 定義</a></li>
-<li><a class="reference internal" href="#xyz">XYZ</a></li>
+<li><a class="reference internal" href="#">指</a><ul>
+<li><a class="reference internal" href="#index-middle-ring-little">index, middle, ring, little</a></li>
+<li><a class="reference internal" href="#thumb">thumb</a></li>
 </ul>
 </li>
 </ul>

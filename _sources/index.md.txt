@@ -64,7 +64,7 @@ P' = D^{-1} \cdot A^{-1} \cdot P \cdot A
 ```{toctree}
 :maxdepth: 2
 retarget/index
-humanbone/index
+human/index
 implements/index
 appendix/index
 glossary
