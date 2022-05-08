@@ -1,4 +1,6 @@
-# Positin based
+# PoseEstimatin
+
+たぶん position base。
 
 WebCamera や Kinect のようなデバイスで画像から人間の姿勢を推測するタイプ。
 各関節の位置で {term}`ポーズ` を得る。
@@ -13,6 +15,11 @@ WebCamera や Kinect のようなデバイスで画像から人間の姿勢を�
 ## mediapipe
 
 * <https://google.github.io/mediapipe/solutions/hands.html>
+
+## OpenPose
+
+* <https://github.com/CMU-Perceptual-Computing-Lab/openpose>
+* <https://github.com/n1ckfg/OpenPoseRig>
 
 ## InterHand2.6M 
 
