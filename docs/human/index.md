@@ -1,4 +1,4 @@
-# Human bone
+# Humanoid
 
 ```{figure} logic.jpg
 すべてのボーンが `完全に` ワールド軸平行
@@ -17,8 +17,8 @@
 | ---------------- | ------------------------------------------------------------------------------------------ | ---------------- | ------------- | ------------------------ |
 | 体幹             | hips, spine, chest, neck, head, endSite                                                    | 上               | 前            | あえてupperChest言及せず |
 | 左腕             | leftShoulder, leftUpperArm, leftLowerArm, leftHand, endSite(もしくはleftMiddleFinger)      | 左               | 前            |
-| 左脚             | leftUpperLeg, leftLowerLeg, leftFoot, endSite                                              | 下               | 後            |
 | 右腕             | rightShoulder, rightUpperArm, rightLowerArm, rightHand, endSite(もしくはrightMiddleFinger) | 右               | 前            |
+| 左脚             | leftUpperLeg, leftLowerLeg, leftFoot, endSite                                              | 下               | 後            |
 | 右脚             | rightUpperLeg, rightLowerLeg, rightFoot, endSite                                           | 下               | 後            |
 |                  |                                                                                            |                  |
 | 左つま先         | leftToes, endSite                                                                          | 前               | 上            |
@@ -29,29 +29,48 @@
 | 右親指以外の四指 | index, middle, ring, little, endSite                                                       | 右               | 下            |
 | 右親指           | metaCarpal, proximal, distal, endSite                                                      | 右               | 後            |
 
-* 体で7分類、21ボーン
-* 手指10分類, 30ボーン
+### Core (19ボーン)
 
-* 各分類ごとに先頭の位置が必要で、後続は長さだけで良い
-  * 体で 7 pos, 21 length (float 36)
-  * 指で 10 pos, 30 length (float 60)
+体幹, 左右腕、左右脚で 19 ボーン
 
-厳密TPoseでこの数字が同じ骨格は同じ体格であると言えて、完全に同じ姿勢にすることができる。
-この数字が違うも骨格では差異が生じる。
-体格差リターゲットの必要性が生じる。
+### Option: つま先(2ボーン)
 
-## XYZ
+左右ひとつずつ
 
-実装に向けて、Yaw, Pitch, Roll の XYZ 割当をきめる。
+### Option: 指(30ボーン)
 
-```{figure} roll_up.jpg
+1指3関節 x 5本 x 左右 で 30 ボーン
 
-Blender 流にしよう。
-ロール軸(+Y)
-UP(+Z)
+## データ表現
+
+```c++
+struct Part
+{
+  vec3 position;
+  std::vector<float> length;
+};
+
+struct Skeleton
+{
+  Part trunk; // hips, spine, chest, neck, head, head-end
+  Part leftArm; // shoulder, upper, lower, hand, hand-end or middle-finger  
+  Part rightArm; // shoulder, upper, lower, hand, hand-end or middle-finger  
+  Part leftLeg; // upper, lower, foot, foot-end(heel)
+  Part rightLeg; // upper, lower, foot, foot-end(heel)
+  Part lefToes;
+  Part rightToes;
+  Part leftFingerThumbnail;
+  Part leftFingerIndex;
+  Part leftFingerMiddle;
+  Part leftFingerRing;
+  Part leftFingerLittle;
+  Part rightFingerThumbnail;
+  Part rightFingerIndex;
+  Part rightFingerMiddle;
+  Part rightFingerRing;
+  Part rightFingerLittle;
+};
 ```
-
-とする。
 
 ```{toctree}
 body

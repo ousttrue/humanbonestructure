@@ -5,15 +5,16 @@ from pydear import imgui as ImGui
 from pydear import imnodes as ImNodes
 from ...formats.pmd_loader import Pmd
 from ...formats.pmx_loader import Pmx
+from ...humanoid.humanoid_skeleton import HumanoidSkeleton
 from .file_node import FileNode
 
 
-class MmdSkeletonOutputPin(OutputPin[Union[Pmd, Pmx, None]]):
+class MmdSkeletonOutputPin(OutputPin[Optional[HumanoidSkeleton]]):
     def __init__(self, id: int) -> None:
         super().__init__(id, 'skeleton')
 
-    def get_value(self, node: 'MmdModelNode'):
-        return node.pmd_pmx
+    def get_value(self, node: 'MmdModelNode') -> Optional[HumanoidSkeleton]:
+        return node.skeleton
 
 
 class MmdModelNode(FileNode):
@@ -24,11 +25,11 @@ class MmdModelNode(FileNode):
                              MmdSkeletonOutputPin(skeleton_pin_id)
                          ], '.pmd', '.pmx')
         self.pmd_pmx = None
+        self.skeleton: Optional[HumanoidSkeleton] = None
 
     @classmethod
     def imgui_menu(cls, graph, click_pos):
         if ImGui.MenuItem("pmd/pmx"):
-            from .mmd_model_node import MmdModelNode
             node = MmdModelNode(graph.get_next_id(),
                                 graph.get_next_id())
             graph.nodes.append(node)
@@ -56,10 +57,20 @@ class MmdModelNode(FileNode):
 
         match path.suffix.lower():
             case '.pmd':
-                self.pmd_pmx = Pmd(path.read_bytes())
+                pmd = Pmd(path.read_bytes())
+                self.pmd_pmx = pmd
+                from ...scene.builder import pmd_builder
+                root = pmd_builder.build(pmd)
+                self.skeleton = HumanoidSkeleton.from_node(
+                    root, is_inverted_pelvis=True)
             case '.pmx':
-                self.pmd_pmx = Pmx(path.read_bytes())
+                pmx = Pmx(path.read_bytes())
+                self.pmd_pmx = pmx
+                from ...scene.builder import pmx_builder
+                root = pmx_builder.build(pmx)
+                self.skeleton = HumanoidSkeleton.from_node(
+                    root, is_inverted_pelvis=True)
 
     def process_self(self):
-        if not self.pmd_pmx and self.path:
+        if not self.skeleton and self.path:
             self.load(self.path)

@@ -281,7 +281,7 @@ class HumanoidSkeleton:
         self.init_pose: Dict[HumanoidBone, glm.quat] = {}
 
     @ staticmethod
-    def from_node(root: Node, is_inverted_pelvis=False) -> 'HumanoidSkeleton':
+    def from_node(root: Node, *, is_inverted_pelvis=False) -> 'HumanoidSkeleton':
         copy = root.copy_tree()
         tpose.make_tpose(copy, is_inverted_pelvis=is_inverted_pelvis)
         copy.init_human_bones()

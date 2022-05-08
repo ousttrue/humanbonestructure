@@ -41,7 +41,6 @@ class TimeNode(Node):
     @classmethod
     def imgui_menu(cls, graph, click_pos):
         if ImGui.MenuItem("time"):
-            from .time_node import TimeNode
             node = TimeNode(graph.get_next_id(),
                             graph.get_next_id(), 60)
             graph.nodes.append(node)

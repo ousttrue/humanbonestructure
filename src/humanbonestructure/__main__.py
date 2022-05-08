@@ -18,9 +18,11 @@ class GUI(dockspace.DockingGui):
         log_handler.register_root(append=True)
 
         self.node_editor = NodeEditor('posegraph', setting=setting)
-        from .gui.pose_graph import TYPES
+        from .gui.pose_graph import TYPES, PIN_STYLE_MAP
         for t in TYPES:
             self.node_editor.graph.register_type(t)
+        for k, v in PIN_STYLE_MAP.items():
+            self.node_editor.graph.add_pin_style(k, v)
 
         self.docks = [
             dockspace.Dock('posegraph', self.node_editor.show,

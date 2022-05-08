@@ -40,7 +40,6 @@ class MmdPoseNode(FileNode):
     @classmethod
     def imgui_menu(cls, graph, click_pos):
         if ImGui.MenuItem("vmd/vpd"):
-            from .mmd_pose_node import MmdPoseNode
             node = MmdPoseNode(
                 graph.get_next_id(),
                 graph.get_next_id(),

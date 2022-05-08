@@ -26,7 +26,6 @@ class TPoseNode(Node):
     @classmethod
     def imgui_menu(cls, graph, click_pos):
         if ImGui.MenuItem("tpose"):
-            from .tpose_node import TPoseNode
             node = TPoseNode(
                 graph.get_next_id(),
                 graph.get_next_id())

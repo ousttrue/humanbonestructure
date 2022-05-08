@@ -52,7 +52,6 @@ class BvhNode(FileNode):
     @classmethod
     def imgui_menu(cls, graph, click_pos):
         if ImGui.MenuItem("bvh"):
-            from .bvh_node import BvhNode
             node = BvhNode(
                 graph.get_next_id(),
                 graph.get_next_id(),

@@ -7,28 +7,20 @@ from pydear.utils.node_editor.node import Node, InputPin, Serialized, OutputPin
 from ...scene.scene import Scene
 from ...scene import node
 from ...humanoid.pose import Pose
+from ...humanoid.humanoid_skeleton import HumanoidSkeleton
 from ...formats.bvh.bvh_parser import Bvh
 from ...formats.gltf_loader import Gltf
 from ...formats.pmd_loader import Pmd
 from ...formats.pmx_loader import Pmx
 
-SkeletonType: TypeAlias = Union[Bvh, Gltf, Pmd, Pmx, node.Node]
 
-
-class SkeletonInputPin(InputPin[Optional[SkeletonType]]):
+class SkeletonInputPin(InputPin[Optional[HumanoidSkeleton]]):
     def __init__(self, id: int) -> None:
         super().__init__(id, 'skeleton')
-        self.skeleton: Optional[SkeletonType] = None
+        self.skeleton: Optional[HumanoidSkeleton] = None
 
-    def set_value(self, skeleton: Optional[SkeletonType]):
+    def set_value(self, skeleton: Optional[HumanoidSkeleton]):
         self.skeleton = skeleton
-
-    def is_acceptable(self, out: 'OutputPin') -> bool:
-        # src = get_args(self.__orig_bases__[0])[0]  # type: ignore
-        dst = get_args(out.__orig_bases__[0])[0]  # type: ignore
-        # return src == dst
-        # TODO
-        return True
 
 
 class PoseInputPin(InputPin[Optional[Pose]]):
@@ -48,7 +40,7 @@ class ViewNode(Node):
                          [self.in_skeleton, self.in_pose],
                          [])
 
-        self.skeleton: Optional[SkeletonType] = None
+        self.skeleton: Optional[HumanoidSkeleton] = None
         self.pose: Optional[Pose] = None
         #
         self.scene = Scene('view')
@@ -67,7 +59,6 @@ class ViewNode(Node):
     @classmethod
     def imgui_menu(cls, graph, click_pos):
         if ImGui.MenuItem("view"):
-            from .view_node import ViewNode
             node = ViewNode(
                 graph.get_next_id(),
                 graph.get_next_id(),
@@ -94,7 +85,7 @@ class ViewNode(Node):
             # x, y = ImGui.GetCursorPos()
             ImGui.ImageButton(texture, (w, h), (0, 1),
                               (1, 0), 0, self.bg, self.tint)
-            imgui_internal.ButtonBehavior(ImGui.Custom_GetLastItemRect(), ImGui.Custom_GetLastItemId(), None, None,
+            imgui_internal.ButtonBehavior(ImGui.Custom_GetLastItemRect(), ImGui.Custom_GetLastItemId(), None, None,  # type: ignore
                                           ImGui.ImGuiButtonFlags_.MouseButtonMiddle | ImGui.ImGuiButtonFlags_.MouseButtonRight)
 
             io = ImGui.GetIO()
