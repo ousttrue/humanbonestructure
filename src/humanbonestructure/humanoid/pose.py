@@ -28,7 +28,7 @@ class Pose:
     def get_parts(self, part: HumanoidBodyParts) -> bool:
         value = self._parts.get(part)
         if not isinstance(value, bool):
-            value = any(bone.humanoid_bone.get_part()
+            value = any(bone.humanoid_bone.get_classification().part
                         == part for bone in self.bones)
             self._parts[part] = value
         return value
@@ -70,7 +70,7 @@ class Motion(abc.ABC):
 
     def get_humanboneparts(self) -> Set[HumanoidBodyParts]:
         if self._parts_cache is None:
-            self._parts_cache = set(bone.get_part()
+            self._parts_cache = set(bone.get_classification().part
                                     for bone in self.get_humanbones() if bone.is_enable())
         return self._parts_cache
 

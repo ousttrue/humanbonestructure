@@ -12,6 +12,7 @@ from ..humanoid import tpose
 from ..humanoid.transform import Transform
 from ..humanoid.pose import Pose, BonePose
 from ..humanoid.humanoid_bones import HumanoidBone
+from ..humanoid.humanoid_skeleton import HumanoidSkeleton
 from .node import Node
 from .skeleton import Skeleton
 LOGGER = logging.getLogger(__name__)
@@ -87,6 +88,9 @@ class Scene:
                 self._setup_model()
             case Node() as root:
                 self.root = root
+                self._setup_model()
+            case HumanoidSkeleton() as skeleton:
+                self.root = skeleton.to_node()
                 self._setup_model()
             case None:
                 self.root = Node('__root__', Transform.identity())

@@ -67,7 +67,7 @@ class Skeleton:
                     up = None
                     width = 0.005
                     height = 0.001
-                    if node.humanoid_bone.is_finger():
+                    if node.humanoid_bone.get_classification().finger:
                         if 'Index' in node.humanoid_bone.name or 'Ring' in node.humanoid_bone.name:
                             if node.humanoid_bone.name.endswith("Intermediate"):
                                 color = Float3(0.1, 0.4, 0.8)
@@ -112,10 +112,8 @@ class Skeleton:
                                 up = glm.vec3(0, 0, 1)
                                 width = 0.02
                                 height = 0.02
-                            case (HumanoidBone.chest | HumanoidBone.upperChest | HumanoidBone.hips):
+                            case (HumanoidBone.chest | HumanoidBone.hips):
                                 color = Float3(0.8, 0.8, 0.2)
-                                if node.humanoid_bone == HumanoidBone.upperChest:
-                                    color = Float3(0.8, 0.8, 0.6)
                                 up = glm.vec3(0, 0, 1)
                                 width = 0.05
                                 height = 0.04

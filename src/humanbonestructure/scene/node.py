@@ -110,7 +110,7 @@ class Node:
                     return next(iter(node for node, _ in self.traverse_node_and_parent() if node.name == self.name + '先'))
 
             match self.humanoid_bone:
-                case HumanoidBone.chest | HumanoidBone.upperChest:
+                case HumanoidBone.chest:
                     for x, _ in self.traverse_node_and_parent():
                         if x.humanoid_bone == HumanoidBone.neck:
                             return x

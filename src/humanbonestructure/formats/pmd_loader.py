@@ -16,8 +16,8 @@ BONE_HUMANOID_MAP = {
     '上半身2': HumanoidBone.chest,
     '首': HumanoidBone.neck,
     '頭': HumanoidBone.head,
-    '左目': HumanoidBone.leftEye,
-    '右目': HumanoidBone.rightEye,
+    # '左目': HumanoidBone.leftEye,
+    # '右目': HumanoidBone.rightEye,
 
     '左肩': HumanoidBone.leftShoulder,
     '左腕': HumanoidBone.leftUpperArm,
