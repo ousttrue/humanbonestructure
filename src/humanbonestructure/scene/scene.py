@@ -16,8 +16,9 @@ from ..humanoid.humanoid_bones import HumanoidBone
 from ..humanoid.humanoid_skeleton import HumanoidSkeleton
 from .node import Node
 from .skeleton import Skeleton
-LOGGER = logging.getLogger(__name__)
 
+
+LOGGER = logging.getLogger(__name__)
 RED = glm.vec4(1, 0, 0, 1)
 GREEN = glm.vec4(0, 1, 0, 1)
 BLUE = glm.vec4(0, 0, 1, 1)

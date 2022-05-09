@@ -15,7 +15,7 @@ IM_GRAY = make_color(120, 120, 120, 120)
 
 class BoneTreeScene(NamedTuple):
     show_option: Callable[[], None]
-    get_root: Callable[[], Node]
+    get_root: Callable[[], Optional[Node]]
     get_selected: Callable[[], Optional[Node]]
     set_selected: Callable[[Optional[Node]], None]
 

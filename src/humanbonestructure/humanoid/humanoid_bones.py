@@ -1,5 +1,6 @@
 from typing import Tuple, NamedTuple, Optional, Dict
 from enum import Enum, auto
+import glm
 
 
 class LeftRight(Enum):
@@ -20,16 +21,58 @@ class Fingers(Enum):
 class HumanoidBodyParts(Enum):
     Unknown = 0  # unknown / endsite
     Trunk = 1
-    Legs = 2
-    Arms = 3
-    Toes = 4
+    Leg = 2
+    Arm = 3
+    Toe = 4
     Fingers = 5
+
+
+_LEFT = glm.vec4(1, 0, 0, 0)
+_RIGHT = glm.vec4(-1, 0, 0, 0)
+_UP = glm.vec4(0, 1, 0, 0)
+_DOWN = glm.vec4(0, -1, 0, 0)
+_FORWARD = glm.vec4(0, 0, 1, 0)
+_BACK = glm.vec4(0, 0, -1, 0)
+_ZERO_ONE = glm.vec4(0, 0, 0, 1)
 
 
 class HumanoidBoneClassification(NamedTuple):
     part: HumanoidBodyParts
     left_right: LeftRight
     finger: Fingers = Fingers.NotFinger
+
+    def get_local_axis(self) -> glm.mat4:
+        match self:
+            case (HumanoidBodyParts.Trunk, LeftRight.Center, Fingers.NotFinger):
+                return glm.mat4(
+                    _RIGHT,
+                    _UP,
+                    _FORWARD,
+                    _ZERO_ONE,
+                )
+            case (HumanoidBodyParts.Arm, LeftRight.Left, Fingers.NotFinger):
+                return glm.mat4(
+                    _DOWN,
+                    _LEFT,
+                    _FORWARD,
+                    _ZERO_ONE,
+                )
+            case (HumanoidBodyParts.Arm, LeftRight.Right, Fingers.NotFinger):
+                return glm.mat4(
+                    _UP,
+                    _RIGHT,
+                    _FORWARD,
+                    _ZERO_ONE,
+                )
+            case (HumanoidBodyParts.Leg, LeftRight.Left, Fingers.NotFinger) | (HumanoidBodyParts.Leg, LeftRight.Right, Fingers.NotFinger):
+                return glm.mat4(
+                    _LEFT,
+                    _DOWN,
+                    _BACK,
+                    _ZERO_ONE,
+                )
+            case _:
+                raise NotImplementedError()
 
 
 class HumanoidBone(Enum):
@@ -119,23 +162,23 @@ HUMANOIDBONE_PART_MAP: Dict[HumanoidBone, HumanoidBoneClassification] = {
     HumanoidBone.chest: HumanoidBoneClassification(HumanoidBodyParts.Trunk, LeftRight.Center),
     HumanoidBone.neck: HumanoidBoneClassification(HumanoidBodyParts.Trunk, LeftRight.Center),
     HumanoidBone.head: HumanoidBoneClassification(HumanoidBodyParts.Trunk, LeftRight.Center),
-    HumanoidBone.leftUpperLeg: HumanoidBoneClassification(HumanoidBodyParts.Legs, LeftRight.Left),
-    HumanoidBone.leftLowerLeg: HumanoidBoneClassification(HumanoidBodyParts.Legs, LeftRight.Left),
-    HumanoidBone.leftFoot: HumanoidBoneClassification(HumanoidBodyParts.Legs, LeftRight.Left),
-    HumanoidBone.rightUpperLeg: HumanoidBoneClassification(HumanoidBodyParts.Legs, LeftRight.Right),
-    HumanoidBone.rightLowerLeg: HumanoidBoneClassification(HumanoidBodyParts.Legs, LeftRight.Right),
-    HumanoidBone.rightFoot: HumanoidBoneClassification(HumanoidBodyParts.Legs, LeftRight.Right),
-    HumanoidBone.leftShoulder: HumanoidBoneClassification(HumanoidBodyParts.Arms, LeftRight.Left),
-    HumanoidBone.leftUpperArm: HumanoidBoneClassification(HumanoidBodyParts.Arms, LeftRight.Left),
-    HumanoidBone.leftLowerArm: HumanoidBoneClassification(HumanoidBodyParts.Arms, LeftRight.Left),
-    HumanoidBone.leftHand: HumanoidBoneClassification(HumanoidBodyParts.Arms, LeftRight.Left),
-    HumanoidBone.rightShoulder: HumanoidBoneClassification(HumanoidBodyParts.Arms, LeftRight.Right),
-    HumanoidBone.rightUpperArm: HumanoidBoneClassification(HumanoidBodyParts.Arms, LeftRight.Right),
-    HumanoidBone.rightLowerArm: HumanoidBoneClassification(HumanoidBodyParts.Arms, LeftRight.Right),
-    HumanoidBone.rightHand: HumanoidBoneClassification(HumanoidBodyParts.Arms, LeftRight.Right),
+    HumanoidBone.leftUpperLeg: HumanoidBoneClassification(HumanoidBodyParts.Leg, LeftRight.Left),
+    HumanoidBone.leftLowerLeg: HumanoidBoneClassification(HumanoidBodyParts.Leg, LeftRight.Left),
+    HumanoidBone.leftFoot: HumanoidBoneClassification(HumanoidBodyParts.Leg, LeftRight.Left),
+    HumanoidBone.rightUpperLeg: HumanoidBoneClassification(HumanoidBodyParts.Leg, LeftRight.Right),
+    HumanoidBone.rightLowerLeg: HumanoidBoneClassification(HumanoidBodyParts.Leg, LeftRight.Right),
+    HumanoidBone.rightFoot: HumanoidBoneClassification(HumanoidBodyParts.Leg, LeftRight.Right),
+    HumanoidBone.leftShoulder: HumanoidBoneClassification(HumanoidBodyParts.Arm, LeftRight.Left),
+    HumanoidBone.leftUpperArm: HumanoidBoneClassification(HumanoidBodyParts.Arm, LeftRight.Left),
+    HumanoidBone.leftLowerArm: HumanoidBoneClassification(HumanoidBodyParts.Arm, LeftRight.Left),
+    HumanoidBone.leftHand: HumanoidBoneClassification(HumanoidBodyParts.Arm, LeftRight.Left),
+    HumanoidBone.rightShoulder: HumanoidBoneClassification(HumanoidBodyParts.Arm, LeftRight.Right),
+    HumanoidBone.rightUpperArm: HumanoidBoneClassification(HumanoidBodyParts.Arm, LeftRight.Right),
+    HumanoidBone.rightLowerArm: HumanoidBoneClassification(HumanoidBodyParts.Arm, LeftRight.Right),
+    HumanoidBone.rightHand: HumanoidBoneClassification(HumanoidBodyParts.Arm, LeftRight.Right),
     # toes: 2bones 1xLR
-    HumanoidBone.leftToes: HumanoidBoneClassification(HumanoidBodyParts.Toes, LeftRight.Left),
-    HumanoidBone.rightToes: HumanoidBoneClassification(HumanoidBodyParts.Toes, LeftRight.Right),
+    HumanoidBone.leftToes: HumanoidBoneClassification(HumanoidBodyParts.Toe, LeftRight.Left),
+    HumanoidBone.rightToes: HumanoidBoneClassification(HumanoidBodyParts.Toe, LeftRight.Right),
     # fingers: 30bones (1-2-3)x5xLR
     HumanoidBone.leftThumbProximal: HumanoidBoneClassification(HumanoidBodyParts.Fingers, LeftRight.Left, Fingers.Thumbnail),
     HumanoidBone.leftThumbIntermediate: HumanoidBoneClassification(HumanoidBodyParts.Fingers, LeftRight.Left, Fingers.Thumbnail),
