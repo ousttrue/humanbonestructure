@@ -1,7 +1,7 @@
 from pydear import imgui as ImGui
 from ..scene.scene import Scene
 from ..scene.node import Node
-from ..formats.humanoid_bones import HumanoidBone
+from ..humanoid.humanoid_bones import HumanoidBone
 
 
 def make_color(r, g, b, a):
@@ -84,7 +84,7 @@ class BoneTree:
 
         # col 1
         ImGui.TableNextColumn()
-        humanoid_bone = node.humanoid_bone.is_enable() if node.humanoid_bone else ''
+        humanoid_bone = node.humanoid_bone.name if node.humanoid_bone.is_enable() else ''
         # ImGui.TextUnformatted(humanoid_bone)
         selected = ImGui.Selectable(f'{humanoid_bone}##{node.index}', node ==
                                     self.scene.selected, ImGui.ImGuiSelectableFlags_.SpanAllColumns)
