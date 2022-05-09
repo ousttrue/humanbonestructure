@@ -10,7 +10,7 @@
 from typing import List
 import glm
 from ..node import Node
-from ...formats.humanoid_bones import HumanoidBone
+from ...humanoid.humanoid_bones import HumanoidBone
 from ...humanoid.transform import Transform
 
 

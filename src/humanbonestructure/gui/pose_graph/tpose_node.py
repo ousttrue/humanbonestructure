@@ -1,16 +1,17 @@
 from typing import Optional
 from pydear import imgui as ImGui
 from pydear import imnodes as ImNodes
-from ...scene import node
 from pydear.utils.node_editor.node import Node, InputPin, OutputPin, Serialized
+from ...scene import node
+from ...humanoid.humanoid_skeleton import HumanoidSkeleton
 
 
-class TPoseSkeletonOutputPin(OutputPin[Optional[node.Node]]):
+class TPoseSkeletonOutputPin(OutputPin[HumanoidSkeleton]):
     def __init__(self, id: int) -> None:
         super().__init__(id, 'skeleton')
 
-    def get_value(self, node: 'TPoseNode') -> Optional[node.Node]:
-        return node.root
+    def get_value(self, node: 'TPoseNode') -> HumanoidSkeleton:
+        return node.skeleton
 
 
 class TPoseNode(Node):
@@ -21,7 +22,8 @@ class TPoseNode(Node):
                              TPoseSkeletonOutputPin(skeleton_pin_id)
                          ])
         from ...scene.builder import strict_tpose
-        self.root = strict_tpose.create()
+        root = strict_tpose.create()
+        self.skeleton = HumanoidSkeleton.from_node(root)
 
     @classmethod
     def imgui_menu(cls, graph, click_pos):
