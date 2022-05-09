@@ -140,8 +140,13 @@ class PoseScene:
             self.gizmo.color = SELECTED_COLOR if bone == self.selected else color
             length = glm.length(
                 bone.world_matrix[3].xyz - bone.humanoid_tail.world_matrix[3].xyz)
-            if self.gizmo.bone_cube(bone.humanoid_bone.name, width, height, length, bone == self.selected):
+
+            is_selected = bone == self.selected
+            if self.gizmo.bone_cube(bone.humanoid_bone.name, width, height, length, is_selected=is_selected):
                 selected = bone
+            if is_selected:
+                # show manipulator
+                self.manipulator(bone)
 
             # axis
             size = 0.04
@@ -157,3 +162,16 @@ class PoseScene:
             self.selected = selected
 
         self.gizmo.end()
+
+    def manipulator(self, bone: Node):
+        # yaw: z
+        # pitch: x
+        # roll: y
+        inner = 0.25
+        outer = 0.3
+        self.gizmo.color = glm.vec3(0, 0, 1)
+        self.gizmo.ring_yaw(bone.world_matrix, inner, outer)
+        self.gizmo.color = glm.vec3(1, 0, 0)
+        self.gizmo.ring_pitch(bone.world_matrix, inner, outer)
+        self.gizmo.color = glm.vec3(0, 1, 0)
+        self.gizmo.ring_roll(bone.world_matrix, inner, outer)
