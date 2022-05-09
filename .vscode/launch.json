@@ -23,5 +23,22 @@
             "console": "integratedTerminal",
             "justMyCode": false
         },
+        {
+            "name": "poseman",
+            "type": "python",
+            "request": "launch",
+            "module": "humanbonestructure.poseman",
+            "args": [
+                "--ini",
+                "poseman.dat",
+                "--nerdfont",
+                "${env:USERPROFILE}/AppData/Local/Microsoft/Windows/Fonts/HackGenNerdConsole-Regular.ttf",
+            ],
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/src",
+            },
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
     ]
 }
