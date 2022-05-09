@@ -5,6 +5,7 @@ import logging
 import glm
 from pydear.scene.camera import Camera
 from pydear.scene.gizmo import Gizmo
+from pydear import imgui as ImGui
 
 from ..formats.bvh import bvh_parser
 from ..formats import pmd_loader, gltf_loader, pmx_loader
@@ -45,6 +46,22 @@ class Scene:
 
         from ..eventproperty import OptionalEventProperty
         self.pose_changed = OptionalEventProperty[Pose]()
+
+    def get_root(self):
+        return self.root
+
+    def get_selected(self):
+        return self.selected
+
+    def set_selected(self, selected):
+        self.selected = selected
+
+    def show_option(self):
+        ImGui.Checkbox('skeleton', self.visible_skeleton)
+        ImGui.SameLine()
+        ImGui.Checkbox('gizmo', self.visible_gizmo)
+        ImGui.SameLine()
+        ImGui.Checkbox('mesh', self.visible_mesh)
 
     def _setup_model(self):
         self.root.init_human_bones()

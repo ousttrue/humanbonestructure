@@ -1,3 +1,4 @@
+from typing import NamedTuple, Callable, Optional
 from pydear import imgui as ImGui
 from ..scene.scene import Scene
 from ..scene.node import Node
@@ -12,19 +13,22 @@ IM_WHITE = make_color(255, 255, 255, 255)
 IM_GRAY = make_color(120, 120, 120, 120)
 
 
+class BoneTreeScene(NamedTuple):
+    show_option: Callable[[], None]
+    get_root: Callable[[], Node]
+    get_selected: Callable[[], Optional[Node]]
+    set_selected: Callable[[Optional[Node]], None]
+
+
 class BoneTree:
-    def __init__(self, name: str, scene: Scene) -> None:
+    def __init__(self, name: str, scene: BoneTreeScene) -> None:
         self.name = name
         self.scene = scene
 
     def show(self, p_open):
         ImGui.SetNextWindowSize((100, 100), ImGui.ImGuiCond_.Once)
         if ImGui.Begin(self.name, p_open):
-            ImGui.Checkbox('skeleton', self.scene.visible_skeleton)
-            ImGui.SameLine()
-            ImGui.Checkbox('gizmo', self.scene.visible_gizmo)
-            ImGui.SameLine()
-            ImGui.Checkbox('mesh', self.scene.visible_mesh)
+            self.scene.show_option()
 
             # tree
             flags = (
@@ -47,8 +51,9 @@ class BoneTree:
 
                 # body
                 ImGui.PushStyleVar(ImGui.ImGuiStyleVar_.IndentSpacing, 12)
-                if self.scene.root:
-                    self._traverse(self.scene.root)
+                root = self.scene.get_root()
+                if root:
+                    self._traverse(root)
                 ImGui.PopStyleVar()
 
                 ImGui.EndTable()
@@ -87,11 +92,11 @@ class BoneTree:
         humanoid_bone = node.humanoid_bone.name if node.humanoid_bone.is_enable() else ''
         # ImGui.TextUnformatted(humanoid_bone)
         selected = ImGui.Selectable(f'{humanoid_bone}##{node.index}', node ==
-                                    self.scene.selected, ImGui.ImGuiSelectableFlags_.SpanAllColumns)
+                                    self.scene.get_selected(), ImGui.ImGuiSelectableFlags_.SpanAllColumns)
         if selected:
-            self.scene.selected = node
+            self.scene.set_selected(node)
         elif ImGui.IsItemClicked():
-            self.scene.selected = None
+            self.scene.set_selected(None)
 
         # col 2
         ImGui.TableNextColumn()

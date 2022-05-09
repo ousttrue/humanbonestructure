@@ -5,7 +5,6 @@ from pydear import imgui as ImGui
 from pydear.utils import dockspace
 from pydear.utils.mouseevent import MouseEvent, MouseInput
 from pydear.scene.camera import Camera
-from ..scene.scene import Scene
 
 
 class GUI(dockspace.DockingGui):
@@ -27,8 +26,10 @@ class GUI(dockspace.DockingGui):
             left_leg=left_leg, right_leg=right_leg)
 
         self.camera = Camera(distance=6, y=-0.8)
-        self.scene = Scene('poseman')
-        self.scene.load(self.skeleton)
+
+        from .pose_scene import PoseScene
+        self.scene = PoseScene()
+        self.scene.set_skeleton(self.skeleton)
 
         # view
         self.clear_color = (ctypes.c_float * 4)(0.1, 0.2, 0.3, 1)
@@ -43,8 +44,13 @@ class GUI(dockspace.DockingGui):
         log_handler = ImGuiLogHandler()
         log_handler.register_root(append=True)
 
-        from ..gui.bone_tree import BoneTree
-        self.tree = BoneTree('bone_tree', self.scene)
+        from ..gui.bone_tree import BoneTree, BoneTreeScene
+        self.tree = BoneTree('bone_tree', BoneTreeScene(
+            get_root=self.scene.get_root,
+            get_selected=self.scene.get_selected,
+            set_selected=self.scene.set_selected,
+            show_option=self.scene.show_option
+        ))
 
         self.views = [
             dockspace.Dock('metrics', ImGui.ShowMetricsWindow,
