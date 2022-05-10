@@ -1,17 +1,10 @@
 from typing import Any, Optional, TypeAlias, Union, get_args
-import ctypes
 from pydear import imgui as ImGui
-from pydear import imgui_internal
 from pydear import imnodes as ImNodes
 from pydear.utils.node_editor.node import Node, InputPin, Serialized, OutputPin
 from ...scene.scene import Scene
-from ...scene import node
 from ...humanoid.pose import Pose
 from ...humanoid.humanoid_skeleton import HumanoidSkeleton
-from ...formats.bvh.bvh_parser import Bvh
-from ...formats.gltf_loader import Gltf
-from ...formats.pmd_loader import Pmd
-from ...formats.pmx_loader import Pmx
 
 
 class SkeletonInputPin(InputPin[Optional[HumanoidSkeleton]]):
@@ -42,19 +35,15 @@ class ViewNode(Node):
 
         self.skeleton: Optional[HumanoidSkeleton] = None
         self.pose: Optional[Pose] = None
+        # imgui
+        from pydear.utils.fbo_view import FboView
+        self.fbo = FboView()
+
         #
         self.scene = Scene('view')
         from pydear.scene.camera import Camera
         self.camera = Camera(distance=8, y=-0.8)
-        # imgui
-        self.clear_color = (ctypes.c_float * 4)(0.1, 0.2, 0.2, 1)
-        self.hover_color = (ctypes.c_float * 4)(0.2, 0.3, 0.3, 1)
-        from pydear import glo
-        self.fbo_manager = glo.FboRenderer()
-        self.bg = ImGui.ImVec4(1, 1, 1, 1)
-        self.tint = ImGui.ImVec4(1, 1, 1, 1)
-        self.hover = False
-        self.xy = (ctypes.c_float * 2)(0, 0)
+        self.camera.bind_mouse_event(self.fbo.mouse_event)
 
     @classmethod
     def imgui_menu(cls, graph, click_pos):
@@ -77,45 +66,20 @@ class ViewNode(Node):
         w = 400
         h = 400
         self.camera.projection.resize(w, h)
+        x, y = ImNodes.GetNodeScreenSpacePos(self.id)
+        y += 43
+        x += 8        
+        self.fbo.show_fbo(x, y, w, h)
 
-        texture = self.fbo_manager.clear(
-            w, h, self.hover_color if self.hover else self.clear_color)
+        # render mesh
+        assert self.fbo.mouse_event.last_input
+        self.scene.render(self.camera, self.fbo.mouse_event.last_input)
 
-        if texture:
-            # x, y = ImGui.GetCursorPos()
-            ImGui.ImageButton(texture, (w, h), (0, 1),
-                              (1, 0), 0, self.bg, self.tint)
-            imgui_internal.ButtonBehavior(ImGui.Custom_GetLastItemRect(), ImGui.Custom_GetLastItemId(), None, None,  # type: ignore
-                                          ImGui.ImGuiButtonFlags_.MouseButtonMiddle | ImGui.ImGuiButtonFlags_.MouseButtonRight)
-
-            io = ImGui.GetIO()
-            x, y = ImNodes.GetNodeScreenSpacePos(self.id)
-            y += 43
-            x += 8
-            if ImGui.IsItemActive():
-                self.camera.mouse_drag(
-                    int(io.MousePos.x-x), int(io.MousePos.y-y),
-                    int(io.MouseDelta.x), int(io.MouseDelta.y),
-                    io.MouseDown[0], io.MouseDown[1], io.MouseDown[2])
-            else:
-                self.camera.mouse_release(
-                    int(io.MousePos.x-x), int(io.MousePos.y-y))
-
-            self.hover = ImGui.IsItemHovered()
-            if self.hover:
-                self.camera.wheel(int(io.MouseWheel))
-
-            # render mesh
-            self.scene.render(self.camera)
-
-            ImGui.Checkbox('skeleton', self.scene.visible_skeleton)
-            ImGui.SameLine()
-            ImGui.Checkbox('gizmo', self.scene.visible_gizmo)
-            ImGui.SameLine()
-            ImGui.Checkbox('mesh', self.scene.visible_mesh)
-
-            # ImGui.TextUnformatted(
-            #     f'{int(io.MousePos.x-x)}/{w}, {int(io.MousePos.y-y)}/{h}')
+        ImGui.Checkbox('skeleton', self.scene.visible_skeleton)
+        ImGui.SameLine()
+        ImGui.Checkbox('gizmo', self.scene.visible_gizmo)
+        ImGui.SameLine()
+        ImGui.Checkbox('mesh', self.scene.visible_mesh)
 
     def process_self(self):
         if self.in_skeleton.skeleton != self.skeleton:

@@ -4,8 +4,8 @@ import pathlib
 import logging
 import glm
 from pydear.scene.camera import Camera
-from pydear.scene.gizmo import Gizmo
-from pydear import imgui as ImGui
+from pydear.utils.mouse_event import MouseInput
+from pydear.gizmo.gizmo import Gizmo
 
 from ..formats.bvh import bvh_parser
 from ..formats import pmd_loader, gltf_loader, pmx_loader
@@ -169,14 +169,13 @@ class Scene:
         self.root = strict_tpose.create()
         self._setup_model()
 
-    def render(self, camera: Camera):
+    def render(self, camera: Camera, input: MouseInput):
         if self.visible_mesh[0]:
             if root := self.root:
                 self.render_node(camera, root)
 
         if self.visible_gizmo[0]:
-            self.gizmo.begin(camera.x, camera.y, camera.left, camera.view.matrix,
-                             camera.projection.matrix, camera.get_mouse_ray(camera.x, camera.y))
+            self.gizmo.begin(camera)
             # self.gizmo.axis(1)
             self.gizmo.ground_mark()
 
