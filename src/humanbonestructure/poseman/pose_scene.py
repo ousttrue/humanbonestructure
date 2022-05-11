@@ -3,7 +3,7 @@ from OpenGL import GL
 import logging
 import glm
 from pydear.scene.camera import Camera
-from pydear.scene.gizmo import Gizmo
+from pydear.gizmo.gizmo import Gizmo
 from ..humanoid.humanoid_skeleton import HumanoidSkeleton, Fingers, HumanoidBone
 from ..scene.node import Node
 
@@ -52,8 +52,7 @@ class PoseScene:
         if not self.root:
             return
 
-        self.gizmo.begin(camera.x, camera.y, camera.left, camera.view.matrix,
-                         camera.projection.matrix, camera.get_mouse_ray(camera.x, camera.y))
+        self.gizmo.begin(camera)
         # self.gizmo.axis(1)
         self.gizmo.ground_mark()
 
