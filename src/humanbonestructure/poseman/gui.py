@@ -33,17 +33,19 @@ class GUI(dockspace.DockingGui):
         from .pose_scene import PoseScene
         self.scene = PoseScene()
         self.scene.set_skeleton(self.skeleton)
+        self.scene.gizmo.bind_mouse_event(self.fbo.mouse_event)
 
         def render(w, h):
             self.camera.projection.resize(w, h)
-            self.scene.render(self.camera)
+            input = self.fbo.mouse_event.last_input
+            if input:
+                self.scene.render(self.camera, input.x, input.y)
         self.fbo.render = render
 
         # view
         self.clear_color = (ctypes.c_float * 4)(0.1, 0.2, 0.3, 1)
         from pydear import glo
         self.fbo_manager = glo.FboRenderer()
-        self.mouse_event = MouseEvent()
 
         self.bg = ImGui.ImVec4(1, 1, 1, 1)
         self.tint = ImGui.ImVec4(1, 1, 1, 1)
