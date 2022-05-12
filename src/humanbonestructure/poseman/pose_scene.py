@@ -1,9 +1,12 @@
 from typing import Optional, Iterable
-from OpenGL import GL
 import logging
+import math
+from OpenGL import GL
 import glm
 from pydear.scene.camera import Camera
 from pydear.gizmo.gizmo import Gizmo
+from pydear.gizmo.shapes.shape import Shape, ShapeState
+from pydear.gizmo.shapes.ring_shape import RingShape
 from ..humanoid.humanoid_skeleton import HumanoidSkeleton, Fingers, HumanoidBone
 from ..scene.node import Node
 
@@ -18,9 +21,28 @@ class PoseScene:
     def __init__(self) -> None:
         self.skeleton = None
         self.root: Optional[Node] = None
+        self.shape_node_map = {}
         self.selected = None
         #
         self.gizmo = Gizmo()
+        self.setup_drag()
+
+    def setup_drag(self):
+        # draggable
+        ring = RingShape(inner=0.1, outer=0.2, depth=0.005,
+                         color=glm.vec4(0.3, 0.3, 1, 1))
+        self.ring_key = self.gizmo.add_shape(ring)
+
+        def on_selected(shape: Optional[Shape]):
+            if shape:
+                ring.remove_state(ShapeState.HIDE)
+                ring.matrix.set(shape.matrix.value)
+                self.selected = self.shape_node_map.get(shape)
+            else:
+                ring.add_state(ShapeState.HIDE)
+                self.selected = None
+
+        self.gizmo.selected += on_selected
 
     def set_skeleton(self, skeleton: Optional[HumanoidSkeleton]):
         self.skeleton = skeleton
@@ -42,6 +64,7 @@ class PoseScene:
                     if node:
                         shape = BoneShape.from_node(node)
                         self.gizmo.add_shape(shape)
+                        self.shape_node_map[shape] = node
 
         else:
             self.root = None
