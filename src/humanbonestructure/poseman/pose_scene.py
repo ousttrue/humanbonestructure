@@ -112,20 +112,20 @@ class DragEventHandler(GizmoEventHandler):
             self.context = None
 
     def select(self, hit: RayHit):
-        shape = hit.shape
-        if shape != self.selected.value:
+        hit_shape = hit.shape
+        if hit_shape != self.selected.value:
             # clear
             if self.selected.value:
                 self.selected.value.remove_state(ShapeState.SELECT)
             # select
-            self.selected.set(shape)
-            if shape:
-                shape.add_state(ShapeState.SELECT)
-                self.x_ring.matrix.set(shape.matrix.value)
+            self.selected.set(hit_shape)
+            if hit_shape:
+                hit_shape.add_state(ShapeState.SELECT)
+                self.x_ring.matrix.set(hit_shape.matrix.value)
                 self.x_ring.remove_state(ShapeState.HIDE)
-                self.y_ring.matrix.set(shape.matrix.value)
+                self.y_ring.matrix.set(hit_shape.matrix.value)
                 self.y_ring.remove_state(ShapeState.HIDE)
-                self.z_ring.matrix.set(shape.matrix.value)
+                self.z_ring.matrix.set(hit_shape.matrix.value)
                 self.z_ring.remove_state(ShapeState.HIDE)
             else:
                 self.x_ring.add_state(ShapeState.HIDE)
