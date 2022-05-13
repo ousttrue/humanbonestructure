@@ -27,32 +27,33 @@ def find_node(node_shape_map, target) -> Node:
 
 
 class DragContext:
-    def __init__(self, x, y, manipulator, target: Shape, node_shape_map: Dict[Node, Shape]):
+    def __init__(self, x, y, manipulator, axis: glm.vec3, target: Shape, node_shape_map: Dict[Node, Shape]):
         self.y = y
         assert(manipulator)
         self.manipulator = manipulator
         self.manipulator.add_state(ShapeState.DRAG)
+        self.axis = axis
         assert target
         self.target = target
 
         self.node_shape_map = node_shape_map
         self.target_node = find_node(node_shape_map, target)
-        self.init_quat = self.target_node.pose.rotation if self.target_node.pose else glm.quat()
+        self.init_pose = self.target_node.pose.rotation if self.target_node.pose else glm.quat()
 
-    def drag(self, x: int, y: int):
+    def drag(self, x: int, y: int) -> glm.mat4:
         angle = (y - self.y) * 0.02
-        if self.target:
-            # parent = self.target_node.parent.world_matrix if self.target_node.parent else glm.mat4()
-            r = self.init_quat * glm.angleAxis(angle, glm.vec3(0, 0, 1))
-            self.target_node.pose = Transform.from_rotation(r)
-            # apply
-            parent = self.target_node.parent.world_matrix if self.target_node.parent else glm.mat4()
-            self.target_node.calc_world_matrix(parent)
-            for node, _ in self.target_node.traverse_node_and_parent():
-                shape = self.node_shape_map.get(node)
-                if shape:
-                    shape.matrix.set(node.world_matrix *
-                                     glm.mat4(node.local_axis))
+        # parent = self.target_node.parent.world_matrix if self.target_node.parent else glm.mat4()
+        r = self.init_pose * glm.angleAxis(angle, self.axis)
+        self.target_node.pose = Transform.from_rotation(r)
+        # apply
+        parent = self.target_node.parent.world_matrix if self.target_node.parent else glm.mat4()
+        self.target_node.calc_world_matrix(parent)
+        for node, _ in self.target_node.traverse_node_and_parent():
+            shape = self.node_shape_map.get(node)
+            if shape:
+                shape.matrix.set(node.world_matrix *
+                                 glm.mat4(node.local_axis))
+        return Transform(self.target_node.world_matrix[3].xyz, r, glm.vec3(1)).to_matrix()
 
     def end(self):
         self.manipulator.remove_state(ShapeState.DRAG)
@@ -65,25 +66,45 @@ class DragEventHandler(GizmoEventHandler):
         self.selected = EventProperty[Optional[Shape]](None)
 
         # draggable
-        from pydear.gizmo.shapes.ring_shape import RingShape
-        self.ring = RingShape(inner=0.1, outer=0.2, depth=0.005,
-                              color=glm.vec4(0.3, 0.3, 1, 1))
-        gizmo.add_shape(self.ring)
+        from pydear.gizmo.shapes.ring_shape import XRingShape, YRingShape, ZRingShape
+        self.x_ring = XRingShape(inner=0.1, outer=0.2, depth=0.005,
+                                 color=glm.vec4(1, 0.3, 0.3, 1))
+        gizmo.add_shape(self.x_ring)
+
+        self.y_ring = YRingShape(inner=0.1, outer=0.2, depth=0.005,
+                                 color=glm.vec4(0.3, 1, 0.3, 1))
+        gizmo.add_shape(self.y_ring)
+
+        self.z_ring = ZRingShape(inner=0.1, outer=0.2, depth=0.005,
+                                 color=glm.vec4(0.3, 0.3, 1, 1))
+        gizmo.add_shape(self.z_ring)
 
         self.node_shape_map = node_shape_map
         self.context = None
 
     def drag_begin(self, hit: RayHit):
-        if hit.shape == self.ring:
-            # ring is not selectable
-            self.context = DragContext(
-                hit.x, hit.y, hit.shape, self.selected.value, self.node_shape_map)
-        else:
-            self.select(hit)
+        match hit.shape:
+            case self.x_ring:
+                # ring is not selectable
+                self.context = DragContext(
+                    hit.x, hit.y, hit.shape, glm.vec3(1, 0, 0), self.selected.value, self.node_shape_map)
+            case self.y_ring:
+                # ring is not selectable
+                self.context = DragContext(
+                    hit.x, hit.y, hit.shape, glm.vec3(0, 1, 0), self.selected.value, self.node_shape_map)
+            case self.z_ring:
+                # ring is not selectable
+                self.context = DragContext(
+                    hit.x, hit.y, hit.shape, glm.vec3(0, 0, 1), self.selected.value, self.node_shape_map)
+            case _:
+                self.select(hit)
 
     def drag(self, x, y, dx, dy):
         if self.context:
-            self.context.drag(x, y)
+            m = self.context.drag(x, y)
+            self.x_ring.matrix.set(m)
+            self.y_ring.matrix.set(m)
+            self.z_ring.matrix.set(m)
 
     def drag_end(self, x, y):
         if self.context:
@@ -100,10 +121,16 @@ class DragEventHandler(GizmoEventHandler):
             self.selected.set(shape)
             if shape:
                 shape.add_state(ShapeState.SELECT)
-                self.ring.matrix.set(shape.matrix.value)
-                self.ring.remove_state(ShapeState.HIDE)
+                self.x_ring.matrix.set(shape.matrix.value)
+                self.x_ring.remove_state(ShapeState.HIDE)
+                self.y_ring.matrix.set(shape.matrix.value)
+                self.y_ring.remove_state(ShapeState.HIDE)
+                self.z_ring.matrix.set(shape.matrix.value)
+                self.z_ring.remove_state(ShapeState.HIDE)
             else:
-                self.ring.add_state(ShapeState.HIDE)
+                self.x_ring.add_state(ShapeState.HIDE)
+                self.y_ring.add_state(ShapeState.HIDE)
+                self.z_ring.add_state(ShapeState.HIDE)
 
 
 class PoseScene:

@@ -2,6 +2,14 @@ from typing import NamedTuple, Tuple
 import glm
 
 
+def trs_matrix(t: glm.vec3, r: glm.quat, s: glm.vec3) -> glm.mat4:
+    T = glm.translate(t)
+    R = glm.mat4(r)
+    S = glm.scale(s)
+    m = T * R * S
+    return m
+
+
 class Transform(NamedTuple):
     translation: glm.vec3
     rotation: glm.quat
@@ -34,3 +42,6 @@ class Transform(NamedTuple):
             glm.angleAxis(-angle, glm.vec3(axis.x, axis.y, -axis.z)),
             self.scale
         )
+
+    def to_matrix(self) -> glm.mat4:
+        return trs_matrix(self.translation, self.rotation, self.scale)

@@ -2,19 +2,11 @@ from typing import Optional, Iterable, List, Tuple, Callable, Dict
 import math
 import logging
 import glm
-from ..humanoid.transform import Transform
+from ..humanoid.transform import Transform, trs_matrix
 from ..humanoid.humanoid_bones import HumanoidBone
 from ..humanoid.pose import Pose, BonePose
 
 LOGGER = logging.getLogger(__name__)
-
-
-def trs_matrix(t: glm.vec3, r: glm.quat, s: glm.vec3) -> glm.mat4:
-    T = glm.translate(t)
-    R = glm.mat4(r)
-    S = glm.scale(s)
-    m = T * R * S
-    return m
 
 
 NODE_ID = 1
@@ -169,7 +161,7 @@ class Node:
         child.parent = self
 
     def calc_bind_matrix(self, parent: glm.mat4):
-        self.bind_matrix = parent * trs_matrix(*self.init_trs)
+        self.bind_matrix = parent * self.init_trs.to_matrix()
         for child in self.children:
             child.calc_bind_matrix(self.bind_matrix)
 
