@@ -9,6 +9,7 @@ from .mmd_model_node import MmdModelNode
 from .gltf_node import GltfNode
 from .tpose_node import TPoseNode
 from .muxer import PoseMuxerNode
+from .network_node import TcpClientNode
 from ...humanoid.pose import Pose
 from ...humanoid.humanoid_skeleton import HumanoidSkeleton
 
@@ -21,6 +22,7 @@ TYPES = [
     TPoseNode,
     ViewNode,
     PoseMuxerNode,
+    TcpClientNode,
 ]
 
 PIN_STYLE_MAP: Dict[Type, PinStyle] = {
