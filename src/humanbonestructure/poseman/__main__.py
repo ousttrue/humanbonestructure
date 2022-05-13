@@ -11,6 +11,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--nerdfont', type=pathlib.Path)
     parser.add_argument('--ini', type=pathlib.Path)
+    parser.add_argument('--port', default=12721)
     args = parser.parse_args()
 
     setting = None
@@ -23,6 +24,7 @@ def main():
 
     from .gui import GUI
     gui = GUI(app.loop, setting=setting)
+    gui.tcp.start(app.loop, args.port)
 
     from pydear.backends import impl_glfw
     impl_glfw = impl_glfw.ImplGlfwInput(app.window)

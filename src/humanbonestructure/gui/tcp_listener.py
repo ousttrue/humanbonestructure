@@ -39,6 +39,7 @@ class TcpListener:
         self.connections: List[Transport] = []
         self._id = 0
         self.last_data = None
+        self.port = -1
 
     async def _task(self, port: int):
         self.server = await asyncio.start_server(
@@ -53,13 +54,16 @@ class TcpListener:
             connection.send(self.last_data)
 
     def start(self, loop: asyncio.events.AbstractEventLoop, port: int):
+        self.port = port
         loop.create_task(self._task(port))
 
     def show(self, p_open):
         if not p_open[0]:
             return
+
         from pydear import imgui as ImGui
         if ImGui.Begin('tcp_listener', p_open):
+            ImGui.TextUnformatted(f'listen port: {self.port}')
             for connection in self.connections:
                 ImGui.TextUnformatted(str(connection))
             pass

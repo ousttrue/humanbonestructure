@@ -61,12 +61,17 @@ class GUI(dockspace.DockingGui):
             show_option=self.scene.show_option
         ))
 
+        from ..gui.tcp_listener import TcpListener
+        self.tcp = TcpListener()
+
         self.views = [
             dockspace.Dock('metrics', ImGui.ShowMetricsWindow,
                            (ctypes.c_bool * 1)(True)),
             dockspace.Dock('view', self.fbo.show,
                            (ctypes.c_bool * 1)(True)),
             dockspace.Dock('tree', self.tree.show,
+                           (ctypes.c_bool * 1)(True)),
+            dockspace.Dock('tcp', self.tcp.show,
                            (ctypes.c_bool * 1)(True)),
             dockspace.Dock('logger', log_handler.show,
                            (ctypes.c_bool * 1)(True)),
