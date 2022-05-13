@@ -1,4 +1,5 @@
 from typing import Optional, Dict
+from enum import Enum, auto
 import logging
 from OpenGL import GL
 import glm
@@ -32,28 +33,30 @@ class DragContext:
         assert(manipulator)
         self.manipulator = manipulator
         self.manipulator.add_state(ShapeState.DRAG)
+        self.init = manipulator.matrix.value
         self.axis = axis
         assert target
         self.target = target
 
         self.node_shape_map = node_shape_map
         self.target_node = find_node(node_shape_map, target)
-        self.init_pose = self.target_node.pose.rotation if self.target_node.pose else glm.quat()
 
     def drag(self, x: int, y: int) -> glm.mat4:
         angle = (y - self.y) * 0.02
-        # parent = self.target_node.parent.world_matrix if self.target_node.parent else glm.mat4()
-        r = self.init_pose * glm.angleAxis(angle, self.axis)
-        self.target_node.pose = Transform.from_rotation(r)
+        world_matrix = self.init * glm.rotate(angle, self.axis)
         # apply
+        local_axis = self.target_node.local_axis
         parent = self.target_node.parent.world_matrix if self.target_node.parent else glm.mat4()
+        local_matrix = glm.inverse(parent) * world_matrix
+        self.target_node.pose = Transform.from_rotation(glm.normalize(
+            glm.quat(local_matrix) * glm.inverse(local_axis)))
         self.target_node.calc_world_matrix(parent)
         for node, _ in self.target_node.traverse_node_and_parent():
             shape = self.node_shape_map.get(node)
             if shape:
                 shape.matrix.set(node.world_matrix *
                                  glm.mat4(node.local_axis))
-        return Transform(self.target_node.world_matrix[3].xyz, r, glm.vec3(1)).to_matrix()
+        return world_matrix
 
     def end(self):
         self.manipulator.remove_state(ShapeState.DRAG)
