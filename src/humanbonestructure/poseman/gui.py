@@ -31,9 +31,8 @@ class GUI(dockspace.DockingGui):
         self.camera.bind_mouse_event(self.fbo.mouse_event)
 
         from .pose_scene import PoseScene
-        self.scene = PoseScene()
+        self.scene = PoseScene(self.fbo.mouse_event)
         self.scene.set_skeleton(self.skeleton)
-        self.scene.gizmo.bind_mouse_event(self.fbo.mouse_event)
 
         def render(w, h):
             self.camera.projection.resize(w, h)
