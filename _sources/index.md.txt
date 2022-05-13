@@ -65,6 +65,7 @@ P' = D^{-1} \cdot A^{-1} \cdot P \cdot A
 :maxdepth: 2
 retarget/index
 human/index
+pose/index
 implements/index
 appendix/index
 glossary

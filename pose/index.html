@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="検索" href="../search.html" /><link rel="next" title="Mmd関連" href="mmd.html" /><link rel="prev" title="vrm0形式" href="vrm0.html" />
+<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="検索" href="../search.html" /><link rel="next" title="実装" href="../implements/index.html" /><link rel="prev" title="指" href="../human/fingers.html" />
 
     <meta name="generator" content="sphinx-4.5.0, furo 2022.04.07"/>
-        <title>BVH形式 - HumanBoneStructure ドキュメント</title>
+        <title>ポーズ - HumanBoneStructure ドキュメント</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
@@ -164,21 +164,21 @@
 <li class="toctree-l2"><a class="reference internal" href="../human/fingers.html">指</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../pose/index.html">ポーズ</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">ポーズ</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../implements/index.html">実装</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../implements/node.html">Node操作</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../implements/armature_unity.html">Armature to Unity</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">参考</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="vrm1.html">vrm1形式</a></li>
-<li class="toctree-l2"><a class="reference internal" href="vrm0.html">vrm0形式</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">BVH形式</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mmd.html">Mmd関連</a></li>
-<li class="toctree-l2"><a class="reference internal" href="usdskel.html">UsdSkel</a></li>
-<li class="toctree-l2"><a class="reference internal" href="human_ik.html">HumanIK</a></li>
-<li class="toctree-l2"><a class="reference internal" href="leapmotion.html">LeapMotion</a></li>
-<li class="toctree-l2"><a class="reference internal" href="openxr.html">OpenXR</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../appendix/index.html">参考</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/vrm1.html">vrm1形式</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/vrm0.html">vrm0形式</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/bvh.html">BVH形式</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/mmd.html">Mmd関連</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/usdskel.html">UsdSkel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/human_ik.html">HumanIK</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/leapmotion.html">LeapMotion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/openxr.html">OpenXR</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../glossary.html">用語集</a></li>
@@ -214,79 +214,47 @@
           </label>
         </div>
         <article role="main">
-          <section id="bvh">
-<h1>BVH形式<a class="headerlink" href="#bvh" title="このヘッドラインへのパーマリンク">#</a></h1>
+          <section id="id1">
+<h1>ポーズ<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">#</a></h1>
+<section id="id2">
+<h2>ポーズとは<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">#</a></h2>
+<p>3D CG における <code class="docutils literal notranslate"><span class="pre">Pose</span></code> とは、各 Joint の初期姿勢からの回転の差分である。</p>
+<p><code class="docutils literal notranslate"><span class="pre">Pose</span> <span class="pre">=</span> <span class="pre">DeltaFromInitial</span></code></p>
+</section>
+<section id="id3">
+<h2>初期姿勢とは<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">#</a></h2>
+<p>VRM では TPose を採用しているが、各モデルの TPose は同一ではない。</p>
+</section>
+<section id="tpose">
+<h2>完全に共通の初期姿勢として、厳格TPose を提案したい<a class="headerlink" href="#tpose" title="このヘッドラインへのパーマリンク">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">Initial</span> <span class="pre">=</span> <span class="pre">InitialFromStrictT</span></code></p>
+<p>となるので</p>
+<p><code class="docutils literal notranslate"><span class="pre">StrictTPose</span> <span class="pre">=</span> <span class="pre">InitialFromStrictT</span> <span class="pre">+</span> <span class="pre">DeltaFromInitial</span></code></p>
+<p>となります。</p>
+<p>各モデルの具体的なポーズは <code class="docutils literal notranslate"><span class="pre">Pose</span> <span class="pre">=</span> <span class="pre">StrictTPose</span> <span class="pre">-</span> <span class="pre">InitialFromStrictT</span></code> で表現できるので、
+初期姿勢の差分を加味できる。</p>
+<p><code class="docutils literal notranslate"><span class="pre">InitialFromStrictT</span></code> に親指のロールのずれなどを含ませることを想定</p>
+</section>
+<section id="initialfromstrictt">
+<h2>InitialFromStrictT をどうやって得るか<a class="headerlink" href="#initialfromstrictt" title="このヘッドラインへのパーマリンク">#</a></h2>
+<p>シンプル</p>
 <ul class="simple">
-<li><p>ヒエラルキー(初期ポーズ)</p>
+<li><p>厳格TPose になるように各ボーンをまっすぐに伸ばす</p>
 <ul>
-<li><p><span class="xref std std-term">T-Pose</span> であることが多いがそうでないこともある。</p></li>
-<li><p>距離の単位が不統一(cm, inch... etc)。</p></li>
-<li><p>Z+, Z- どっち向きかも決まりなし(つま先の進行方向や、joint名の left, rightから類推できることが多い)。</p></li>
-<li><p>ボーンに初期回転は無い。この状態に対する Euler角で ポーズが定義される。</p></li>
+<li><p>ロールがずれる可能性がある</p></li>
 </ul>
 </li>
-<li><p>各Jointのフレームごとの回転(Euler角)を記録。</p>
-<ul>
-<li><p>Euler角の乗算順は自由。Hierarchy の Channels の順番に従う。</p></li>
 </ul>
-</li>
-<li><p>Rootのみ移動も記録。</p></li>
-<li><p>指は扱わない(フォーマット上、記録することは可能)</p></li>
-</ul>
-<section id="hierarchy">
-<h2>Hierarchy<a class="headerlink" href="#hierarchy" title="このヘッドラインへのパーマリンク">#</a></h2>
+<p>オプション</p>
 <ul class="simple">
-<li><p>Joint の木構造。</p>
+<li><p>まっすぐに伸ばす前のモデルのローカル軸が (head-tail) + (up vector) を表しているとみなし、この座標系を利用して厳格TPose にする</p>
 <ul>
-<li><p>各Jointは親に対する相対位置を記録する。</p></li>
+<li><p>ロールは正確になる</p></li>
+<li><p>ローカル軸が正しく設定されているかどうかをコンピューターは判断できないので、正しいと信じて実行することになる</p></li>
+<li><p>自明、一意のローカル軸設定は無いので類推するようなファジーな動作になるであろう</p></li>
 </ul>
 </li>
 </ul>
-</section>
-<section id="joint">
-<h2>Joint の計算式<a class="headerlink" href="#joint" title="このヘッドラインへのパーマリンク">#</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">Root</span> <span class="pre">-</span> <span class="pre">joint_1</span> <span class="pre">...</span> <span class="pre">joint_n</span></code> のときの joint_n の姿勢行列。</p>
-<div class="math-wrapper"><div class="math notranslate nohighlight">
-\[ \begin{align}\begin{aligned}R = E_z \cdot E_x \cdot E_y\\(Offset_0 \cdot T_0 \cdot R_0) (Offset_1 \cdot R_1) ... (Offset_n \cdot R_n)
-\end{aligned}\end{align} \]</div></div>
-</section>
-<section id="frames">
-<h2>Frames<a class="headerlink" href="#frames" title="このヘッドラインへのパーマリンク">#</a></h2>
-<ul class="simple">
-<li><p>各フレームの回転(Euler角YXZ)を記録</p></li>
-</ul>
-</section>
-<section id="download">
-<h2>Download できるサイト<a class="headerlink" href="#download" title="このヘッドラインへのパーマリンク">#</a></h2>
-<section id="github">
-<h3>github<a class="headerlink" href="#github" title="このヘッドラインへのパーマリンク">#</a></h3>
-<ul class="simple">
-<li><p><a class="reference external" href="https://github.com/wspr/bvh-matlab">https://github.com/wspr/bvh-matlab</a></p></li>
-<li><p><a class="reference external" href="https://github.com/perfume-dev/example-openFrameworks/tree/master/example-bvh/bin/data">https://github.com/perfume-dev/example-openFrameworks/tree/master/example-bvh/bin/data</a></p></li>
-</ul>
-</section>
-<section id="cgspeed">
-<h3>CGSpeed<a class="headerlink" href="#cgspeed" title="このヘッドラインへのパーマリンク">#</a></h3>
-<ul class="simple">
-<li><p><a class="reference external" href="https://sites.google.com/a/cgspeed.com/cgspeed/motion-capture">https://sites.google.com/a/cgspeed.com/cgspeed/motion-capture</a></p></li>
-<li><p>スケールが違う</p></li>
-</ul>
-<section id="daz-friendly">
-<h4>Daz-friendly<a class="headerlink" href="#daz-friendly" title="このヘッドラインへのパーマリンク">#</a></h4>
-<p><code class="docutils literal notranslate"><span class="pre">Zrotation</span> <span class="pre">Yrotation</span> <span class="pre">Xrotation</span></code></p>
-</section>
-<section id="dsmax-friendly">
-<h4>3dsMax-friendly<a class="headerlink" href="#dsmax-friendly" title="このヘッドラインへのパーマリンク">#</a></h4>
-</section>
-<section id="motionbuilder-friendly">
-<h4>MotionBuilder-friendly<a class="headerlink" href="#motionbuilder-friendly" title="このヘッドラインへのパーマリンク">#</a></h4>
-<p><code class="docutils literal notranslate"><span class="pre">Zrotation</span> <span class="pre">Yrotation</span> <span class="pre">Xrotation</span></code></p>
-</section>
-</section>
-</section>
-<section id="id1">
-<h2>BVH を作る<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">#</a></h2>
-<p>TODO:</p>
 </section>
 </section>
 
@@ -295,23 +263,23 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="mmd.html">
+          <a class="next-page" href="../implements/index.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Mmd関連</div>
+                <div class="title">実装</div>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="vrm0.html">
+          <a class="prev-page" href="../human/fingers.html">
               <svg><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">vrm0形式</div>
+                <div class="title">指</div>
                 
               </div>
             </a>
@@ -347,21 +315,11 @@
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">BVH形式</a><ul>
-<li><a class="reference internal" href="#hierarchy">Hierarchy</a></li>
-<li><a class="reference internal" href="#joint">Joint の計算式</a></li>
-<li><a class="reference internal" href="#frames">Frames</a></li>
-<li><a class="reference internal" href="#download">Download できるサイト</a><ul>
-<li><a class="reference internal" href="#github">github</a></li>
-<li><a class="reference internal" href="#cgspeed">CGSpeed</a><ul>
-<li><a class="reference internal" href="#daz-friendly">Daz-friendly</a></li>
-<li><a class="reference internal" href="#dsmax-friendly">3dsMax-friendly</a></li>
-<li><a class="reference internal" href="#motionbuilder-friendly">MotionBuilder-friendly</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a class="reference internal" href="#id1">BVH を作る</a></li>
+<li><a class="reference internal" href="#">ポーズ</a><ul>
+<li><a class="reference internal" href="#id2">ポーズとは</a></li>
+<li><a class="reference internal" href="#id3">初期姿勢とは</a></li>
+<li><a class="reference internal" href="#tpose">完全に共通の初期姿勢として、厳格TPose を提案したい</a></li>
+<li><a class="reference internal" href="#initialfromstrictt">InitialFromStrictT をどうやって得るか</a></li>
 </ul>
 </li>
 </ul>
@@ -379,6 +337,5 @@
     <script src="../_static/doctools.js"></script>
     <script src="../_static/scripts/furo.js"></script>
     <script src="../_static/translations.js"></script>
-    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     </body>
 </html>
