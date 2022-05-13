@@ -6,7 +6,7 @@ import glm
 from pydear.scene.camera import Camera
 from pydear.utils.mouse_event import MouseInput
 from pydear.gizmo.gizmo import Gizmo
-
+from pydear import imgui as ImGui
 from ..formats.bvh import bvh_parser
 from ..formats import pmd_loader, gltf_loader, pmx_loader
 from ..humanoid import tpose
@@ -15,7 +15,6 @@ from ..humanoid.pose import Pose, BonePose
 from ..humanoid.humanoid_bones import HumanoidBone
 from ..humanoid.humanoid_skeleton import HumanoidSkeleton
 from .node import Node
-from .skeleton import Skeleton
 
 
 LOGGER = logging.getLogger(__name__)
@@ -35,7 +34,6 @@ class Scene:
         self.root = Node('__root__', Transform.identity())
         self.is_mmd = False
         self.gizmo = Gizmo()
-        self.skeleton = None
         self.selected: Optional[Node] = None
         self.tpose_delta_map: Dict[HumanoidBone, glm.quat] = {}
         self.humanoid_node_map: Dict[HumanoidBone, Node] = {}
@@ -43,7 +41,6 @@ class Scene:
         # GUI check box
         self.visible_mesh = (ctypes.c_bool * 1)(False)
         self.visible_gizmo = (ctypes.c_bool * 1)(True)
-        self.visible_skeleton = (ctypes.c_bool * 1)(False)
 
         from ..eventproperty import OptionalEventProperty
         self.pose_changed = OptionalEventProperty[Pose]()
@@ -58,8 +55,6 @@ class Scene:
         self.selected = selected
 
     def show_option(self):
-        ImGui.Checkbox('skeleton', self.visible_skeleton)
-        ImGui.SameLine()
         ImGui.Checkbox('gizmo', self.visible_gizmo)
         ImGui.SameLine()
         ImGui.Checkbox('mesh', self.visible_mesh)
@@ -67,8 +62,6 @@ class Scene:
     def _setup_model(self):
         self.root.init_human_bones()
         self.root.calc_bind_matrix(glm.mat4())
-        self.root.calc_world_matrix(glm.mat4())
-        self.skeleton = Skeleton(self.root)
         self.root.calc_world_matrix(glm.mat4())
         self.humanoid_node_map = {node.humanoid_bone: node for node,
                                   _ in self.root.traverse_node_and_parent(only_human_bone=True)}
@@ -81,6 +74,9 @@ class Scene:
         self.root.clear_pose()
         self.root.calc_world_matrix(glm.mat4())
         # tpose.pose_to_delta(scene.root)
+
+        from ..gui.bone_shape import BoneShape
+        BoneShape.from_root(self.root, self.gizmo)
 
     def load(self, value):
         from ..formats.bvh.bvh_parser import Bvh
@@ -175,40 +171,35 @@ class Scene:
                 self.render_node(camera, root)
 
         if self.visible_gizmo[0]:
-            self.gizmo.begin(camera)
-            # self.gizmo.axis(1)
-            self.gizmo.ground_mark()
+            self.gizmo.process(camera, input.x, input.y)
 
-            # bone gizmo
-            selected = None
-            for bone, _ in self.root.traverse_node_and_parent(only_human_bone=True):
-                assert bone.humanoid_bone
-                assert bone.humanoid_tail
-                # bone
-                if self.gizmo.bone_head_tail(bone.humanoid_bone.name,
-                                             bone.world_matrix[3].xyz, bone.humanoid_tail.world_matrix[3].xyz, glm.vec3(
-                                                 0, 0, 1),
-                                             is_selected=(bone == self.selected)):
-                    selected = bone
+            # # bone gizmo
+            # selected = None
+            # for bone, _ in self.root.traverse_node_and_parent(only_human_bone=True):
+            #     assert bone.humanoid_bone
+            #     assert bone.humanoid_tail
+            #     # bone
+            #     if self.gizmo.bone_head_tail(bone.humanoid_bone.name,
+            #                                  bone.world_matrix[3].xyz, bone.humanoid_tail.world_matrix[3].xyz, glm.vec3(
+            #                                      0, 0, 1),
+            #                                  is_selected=(bone == self.selected)):
+            #         selected = bone
 
-                # axis
-                self.gizmo.matrix = (
-                    bone.world_matrix * glm.mat4(bone.local_axis))
-                self.gizmo.color = RED
-                self.gizmo.line(glm.vec3(0), glm.vec3(0.02, 0, 0))
-                self.gizmo.color = GREEN
-                self.gizmo.line(glm.vec3(0), glm.vec3(0, 0.02, 0))
-                self.gizmo.color = BLUE
-                self.gizmo.line(glm.vec3(0), glm.vec3(0, 0, 0.02))
+            #     # axis
+            #     self.gizmo.matrix = (
+            #         bone.world_matrix * glm.mat4(bone.local_axis))
+            #     self.gizmo.color = RED
+            #     self.gizmo.line(glm.vec3(0), glm.vec3(0.02, 0, 0))
+            #     self.gizmo.color = GREEN
+            #     self.gizmo.line(glm.vec3(0), glm.vec3(0, 0.02, 0))
+            #     self.gizmo.color = BLUE
+            #     self.gizmo.line(glm.vec3(0), glm.vec3(0, 0, 0.02))
 
-            if selected:
-                LOGGER.debug(f'selected: {selected}')
-                self.selected = selected
+            # if selected:
+            #     LOGGER.debug(f'selected: {selected}')
+            #     self.selected = selected
 
-            self.gizmo.end()
-
-        if self.skeleton and self.visible_skeleton[0]:
-            self.skeleton.renderer.render(camera)
+            # self.gizmo.end()
 
     def render_node(self, camera: Camera, node: Node):
         if node.renderer:

@@ -160,14 +160,9 @@ class PoseScene:
             self.root.calc_world_matrix(glm.mat4())
 
             # setup gizmo
-            from .bone_shape import BoneShape
-            for bone in HumanoidBone:
-                if bone.is_enable():
-                    node = self.root.find_humanoid_bone(bone)
-                    if node:
-                        shape = BoneShape.from_node(node)
-                        self.gizmo.add_shape(shape)
-                        self.node_shape_map[node] = shape
+            from ..gui.bone_shape import BoneShape
+            for k, v in BoneShape.from_root(self.root, self.gizmo).items():
+                self.node_shape_map[k] = v
 
         else:
             self.root = None

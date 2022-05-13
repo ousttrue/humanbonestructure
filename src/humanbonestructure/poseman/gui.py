@@ -3,7 +3,6 @@ import ctypes
 import glm
 from pydear import imgui as ImGui
 from pydear.utils import dockspace
-from pydear.utils.mouse_event import MouseEvent, MouseInput
 from pydear.scene.camera import Camera
 
 

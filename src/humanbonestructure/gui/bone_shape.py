@@ -1,7 +1,8 @@
-from typing import Iterable
+from typing import Iterable, Dict
 import glm
 from pydear.gizmo.shapes.shape import Shape
 from pydear.gizmo.primitive import Quad
+from pydear.gizmo.gizmo import Gizmo
 from ..scene.node import Node
 from ..humanoid.humanoid_skeleton import HumanoidSkeleton, Fingers, HumanoidBone
 
@@ -67,9 +68,9 @@ class BoneShape(Shape):
                 else:
                     color = glm.vec3(0.9, 0.7, 0.2)
             if 'Thumb' in node.humanoid_bone.name:
-                up = glm.vec3(0, 0, 1)
+                pass
             else:
-                up = glm.vec3(0, 1, 0)
+                pass
         else:
             match node.humanoid_bone:
                 case (
@@ -121,6 +122,18 @@ class BoneShape(Shape):
             node.world_matrix[3].xyz - node.humanoid_tail.world_matrix[3].xyz)
 
         return BoneShape(width, height, length, color=color, matrix=matrix)
+
+    @staticmethod
+    def from_root(root: Node, gizmo: Gizmo) -> Dict[Node, Shape]:
+        node_shape_map: Dict[Node, Shape] = {}
+        for bone in HumanoidBone:
+            if bone.is_enable():
+                node = root.find_humanoid_bone(bone)
+                if node:
+                    shape = BoneShape.from_node(node)
+                    gizmo.add_shape(shape)
+                    node_shape_map[node] = shape
+        return node_shape_map
 
     def get_color(self) -> glm.vec4:
         return self.color

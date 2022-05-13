@@ -1,4 +1,5 @@
 from typing import Dict, Set
+import math
 import glm
 from ..scene.node import Node
 from .humanoid_bones import HumanoidBone, HUMANOIDBONE_WORLD_AXIS
@@ -11,8 +12,13 @@ def force_axis(head: Node, tail: Node, to: glm.vec3):
     src = glm.normalize(local_matrix[3].xyz)
     to = glm.inverse(glm.quat(head.world_matrix)) * to
     axis = glm.normalize(glm.cross(src, to))
+    if math.isnan(axis.x):
+        # src == to ?
+        return
     cos = glm.dot(src, to)
     r = glm.angleAxis(glm.acos(cos), axis)
+    assert not math.isnan(r.x)
+
     head.pose = Transform.from_rotation(r)
     parent_matrix = head.parent.world_matrix if head.parent else glm.mat4()
     head.calc_world_matrix(parent_matrix)

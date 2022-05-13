@@ -75,8 +75,6 @@ class ViewNode(Node):
         assert self.fbo.mouse_event.last_input
         self.scene.render(self.camera, self.fbo.mouse_event.last_input)
 
-        ImGui.Checkbox('skeleton', self.scene.visible_skeleton)
-        ImGui.SameLine()
         ImGui.Checkbox('gizmo', self.scene.visible_gizmo)
         ImGui.SameLine()
         ImGui.Checkbox('mesh', self.scene.visible_mesh)
