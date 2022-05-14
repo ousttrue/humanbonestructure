@@ -23,7 +23,7 @@ def main():
     app = glfw_app.GlfwApp('PoseMan', setting=setting)
 
     from .gui import GUI
-    gui = GUI(app.loop, setting=setting)
+    gui = GUI(app.loop, font=args.nerdfont, setting=setting)
     gui.tcp.start(app.loop, args.port)
 
     from pydear.backends import impl_glfw

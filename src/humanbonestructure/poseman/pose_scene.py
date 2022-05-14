@@ -1,4 +1,5 @@
 from typing import Optional, Dict
+import pathlib
 from enum import Enum, auto
 import logging
 from OpenGL import GL
@@ -6,6 +7,7 @@ import glm
 from pydear.scene.camera import Camera
 from pydear.utils.mouse_event import MouseEvent
 from pydear.utils.eventproperty import EventProperty
+from pydear.utils.nanovg_renderer import NanoVgRenderer, nvg_line_from_to
 from pydear.gizmo.gizmo import Gizmo, RayHit
 from pydear.gizmo.gizmo_event_handler import GizmoEventHandler
 from pydear.gizmo.gizmo_drag_handler import GizmoDragHandler, DragContext, Axis
@@ -86,16 +88,18 @@ class NodeDragEventHandler(GizmoDragHandler):
 
 
 class PoseScene:
-    def __init__(self, mouse_event: MouseEvent, camera: Camera) -> None:
+    def __init__(self, mouse_event: MouseEvent, camera: Camera, font: pathlib.Path) -> None:
         self.skeleton = None
         self.root: Optional[Node] = None
         self.selected: Optional[Node] = None
         #
         self.node_shape_map = {}
         self.gizmo = Gizmo()
-        self.gizmo_handler = NodeDragEventHandler(
+        self.drag_handler = NodeDragEventHandler(
             self.gizmo, camera, self.node_shape_map)
-        self.gizmo_handler.bind_mouse_event_with_gizmo(mouse_event, self.gizmo)
+        self.drag_handler.bind_mouse_event_with_gizmo(mouse_event, self.gizmo)
+
+        self.nvg = NanoVgRenderer(font)
 
     def set_skeleton(self, skeleton: Optional[HumanoidSkeleton]):
         self.skeleton = skeleton
@@ -135,3 +139,13 @@ class PoseScene:
             return
 
         self.gizmo.process(camera, x, y)
+
+        context = self.drag_handler.context
+        if context:
+            start = context.start_screen_pos
+            with self.nvg.render(camera.projection.width, camera.projection.height) as vg:
+                nvg_line_from_to(vg, start.x, start.y, x, y)
+                if not context.edge:
+                    a = context.left
+                    b = context.right
+                    nvg_line_from_to(vg, a.x, a.y, b.x, b.y)

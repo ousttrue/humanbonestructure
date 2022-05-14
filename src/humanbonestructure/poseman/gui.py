@@ -1,4 +1,5 @@
 import asyncio
+import pathlib
 import ctypes
 import glm
 from pydear import imgui as ImGui
@@ -7,7 +8,7 @@ from pydear.scene.camera import Camera
 
 
 class GUI(dockspace.DockingGui):
-    def __init__(self, loop: asyncio.AbstractEventLoop, *, setting=None) -> None:
+    def __init__(self, loop: asyncio.AbstractEventLoop, font: pathlib.Path, *, setting=None) -> None:
         from ..humanoid.humanoid_skeleton import HumanoidSkeleton, HumanoidSkeletonTrunk, HumanoidSkeletonLeftArm, HumanoidSkeletonRightArm, HumanoidSkeletonLeftLeg, HumanoidSkeletonRightLeg
         trunk = HumanoidSkeletonTrunk(glm.vec3(0, 0.85, 0),
                                       0.1, 0.1, 0.2, 0.1, 0.2)
@@ -30,7 +31,7 @@ class GUI(dockspace.DockingGui):
         self.camera.bind_mouse_event(self.fbo.mouse_event)
 
         from .pose_scene import PoseScene
-        self.scene = PoseScene(self.fbo.mouse_event, self.camera)
+        self.scene = PoseScene(self.fbo.mouse_event, self.camera, font)
         self.scene.set_skeleton(self.skeleton)
 
         def render(w, h):
