@@ -30,7 +30,7 @@ class GUI(dockspace.DockingGui):
         self.camera.bind_mouse_event(self.fbo.mouse_event)
 
         from .pose_scene import PoseScene
-        self.scene = PoseScene(self.fbo.mouse_event)
+        self.scene = PoseScene(self.fbo.mouse_event, self.camera)
         self.scene.set_skeleton(self.skeleton)
 
         def render(w, h):
