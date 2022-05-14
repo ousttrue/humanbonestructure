@@ -1,10 +1,12 @@
-from typing import Iterable, Dict
+from typing import Iterable, Dict, Tuple
 import glm
 from pydear.gizmo.shapes.shape import Shape
 from pydear.gizmo.primitive import Quad
 from pydear.gizmo.gizmo import Gizmo
 from ..scene.node import Node
 from ..humanoid.humanoid_skeleton import HumanoidSkeleton, Fingers, HumanoidBone
+
+UP_COLOR = glm.vec4(0.8, 0.2, 0.2, 1)
 
 
 class BoneShape(Shape):
@@ -40,12 +42,12 @@ class BoneShape(Shape):
         v6 = glm.vec3(x, y, -z)
         v7 = glm.vec3(x, y, z)
         self.quads = [
-            Quad.from_points(v0, v1, v2, v3),
-            Quad.from_points(v3, v2, v6, v7),
-            Quad.from_points(v7, v6, v5, v4),
-            Quad.from_points(v4, v5, v1, v0),
-            Quad.from_points(v4, v0, v3, v7),
-            Quad.from_points(v1, v5, v6, v2),
+            Quad.from_points(v0, v1, v2, v3),  # back
+            Quad.from_points(v3, v2, v6, v7),  # right
+            Quad.from_points(v7, v6, v5, v4),  # forward
+            Quad.from_points(v4, v5, v1, v0),  # left
+            Quad.from_points(v4, v0, v3, v7),  # top
+            Quad.from_points(v1, v5, v6, v2),  # bottom
         ]
 
     @staticmethod
@@ -135,8 +137,6 @@ class BoneShape(Shape):
                     node_shape_map[node] = shape
         return node_shape_map
 
-    def get_color(self) -> glm.vec4:
-        return self.color
-
-    def get_quads(self) -> Iterable[Quad]:
-        return self.quads
+    def get_quads(self) -> Iterable[Tuple[Quad, glm.vec4]]:
+        for i, quad in enumerate(self.quads):
+            yield quad, self.color if i != 4 else UP_COLOR
