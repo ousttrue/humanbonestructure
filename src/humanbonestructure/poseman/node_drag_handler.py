@@ -40,9 +40,10 @@ class NodeDragContext(DragContext):
 
 
 class NodeDragHandler(GizmoDragHandler):
-    def __init__(self, gizmo: Gizmo, camera: Camera, node_shape_map) -> None:
+    def __init__(self, gizmo: Gizmo, camera: Camera, node_shape_map, on_drag_end) -> None:
         super().__init__(gizmo, camera, inner=0.1, outer=0.2, depth=0.005)
         self.node_shape_map = node_shape_map
+        self.on_drag_end = on_drag_end
 
     def drag_begin(self, hit: RayHit):
         match hit.shape:
@@ -70,3 +71,7 @@ class NodeDragHandler(GizmoDragHandler):
                     node_shape_map=self.node_shape_map)
             case _:
                 self.select(hit)
+
+    def drag_end(self, x, y):
+        super().drag_end(x, y)
+        self.on_drag_end()

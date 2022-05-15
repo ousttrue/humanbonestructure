@@ -1,10 +1,13 @@
 import asyncio
+import logging
 import pathlib
 import ctypes
 import glm
 from pydear import imgui as ImGui
 from pydear.utils import dockspace
-from pydear.scene.camera import Camera
+from ..humanoid.pose import Pose
+
+LOGGER = logging.getLogger(__name__)
 
 
 class GUI(dockspace.DockingGui):
@@ -25,44 +28,39 @@ class GUI(dockspace.DockingGui):
             left_arm=left_arm, right_arm=right_arm,
             left_leg=left_leg, right_leg=right_leg)
 
+        # view
         from pydear.utils.fbo_view import FboView
         self.fbo = FboView()
-        self.camera = Camera(distance=6, y=-0.8)
-        self.camera.bind_mouse_event(self.fbo.mouse_event)
 
+        # scene
         from .pose_scene import PoseScene
-        self.scene = PoseScene(self.fbo.mouse_event, self.camera, font)
-        self.scene.set_skeleton(self.skeleton)
+        self.pose_scene = PoseScene(self.fbo.mouse_event, font)
+        self.pose_scene.set_skeleton(self.skeleton)
 
-        def render(w, h):
-            self.camera.projection.resize(w, h)
-            input = self.fbo.mouse_event.last_input
-            if input:
-                self.scene.render(self.camera, input.x, input.y)
-        self.fbo.render = render
+        self.fbo.render = self.pose_scene.render
 
-        # view
-        self.clear_color = (ctypes.c_float * 4)(0.1, 0.2, 0.3, 1)
-        from pydear import glo
-        self.fbo_manager = glo.FboRenderer()
+        # bone tree
+        from ..gui.bone_tree import BoneTree, BoneTreeScene
+        self.tree = BoneTree('bone_tree', BoneTreeScene(
+            get_root=self.pose_scene.get_root,
+            get_selected=self.pose_scene.get_selected,
+            set_selected=self.pose_scene.set_selected,
+            show_option=self.pose_scene.show_option
+        ))
 
-        self.bg = ImGui.ImVec4(1, 1, 1, 1)
-        self.tint = ImGui.ImVec4(1, 1, 1, 1)
+        # tcp listener
+        from ..gui.tcp_listener import TcpListener
+        self.tcp = TcpListener()
 
+        def on_pose(pose: Pose):
+            LOGGER.debug(pose)
+
+        self.pose_scene.pose_changed += on_pose
+
+        # logger
         from pydear.utils.loghandler import ImGuiLogHandler
         log_handler = ImGuiLogHandler()
         log_handler.register_root(append=True)
-
-        from ..gui.bone_tree import BoneTree, BoneTreeScene
-        self.tree = BoneTree('bone_tree', BoneTreeScene(
-            get_root=self.scene.get_root,
-            get_selected=self.scene.get_selected,
-            set_selected=self.scene.set_selected,
-            show_option=self.scene.show_option
-        ))
-
-        from ..gui.tcp_listener import TcpListener
-        self.tcp = TcpListener()
 
         self.views = [
             dockspace.Dock('metrics', ImGui.ShowMetricsWindow,
