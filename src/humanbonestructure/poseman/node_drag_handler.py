@@ -15,6 +15,15 @@ def find_node(node_shape_map, target) -> Node:
     raise RuntimeError()
 
 
+def sync_gizmo_with_node(root, parent: glm.mat4, node_shape_map):
+    root.calc_world_matrix(parent)
+    for node, _ in root.traverse_node_and_parent():
+        shape = node_shape_map.get(node)
+        if shape:
+            shape.matrix.set(node.world_matrix *
+                             glm.mat4(node.local_axis))
+
+
 class NodeDragContext(DragContext):
     def __init__(self, start_screen_pos: glm.vec2, *, manipulator, axis: Axis, camera: Camera, target: Shape,
                  node_shape_map: Dict[Node, Shape]):
@@ -30,12 +39,7 @@ class NodeDragContext(DragContext):
         local_matrix = glm.inverse(parent) * world_matrix
         self.target_node.pose = Transform.from_rotation(glm.normalize(
             glm.quat(local_matrix) * glm.inverse(local_axis)))
-        self.target_node.calc_world_matrix(parent)
-        for node, _ in self.target_node.traverse_node_and_parent():
-            shape = self.node_shape_map.get(node)
-            if shape:
-                shape.matrix.set(node.world_matrix *
-                                 glm.mat4(node.local_axis))
+        sync_gizmo_with_node(self.target_node, parent, self.node_shape_map)
         return world_matrix
 
 
@@ -70,7 +74,7 @@ class NodeDragHandler(GizmoDragHandler):
                     target=self.selected.value,
                     node_shape_map=self.node_shape_map)
             case _:
-                self.select(hit)
+                self.select(hit.shape)
 
     def drag_end(self, x, y):
         super().drag_end(x, y)

@@ -206,7 +206,6 @@ class Node:
         return node
 
     def create_relative_pose(self, tpose_delta_map: Dict[HumanoidBone, glm.quat], *, inverted_pelvis=False) -> Pose:
-        print('#')
         pose = Pose(self.name)
 
         # convert pose relative from TPose
@@ -230,4 +229,12 @@ class Node:
             pose.bones.append(
                 BonePose(node.name, node.humanoid_bone, Transform.from_rotation(r)))
 
+        return pose
+
+    def to_pose(self, name='pose'):
+        pose = Pose(name)
+        for node, _ in self.traverse_node_and_parent(only_human_bone=True):
+            if node.pose:
+                pose.bones.append(
+                    BonePose(node.name, node.humanoid_bone, node.pose))
         return pose

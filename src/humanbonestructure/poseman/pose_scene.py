@@ -11,6 +11,7 @@ from pydear.gizmo.shapes.shape import Shape
 from ..humanoid.humanoid_skeleton import HumanoidSkeleton
 from ..humanoid.pose import Pose, BonePose
 from ..scene.node import Node
+from .node_drag_handler import NodeDragHandler, sync_gizmo_with_node
 
 LOGGER = logging.getLogger(__name__)
 RED = glm.vec4(1, 0, 0, 1)
@@ -31,7 +32,6 @@ class PoseScene:
         #
         self.node_shape_map: Dict[Node, Shape] = {}
         self.gizmo = Gizmo()
-        from .node_drag_handler import NodeDragHandler
         self.drag_handler = NodeDragHandler(
             self.gizmo, self.camera, self.node_shape_map, self.on_drag_end)
         self.drag_handler.bind_mouse_event_with_gizmo(
@@ -43,11 +43,7 @@ class PoseScene:
 
     def on_drag_end(self):
         assert self.root
-        pose = Pose('pose')
-        for node, _ in self.root.traverse_node_and_parent(only_human_bone=True):
-            if node.pose:
-                pose.bones.append(
-                    BonePose(node.name, node.humanoid_bone, node.pose))
+        pose = self.root.to_pose()
         self.pose_changed.set(pose)
 
     def set_skeleton(self, skeleton: Optional[HumanoidSkeleton]):
@@ -69,6 +65,15 @@ class PoseScene:
 
         else:
             self.root = None
+
+    def clear_pose(self):
+        if not self.root:
+            return
+        self.root.clear_pose()
+        sync_gizmo_with_node(self.root, glm.mat4(),
+                             self.drag_handler.node_shape_map)
+        self.drag_handler.select(None)
+        self.pose_changed.set(self.root.to_pose())
 
     def get_root(self) -> Optional[Node]:
         return self.root

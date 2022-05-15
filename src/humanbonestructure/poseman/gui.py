@@ -53,7 +53,7 @@ class GUI(dockspace.DockingGui):
         self.tcp = TcpListener()
 
         def on_pose(pose: Pose):
-            LOGGER.debug(pose)
+            self.tcp.send_data(pose.to_json())
 
         self.pose_scene.pose_changed += on_pose
 
@@ -75,4 +75,10 @@ class GUI(dockspace.DockingGui):
                            (ctypes.c_bool * 1)(True)),
         ]
 
-        super().__init__(loop, docks=self.views, setting=setting)
+        def on_menu():
+            if ImGui.BeginMenu(b"Pose", True):
+                if ImGui.MenuItem_2('clear', b'', None, True):
+                    self.pose_scene.clear_pose()
+                ImGui.EndMenu()
+
+        super().__init__(loop, docks=self.views, setting=setting, menu=on_menu)

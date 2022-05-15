@@ -1,4 +1,5 @@
 from typing import List
+import json
 import asyncio
 import logging
 
@@ -40,6 +41,7 @@ class TcpListener:
         self._id = 0
         self.last_data = None
         self.port = -1
+        self.text = ''
 
     async def _task(self, port: int):
         self.server = await asyncio.start_server(
@@ -63,6 +65,7 @@ class TcpListener:
 
         from pydear import imgui as ImGui
         if ImGui.Begin('tcp_listener', p_open):
+            ImGui.TextUnformatted(self.text)
             ImGui.TextUnformatted(f'listen port: {self.port}')
             for connection in self.connections:
                 ImGui.TextUnformatted(str(connection))
@@ -79,3 +82,7 @@ class TcpListener:
                 connection.set_error(ex)
 
         self.last_data = data
+
+    def send_data(self, data):
+        self.text = json.dumps(data, indent=2)
+        self.send(json.dumps(data).encode('ascii'))
