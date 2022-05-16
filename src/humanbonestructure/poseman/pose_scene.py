@@ -11,7 +11,7 @@ from pydear.gizmo.shapes.shape import Shape
 from ..humanoid.humanoid_skeleton import HumanoidSkeleton
 from ..humanoid.pose import Pose, BonePose
 from ..scene.node import Node
-from .node_drag_handler import NodeDragHandler, sync_gizmo_with_node
+from ..scene.node_drag_handler import NodeDragHandler, sync_gizmo_with_node
 
 LOGGER = logging.getLogger(__name__)
 RED = glm.vec4(1, 0, 0, 1)

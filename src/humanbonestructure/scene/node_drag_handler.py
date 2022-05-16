@@ -4,7 +4,7 @@ from pydear.gizmo.gizmo import Gizmo, RayHit
 from pydear.gizmo.gizmo_drag_handler import DragContext, GizmoDragHandler, Axis
 from pydear.gizmo.shapes.shape import Shape
 from pydear.scene.camera import Camera
-from ..scene.node import Node
+from .node import Node
 from ..humanoid.transform import Transform
 
 

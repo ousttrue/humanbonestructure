@@ -1,19 +1,36 @@
-from typing import Optional
+from typing import Optional, Dict
 import glm
 from pydear.gizmo.gizmo import Gizmo
+from pydear.gizmo.shapes.shape import Shape
+from pydear.utils.eventproperty import EventProperty
+from pydear.scene.camera import MouseEvent
 from ..humanoid.humanoid_skeleton import HumanoidSkeleton
 from ..humanoid.pose import Pose
 from ..scene.node import Node
+from ..scene.node_drag_handler import NodeDragHandler, sync_gizmo_with_node
 
 
 class TSkeletonScene:
-    def __init__(self) -> None:
+    def __init__(self, mouse_event: MouseEvent) -> None:
         from pydear.scene.camera import Camera
+        self.mouse_event = mouse_event
         self.camera = Camera(distance=8, y=-0.8)
+        self.camera.bind_mouse_event(self.mouse_event)
         self.skeleton: Optional[HumanoidSkeleton] = None
         self.pose: Optional[Pose] = None
         self.root: Optional[Node] = None
         self.gizmo = Gizmo()
+        self.node_shape_map: Dict[Node, Shape] = {}
+        self.drag_handler = NodeDragHandler(
+            self.gizmo, self.camera, self.node_shape_map, self.on_drag_end)
+        self.drag_handler.bind_mouse_event_with_gizmo(
+            self.mouse_event, self.gizmo)
+        self.pose_changed = EventProperty[Pose](Pose('empty'))
+
+    def on_drag_end(self):
+        assert self.root
+        pose = self.root.to_pose()
+        self.pose_changed.set(pose)
 
     def update(self, skeleton: Optional[HumanoidSkeleton], pose: Optional[Pose]):
         if skeleton != self.skeleton:
@@ -39,7 +56,9 @@ class TSkeletonScene:
                                   _ in self.root.traverse_node_and_parent(only_human_bone=True)}
 
         from ..gui.bone_shape import BoneShape
-        self.node_shape_map = BoneShape.from_root(self.root, self.gizmo)
+        self.node_shape_map.clear()
+        for node, shape in BoneShape.from_root(self.root, self.gizmo).items():
+            self.node_shape_map[node] = shape
 
     def _set_pose(self, pose: Optional[Pose]):
         self.pose = pose
