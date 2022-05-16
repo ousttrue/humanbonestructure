@@ -59,7 +59,7 @@ class Pose:
         for k, v in bone_map.items():
             x, y, z, w = v
             pose.bones.append(
-                BonePose(k, HumanoidBone(k), Transform.from_rotation(glm.quat(w, x, y, z))))
+                BonePose(k, HumanoidBone[k], Transform.from_rotation(glm.quat(w, x, y, z))))
         return pose
 
 

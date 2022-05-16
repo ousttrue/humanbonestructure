@@ -9,7 +9,7 @@ def main():
     logging.basicConfig(level=logging.DEBUG)
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--nerdfont', type=pathlib.Path)
+    parser.add_argument('--font', type=pathlib.Path, required=True)
     parser.add_argument('--ini', type=pathlib.Path)
     parser.add_argument('--port', default=12721)
     args = parser.parse_args()
@@ -23,7 +23,7 @@ def main():
     app = glfw_app.GlfwApp('PoseMan', setting=setting)
 
     from .gui import GUI
-    gui = GUI(app.loop, font=args.nerdfont, setting=setting)
+    gui = GUI(app.loop, font=args.font, setting=setting)
     gui.tcp.start(app.loop, args.port)
 
     from pydear.backends import impl_glfw

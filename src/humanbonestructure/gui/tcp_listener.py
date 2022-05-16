@@ -13,25 +13,36 @@ class Transport:
         self.writer = writer
         self.error = None
         self.write_bytes = 0
+        self.task = asyncio.get_event_loop().create_task(self.read_async())
 
     def __str__(self) -> str:
         if self.error:
             return str(self.error)
         return f'{self.name}:{self.write_bytes}bytes'
 
+    async def read_async(self):
+        try:
+            while not self.reader.at_eof():
+                l = await self.reader.readline()
+        except Exception as ex:
+            LOGGER.warn(ex)
+            self.error = ex
+
     def send(self, data: bytes):
         if self.error:
             return
 
-        self.writer.write(
-            b'Content-Type: application/jsonrpc; charset=utf-8\r\n')
-        self.writer.write(f'Content-Length: {len(data)}\r\n'.encode('utf-8'))
-        self.writer.write(b'\r\n')
-        self.writer.write(data)
-        self.write_bytes += len(data)
-
-    def set_error(self, error):
-        self.error = error
+        try:
+            self.writer.write(
+                b'Content-Type: application/jsonrpc; charset=utf-8\r\n')
+            self.writer.write(
+                f'Content-Length: {len(data)}\r\n'.encode('utf-8'))
+            self.writer.write(b'\r\n')
+            self.writer.write(data)
+            self.write_bytes += len(data)
+        except Exception as ex:
+            LOGGER.warning(ex)
+            self.error = ex
 
 
 class TcpListener:
@@ -60,6 +71,8 @@ class TcpListener:
         loop.create_task(self._task(port))
 
     def show(self, p_open):
+        self.connections = [c for c in self.connections if not c.error]
+
         if not p_open[0]:
             return
 
@@ -76,13 +89,12 @@ class TcpListener:
         if self.last_data == data:
             return
         for i, connection in enumerate(self.connections):
-            try:
-                connection.send(data)
-            except Exception as ex:
-                connection.set_error(ex)
+            connection.send(data)
 
         self.last_data = data
 
-    def send_data(self, data):
+    def send_data(self, data: dict):
+        from .. import jsonrpc
         self.text = json.dumps(data, indent=2)
-        self.send(json.dumps(data).encode('ascii'))
+        message = jsonrpc.create_notify('strict_tpose', data)
+        self.send(json.dumps(message).encode('utf-8'))

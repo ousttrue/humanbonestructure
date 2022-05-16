@@ -31,8 +31,8 @@
             "args": [
                 "--ini",
                 "poseman.dat",
-                "--nerdfont",
-                "${env:USERPROFILE}/AppData/Local/Microsoft/Windows/Fonts/HackGenNerdConsole-Regular.ttf",
+                "--font",
+                "${env:HOME}/.fonts/HackGenNerdConsole-Regular.ttf",
             ],
             "env": {
                 "PYTHONPATH": "${workspaceFolder}/src",
