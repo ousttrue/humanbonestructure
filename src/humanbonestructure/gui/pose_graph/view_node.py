@@ -1,8 +1,8 @@
-from typing import Any, Optional, TypeAlias, Union, get_args
+from typing import Optional
 from pydear import imgui as ImGui
 from pydear import imnodes as ImNodes
 from pydear.utils.node_editor.node import Node, InputPin, Serialized, OutputPin
-from ...scene.scene import Scene
+from ...scene.t_skeleton_scene import TSkeletonScene
 from ...humanoid.pose import Pose
 from ...humanoid.humanoid_skeleton import HumanoidSkeleton
 
@@ -33,17 +33,11 @@ class ViewNode(Node):
                          [self.in_skeleton, self.in_pose],
                          [])
 
-        self.skeleton: Optional[HumanoidSkeleton] = None
-        self.pose: Optional[Pose] = None
         # imgui
         from pydear.utils.fbo_view import FboView
         self.fbo = FboView()
-
-        #
-        self.scene = Scene('view')
-        from pydear.scene.camera import Camera
-        self.camera = Camera(distance=8, y=-0.8)
-        self.camera.bind_mouse_event(self.fbo.mouse_event)
+        self.scene = TSkeletonScene()
+        self.scene.camera.bind_mouse_event(self.fbo.mouse_event)
 
     @classmethod
     def imgui_menu(cls, graph, click_pos):
@@ -65,27 +59,14 @@ class ViewNode(Node):
     def show_content(self, graph):
         w = 400
         h = 400
-        self.camera.projection.resize(w, h)
         x, y = ImNodes.GetNodeScreenSpacePos(self.id)
         y += 43
-        x += 8        
+        x += 8
         self.fbo.show_fbo(x, y, w, h)
 
         # render mesh
         assert self.fbo.mouse_event.last_input
-        self.scene.render(self.camera, self.fbo.mouse_event.last_input)
-
-        ImGui.Checkbox('gizmo', self.scene.visible_gizmo)
-        ImGui.SameLine()
-        ImGui.Checkbox('mesh', self.scene.visible_mesh)
+        self.scene.render(w, h, self.fbo.mouse_event.last_input)
 
     def process_self(self):
-        if self.in_skeleton.skeleton != self.skeleton:
-            # update skeleton
-            self.skeleton = self.in_skeleton.skeleton
-            self.scene.load(self.skeleton)
-
-        if self.in_skeleton.skeleton != self.skeleton or self.in_pose.pose != self.pose:
-            # update pose
-            self.pose = self.in_pose.pose
-            self.scene.set_pose(self.in_pose.pose)
+        self.scene.update(self.in_skeleton.skeleton, self.in_pose.pose)
