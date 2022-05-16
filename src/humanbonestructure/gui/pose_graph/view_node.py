@@ -25,13 +25,22 @@ class PoseInputPin(InputPin[Optional[Pose]]):
         self.pose = pose
 
 
+class PoseOutputPin(OutputPin[Optional[Pose]]):
+    def __init__(self, id: int) -> None:
+        super().__init__(id, 'pose')
+
+    def get_value(self, node: 'ViewNode') -> Optional[Pose]:
+        return node.scene.pose_changed.value
+
+
 class ViewNode(Node):
-    def __init__(self, id: int, skeleton_pin_id: int, pose_pin_id: int) -> None:
+    def __init__(self, id: int, skeleton_pin_id: int, pose_in_pin_id: int, pose_out_pin_id) -> None:
         self.in_skeleton = SkeletonInputPin(skeleton_pin_id)
-        self.in_pose = PoseInputPin(pose_pin_id)
+        self.in_pose = PoseInputPin(pose_in_pin_id)
+        self.out_pose = PoseOutputPin(pose_out_pin_id)
         super().__init__(id, 'view',
                          [self.in_skeleton, self.in_pose],
-                         [])
+                         [self.out_pose])
 
         # imgui
         from pydear.utils.fbo_view import FboView
@@ -44,6 +53,7 @@ class ViewNode(Node):
             node = ViewNode(
                 graph.get_next_id(),
                 graph.get_next_id(),
+                graph.get_next_id(),
                 graph.get_next_id())
             graph.nodes.append(node)
             ImNodes.SetNodeScreenSpacePos(node.id, click_pos)
@@ -52,8 +62,12 @@ class ViewNode(Node):
         return Serialized('ViewNode', {
             'id': self.id,
             'skeleton_pin_id': self.inputs[0].id,
-            'pose_pin_id': self.inputs[1].id
+            'pose_in_pin_id': self.inputs[1].id,
+            'pose_out_pin_id': self.outputs[0].id,
         })
+
+    def get_right_indent(self) -> int:
+        return 360
 
     def show_content(self, graph):
         w = 400
