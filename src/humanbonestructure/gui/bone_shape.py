@@ -20,7 +20,7 @@ class BoneShape(Shape):
     '''
 
     def __init__(self, width: float, height: float, depth: float, *, matrix: glm.mat4, color: glm.vec3) -> None:
-        super().__init__(matrix, False)
+        super().__init__(matrix)
         if isinstance(color, glm.vec4):
             self.color = color
         elif isinstance(color, glm.vec3):
@@ -48,6 +48,12 @@ class BoneShape(Shape):
             Quad.from_points(v4, v5, v1, v0),  # left
             Quad.from_points(v4, v0, v3, v7),  # top
             Quad.from_points(v1, v5, v6, v2),  # bottom
+        ]
+        size = 0.1
+        self.lines = [
+            (glm.vec3(0, 0, 0), glm.vec3(size, 0, 0), glm.vec4(1, 0, 0, 1)),
+            (glm.vec3(0, 0, 0), glm.vec3(0, size, 0), glm.vec4(0, 1, 0, 1)),
+            (glm.vec3(0, 0, 0), glm.vec3(0, 0, size), glm.vec4(0, 0, 1, 1)),
         ]
 
     @staticmethod
@@ -140,3 +146,6 @@ class BoneShape(Shape):
     def get_quads(self) -> Iterable[Tuple[Quad, glm.vec4]]:
         for i, quad in enumerate(self.quads):
             yield quad, self.color if i != 4 else UP_COLOR
+
+    def get_lines(self) -> Iterable[Tuple[glm.vec3, glm.vec3, glm.vec4]]:
+        return self.lines
