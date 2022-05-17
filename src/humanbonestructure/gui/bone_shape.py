@@ -1,4 +1,5 @@
-from typing import Iterable, Dict, Tuple
+from typing import Iterable, Dict, Tuple, TypedDict
+from enum import Enum, auto
 import glm
 from pydear.gizmo.shapes.shape import Shape
 from pydear.gizmo.primitive import Quad
@@ -7,6 +8,18 @@ from ..scene.node import Node
 from ..humanoid.humanoid_skeleton import HumanoidSkeleton, Fingers, HumanoidBone
 
 UP_COLOR = glm.vec4(0.8, 0.2, 0.2, 1)
+
+
+class Coordinate(TypedDict):
+    yaw: glm.vec3
+    pitch: glm.vec3
+    roll: glm.vec3
+
+
+BLENDER_COORDS = Coordinate(
+    yaw=glm.vec3(0, 0, 1),
+    pitch=glm.vec3(1, 0, 0),
+    roll=glm.vec3(0, 1, 0))
 
 
 class BoneShape(Shape):
@@ -19,7 +32,7 @@ class BoneShape(Shape):
     1    2X
     '''
 
-    def __init__(self, width: float, height: float, depth: float, *, matrix: glm.mat4, color: glm.vec3) -> None:
+    def __init__(self, width: float, height: float, depth: float, *, matrix: glm.mat4, color: glm.vec3, coordinate=BLENDER_COORDS) -> None:
         super().__init__(matrix)
         if isinstance(color, glm.vec4):
             self.color = color
@@ -33,14 +46,17 @@ class BoneShape(Shape):
         x = self.width
         y = self.depth
         z = self.height
-        v0 = glm.vec3(-x, 0, z)
-        v1 = glm.vec3(-x, 0, -z)
-        v2 = glm.vec3(x, 0, -z)
-        v3 = glm.vec3(x, 0, z)
-        v4 = glm.vec3(-x, y, z)
-        v5 = glm.vec3(-x, y, -z)
-        v6 = glm.vec3(x, y, -z)
-        v7 = glm.vec3(x, y, z)
+        yaw = coordinate['yaw']
+        pitch = coordinate['pitch']
+        roll = coordinate['roll']
+        v0 = -pitch*x+yaw*z
+        v1 = -pitch*x-yaw*z
+        v2 = pitch*x-yaw*z
+        v3 = pitch*x+yaw*z
+        v4 = -pitch*x+roll*y+yaw*z
+        v5 = -pitch*x+roll*y-yaw*z
+        v6 = pitch*x+roll*y-yaw*z
+        v7 = pitch*x+roll*y+yaw*z
         self.quads = [
             Quad.from_points(v0, v1, v2, v3),  # back
             Quad.from_points(v3, v2, v6, v7),  # right
@@ -57,7 +73,7 @@ class BoneShape(Shape):
         ]
 
     @staticmethod
-    def from_node(node: Node) -> 'BoneShape':
+    def from_node(node: Node, *, coordinate=BLENDER_COORDS) -> 'BoneShape':
         assert node.humanoid_bone
         assert node.humanoid_tail
 
@@ -129,16 +145,16 @@ class BoneShape(Shape):
         length = glm.length(
             node.world_matrix[3].xyz - node.humanoid_tail.world_matrix[3].xyz)
 
-        return BoneShape(width, height, length, color=color, matrix=matrix)
+        return BoneShape(width, height, length, color=color, matrix=matrix, coordinate=coordinate)
 
     @staticmethod
-    def from_root(root: Node, gizmo: Gizmo) -> Dict[Node, Shape]:
+    def from_root(root: Node, gizmo: Gizmo, *, coordinate=BLENDER_COORDS) -> Dict[Node, Shape]:
         node_shape_map: Dict[Node, Shape] = {}
         for bone in HumanoidBone:
             if bone.is_enable():
                 node = root.find_humanoid_bone(bone)
                 if node:
-                    shape = BoneShape.from_node(node)
+                    shape = BoneShape.from_node(node, coordinate=coordinate)
                     gizmo.add_shape(shape)
                     node_shape_map[node] = shape
         return node_shape_map

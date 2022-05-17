@@ -10,7 +10,9 @@ from pydear.gizmo.gizmo import Gizmo
 from ...formats.gltf_loader import Gltf
 from ...humanoid.humanoid_skeleton import HumanoidSkeleton
 from ...humanoid.pose import Pose
+from ..bone_shape import BoneShape, Coordinate
 from .file_node import FileNode
+
 
 class GltfPoseInputPin(InputPin[Optional[Pose]]):
     def __init__(self, id: int) -> None:
@@ -27,6 +29,12 @@ class GltfSkeletonOutputPin(OutputPin[Optional[HumanoidSkeleton]]):
 
     def get_value(self, node: 'GltfNode') -> Optional[HumanoidSkeleton]:
         return node.skeleton
+
+
+UNITY_CHAN_COORDS = Coordinate(
+    yaw=glm.vec3(0, 1, 0),
+    pitch=glm.vec3(0, 0, 1),
+    roll=glm.vec3(1, 0, 0))
 
 
 class GizmoScene:
@@ -51,9 +59,8 @@ class GizmoScene:
         self.root.calc_world_matrix(glm.mat4())
         self.humanoid_node_map = {node.humanoid_bone: node for node,
                                   _ in self.root.traverse_node_and_parent(only_human_bone=True)}
-        from ..bone_shape import BoneShape
         self.node_shape_map.clear()
-        for node, shape in BoneShape.from_root(self.root, self.gizmo).items():
+        for node, shape in BoneShape.from_root(self.root, self.gizmo, coordinate=UNITY_CHAN_COORDS).items():
             self.node_shape_map[node] = shape
 
     def set_pose(self, pose: Optional[Pose]):
