@@ -22,12 +22,12 @@ class TSkeletonScene:
         self.gizmo = Gizmo()
         self.node_shape_map: Dict[Node, Shape] = {}
         self.drag_handler = NodeDragHandler(
-            self.gizmo, self.camera, self.node_shape_map, self.on_drag_end)
+            self.gizmo, self.camera, self.node_shape_map, self.raise_pose)
         self.drag_handler.bind_mouse_event_with_gizmo(
             self.mouse_event, self.gizmo)
         self.pose_changed = EventProperty[Pose](Pose('empty'))
 
-    def on_drag_end(self):
+    def raise_pose(self):
         assert self.root
         pose = self.root.to_pose()
         self.pose_changed.set(pose)
@@ -83,6 +83,9 @@ class TSkeletonScene:
         self.root.calc_world_matrix(glm.mat4())
 
         # sync to gizmo
+        self.sync_gizmo()
+
+    def sync_gizmo(self):
         for node, shape in self.node_shape_map.items():
             shape.matrix.set(node.world_matrix * glm.mat4(node.local_axis))
 

@@ -1,4 +1,5 @@
 from typing import Optional
+import glm
 from pydear import imgui as ImGui
 from pydear import imnodes as ImNodes
 from pydear.utils.node_editor.node import Node, InputPin, Serialized, OutputPin
@@ -80,6 +81,14 @@ class ViewNode(Node):
         # render mesh
         assert self.fbo.mouse_event.last_input
         self.scene.render(w, h)
+
+        if self.scene.root:
+            if ImGui.Button('clear pose'):
+                self.scene.root.clear_pose()
+                self.scene.root.calc_world_matrix(glm.mat4())
+                self.scene.drag_handler.select(None)
+                self.scene.sync_gizmo()
+                self.scene.raise_pose()
 
     def process_self(self):
         self.scene.update(self.in_skeleton.skeleton, self.in_pose.pose)

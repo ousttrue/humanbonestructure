@@ -25,6 +25,12 @@ class Pose:
     def __str__(self) -> str:
         return f'{self.name}: {len(self.bones)}bones'
 
+    def get_rotation(self, humanoid_bone: HumanoidBone) -> glm.quat:
+        for bone in self.bones:
+            if bone.humanoid_bone == humanoid_bone:
+                return bone.transform.rotation
+        return glm.quat()
+
     def get_parts(self, part: HumanoidBodyParts) -> bool:
         value = self._parts.get(part)
         if not isinstance(value, bool):
