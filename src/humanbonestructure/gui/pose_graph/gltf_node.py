@@ -1,14 +1,16 @@
 from typing import Optional
 import pathlib
+import glm
 from pydear import imgui as ImGui
 from pydear import imnodes as ImNodes
 from pydear.utils.node_editor.node import Node, InputPin, OutputPin, Serialized
+from pydear.utils.mouse_event import MouseEvent
+from pydear.scene.camera import Camera
+from pydear.gizmo.gizmo import Gizmo
 from ...formats.gltf_loader import Gltf
 from ...humanoid.humanoid_skeleton import HumanoidSkeleton
 from ...humanoid.pose import Pose
-from ...scene.scene import Scene
 from .file_node import FileNode
-
 
 class GltfPoseInputPin(InputPin[Optional[Pose]]):
     def __init__(self, id: int) -> None:
@@ -27,6 +29,59 @@ class GltfSkeletonOutputPin(OutputPin[Optional[HumanoidSkeleton]]):
         return node.skeleton
 
 
+class GizmoScene:
+    def __init__(self, mouse_event: MouseEvent) -> None:
+        self.mouse_event = mouse_event
+        self.camera = Camera(distance=8, y=-0.8)
+        self.camera.bind_mouse_event(self.mouse_event)
+        self.node_shape_map = {}
+        self.gizmo = Gizmo()
+
+    def render(self, w: int, h: int):
+        mouse_input = self.mouse_event.last_input
+        assert(mouse_input)
+        self.camera.projection.resize(w, h)
+
+        self.gizmo.process(self.camera, mouse_input.x, mouse_input.y)
+
+    def set_root(self, root):
+        self.root = root
+        self.root.init_human_bones()
+        self.root.calc_bind_matrix(glm.mat4())
+        self.root.calc_world_matrix(glm.mat4())
+        self.humanoid_node_map = {node.humanoid_bone: node for node,
+                                  _ in self.root.traverse_node_and_parent(only_human_bone=True)}
+        from ..bone_shape import BoneShape
+        self.node_shape_map.clear()
+        for node, shape in BoneShape.from_root(self.root, self.gizmo).items():
+            self.node_shape_map[node] = shape
+
+    def set_pose(self, pose: Optional[Pose]):
+        if not self.root or not self.humanoid_node_map:
+            return
+
+        self.root.clear_pose()
+
+        # assign pose to node hierarchy
+        if pose and pose.bones:
+            for bone in pose.bones:
+                if bone.humanoid_bone:
+                    node = self.humanoid_node_map.get(bone.humanoid_bone)
+                    if node:
+                        node.pose = bone.transform
+                    else:
+                        pass
+                        # raise RuntimeError()
+                else:
+                    raise RuntimeError()
+
+        self.root.calc_world_matrix(glm.mat4())
+
+        # sync to gizmo
+        for node, shape in self.node_shape_map.items():
+            shape.matrix.set(node.world_matrix * glm.mat4(node.local_axis))
+
+
 class GltfNode(FileNode):
     '''
     * out: skeleton
@@ -41,11 +96,12 @@ class GltfNode(FileNode):
                          '.gltf', '.glb', '.vrm')
         self.gltf = None
         self.skeleton = None
+        self.pose = None
 
         # imgui
         from pydear.utils.fbo_view import FboView
         self.fbo = FboView()
-        self.scene = Scene(self.fbo.mouse_event)
+        self.scene = GizmoScene(self.fbo.mouse_event)
 
     @classmethod
     def imgui_menu(cls, graph, click_pos):
@@ -96,10 +152,12 @@ class GltfNode(FileNode):
                 from ...scene.builder import gltf_builder
                 root = gltf_builder.build(self.gltf)
                 self.skeleton = HumanoidSkeleton.from_node(root)
-                self.scene.load(self.gltf)
+                self.scene.set_root(root)
 
     def process_self(self):
         if not self.gltf and self.path:
             self.load(self.path)
 
-        self.scene.set_pose(self.in_pin.pose)
+        if self.in_pin.pose != self.pose:
+            self.pose = self.in_pin.pose
+            self.scene.set_pose(self.pose)
