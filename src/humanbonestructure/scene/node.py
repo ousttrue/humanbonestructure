@@ -137,6 +137,10 @@ class Node:
         for node, _ in self.traverse_node_and_parent():
             node.pose = None
 
+    def clear_local_axis(self):
+        for node, _ in self.traverse_node_and_parent():
+            node.local_axis = glm.quat()
+
     def __str__(self) -> str:
         return f'[{self.name}: {self.init_trs}]'
 
