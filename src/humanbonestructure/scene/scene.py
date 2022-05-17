@@ -4,7 +4,7 @@ import pathlib
 import logging
 import glm
 from pydear.scene.camera import Camera
-from pydear.utils.mouse_event import MouseInput
+from pydear.utils.mouse_event import MouseEvent, MouseInput
 from pydear.gizmo.gizmo import Gizmo
 from pydear import imgui as ImGui
 from ..formats.bvh import bvh_parser
@@ -28,8 +28,10 @@ class Scene:
     モデル一体分のシーングラフ
     '''
 
-    def __init__(self, name: str) -> None:
-        self.name = name
+    def __init__(self, mouse_event: MouseEvent) -> None:
+        self.mouse_event = mouse_event
+        self.camera = Camera(distance=8, y=-0.8)
+        self.camera.bind_mouse_event(self.mouse_event)
         # scene
         self.root = Node('__root__', Transform.identity())
         self.is_mmd = False
@@ -37,13 +39,11 @@ class Scene:
         self.selected: Optional[Node] = None
         self.tpose_delta_map: Dict[HumanoidBone, glm.quat] = {}
         self.humanoid_node_map: Dict[HumanoidBone, Node] = {}
+        self.node_shape_map = {}
 
         # GUI check box
         self.visible_mesh = (ctypes.c_bool * 1)(False)
         self.visible_gizmo = (ctypes.c_bool * 1)(True)
-
-        from ..eventproperty import OptionalEventProperty
-        self.pose_changed = OptionalEventProperty[Pose]()
 
     def get_root(self):
         return self.root
@@ -66,17 +66,19 @@ class Scene:
         self.humanoid_node_map = {node.humanoid_bone: node for node,
                                   _ in self.root.traverse_node_and_parent(only_human_bone=True)}
 
-        # make tpose for pose conversion
-        tpose.make_tpose(self.root, is_inverted_pelvis=self.is_mmd)
-        self.tpose_delta_map: Dict[HumanoidBone, glm.quat] = {node.humanoid_bone: node.pose.rotation if node.pose else glm.quat(
-        ) for node, _ in self.root.traverse_node_and_parent(only_human_bone=True)}
-        tpose.local_axis_fit_world(self.root)
-        self.root.clear_pose()
-        self.root.calc_world_matrix(glm.mat4())
-        # tpose.pose_to_delta(scene.root)
+        # # make tpose for pose conversion
+        # tpose.make_tpose(self.root, is_inverted_pelvis=self.is_mmd)
+        # self.tpose_delta_map: Dict[HumanoidBone, glm.quat] = {node.humanoid_bone: node.pose.rotation if node.pose else glm.quat(
+        # ) for node, _ in self.root.traverse_node_and_parent(only_human_bone=True)}
+        # tpose.local_axis_fit_world(self.root)
+        # self.root.clear_pose()
+        # self.root.calc_world_matrix(glm.mat4())
+        # # tpose.pose_to_delta(scene.root)
 
         from ..gui.bone_shape import BoneShape
-        BoneShape.from_root(self.root, self.gizmo)
+        self.node_shape_map.clear()
+        for node, shape in BoneShape.from_root(self.root, self.gizmo).items():
+            self.node_shape_map[node] = shape
 
     def load(self, value):
         from ..formats.bvh.bvh_parser import Bvh
@@ -165,41 +167,17 @@ class Scene:
         self.root = strict_tpose.create()
         self._setup_model()
 
-    def render(self, camera: Camera, input: MouseInput):
+    def render(self, w: int, h: int):
+        mouse_input = self.mouse_event.last_input
+        assert(mouse_input)
+        self.camera.projection.resize(w, h)
+
         if self.visible_mesh[0]:
             if root := self.root:
-                self.render_node(camera, root)
+                self.render_node(self.camera, root)
 
         if self.visible_gizmo[0]:
-            self.gizmo.process(camera, input.x, input.y)
-
-            # # bone gizmo
-            # selected = None
-            # for bone, _ in self.root.traverse_node_and_parent(only_human_bone=True):
-            #     assert bone.humanoid_bone
-            #     assert bone.humanoid_tail
-            #     # bone
-            #     if self.gizmo.bone_head_tail(bone.humanoid_bone.name,
-            #                                  bone.world_matrix[3].xyz, bone.humanoid_tail.world_matrix[3].xyz, glm.vec3(
-            #                                      0, 0, 1),
-            #                                  is_selected=(bone == self.selected)):
-            #         selected = bone
-
-            #     # axis
-            #     self.gizmo.matrix = (
-            #         bone.world_matrix * glm.mat4(bone.local_axis))
-            #     self.gizmo.color = RED
-            #     self.gizmo.line(glm.vec3(0), glm.vec3(0.02, 0, 0))
-            #     self.gizmo.color = GREEN
-            #     self.gizmo.line(glm.vec3(0), glm.vec3(0, 0.02, 0))
-            #     self.gizmo.color = BLUE
-            #     self.gizmo.line(glm.vec3(0), glm.vec3(0, 0, 0.02))
-
-            # if selected:
-            #     LOGGER.debug(f'selected: {selected}')
-            #     self.selected = selected
-
-            # self.gizmo.end()
+            self.gizmo.process(self.camera, mouse_input.x, mouse_input.y)
 
     def render_node(self, camera: Camera, node: Node):
         if node.renderer:
@@ -229,9 +207,6 @@ class Scene:
 
         self.root.calc_world_matrix(glm.mat4())
 
-        #
-        # raise TPose相対ポーズ
-        #
-        if self.pose_changed.callbacks:
-            pose = self.root.create_relative_pose(self.tpose_delta_map)
-            self.pose_changed.set(pose)
+        # sync to gizmo
+        for node, shape in self.node_shape_map.items():
+            shape.matrix.set(node.world_matrix * glm.mat4(node.local_axis))

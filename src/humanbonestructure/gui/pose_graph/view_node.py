@@ -79,7 +79,7 @@ class ViewNode(Node):
 
         # render mesh
         assert self.fbo.mouse_event.last_input
-        self.scene.render(w, h, self.fbo.mouse_event.last_input)
+        self.scene.render(w, h)
 
     def process_self(self):
         self.scene.update(self.in_skeleton.skeleton, self.in_pose.pose)

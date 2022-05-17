@@ -86,6 +86,8 @@ class TSkeletonScene:
         for node, shape in self.node_shape_map.items():
             shape.matrix.set(node.world_matrix * glm.mat4(node.local_axis))
 
-    def render(self, w, h, mouse_input):
+    def render(self, w, h):
+        mouse_input = self.mouse_event.last_input
+        assert(mouse_input)
         self.camera.projection.resize(w, h)
         self.gizmo.process(self.camera, mouse_input.x, mouse_input.y)
