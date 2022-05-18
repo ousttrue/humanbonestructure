@@ -1,10 +1,10 @@
 from typing import NamedTuple, Dict, TypeAlias, Optional
 import glm
 from ..scene.node import Node
-from .humanoid_bones import HumanoidBone, LeftRight, Fingers, UP
+from .humanoid_bones import HumanoidBone
 from . import tpose
 from .transform import Transform
-from .humanoid_hand import HumanoidLeftHand, HumanoidRightHand
+from .humanoid_hand import HumanoidLeftHand, HumanoidRightHand, HumanoidFinger
 
 NodeMap: TypeAlias = Dict[HumanoidBone, Node]
 
@@ -262,6 +262,29 @@ class HumanoidSkeleton:
         # InitialPose
         self.init_pose: Dict[HumanoidBone, glm.quat] = {}
 
+    @staticmethod
+    def create_default() -> 'HumanoidSkeleton':
+        trunk = HumanoidSkeletonTrunk(glm.vec3(0, 0.85, 0),
+                                      0.1, 0.1, 0.2, 0.1, 0.2)
+        left_leg = HumanoidSkeletonLeftLeg(glm.vec3(0.1, 0, 0),
+                                           0.4, 0.35, 0.08)
+        right_leg = HumanoidSkeletonRightLeg(glm.vec3(-0.1, 0, 0),
+                                             0.4, 0.35, 0.08)
+        left_arm = HumanoidSkeletonLeftArm(glm.vec3(0.1, 0.2, 0),
+                                           0.1, 0.3, 0.3)
+        right_arm = HumanoidSkeletonRightArm(glm.vec3(-0.1, 0.2, 0),
+                                             0.1, 0.3, 0.3)
+        left_toes = HumanoidSkeletonLeftToes(glm.vec3(0, -0.1, 0.08), 0.05)
+        right_toes = HumanoidSkeletonRightToes(glm.vec3(0, -0.1, 0.08), 0.05)
+        left_hand = HumanoidLeftHand.create_default()
+        right_hand = HumanoidRightHand(0.1)
+        return HumanoidSkeleton(
+            trunk=trunk,
+            left_leg=left_leg, right_leg=right_leg,
+            left_toes=left_toes, right_toes=right_toes,
+            left_arm=left_arm, right_arm=right_arm,
+            left_hand=left_hand, right_hand=right_hand)
+
     @ staticmethod
     def from_node(root: Node, *, is_inverted_pelvis=False) -> 'HumanoidSkeleton':
         copy = root.copy_tree()
@@ -300,4 +323,8 @@ class HumanoidSkeleton:
             right_toes = self.right_toes.to_node()
             root[HumanoidBone.rightFoot].add_child(right_toes)
 
+        if self.left_hand:
+            self.left_hand.to_node(root[HumanoidBone.leftHand])
+
         return root
+ 

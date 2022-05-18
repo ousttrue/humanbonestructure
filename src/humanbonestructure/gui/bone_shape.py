@@ -5,7 +5,7 @@ from pydear.gizmo.shapes.shape import Shape
 from pydear.gizmo.primitive import Quad
 from pydear.gizmo.gizmo import Gizmo
 from ..scene.node import Node
-from ..humanoid.humanoid_skeleton import HumanoidSkeleton, Fingers, HumanoidBone
+from ..humanoid.humanoid_bones import HumanoidBone
 
 UP_COLOR = glm.vec4(0.8, 0.2, 0.2, 1)
 
@@ -78,9 +78,11 @@ class BoneShape(Shape):
         assert node.humanoid_tail
 
         color = glm.vec3(1, 1, 1)
-        width = 0.005
-        height = 0.001
-        if node.humanoid_bone.get_classification().finger != Fingers.NotFinger:
+        width = None
+        height = None
+        if node.humanoid_bone.is_finger():
+            width = 0.006
+            height = 0.004
             if 'Index' in node.humanoid_bone.name or 'Ring' in node.humanoid_bone.name:
                 if node.humanoid_bone.name.endswith("Intermediate"):
                     color = glm.vec3(0.1, 0.4, 0.8)
@@ -113,8 +115,8 @@ class BoneShape(Shape):
                         HumanoidBone.rightHand | HumanoidBone.rightHand
                       ):
                     color = glm.vec3(0.8, 0.8, 0.8)
-                    width = 0.01
-                    height = 0.002
+                    width = 0.03
+                    height = 0.005
                 case (HumanoidBone.head):
                     color = glm.vec3(0.8, 0.8, 0.2)
                     width = 0.06

@@ -2,7 +2,7 @@ from typing import NamedTuple, Optional, List, Dict, Set, Tuple
 import abc
 import glm
 from .transform import Transform
-from .humanoid_bones import HumanoidBone, HumanoidBodyParts
+from .humanoid_bones import HumanoidBone
 
 
 class BonePose(NamedTuple):
@@ -19,8 +19,6 @@ class Pose:
     def __init__(self, name: str):
         self.name = name
         self.bones: List[BonePose] = []
-        self._parts: Dict[HumanoidBodyParts, bool] = {
-        }
 
     def __str__(self) -> str:
         return f'{self.name}: {len(self.bones)}bones'
@@ -31,13 +29,13 @@ class Pose:
                 return bone.transform.rotation
         return glm.quat()
 
-    def get_parts(self, part: HumanoidBodyParts) -> bool:
-        value = self._parts.get(part)
-        if not isinstance(value, bool):
-            value = any(bone.humanoid_bone.get_classification().part
-                        == part for bone in self.bones)
-            self._parts[part] = value
-        return value
+    # def get_parts(self, part: HumanoidBodyParts) -> bool:
+    #     value = self._parts.get(part)
+    #     if not isinstance(value, bool):
+    #         value = any(bone.humanoid_bone.get_classification().part
+    #                     == part for bone in self.bones)
+    #         self._parts[part] = value
+    #     return value
 
     def to_json(self) -> Dict[str, Tuple[float, float, float, float]]:
 
@@ -74,11 +72,11 @@ class Motion(abc.ABC):
         self.name = name
         self._parts_cache = None
 
-    def get_humanboneparts(self) -> Set[HumanoidBodyParts]:
-        if self._parts_cache is None:
-            self._parts_cache = set(bone.get_classification().part
-                                    for bone in self.get_humanbones() if bone.is_enable())
-        return self._parts_cache
+    # def get_humanboneparts(self) -> Set[HumanoidBodyParts]:
+    #     if self._parts_cache is None:
+    #         self._parts_cache = set(bone.get_classification().part
+    #                                 for bone in self.get_humanbones() if bone.is_enable())
+    #     return self._parts_cache
 
     @ abc.abstractmethod
     def get_info(self) -> str:

@@ -13,32 +13,8 @@ LOGGER = logging.getLogger(__name__)
 
 class SkeletonView:
     def __init__(self) -> None:
-        from ..humanoid.humanoid_skeleton import (HumanoidSkeleton, HumanoidSkeletonTrunk,
-                                                  HumanoidSkeletonLeftArm, HumanoidSkeletonRightArm,
-                                                  HumanoidSkeletonLeftLeg, HumanoidSkeletonRightLeg,
-                                                  HumanoidSkeletonLeftToes, HumanoidSkeletonRightToes,
-                                                  HumanoidLeftHand, HumanoidRightHand)
-        trunk = HumanoidSkeletonTrunk(glm.vec3(0, 0.85, 0),
-                                      0.1, 0.1, 0.2, 0.1, 0.2)
-        left_leg = HumanoidSkeletonLeftLeg(glm.vec3(0.1, 0, 0),
-                                           0.4, 0.35, 0.08)
-        right_leg = HumanoidSkeletonRightLeg(glm.vec3(-0.1, 0, 0),
-                                             0.4, 0.35, 0.08)
-        left_arm = HumanoidSkeletonLeftArm(glm.vec3(0.1, 0.2, 0),
-                                           0.1, 0.3, 0.3)
-        right_arm = HumanoidSkeletonRightArm(glm.vec3(-0.1, 0.2, 0),
-                                             0.1, 0.3, 0.3)
-        left_hand = HumanoidLeftHand(0.1)
-        right_hand = HumanoidRightHand(0.1)
-        left_toes = HumanoidSkeletonLeftToes(glm.vec3(0, -0.1, 0.08), 0.05)
-        right_toes = HumanoidSkeletonRightToes(glm.vec3(0, -0.1, 0.08), 0.05)
-        self.property = EventProperty[HumanoidSkeleton](
-            HumanoidSkeleton(
-                trunk=trunk,
-                left_arm=left_arm, right_arm=right_arm,
-                left_leg=left_leg, right_leg=right_leg,
-                left_hand=left_hand, right_hand=right_hand,
-                left_toes=left_toes, right_toes=right_toes))
+        from ..humanoid.humanoid_skeleton import HumanoidSkeleton
+        self.property = EventProperty[HumanoidSkeleton](HumanoidSkeleton.create_default())
 
     def show(self, p_open):
         if p_open and not p_open[0]:

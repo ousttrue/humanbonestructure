@@ -9,79 +9,6 @@ class LeftRight(Enum):
     Right = 2
 
 
-class Fingers(Enum):
-    NotFinger = 0
-    Thumbnail = 1
-    Index = 2
-    Middle = 3
-    Ring = 4
-    Little = 5
-
-
-class HumanoidBodyParts(Enum):
-    Unknown = 0  # unknown / endsite
-    Trunk = 1
-    Leg = 2
-    Arm = 3
-    Toe = 4
-    Fingers = 5
-
-
-_LEFT = glm.vec4(1, 0, 0, 0)
-_RIGHT = glm.vec4(-1, 0, 0, 0)
-_UP = glm.vec4(0, 1, 0, 0)
-_DOWN = glm.vec4(0, -1, 0, 0)
-_FORWARD = glm.vec4(0, 0, 1, 0)
-_BACK = glm.vec4(0, 0, -1, 0)
-_ZERO_ONE = glm.vec4(0, 0, 0, 1)
-
-
-class HumanoidBoneClassification(NamedTuple):
-    part: HumanoidBodyParts
-    left_right: LeftRight
-    finger: Fingers = Fingers.NotFinger
-
-    def get_local_axis(self) -> glm.mat4:
-        match self:
-            case (HumanoidBodyParts.Trunk, LeftRight.Center, Fingers.NotFinger):
-                return glm.mat4(
-                    _RIGHT,
-                    _UP,
-                    _FORWARD,
-                    _ZERO_ONE,
-                )
-            case (HumanoidBodyParts.Arm, LeftRight.Left, Fingers.NotFinger):
-                return glm.mat4(
-                    _DOWN,
-                    _LEFT,
-                    _FORWARD,
-                    _ZERO_ONE,
-                )
-            case (HumanoidBodyParts.Arm, LeftRight.Right, Fingers.NotFinger):
-                return glm.mat4(
-                    _UP,
-                    _RIGHT,
-                    _FORWARD,
-                    _ZERO_ONE,
-                )
-            case (HumanoidBodyParts.Leg, LeftRight.Left, Fingers.NotFinger) | (HumanoidBodyParts.Leg, LeftRight.Right, Fingers.NotFinger):
-                return glm.mat4(
-                    _LEFT,
-                    _DOWN,
-                    _BACK,
-                    _ZERO_ONE,
-                )
-            case (HumanoidBodyParts.Toe, LeftRight.Left, Fingers.NotFinger) | (HumanoidBodyParts.Toe, LeftRight.Right, Fingers.NotFinger):
-                return glm.mat4(
-                    _LEFT,
-                    _FORWARD,
-                    _DOWN,
-                    _ZERO_ONE,
-                )
-            case _:
-                raise NotImplementedError()
-
-
 class HumanoidBone(Enum):
     unknown = auto()
     # trunk:
@@ -155,75 +82,51 @@ class HumanoidBone(Enum):
     def is_enable(self) -> bool:
         return self != HumanoidBone.unknown and self != HumanoidBone.endSite
 
-    def get_classification(self) -> HumanoidBoneClassification:
-        return HUMANOIDBONE_PART_MAP[self]
-
     def get_world_axis(self) -> Tuple[float, float, float]:
         return HUMANOIDBONE_WORLD_AXIS[self]
 
+    def is_finger(self):
+        return self in FINGER_SET
 
-HUMANOIDBONE_PART_MAP: Dict[HumanoidBone, HumanoidBoneClassification] = {
-    # core: 19bones hips-spine-chest-neck-head + (shoulder-upper-lower-hand)xLR + (upper-lower-foot)xLR
-    HumanoidBone.hips:  HumanoidBoneClassification(HumanoidBodyParts.Trunk, LeftRight.Center),
-    HumanoidBone.spine: HumanoidBoneClassification(HumanoidBodyParts.Trunk, LeftRight.Center),
-    HumanoidBone.chest: HumanoidBoneClassification(HumanoidBodyParts.Trunk, LeftRight.Center),
-    HumanoidBone.neck: HumanoidBoneClassification(HumanoidBodyParts.Trunk, LeftRight.Center),
-    HumanoidBone.head: HumanoidBoneClassification(HumanoidBodyParts.Trunk, LeftRight.Center),
-    HumanoidBone.leftUpperLeg: HumanoidBoneClassification(HumanoidBodyParts.Leg, LeftRight.Left),
-    HumanoidBone.leftLowerLeg: HumanoidBoneClassification(HumanoidBodyParts.Leg, LeftRight.Left),
-    HumanoidBone.leftFoot: HumanoidBoneClassification(HumanoidBodyParts.Leg, LeftRight.Left),
-    HumanoidBone.rightUpperLeg: HumanoidBoneClassification(HumanoidBodyParts.Leg, LeftRight.Right),
-    HumanoidBone.rightLowerLeg: HumanoidBoneClassification(HumanoidBodyParts.Leg, LeftRight.Right),
-    HumanoidBone.rightFoot: HumanoidBoneClassification(HumanoidBodyParts.Leg, LeftRight.Right),
-    HumanoidBone.leftShoulder: HumanoidBoneClassification(HumanoidBodyParts.Arm, LeftRight.Left),
-    HumanoidBone.leftUpperArm: HumanoidBoneClassification(HumanoidBodyParts.Arm, LeftRight.Left),
-    HumanoidBone.leftLowerArm: HumanoidBoneClassification(HumanoidBodyParts.Arm, LeftRight.Left),
-    HumanoidBone.leftHand: HumanoidBoneClassification(HumanoidBodyParts.Arm, LeftRight.Left),
-    HumanoidBone.rightShoulder: HumanoidBoneClassification(HumanoidBodyParts.Arm, LeftRight.Right),
-    HumanoidBone.rightUpperArm: HumanoidBoneClassification(HumanoidBodyParts.Arm, LeftRight.Right),
-    HumanoidBone.rightLowerArm: HumanoidBoneClassification(HumanoidBodyParts.Arm, LeftRight.Right),
-    HumanoidBone.rightHand: HumanoidBoneClassification(HumanoidBodyParts.Arm, LeftRight.Right),
-    # toes: 2bones 1xLR
-    HumanoidBone.leftToes: HumanoidBoneClassification(HumanoidBodyParts.Toe, LeftRight.Left),
-    HumanoidBone.rightToes: HumanoidBoneClassification(HumanoidBodyParts.Toe, LeftRight.Right),
-    # fingers: 30bones (1-2-3)x5xLR
-    HumanoidBone.leftThumbProximal: HumanoidBoneClassification(HumanoidBodyParts.Fingers, LeftRight.Left, Fingers.Thumbnail),
-    HumanoidBone.leftThumbIntermediate: HumanoidBoneClassification(HumanoidBodyParts.Fingers, LeftRight.Left, Fingers.Thumbnail),
-    HumanoidBone.leftThumbDistal: HumanoidBoneClassification(HumanoidBodyParts.Fingers, LeftRight.Left, Fingers.Thumbnail),
-    HumanoidBone.leftIndexProximal: HumanoidBoneClassification(HumanoidBodyParts.Fingers, LeftRight.Left, Fingers.Index),
-    HumanoidBone.leftIndexIntermediate: HumanoidBoneClassification(HumanoidBodyParts.Fingers, LeftRight.Left, Fingers.Index),
-    HumanoidBone.leftIndexDistal: HumanoidBoneClassification(HumanoidBodyParts.Fingers, LeftRight.Left, Fingers.Index),
-    HumanoidBone.leftMiddleProximal: HumanoidBoneClassification(HumanoidBodyParts.Fingers, LeftRight.Left, Fingers.Middle),
-    HumanoidBone.leftMiddleIntermediate: HumanoidBoneClassification(HumanoidBodyParts.Fingers, LeftRight.Left, Fingers.Middle),
-    HumanoidBone.leftMiddleDistal: HumanoidBoneClassification(HumanoidBodyParts.Fingers, LeftRight.Left, Fingers.Middle),
-    HumanoidBone.leftRingProximal: HumanoidBoneClassification(HumanoidBodyParts.Fingers, LeftRight.Left, Fingers.Ring),
-    HumanoidBone.leftRingIntermediate: HumanoidBoneClassification(HumanoidBodyParts.Fingers, LeftRight.Left, Fingers.Ring),
-    HumanoidBone.leftRingDistal: HumanoidBoneClassification(HumanoidBodyParts.Fingers, LeftRight.Left, Fingers.Ring),
-    HumanoidBone.leftLittleProximal: HumanoidBoneClassification(HumanoidBodyParts.Fingers, LeftRight.Left, Fingers.Little),
-    HumanoidBone.leftLittleIntermediate: HumanoidBoneClassification(HumanoidBodyParts.Fingers, LeftRight.Left, Fingers.Little),
-    HumanoidBone.leftLittleDistal: HumanoidBoneClassification(HumanoidBodyParts.Fingers, LeftRight.Left, Fingers.Little),
-    HumanoidBone.rightThumbProximal: HumanoidBoneClassification(HumanoidBodyParts.Fingers, LeftRight.Right, Fingers.Thumbnail),
-    HumanoidBone.rightThumbIntermediate: HumanoidBoneClassification(HumanoidBodyParts.Fingers, LeftRight.Right, Fingers.Thumbnail),
-    HumanoidBone.rightThumbDistal: HumanoidBoneClassification(HumanoidBodyParts.Fingers, LeftRight.Right, Fingers.Thumbnail),
-    HumanoidBone.rightIndexProximal: HumanoidBoneClassification(HumanoidBodyParts.Fingers, LeftRight.Right, Fingers.Index),
-    HumanoidBone.rightIndexIntermediate: HumanoidBoneClassification(HumanoidBodyParts.Fingers, LeftRight.Right, Fingers.Index),
-    HumanoidBone.rightIndexDistal: HumanoidBoneClassification(HumanoidBodyParts.Fingers, LeftRight.Right, Fingers.Index),
-    HumanoidBone.rightMiddleProximal: HumanoidBoneClassification(HumanoidBodyParts.Fingers, LeftRight.Right, Fingers.Middle),
-    HumanoidBone.rightMiddleIntermediate: HumanoidBoneClassification(HumanoidBodyParts.Fingers, LeftRight.Right, Fingers.Middle),
-    HumanoidBone.rightMiddleDistal: HumanoidBoneClassification(HumanoidBodyParts.Fingers, LeftRight.Right, Fingers.Middle),
-    HumanoidBone.rightRingProximal: HumanoidBoneClassification(HumanoidBodyParts.Fingers, LeftRight.Right, Fingers.Ring),
-    HumanoidBone.rightRingIntermediate: HumanoidBoneClassification(HumanoidBodyParts.Fingers, LeftRight.Right, Fingers.Ring),
-    HumanoidBone.rightRingDistal: HumanoidBoneClassification(HumanoidBodyParts.Fingers, LeftRight.Right, Fingers.Ring),
-    HumanoidBone.rightLittleProximal: HumanoidBoneClassification(HumanoidBodyParts.Fingers, LeftRight.Right, Fingers.Little),
-    HumanoidBone.rightLittleIntermediate: HumanoidBoneClassification(HumanoidBodyParts.Fingers, LeftRight.Right, Fingers.Little),
-    HumanoidBone.rightLittleDistal: HumanoidBoneClassification(HumanoidBodyParts.Fingers, LeftRight.Right, Fingers.Little),
-}
 
 UP = (0, 1, 0)
 DOWN = (0, -1, 0)
 FORWARD = (0, 0, 1)
 LEFT = (1, 0, 0)
 RIGHT = (-1, 0, 0)
+
+FINGER_SET = set([
+    HumanoidBone.leftThumbProximal,
+    HumanoidBone.leftThumbIntermediate,
+    HumanoidBone.leftThumbDistal,
+    HumanoidBone.leftIndexProximal,
+    HumanoidBone.leftIndexIntermediate,
+    HumanoidBone.leftIndexDistal,
+    HumanoidBone.leftMiddleProximal,
+    HumanoidBone.leftMiddleIntermediate,
+    HumanoidBone.leftMiddleDistal,
+    HumanoidBone.leftRingProximal,
+    HumanoidBone.leftRingIntermediate,
+    HumanoidBone.leftRingDistal,
+    HumanoidBone.leftLittleProximal,
+    HumanoidBone.leftLittleIntermediate,
+    HumanoidBone.leftLittleDistal,
+    HumanoidBone.rightThumbProximal,
+    HumanoidBone.rightThumbIntermediate,
+    HumanoidBone.rightThumbDistal,
+    HumanoidBone.rightIndexProximal,
+    HumanoidBone.rightIndexIntermediate,
+    HumanoidBone.rightIndexDistal,
+    HumanoidBone.rightMiddleProximal,
+    HumanoidBone.rightMiddleIntermediate,
+    HumanoidBone.rightMiddleDistal,
+    HumanoidBone.rightRingProximal,
+    HumanoidBone.rightRingIntermediate,
+    HumanoidBone.rightRingDistal,
+    HumanoidBone.rightLittleProximal,
+    HumanoidBone.rightLittleIntermediate,
+    HumanoidBone.rightLittleDistal,
+])
 
 HUMANOIDBONE_WORLD_AXIS = {
     HumanoidBone.hips: UP,

@@ -10,6 +10,7 @@ from pydear.gizmo.gizmo import Gizmo
 from pydear.gizmo.shapes.shape import Shape
 from ..humanoid.humanoid_skeleton import HumanoidSkeleton
 from ..humanoid.pose import Pose, BonePose
+from ..humanoid import blender_coordinate
 from ..scene.node import Node
 from ..scene.node_drag_handler import NodeDragHandler, sync_gizmo_with_node
 
@@ -55,7 +56,7 @@ class PoseScene:
             for bone, _ in self.root.traverse_node_and_parent():
                 if bone.humanoid_bone.is_enable():
                     bone.local_axis = glm.quat(
-                        bone.humanoid_bone.get_classification().get_local_axis())
+                        blender_coordinate.BONE_COORDS_MAP[bone.humanoid_bone])
             self.root.calc_world_matrix(glm.mat4())
 
             # setup gizmo
