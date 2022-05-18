@@ -100,11 +100,5 @@ class PoseScene:
 
         context = self.drag_handler.context
         if context:
-            start = context.start_screen_pos
             with self.nvg.render(self.camera.projection.width, self.camera.projection.height) as vg:
-                nvg_line_from_to(vg, start.x, start.y,
-                                 mouse_input.x, mouse_input.y)
-                if not context.edge:
-                    a = context.left
-                    b = context.right
-                    nvg_line_from_to(vg, a.x, a.y, b.x, b.y)
+                context.nvg_draw(vg)
