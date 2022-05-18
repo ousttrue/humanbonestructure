@@ -32,7 +32,7 @@ class BoneShape(Shape):
     1    2X
     '''
 
-    def __init__(self, width: float, height: float, depth: float, *, matrix: glm.mat4, color: glm.vec3, coordinate=BLENDER_COORDS) -> None:
+    def __init__(self, width: float, height: float, depth: float, *, matrix: glm.mat4, color: glm.vec3, coordinate=BLENDER_COORDS, line_size=0.1) -> None:
         super().__init__(matrix)
         if isinstance(color, glm.vec4):
             self.color = color
@@ -65,11 +65,10 @@ class BoneShape(Shape):
             Quad.from_points(v4, v0, v3, v7),  # top
             Quad.from_points(v1, v5, v6, v2),  # bottom
         ]
-        size = 0.1
         self.lines = [
-            (glm.vec3(0, 0, 0), glm.vec3(size, 0, 0), glm.vec4(1, 0, 0, 1)),
-            (glm.vec3(0, 0, 0), glm.vec3(0, size, 0), glm.vec4(0, 1, 0, 1)),
-            (glm.vec3(0, 0, 0), glm.vec3(0, 0, size), glm.vec4(0, 0, 1, 1)),
+            (glm.vec3(0, 0, 0), glm.vec3(line_size, 0, 0), glm.vec4(1, 0, 0, 1)),
+            (glm.vec3(0, 0, 0), glm.vec3(0, line_size, 0), glm.vec4(0, 1, 0, 1)),
+            (glm.vec3(0, 0, 0), glm.vec3(0, 0, line_size), glm.vec4(0, 0, 1, 1)),
         ]
 
     @staticmethod
@@ -78,11 +77,13 @@ class BoneShape(Shape):
         assert node.humanoid_tail
 
         color = glm.vec3(1, 1, 1)
-        width = None
-        height = None
+        width = float('nan')
+        height = float('nan')
+        line_size = 0.1
         if node.humanoid_bone.is_finger():
             width = 0.006
             height = 0.004
+            line_size = 0.02
             if 'Index' in node.humanoid_bone.name or 'Ring' in node.humanoid_bone.name:
                 if node.humanoid_bone.name.endswith("Intermediate"):
                     color = glm.vec3(0.1, 0.4, 0.8)
@@ -147,7 +148,7 @@ class BoneShape(Shape):
         length = glm.length(
             node.world_matrix[3].xyz - node.humanoid_tail.world_matrix[3].xyz)
 
-        return BoneShape(width, height, length, color=color, matrix=matrix, coordinate=coordinate)
+        return BoneShape(width, height, length, color=color, matrix=matrix, coordinate=coordinate, line_size=line_size)
 
     @staticmethod
     def from_root(root: Node, gizmo: Gizmo, *, coordinate=BLENDER_COORDS) -> Dict[Node, Shape]:

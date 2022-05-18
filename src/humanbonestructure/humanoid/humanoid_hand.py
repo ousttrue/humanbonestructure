@@ -14,6 +14,12 @@ class HumanoidFinger(NamedTuple):
     finger2: float
     finger3: float
 
+    @staticmethod
+    def create(position: glm.vec3, f: float, f1: float):
+        f2 = f1 * 0.8
+        f3 = f2 * 0.8
+        return HumanoidFinger(glm.vec3(position.x * f, position.y, position.z), f1, f2, f3)
+
 
 class HumanoidHand(NamedTuple):
     left_right: BoneFlags
@@ -33,15 +39,12 @@ class HumanoidHand(NamedTuple):
             raise Exception()
         return HumanoidHand(
             left_right,
-            thumbnail=HumanoidFinger(
-                glm.vec3(f*0.02, -0.01, 0.03), 0.04, 0.02, 0.015),
-            index=HumanoidFinger(
-                glm.vec3(f*0.07, 0, 0.015), 0.04, 0.02, 0.015),
-            middle=HumanoidFinger(glm.vec3(f*0.08, 0, 0), 0.04, 0.02, 0.015),
-            ring=HumanoidFinger(
-                glm.vec3(f*0.07, 0, -0.015), 0.04, 0.02, 0.015),
-            little=HumanoidFinger(
-                glm.vec3(f*0.06, 0, -0.03), 0.04, 0.02, 0.015),
+            thumbnail=HumanoidFinger.create(
+                glm.vec3(0.03, -0.01, 0.02), f, 0.04),
+            index=HumanoidFinger.create(glm.vec3(0.075, 0, 0.015), f, 0.04),
+            middle=HumanoidFinger.create(glm.vec3(0.08, 0, 0), f, 0.04),
+            ring=HumanoidFinger.create(glm.vec3(0.075, 0, -0.015), f, 0.04),
+            little=HumanoidFinger.create(glm.vec3(0.07, 0, -0.03), f, 0.04),
         )
 
     @ staticmethod
