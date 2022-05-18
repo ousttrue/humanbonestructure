@@ -116,7 +116,7 @@ class BoneShape(Shape):
                         HumanoidBone.rightHand | HumanoidBone.rightHand
                       ):
                     color = glm.vec3(0.8, 0.8, 0.8)
-                    width = 0.03
+                    width = 0.02
                     height = 0.005
                 case (HumanoidBone.head):
                     color = glm.vec3(0.8, 0.8, 0.2)

@@ -40,11 +40,11 @@ class HumanoidHand(NamedTuple):
         return HumanoidHand(
             left_right,
             thumbnail=HumanoidFinger.create(
-                glm.vec3(0.03, -0.01, 0.02), f, 0.04),
-            index=HumanoidFinger.create(glm.vec3(0.075, 0, 0.015), f, 0.04),
-            middle=HumanoidFinger.create(glm.vec3(0.08, 0, 0), f, 0.04),
-            ring=HumanoidFinger.create(glm.vec3(0.075, 0, -0.015), f, 0.04),
-            little=HumanoidFinger.create(glm.vec3(0.07, 0, -0.03), f, 0.04),
+                glm.vec3(0.03, -0.01, 0.02), f, 0.03),
+            index=HumanoidFinger.create(glm.vec3(0.075, 0, 0.015), f, 0.03),
+            middle=HumanoidFinger.create(glm.vec3(0.08, 0, 0), f, 0.03),
+            ring=HumanoidFinger.create(glm.vec3(0.075, 0, -0.015), f, 0.03),
+            little=HumanoidFinger.create(glm.vec3(0.07, 0, -0.03), f, 0.03),
         )
 
     @ staticmethod
