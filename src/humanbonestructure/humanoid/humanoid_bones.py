@@ -71,6 +71,13 @@ class HumanoidBoneClassification(NamedTuple):
                     _BACK,
                     _ZERO_ONE,
                 )
+            case (HumanoidBodyParts.Toe, LeftRight.Left, Fingers.NotFinger) | (HumanoidBodyParts.Toe, LeftRight.Right, Fingers.NotFinger):
+                return glm.mat4(
+                    _LEFT,
+                    _FORWARD,
+                    _DOWN,
+                    _ZERO_ONE,
+                )
             case _:
                 raise NotImplementedError()
 

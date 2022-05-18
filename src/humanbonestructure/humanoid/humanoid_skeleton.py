@@ -199,13 +199,36 @@ class HumanoidSkeletonRightLeg(NamedTuple):
         ])
 
 
-class HumanoidSkeletonToes(NamedTuple):
+class HumanoidSkeletonLeftToes(NamedTuple):
     position: glm.vec3
     toes: float
 
     @ staticmethod
-    def from_node_map(node_map: NodeMap, left_right: LeftRight) -> Optional['HumanoidSkeletonToes']:
+    def from_node_map(node_map: NodeMap) -> Optional['HumanoidSkeletonLeftToes']:
         pass
+
+    def to_node(self) -> Node:
+        d = glm.vec3(0, 0, 1)
+        return Node('leftToes', Transform.from_translation(self.position), HumanoidBone.leftToes, children=[
+            Node('endsite', Transform.from_translation(
+                d*self.toes), HumanoidBone.endSite)
+        ])
+
+
+class HumanoidSkeletonRightToes(NamedTuple):
+    position: glm.vec3
+    toes: float
+
+    @ staticmethod
+    def from_node_map(node_map: NodeMap) -> Optional['HumanoidSkeletonRightToes']:
+        pass
+
+    def to_node(self) -> Node:
+        d = glm.vec3(0, 0, 1)
+        return Node('rightToes', Transform.from_translation(self.position), HumanoidBone.rightToes, children=[
+            Node('endsite', Transform.from_translation(
+                d*self.toes), HumanoidBone.endSite)
+        ])
 
 
 class HumanoidSkeletonFinger(NamedTuple):
@@ -260,8 +283,8 @@ class HumanoidSkeleton:
                  left_arm: HumanoidSkeletonLeftArm,
                  right_arm: HumanoidSkeletonRightArm,
                  #
-                 left_toes: Optional[HumanoidSkeletonToes] = None,
-                 right_toes: Optional[HumanoidSkeletonToes] = None,
+                 left_toes: Optional[HumanoidSkeletonLeftToes] = None,
+                 right_toes: Optional[HumanoidSkeletonRightToes] = None,
                  #
                  left_fingers: Optional[HumanoidSkeletonFingers] = None,
                  right_fingers: Optional[HumanoidSkeletonFingers] = None
@@ -310,5 +333,12 @@ class HumanoidSkeleton:
         chest.add_child(right_arm)
         #
         root.add_child(hips)
+
+        if self.left_toes:
+            left_toes = self.left_toes.to_node()
+            root[HumanoidBone.leftFoot].add_child(left_toes)
+        if self.right_toes:
+            right_toes = self.right_toes.to_node()
+            root[HumanoidBone.rightFoot].add_child(right_toes)
 
         return root

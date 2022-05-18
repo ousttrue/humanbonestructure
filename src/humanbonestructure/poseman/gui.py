@@ -6,37 +6,61 @@ import glm
 from pydear import imgui as ImGui
 from pydear.utils import dockspace
 from ..humanoid.pose import Pose
+from ..eventproperty import EventProperty
 
 LOGGER = logging.getLogger(__name__)
 
 
-class GUI(dockspace.DockingGui):
-    def __init__(self, loop: asyncio.AbstractEventLoop, font: pathlib.Path, *, setting=None) -> None:
-        from ..humanoid.humanoid_skeleton import HumanoidSkeleton, HumanoidSkeletonTrunk, HumanoidSkeletonLeftArm, HumanoidSkeletonRightArm, HumanoidSkeletonLeftLeg, HumanoidSkeletonRightLeg
+class SkeletonView:
+    def __init__(self) -> None:
+        from ..humanoid.humanoid_skeleton import (HumanoidSkeleton, HumanoidSkeletonTrunk,
+                                                  HumanoidSkeletonLeftArm, HumanoidSkeletonRightArm,
+                                                  HumanoidSkeletonLeftLeg, HumanoidSkeletonRightLeg,
+                                                  HumanoidSkeletonLeftToes, HumanoidSkeletonRightToes,
+                                                  HumanoidSkeletonFingers)
         trunk = HumanoidSkeletonTrunk(glm.vec3(0, 0.85, 0),
                                       0.1, 0.1, 0.2, 0.1, 0.2)
         left_leg = HumanoidSkeletonLeftLeg(glm.vec3(0.1, 0, 0),
-                                           0.4, 0.35, 0.1)
+                                           0.4, 0.35, 0.08)
         right_leg = HumanoidSkeletonRightLeg(glm.vec3(-0.1, 0, 0),
-                                             0.4, 0.35, 0.1)
+                                             0.4, 0.35, 0.08)
         left_arm = HumanoidSkeletonLeftArm(glm.vec3(0.1, 0.2, 0),
                                            0.1, 0.3, 0.3, 0.05)
         right_arm = HumanoidSkeletonRightArm(glm.vec3(-0.1, 0.2, 0),
                                              0.1, 0.3, 0.3, 0.05)
-        self.skeleton = HumanoidSkeleton(
-            trunk=trunk,
-            left_arm=left_arm, right_arm=right_arm,
-            left_leg=left_leg, right_leg=right_leg)
+        left_toes = HumanoidSkeletonLeftToes(glm.vec3(0, -0.1, 0.08), 0.05)
+        right_toes = HumanoidSkeletonRightToes(glm.vec3(0, -0.1, 0.08), 0.05)
+        self.property = EventProperty[HumanoidSkeleton](
+            HumanoidSkeleton(
+                trunk=trunk,
+                left_arm=left_arm, right_arm=right_arm,
+                left_leg=left_leg, right_leg=right_leg,
+                left_toes=left_toes, right_toes=right_toes))
+
+    def show(self, p_open):
+        if p_open and not p_open[0]:
+            return
+
+        if ImGui.Begin('skeleton'):
+            pass
+        ImGui.End()
+
+
+class GUI(dockspace.DockingGui):
+    def __init__(self, loop: asyncio.AbstractEventLoop, font: pathlib.Path, *, setting=None) -> None:
 
         # view
         from pydear.utils.fbo_view import FboView
         self.fbo = FboView()
 
+        # skeleton
+        self.skeleton = SkeletonView()
+
         # scene
         from .pose_scene import PoseScene
         self.pose_scene = PoseScene(self.fbo.mouse_event, font)
-        self.pose_scene.set_skeleton(self.skeleton)
-
+        self.skeleton.property += self.pose_scene.set_skeleton
+        self.pose_scene.set_skeleton(self.skeleton.property.value)
         self.fbo.render = self.pose_scene.render
 
         # bone tree
@@ -64,6 +88,8 @@ class GUI(dockspace.DockingGui):
 
         self.views = [
             dockspace.Dock('metrics', ImGui.ShowMetricsWindow,
+                           (ctypes.c_bool * 1)(True)),
+            dockspace.Dock('skeleton', self.skeleton.show,
                            (ctypes.c_bool * 1)(True)),
             dockspace.Dock('view', self.fbo.show,
                            (ctypes.c_bool * 1)(True)),
