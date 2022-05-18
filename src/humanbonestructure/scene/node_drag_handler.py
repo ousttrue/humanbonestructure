@@ -6,6 +6,7 @@ from pydear.gizmo.shapes.shape import Shape
 from pydear.scene.camera import Camera
 from .node import Node
 from ..humanoid.transform import Transform
+from ..humanoid.humanoid_bones import BoneBase
 
 
 def find_node(node_shape_map, target) -> Node:
@@ -24,11 +25,23 @@ def sync_gizmo_with_node(root, parent: glm.mat4, node_shape_map):
                              glm.mat4(node.local_axis))
 
 
+SCALE = glm.scale(glm.vec3(0.25, 0.25, 0.25))
+
+
+def get_scale(selected: Shape, node_shape_map: Dict[Node, Shape]) -> glm.mat4:
+    for node, shape in node_shape_map.items():
+        if shape==selected:
+            if node.humanoid_bone.base == BoneBase.hand or node.humanoid_bone.is_finger():
+                return SCALE
+    return glm.mat4()
+
+
 class NodeRingDragContext(RingDragContext):
-    def __init__(self, start_screen_pos: glm.vec2, *, manipulator, axis: Axis, camera: Camera, target: Shape,
+    def __init__(self, start_screen_pos: glm.vec2, *, manipulator: Shape, axis: Axis, camera: Camera, target: Shape,
                  node_shape_map: Dict[Node, Shape]):
         super().__init__(start_screen_pos, manipulator=manipulator,
                          axis=axis, target=target, camera=camera)
+
         self.node_shape_map = node_shape_map
         self.target_node = find_node(node_shape_map, target)
 
@@ -40,7 +53,7 @@ class NodeRingDragContext(RingDragContext):
         self.target_node.pose = Transform.from_rotation(glm.normalize(
             glm.quat(local_matrix) * glm.inverse(local_axis)))
         sync_gizmo_with_node(self.target_node, parent, self.node_shape_map)
-        return world_matrix
+        return world_matrix * get_scale(self.target, self.node_shape_map)
 
 
 class NodeRollDragContext(RollDragContext):
@@ -59,14 +72,21 @@ class NodeRollDragContext(RollDragContext):
         self.target_node.pose = Transform.from_rotation(glm.normalize(
             glm.quat(local_matrix) * glm.inverse(local_axis)))
         sync_gizmo_with_node(self.target_node, parent, self.node_shape_map)
-        return world_matrix
+        return world_matrix * get_scale(self.target, self.node_shape_map)
 
 
 class NodeDragHandler(GizmoDragHandler):
-    def __init__(self, gizmo: Gizmo, camera: Camera, node_shape_map, on_drag_end) -> None:
+    def __init__(self, gizmo: Gizmo, camera: Camera, node_shape_map: Dict[Node, Shape], on_drag_end) -> None:
         self.node_shape_map = node_shape_map
-        super().__init__(gizmo, camera, inner=0.1, outer=0.2, depth=0.05)
+        super().__init__(gizmo, camera, inner=0.1, outer=0.2, depth=0.02)
         self.on_drag_end = on_drag_end
+
+        def on_selected(selected: Shape):
+            for k, v in self.drag_shapes.items():
+                k.matrix.set(k.matrix.value *
+                             get_scale(selected, node_shape_map))
+
+        self.selected += on_selected
 
     def create_rotation_shapes(self, inner: float, outer: float, depth: float) -> Dict[Shape, Tuple[Type, dict]]:
         from pydear.gizmo.shapes.ring_shape import XRingShape, YRingShape, ZRingShape, XRollShape, YRollShape, ZRollShape
@@ -78,6 +98,12 @@ class NodeDragHandler(GizmoDragHandler):
             YRollShape(inner=inner, outer=outer, depth=depth, color=glm.vec4(0.3, 1, 0.3, 1)): (NodeRollDragContext, {'axis': Axis.Y, 'node_shape_map': self.node_shape_map}),
             ZRollShape(inner=inner, outer=outer, depth=depth, color=glm.vec4(0.3, 0.3, 1, 1)): (NodeRollDragContext, {'axis': Axis.Z, 'node_shape_map': self.node_shape_map}),
         }
+
+    def drag(self, x, y, dx, dy):
+        if self.context:
+            m = self.context.drag(glm.vec2(x, y))
+            for drag_shape in self.drag_shapes.keys():
+                drag_shape.matrix.set(m)
 
     def drag_end(self, x, y):
         super().drag_end(x, y)
