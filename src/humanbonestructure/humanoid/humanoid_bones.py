@@ -1,185 +1,156 @@
-from typing import Tuple, NamedTuple, Optional, Dict
-from enum import Enum, auto
+from typing import Tuple
+from enum import Enum, Flag, auto
 import glm
 
 
-class LeftRight(Enum):
-    Center = 0
-    Left = 1
-    Right = 2
+ZERO = glm.vec3(0, 0, 0)
+UP = glm.vec3(0, 1, 0)
+DOWN = glm.vec3(0, -1, 0)
+FORWARD = glm.vec3(0, 0, 1)
+LEFT = glm.vec3(1, 0, 0)
+RIGHT = glm.vec3(-1, 0, 0)
 
 
-class HumanoidBone(Enum):
+class BoneFlags(Flag):
+    Center = auto()
+    Left = auto()
+    Right = auto()
+    FingerThumbnail = auto()
+    FingerIndex = auto()
+    FingerMiddle = auto()
+    FingerRing = auto()
+    FingerLittle = auto()
+
+
+class BoneBase(Enum):
     unknown = auto()
-    # trunk:
     hips = auto()
     spine = auto()
     chest = auto()
     neck = auto()
     head = auto()
+    shoulder = auto()
+    upperArm = auto()
+    lowerArm = auto()
+    hand = auto()
+    upperLeg = auto()
+    lowerLeg = auto()
+    foot = auto()
+    toes = auto()
+    finger_1 = auto()
+    finger_2 = auto()
+    finger_3 = auto()
+    endSite = auto()
+
+
+class HumanoidBone(Enum):
+    unknown = (BoneBase.unknown, BoneFlags.Center, ZERO)
+    # trunk:
+    hips = (BoneBase.hips, BoneFlags.Center, UP)
+    spine = (BoneBase.spine, BoneFlags.Center, UP)
+    chest = (BoneBase.chest, BoneFlags.Center, UP)
+    neck = (BoneBase.neck, BoneFlags.Center, UP)
+    head = (BoneBase.head, BoneFlags.Center, UP)
     # このライブラリでは使わない
     # upperChest = auto()
     # leftEye = auto()
     # rightEye = auto()
     # jaw = auto()
     # arms:
-    leftShoulder = auto()
-    leftUpperArm = auto()
-    leftLowerArm = auto()
-    leftHand = auto()
-    rightShoulder = auto()
-    rightUpperArm = auto()
-    rightLowerArm = auto()
-    rightHand = auto()
+    leftShoulder = (BoneBase.shoulder, BoneFlags.Left, LEFT)
+    leftUpperArm = (BoneBase.upperArm, BoneFlags.Left, LEFT)
+    leftLowerArm = (BoneBase.lowerArm, BoneFlags.Left, LEFT)
+    leftHand = (BoneBase.hand, BoneFlags.Left, LEFT)
+    rightShoulder = (BoneBase.shoulder, BoneFlags.Right, LEFT)
+    rightUpperArm = (BoneBase.upperArm, BoneFlags.Right, LEFT)
+    rightLowerArm = (BoneBase.lowerArm, BoneFlags.Right, LEFT)
+    rightHand = (BoneBase.hand, BoneFlags.Right, LEFT)
     # legs: foot の endSite は踵
-    leftUpperLeg = auto()
-    leftLowerLeg = auto()
-    leftFoot = auto()
-    rightUpperLeg = auto()
-    rightLowerLeg = auto()
-    rightFoot = auto()
+    leftUpperLeg = (BoneBase.upperLeg, BoneFlags.Left, DOWN)
+    leftLowerLeg = (BoneBase.lowerLeg, BoneFlags.Left, DOWN)
+    leftFoot = (BoneBase.foot, BoneFlags.Left, DOWN)
+    rightUpperLeg = (BoneBase.upperLeg, BoneFlags.Right, DOWN)
+    rightLowerLeg = (BoneBase.lowerLeg, BoneFlags.Right, DOWN)
+    rightFoot = (BoneBase.foot, BoneFlags.Right, DOWN)
     # toes: 手指と同じで非連続
-    leftToes = auto()
-    rightToes = auto()
+    leftToes = (BoneBase.toes, BoneFlags.Left, FORWARD)
+    rightToes = (BoneBase.toes, BoneFlags.Right, FORWARD)
     # 各指３関節だが、親指とその他で構成が違う
     # [親指]
     # 中手骨(metacarpal) - 指節骨(proximal, distal),
     # [人指,中,薬,小]
     # 指節骨(proximal, intermediate, distal)
-    leftThumbProximal = auto()
-    leftThumbIntermediate = auto()
-    leftThumbDistal = auto()
-    leftIndexProximal = auto()
-    leftIndexIntermediate = auto()
-    leftIndexDistal = auto()
-    leftMiddleProximal = auto()
-    leftMiddleIntermediate = auto()
-    leftMiddleDistal = auto()
-    leftRingProximal = auto()
-    leftRingIntermediate = auto()
-    leftRingDistal = auto()
-    leftLittleProximal = auto()
-    leftLittleIntermediate = auto()
-    leftLittleDistal = auto()
-    rightThumbProximal = auto()
-    rightThumbIntermediate = auto()
-    rightThumbDistal = auto()
-    rightIndexProximal = auto()
-    rightIndexIntermediate = auto()
-    rightIndexDistal = auto()
-    rightMiddleProximal = auto()
-    rightMiddleIntermediate = auto()
-    rightMiddleDistal = auto()
-    rightRingProximal = auto()
-    rightRingIntermediate = auto()
-    rightRingDistal = auto()
-    rightLittleProximal = auto()
-    rightLittleIntermediate = auto()
-    rightLittleDistal = auto()
+    leftThumbProximal = (
+        BoneBase.finger_1, BoneFlags.Left | BoneFlags.FingerThumbnail, LEFT)
+    leftThumbIntermediate = (
+        BoneBase.finger_2, BoneFlags.Left | BoneFlags.FingerThumbnail, LEFT)
+    leftThumbDistal = (
+        BoneBase.finger_3, BoneFlags.Left | BoneFlags.FingerThumbnail, LEFT)
+    leftIndexProximal = (
+        BoneBase.finger_1, BoneFlags.Left | BoneFlags.FingerIndex, LEFT)
+    leftIndexIntermediate = (
+        BoneBase.finger_2, BoneFlags.Left | BoneFlags.FingerIndex, LEFT)
+    leftIndexDistal = (
+        BoneBase.finger_3, BoneFlags.Left | BoneFlags.FingerIndex, LEFT)
+    leftMiddleProximal = (
+        BoneBase.finger_1, BoneFlags.Left | BoneFlags.FingerMiddle, LEFT)
+    leftMiddleIntermediate = (
+        BoneBase.finger_2, BoneFlags.Left | BoneFlags.FingerMiddle, LEFT)
+    leftMiddleDistal = (
+        BoneBase.finger_3, BoneFlags.Left | BoneFlags.FingerMiddle, LEFT)
+    leftRingProximal = (
+        BoneBase.finger_1, BoneFlags.Left | BoneFlags.FingerRing, LEFT)
+    leftRingIntermediate = (
+        BoneBase.finger_2, BoneFlags.Left | BoneFlags.FingerRing, LEFT)
+    leftRingDistal = (
+        BoneBase.finger_3, BoneFlags.Left | BoneFlags.FingerRing, LEFT)
+    leftLittleProximal = (
+        BoneBase.finger_1, BoneFlags.Left | BoneFlags.FingerLittle, LEFT)
+    leftLittleIntermediate = (
+        BoneBase.finger_2, BoneFlags.Left | BoneFlags.FingerLittle, LEFT)
+    leftLittleDistal = (
+        BoneBase.finger_3, BoneFlags.Left | BoneFlags.FingerLittle, LEFT)
+    #
+    rightThumbProximal = (
+        BoneBase.finger_1, BoneFlags.Right | BoneFlags.FingerThumbnail, RIGHT)
+    rightThumbIntermediate = (
+        BoneBase.finger_2, BoneFlags.Right | BoneFlags.FingerThumbnail, RIGHT)
+    rightThumbDistal = (
+        BoneBase.finger_3, BoneFlags.Right | BoneFlags.FingerThumbnail, RIGHT)
+    rightIndexProximal = (
+        BoneBase.finger_1, BoneFlags.Right | BoneFlags.FingerIndex, RIGHT)
+    rightIndexIntermediate = (
+        BoneBase.finger_2, BoneFlags.Right | BoneFlags.FingerIndex, RIGHT)
+    rightIndexDistal = (
+        BoneBase.finger_3, BoneFlags.Right | BoneFlags.FingerIndex, RIGHT)
+    rightMiddleProximal = (
+        BoneBase.finger_1, BoneFlags.Right | BoneFlags.FingerMiddle, RIGHT)
+    rightMiddleIntermediate = (
+        BoneBase.finger_2, BoneFlags.Right | BoneFlags.FingerMiddle, RIGHT)
+    rightMiddleDistal = (
+        BoneBase.finger_3, BoneFlags.Right | BoneFlags.FingerMiddle, RIGHT)
+    rightRingProximal = (
+        BoneBase.finger_1, BoneFlags.Right | BoneFlags.FingerRing, RIGHT)
+    rightRingIntermediate = (
+        BoneBase.finger_2, BoneFlags.Right | BoneFlags.FingerRing, RIGHT)
+    rightRingDistal = (
+        BoneBase.finger_3, BoneFlags.Right | BoneFlags.FingerRing, RIGHT)
+    rightLittleProximal = (
+        BoneBase.finger_1, BoneFlags.Right | BoneFlags.FingerLittle, RIGHT)
+    rightLittleIntermediate = (
+        BoneBase.finger_2, BoneFlags.Right | BoneFlags.FingerLittle, RIGHT)
+    rightLittleDistal = (
+        BoneBase.finger_3, BoneFlags.Right | BoneFlags.FingerLittle, RIGHT)
     # bvh
-    endSite = auto()
+    endSite = (BoneBase.endSite, BoneFlags.Center, ZERO)
+
+    def __init__(self, base: BoneBase, flags: BoneFlags, world_dir: glm.vec3):
+        self.base = base
+        self.flags = flags
+        self.world_dir = world_dir
 
     def is_enable(self) -> bool:
         return self != HumanoidBone.unknown and self != HumanoidBone.endSite
 
-    def get_world_axis(self) -> Tuple[float, float, float]:
-        return HUMANOIDBONE_WORLD_AXIS[self]
-
     def is_finger(self):
-        return self in FINGER_SET
-
-
-UP = (0, 1, 0)
-DOWN = (0, -1, 0)
-FORWARD = (0, 0, 1)
-LEFT = (1, 0, 0)
-RIGHT = (-1, 0, 0)
-
-FINGER_SET = set([
-    HumanoidBone.leftThumbProximal,
-    HumanoidBone.leftThumbIntermediate,
-    HumanoidBone.leftThumbDistal,
-    HumanoidBone.leftIndexProximal,
-    HumanoidBone.leftIndexIntermediate,
-    HumanoidBone.leftIndexDistal,
-    HumanoidBone.leftMiddleProximal,
-    HumanoidBone.leftMiddleIntermediate,
-    HumanoidBone.leftMiddleDistal,
-    HumanoidBone.leftRingProximal,
-    HumanoidBone.leftRingIntermediate,
-    HumanoidBone.leftRingDistal,
-    HumanoidBone.leftLittleProximal,
-    HumanoidBone.leftLittleIntermediate,
-    HumanoidBone.leftLittleDistal,
-    HumanoidBone.rightThumbProximal,
-    HumanoidBone.rightThumbIntermediate,
-    HumanoidBone.rightThumbDistal,
-    HumanoidBone.rightIndexProximal,
-    HumanoidBone.rightIndexIntermediate,
-    HumanoidBone.rightIndexDistal,
-    HumanoidBone.rightMiddleProximal,
-    HumanoidBone.rightMiddleIntermediate,
-    HumanoidBone.rightMiddleDistal,
-    HumanoidBone.rightRingProximal,
-    HumanoidBone.rightRingIntermediate,
-    HumanoidBone.rightRingDistal,
-    HumanoidBone.rightLittleProximal,
-    HumanoidBone.rightLittleIntermediate,
-    HumanoidBone.rightLittleDistal,
-])
-
-HUMANOIDBONE_WORLD_AXIS = {
-    HumanoidBone.hips: UP,
-    HumanoidBone.spine: UP,
-    HumanoidBone.chest: UP,
-    HumanoidBone.neck: UP,
-    HumanoidBone.head: UP,
-    HumanoidBone.leftUpperLeg: DOWN,
-    HumanoidBone.leftLowerLeg: DOWN,
-    HumanoidBone.leftFoot: DOWN,
-    HumanoidBone.rightUpperLeg: DOWN,
-    HumanoidBone.rightLowerLeg: DOWN,
-    HumanoidBone.rightFoot: DOWN,
-    HumanoidBone.leftShoulder: LEFT,
-    HumanoidBone.leftUpperArm: LEFT,
-    HumanoidBone.leftLowerArm: LEFT,
-    HumanoidBone.leftHand: LEFT,
-    HumanoidBone.rightShoulder: RIGHT,
-    HumanoidBone.rightUpperArm: RIGHT,
-    HumanoidBone.rightLowerArm: RIGHT,
-    HumanoidBone.rightHand: RIGHT,
-    #
-    HumanoidBone.leftToes: FORWARD,
-    HumanoidBone.rightToes: FORWARD,
-    #
-    HumanoidBone.leftThumbProximal: LEFT,
-    HumanoidBone.leftThumbIntermediate: LEFT,
-    HumanoidBone.leftThumbDistal: LEFT,
-    HumanoidBone.leftIndexProximal: LEFT,
-    HumanoidBone.leftIndexIntermediate: LEFT,
-    HumanoidBone.leftIndexDistal: LEFT,
-    HumanoidBone.leftMiddleProximal: LEFT,
-    HumanoidBone.leftMiddleIntermediate: LEFT,
-    HumanoidBone.leftMiddleDistal: LEFT,
-    HumanoidBone.leftRingProximal: LEFT,
-    HumanoidBone.leftRingIntermediate: LEFT,
-    HumanoidBone.leftRingDistal: LEFT,
-    HumanoidBone.leftLittleProximal: LEFT,
-    HumanoidBone.leftLittleIntermediate: LEFT,
-    HumanoidBone.leftLittleDistal: LEFT,
-    HumanoidBone.rightThumbProximal: RIGHT,
-    HumanoidBone.rightThumbIntermediate: RIGHT,
-    HumanoidBone.rightThumbDistal: RIGHT,
-    HumanoidBone.rightIndexProximal: RIGHT,
-    HumanoidBone.rightIndexIntermediate: RIGHT,
-    HumanoidBone.rightIndexDistal: RIGHT,
-    HumanoidBone.rightMiddleProximal: RIGHT,
-    HumanoidBone.rightMiddleIntermediate: RIGHT,
-    HumanoidBone.rightMiddleDistal: RIGHT,
-    HumanoidBone.rightRingProximal: RIGHT,
-    HumanoidBone.rightRingIntermediate: RIGHT,
-    HumanoidBone.rightRingDistal: RIGHT,
-    HumanoidBone.rightLittleProximal: RIGHT,
-    HumanoidBone.rightLittleIntermediate: RIGHT,
-    HumanoidBone.rightLittleDistal: RIGHT,
-}
+        return self.base in (BoneBase.finger_1, BoneBase.finger_2, BoneBase.finger_3)

@@ -1,7 +1,7 @@
 from typing import NamedTuple, List, Optional, TypeAlias, Dict, Union
 import glm
 from ..scene.node import Node
-from .humanoid_bones import HumanoidBone, LeftRight
+from .humanoid_bones import HumanoidBone, BoneFlags
 from .transform import Transform
 
 
@@ -34,7 +34,7 @@ class HumanoidLeftHand(NamedTuple):
         )
 
     @ staticmethod
-    def from_node_map(node_map: NodeMap, left_right: LeftRight) -> Optional['HumanoidLeftHand']:
+    def from_node_map(node_map: NodeMap, left_right: BoneFlags) -> Optional['HumanoidLeftHand']:
         pass
 
     def to_node(self, hand: Node):

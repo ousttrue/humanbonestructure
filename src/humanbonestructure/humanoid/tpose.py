@@ -2,7 +2,7 @@ from typing import Dict, Set
 import math
 import glm
 from ..scene.node import Node
-from .humanoid_bones import HumanoidBone, HUMANOIDBONE_WORLD_AXIS
+from .humanoid_bones import HumanoidBone
 from .transform import Transform
 from .pose import Motion, Pose, BonePose
 
@@ -30,10 +30,10 @@ def make_tpose(root: Node, *, is_inverted_pelvis=False):
         if node.humanoid_bone.is_enable() and node.humanoid_tail:
             root.calc_world_matrix(glm.mat4())
             if node.humanoid_bone == HumanoidBone.hips and is_inverted_pelvis:
-                dir = (0, -1, 0)
+                dir = glm.vec3(0, -1, 0)
             else:
-                dir = HUMANOIDBONE_WORLD_AXIS[node.humanoid_bone]
-            force_axis(node, node.humanoid_tail, glm.vec3(*dir))
+                dir = node.humanoid_bone.world_dir
+            force_axis(node, node.humanoid_tail, dir)
 
     root.calc_world_matrix(glm.mat4())
 
