@@ -154,3 +154,10 @@ class HumanoidBone(Enum):
 
     def is_finger(self):
         return self.base in (BoneBase.finger_1, BoneBase.finger_2, BoneBase.finger_3)
+
+    @staticmethod
+    def baseflag(base: BoneBase, flags: BoneFlags) -> 'HumanoidBone':
+        for bone in HumanoidBone:
+            if bone.base == base and bone.flags == flags:
+                return bone
+        raise KeyError(f'({base}, {flags}) not found')

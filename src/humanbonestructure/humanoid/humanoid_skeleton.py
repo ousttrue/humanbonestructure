@@ -1,10 +1,10 @@
 from typing import NamedTuple, Dict, TypeAlias, Optional
 import glm
 from ..scene.node import Node
-from .humanoid_bones import HumanoidBone
+from .humanoid_bones import HumanoidBone, BoneFlags
 from . import tpose
 from .transform import Transform
-from .humanoid_hand import HumanoidLeftHand, HumanoidRightHand, HumanoidFinger
+from .humanoid_hand import HumanoidHand, HumanoidFinger
 
 NodeMap: TypeAlias = Dict[HumanoidBone, Node]
 
@@ -241,8 +241,8 @@ class HumanoidSkeleton:
                  right_leg: HumanoidSkeletonRightLeg,
                  left_arm: HumanoidSkeletonLeftArm,
                  right_arm: HumanoidSkeletonRightArm,
-                 left_hand: HumanoidLeftHand,
-                 right_hand: HumanoidRightHand,
+                 left_hand: HumanoidHand,
+                 right_hand: HumanoidHand,
                  #
                  left_toes: Optional[HumanoidSkeletonLeftToes] = None,
                  right_toes: Optional[HumanoidSkeletonRightToes] = None,
@@ -276,8 +276,8 @@ class HumanoidSkeleton:
                                              0.1, 0.3, 0.3)
         left_toes = HumanoidSkeletonLeftToes(glm.vec3(0, -0.1, 0.08), 0.05)
         right_toes = HumanoidSkeletonRightToes(glm.vec3(0, -0.1, 0.08), 0.05)
-        left_hand = HumanoidLeftHand.create_default()
-        right_hand = HumanoidRightHand(0.1)
+        left_hand = HumanoidHand.create_default(BoneFlags.Left)
+        right_hand = HumanoidHand.create_default(BoneFlags.Right)
         return HumanoidSkeleton(
             trunk=trunk,
             left_leg=left_leg, right_leg=right_leg,
@@ -325,6 +325,7 @@ class HumanoidSkeleton:
 
         if self.left_hand:
             self.left_hand.to_node(root[HumanoidBone.leftHand])
+        if self.right_hand:
+            self.right_hand.to_node(root[HumanoidBone.rightHand])
 
         return root
- 
