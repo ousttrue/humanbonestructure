@@ -2,7 +2,7 @@ from typing import Optional
 from pydear.utils.node_editor.node import Node, InputPin, OutputPin, Serialized
 from pydear import imgui as ImGui
 from pydear import imnodes as ImNodes
-from ...humanoid.humanoid_skeleton import HumanoidSkeleton
+from ..humanoid.humanoid_skeleton import HumanoidSkeleton
 
 
 class SkeletonInputPin(InputPin[Optional[HumanoidSkeleton]]):

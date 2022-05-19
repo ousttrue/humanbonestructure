@@ -4,8 +4,8 @@ import pathlib
 from pydear import imgui as ImGui
 from pydear import imnodes as ImNodes
 from pydear.utils.node_editor.node import Node, InputPin, OutputPin, Serialized
-from ...formats.bvh.bvh_parser import Bvh, Pose
-from ...humanoid.humanoid_skeleton import HumanoidSkeleton
+from ..formats.bvh.bvh_parser import Bvh, Pose
+from ..humanoid.humanoid_skeleton import HumanoidSkeleton
 from .file_node import FileNode
 
 LOGGER = logging.getLogger(__name__)
@@ -74,10 +74,10 @@ class BvhNode(FileNode):
 
     def load(self, path: pathlib.Path):
         self.path = path
-        from ...formats.bvh import bvh_parser
+        from ..formats.bvh import bvh_parser
         self.bvh = bvh_parser.from_path(path)
         # scene
-        from ...scene.builder import bvh_builder
+        from ..scene.builder import bvh_builder
         self.root = bvh_builder.build(self.bvh)
         # skeleton
         self.skeleton = HumanoidSkeleton.from_node(self.root)

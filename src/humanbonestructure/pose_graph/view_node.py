@@ -3,9 +3,9 @@ import glm
 from pydear import imgui as ImGui
 from pydear import imnodes as ImNodes
 from pydear.utils.node_editor.node import Node, InputPin, Serialized, OutputPin
-from ...scene.skeleton_scene import SkeletonScene
-from ...humanoid.pose import Pose
-from ...humanoid.humanoid_skeleton import HumanoidSkeleton
+from ..scene.skeleton_scene import SkeletonScene
+from ..humanoid.pose import Pose
+from ..humanoid.humanoid_skeleton import HumanoidSkeleton
 
 
 class SkeletonInputPin(InputPin[Optional[HumanoidSkeleton]]):

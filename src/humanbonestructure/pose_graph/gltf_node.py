@@ -4,9 +4,9 @@ import pathlib
 from pydear import imgui as ImGui
 from pydear import imnodes as ImNodes
 from pydear.utils.node_editor.node import Node, InputPin, OutputPin, Serialized
-from ...formats.gltf_loader import Gltf
-from ...humanoid.humanoid_skeleton import HumanoidSkeleton
-from ...humanoid.pose import Pose
+from ..formats.gltf_loader import Gltf
+from ..humanoid.humanoid_skeleton import HumanoidSkeleton
+from ..humanoid.pose import Pose
 from .file_node import FileNode
 
 
@@ -46,7 +46,7 @@ class GltfNode(FileNode):
         # imgui
         from pydear.utils.fbo_view import FboView
         self.fbo = FboView()
-        from ...scene.node_scene import NodeScene
+        from ..scene.node_scene import NodeScene
         self.scene = NodeScene(self.fbo.mouse_event)
         self.convert = (ctypes.c_bool * 1)(convert)
 
@@ -99,7 +99,7 @@ class GltfNode(FileNode):
                 raise NotImplementedError()
             case '.glb' | '.vrm':
                 self.gltf = Gltf.load_glb(path.read_bytes())
-                from ...scene.builder import gltf_builder
+                from ..scene.builder import gltf_builder
                 root = gltf_builder.build(self.gltf)
                 self.skeleton = HumanoidSkeleton.from_node(root)
                 self.scene.set_root(root)

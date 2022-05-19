@@ -7,8 +7,8 @@ import json
 from pydear import imgui as ImGui
 from pydear import imnodes as ImNodes
 from pydear.utils.node_editor.node import Node, InputPin, OutputPin, Serialized
-from ...humanoid.pose import Pose
-from ... import jsonrpc
+from ..humanoid.pose import Pose
+from .. import jsonrpc
 
 
 LOGGER = logging.getLogger(__name__)

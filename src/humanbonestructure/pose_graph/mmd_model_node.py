@@ -3,9 +3,9 @@ import pathlib
 from pydear.utils.node_editor.node import Node, InputPin, OutputPin, Serialized
 from pydear import imgui as ImGui
 from pydear import imnodes as ImNodes
-from ...formats.pmd_loader import Pmd
-from ...formats.pmx_loader import Pmx
-from ...humanoid.humanoid_skeleton import HumanoidSkeleton
+from ..formats.pmd_loader import Pmd
+from ..formats.pmx_loader import Pmx
+from ..humanoid.humanoid_skeleton import HumanoidSkeleton
 from .file_node import FileNode
 
 
@@ -59,14 +59,14 @@ class MmdModelNode(FileNode):
             case '.pmd':
                 pmd = Pmd(path.read_bytes())
                 self.pmd_pmx = pmd
-                from ...scene.builder import pmd_builder
+                from ..scene.builder import pmd_builder
                 root = pmd_builder.build(pmd)
                 self.skeleton = HumanoidSkeleton.from_node(
                     root, is_inverted_pelvis=True)
             case '.pmx':
                 pmx = Pmx(path.read_bytes())
                 self.pmd_pmx = pmx
-                from ...scene.builder import pmx_builder
+                from ..scene.builder import pmx_builder
                 root = pmx_builder.build(pmx)
                 self.skeleton = HumanoidSkeleton.from_node(
                     root, is_inverted_pelvis=True)

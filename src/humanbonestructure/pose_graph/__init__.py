@@ -11,8 +11,8 @@ from .tpose_node import TPoseNode
 from .pose_muxer import PoseMuxerNode
 from .skeleton_muxer import SkeletonMuxerNode
 from .network_node import TcpClientNode
-from ...humanoid.pose import Pose
-from ...humanoid.humanoid_skeleton import HumanoidSkeleton
+from ..humanoid.pose import Pose
+from ..humanoid.humanoid_skeleton import HumanoidSkeleton
 
 TYPES = [
     TimeNode,

@@ -2,8 +2,8 @@ from typing import Optional
 from pydear import imgui as ImGui
 from pydear import imnodes as ImNodes
 from pydear.utils.node_editor.node import Node, InputPin, OutputPin, Serialized
-from ...scene import node
-from ...humanoid.humanoid_skeleton import HumanoidSkeleton
+from ..scene import node
+from ..humanoid.humanoid_skeleton import HumanoidSkeleton
 
 
 class TPoseSkeletonOutputPin(OutputPin[HumanoidSkeleton]):
