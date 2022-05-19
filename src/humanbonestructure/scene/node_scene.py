@@ -44,14 +44,21 @@ class NodeScene:
         self.root = root
         if self.root:
             self.root.calc_world_matrix(glm.mat4())
+            pos_map = {}
+            for node, _ in self.root.traverse_node_and_parent():
+                pos_map[node] = node.world_matrix[3].xyz
+            for node, parent in self.root.traverse_node_and_parent():
+                parent_pos = pos_map[parent] if parent else glm.vec3(0, 0, 0)
+                node.init_trs = Transform.from_translation(pos_map[node]-parent_pos)
+            self.root.calc_world_matrix(glm.mat4())
             self.root.init_human_bones()
-            self.root.print_tree()
+            # self.root.print_tree()
             self.root.calc_bind_matrix(glm.mat4())
             self.root.calc_world_matrix(glm.mat4())
             self.humanoid_node_map = {node.humanoid_bone: node for node,
                                       _ in self.root.traverse_node_and_parent(only_human_bone=True)}
             self.node_shape_map.clear()
-            for node, shape in BoneShape.from_root(self.root, self.gizmo, get_coordinate=get_unitychan_coords).items():
+            for node, shape in BoneShape.from_root(self.root, self.gizmo).items():
                 self.node_shape_map[node] = shape
 
     def set_pose(self, pose: Optional[Pose], convert: bool):

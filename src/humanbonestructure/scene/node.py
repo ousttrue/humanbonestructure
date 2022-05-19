@@ -78,7 +78,7 @@ class Node:
     def find_tail(self) -> Optional['Node']:
         assert self.humanoid_bone.is_enable()
 
-        if self.humanoid_bone==HumanoidBone.hips:
+        if self.humanoid_bone == HumanoidBone.hips:
             pass
 
         tail_bone = self.humanoid_bone.get_tail()
@@ -91,9 +91,11 @@ class Node:
         match self.humanoid_bone:
             case HumanoidBone.leftFoot | HumanoidBone.rightFoot:
                 LOGGER.warn(f'no tail: {self}')
-                height = self.world_matrix[3].y
-                tail = Node('heal', Transform(glm.vec3(0,
-                            -height, 0), glm.quat(), glm.vec3(1)), HumanoidBone.endSite)
+                pos = self.world_matrix[3].xyz
+                end = glm.vec3(pos.x, 0, pos.y)
+                local_end = glm.inverse(self.world_matrix) * end
+                tail = Node('heal', Transform(local_end, glm.quat(),
+                            glm.vec3(1)), HumanoidBone.endSite)
                 self.add_child(tail)
                 self.humanoid_tail = tail
                 return tail
@@ -103,7 +105,8 @@ class Node:
                 head_pos = self.world_matrix[3].xyz
                 head_end = head_pos + glm.vec3(0, 0.2, 0)
                 local_end = glm.inverse(self.world_matrix) * head_end
-                tail = Node(self.name+'先', Transform(local_end, glm.quat(), glm.vec3(1)), HumanoidBone.endSite)
+                tail = Node(self.name+'先', Transform(local_end,
+                            glm.quat(), glm.vec3(1)), HumanoidBone.endSite)
                 self.add_child(tail)
                 self.humanoid_tail = tail
                 return tail

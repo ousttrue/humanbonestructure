@@ -7,6 +7,7 @@ ZERO = glm.vec3(0, 0, 0)
 UP = glm.vec3(0, 1, 0)
 DOWN = glm.vec3(0, -1, 0)
 FORWARD = glm.vec3(0, 0, 1)
+BACK = glm.vec3(0, 0, -1)
 LEFT = glm.vec3(1, 0, 0)
 RIGHT = glm.vec3(-1, 0, 0)
 
@@ -44,110 +45,111 @@ class BoneBase(Enum):
 
 
 class HumanoidBone(Enum):
-    unknown = (BoneBase.unknown, BoneFlags.Center, ZERO)
+    unknown = (BoneBase.unknown, BoneFlags.Center, ZERO, ZERO)
     # trunk:
-    hips = (BoneBase.hips, BoneFlags.Center, UP)
-    spine = (BoneBase.spine, BoneFlags.Center, UP)
-    chest = (BoneBase.chest, BoneFlags.Center, UP)
-    neck = (BoneBase.neck, BoneFlags.Center, UP)
-    head = (BoneBase.head, BoneFlags.Center, UP)
+    hips = (BoneBase.hips, BoneFlags.Center, UP, FORWARD)
+    spine = (BoneBase.spine, BoneFlags.Center, UP, FORWARD)
+    chest = (BoneBase.chest, BoneFlags.Center, UP, FORWARD)
+    neck = (BoneBase.neck, BoneFlags.Center, UP, FORWARD)
+    head = (BoneBase.head, BoneFlags.Center, UP, FORWARD)
     # このライブラリでは使わない
     # upperChest = auto()
     # leftEye = auto()
     # rightEye = auto()
     # jaw = auto()
     # arms:
-    leftShoulder = (BoneBase.shoulder, BoneFlags.Left, LEFT)
-    leftUpperArm = (BoneBase.upperArm, BoneFlags.Left, LEFT)
-    leftLowerArm = (BoneBase.lowerArm, BoneFlags.Left, LEFT)
-    leftHand = (BoneBase.hand, BoneFlags.Left, LEFT)
-    rightShoulder = (BoneBase.shoulder, BoneFlags.Right, RIGHT)
-    rightUpperArm = (BoneBase.upperArm, BoneFlags.Right, RIGHT)
-    rightLowerArm = (BoneBase.lowerArm, BoneFlags.Right, RIGHT)
-    rightHand = (BoneBase.hand, BoneFlags.Right, RIGHT)
+    leftShoulder = (BoneBase.shoulder, BoneFlags.Left, LEFT, FORWARD)
+    leftUpperArm = (BoneBase.upperArm, BoneFlags.Left, LEFT, FORWARD)
+    leftLowerArm = (BoneBase.lowerArm, BoneFlags.Left, LEFT, FORWARD)
+    leftHand = (BoneBase.hand, BoneFlags.Left, LEFT, DOWN)
+    rightShoulder = (BoneBase.shoulder, BoneFlags.Right, RIGHT, FORWARD)
+    rightUpperArm = (BoneBase.upperArm, BoneFlags.Right, RIGHT, FORWARD)
+    rightLowerArm = (BoneBase.lowerArm, BoneFlags.Right, RIGHT, FORWARD)
+    rightHand = (BoneBase.hand, BoneFlags.Right, RIGHT, DOWN)
     # legs: foot の endSite は踵
-    leftUpperLeg = (BoneBase.upperLeg, BoneFlags.Left, DOWN)
-    leftLowerLeg = (BoneBase.lowerLeg, BoneFlags.Left, DOWN)
-    leftFoot = (BoneBase.foot, BoneFlags.Left, DOWN)
-    rightUpperLeg = (BoneBase.upperLeg, BoneFlags.Right, DOWN)
-    rightLowerLeg = (BoneBase.lowerLeg, BoneFlags.Right, DOWN)
-    rightFoot = (BoneBase.foot, BoneFlags.Right, DOWN)
+    leftUpperLeg = (BoneBase.upperLeg, BoneFlags.Left, DOWN, BACK)
+    leftLowerLeg = (BoneBase.lowerLeg, BoneFlags.Left, DOWN, BACK)
+    leftFoot = (BoneBase.foot, BoneFlags.Left, DOWN, BACK)
+    rightUpperLeg = (BoneBase.upperLeg, BoneFlags.Right, DOWN, BACK)
+    rightLowerLeg = (BoneBase.lowerLeg, BoneFlags.Right, DOWN, BACK)
+    rightFoot = (BoneBase.foot, BoneFlags.Right, DOWN, BACK)
     # toes: 手指と同じで非連続
-    leftToes = (BoneBase.toes, BoneFlags.Left, FORWARD)
-    rightToes = (BoneBase.toes, BoneFlags.Right, FORWARD)
+    leftToes = (BoneBase.toes, BoneFlags.Left, FORWARD, DOWN)
+    rightToes = (BoneBase.toes, BoneFlags.Right, FORWARD, DOWN)
     # 各指３関節だが、親指とその他で構成が違う
     # [親指]
     # 中手骨(metacarpal) - 指節骨(proximal, distal),
     # [人指,中,薬,小]
     # 指節骨(proximal, intermediate, distal)
     leftThumbProximal = (
-        BoneBase.finger_1, BoneFlags.Left | BoneFlags.FingerThumbnail, LEFT)
+        BoneBase.finger_1, BoneFlags.Left | BoneFlags.FingerThumbnail, LEFT, BACK)
     leftThumbIntermediate = (
-        BoneBase.finger_2, BoneFlags.Left | BoneFlags.FingerThumbnail, LEFT)
+        BoneBase.finger_2, BoneFlags.Left | BoneFlags.FingerThumbnail, LEFT, BACK)
     leftThumbDistal = (
-        BoneBase.finger_3, BoneFlags.Left | BoneFlags.FingerThumbnail, LEFT)
+        BoneBase.finger_3, BoneFlags.Left | BoneFlags.FingerThumbnail, LEFT, BACK)
     leftIndexProximal = (
-        BoneBase.finger_1, BoneFlags.Left | BoneFlags.FingerIndex, LEFT)
+        BoneBase.finger_1, BoneFlags.Left | BoneFlags.FingerIndex, LEFT, DOWN)
     leftIndexIntermediate = (
-        BoneBase.finger_2, BoneFlags.Left | BoneFlags.FingerIndex, LEFT)
+        BoneBase.finger_2, BoneFlags.Left | BoneFlags.FingerIndex, LEFT, DOWN)
     leftIndexDistal = (
-        BoneBase.finger_3, BoneFlags.Left | BoneFlags.FingerIndex, LEFT)
+        BoneBase.finger_3, BoneFlags.Left | BoneFlags.FingerIndex, LEFT, DOWN)
     leftMiddleProximal = (
-        BoneBase.finger_1, BoneFlags.Left | BoneFlags.FingerMiddle, LEFT)
+        BoneBase.finger_1, BoneFlags.Left | BoneFlags.FingerMiddle, LEFT, DOWN)
     leftMiddleIntermediate = (
-        BoneBase.finger_2, BoneFlags.Left | BoneFlags.FingerMiddle, LEFT)
+        BoneBase.finger_2, BoneFlags.Left | BoneFlags.FingerMiddle, LEFT, DOWN)
     leftMiddleDistal = (
-        BoneBase.finger_3, BoneFlags.Left | BoneFlags.FingerMiddle, LEFT)
+        BoneBase.finger_3, BoneFlags.Left | BoneFlags.FingerMiddle, LEFT, DOWN)
     leftRingProximal = (
-        BoneBase.finger_1, BoneFlags.Left | BoneFlags.FingerRing, LEFT)
+        BoneBase.finger_1, BoneFlags.Left | BoneFlags.FingerRing, LEFT, DOWN)
     leftRingIntermediate = (
-        BoneBase.finger_2, BoneFlags.Left | BoneFlags.FingerRing, LEFT)
+        BoneBase.finger_2, BoneFlags.Left | BoneFlags.FingerRing, LEFT, DOWN)
     leftRingDistal = (
-        BoneBase.finger_3, BoneFlags.Left | BoneFlags.FingerRing, LEFT)
+        BoneBase.finger_3, BoneFlags.Left | BoneFlags.FingerRing, LEFT, DOWN)
     leftLittleProximal = (
-        BoneBase.finger_1, BoneFlags.Left | BoneFlags.FingerLittle, LEFT)
+        BoneBase.finger_1, BoneFlags.Left | BoneFlags.FingerLittle, LEFT, DOWN)
     leftLittleIntermediate = (
-        BoneBase.finger_2, BoneFlags.Left | BoneFlags.FingerLittle, LEFT)
+        BoneBase.finger_2, BoneFlags.Left | BoneFlags.FingerLittle, LEFT, DOWN)
     leftLittleDistal = (
-        BoneBase.finger_3, BoneFlags.Left | BoneFlags.FingerLittle, LEFT)
+        BoneBase.finger_3, BoneFlags.Left | BoneFlags.FingerLittle, LEFT, DOWN)
     #
     rightThumbProximal = (
-        BoneBase.finger_1, BoneFlags.Right | BoneFlags.FingerThumbnail, RIGHT)
+        BoneBase.finger_1, BoneFlags.Right | BoneFlags.FingerThumbnail, RIGHT, BACK)
     rightThumbIntermediate = (
-        BoneBase.finger_2, BoneFlags.Right | BoneFlags.FingerThumbnail, RIGHT)
+        BoneBase.finger_2, BoneFlags.Right | BoneFlags.FingerThumbnail, RIGHT, BACK)
     rightThumbDistal = (
-        BoneBase.finger_3, BoneFlags.Right | BoneFlags.FingerThumbnail, RIGHT)
+        BoneBase.finger_3, BoneFlags.Right | BoneFlags.FingerThumbnail, RIGHT, BACK)
     rightIndexProximal = (
-        BoneBase.finger_1, BoneFlags.Right | BoneFlags.FingerIndex, RIGHT)
+        BoneBase.finger_1, BoneFlags.Right | BoneFlags.FingerIndex, RIGHT, DOWN)
     rightIndexIntermediate = (
-        BoneBase.finger_2, BoneFlags.Right | BoneFlags.FingerIndex, RIGHT)
+        BoneBase.finger_2, BoneFlags.Right | BoneFlags.FingerIndex, RIGHT, DOWN)
     rightIndexDistal = (
-        BoneBase.finger_3, BoneFlags.Right | BoneFlags.FingerIndex, RIGHT)
+        BoneBase.finger_3, BoneFlags.Right | BoneFlags.FingerIndex, RIGHT, DOWN)
     rightMiddleProximal = (
-        BoneBase.finger_1, BoneFlags.Right | BoneFlags.FingerMiddle, RIGHT)
+        BoneBase.finger_1, BoneFlags.Right | BoneFlags.FingerMiddle, RIGHT, DOWN)
     rightMiddleIntermediate = (
-        BoneBase.finger_2, BoneFlags.Right | BoneFlags.FingerMiddle, RIGHT)
+        BoneBase.finger_2, BoneFlags.Right | BoneFlags.FingerMiddle, RIGHT, DOWN)
     rightMiddleDistal = (
-        BoneBase.finger_3, BoneFlags.Right | BoneFlags.FingerMiddle, RIGHT)
+        BoneBase.finger_3, BoneFlags.Right | BoneFlags.FingerMiddle, RIGHT, DOWN)
     rightRingProximal = (
-        BoneBase.finger_1, BoneFlags.Right | BoneFlags.FingerRing, RIGHT)
+        BoneBase.finger_1, BoneFlags.Right | BoneFlags.FingerRing, RIGHT, DOWN)
     rightRingIntermediate = (
-        BoneBase.finger_2, BoneFlags.Right | BoneFlags.FingerRing, RIGHT)
+        BoneBase.finger_2, BoneFlags.Right | BoneFlags.FingerRing, RIGHT, DOWN)
     rightRingDistal = (
-        BoneBase.finger_3, BoneFlags.Right | BoneFlags.FingerRing, RIGHT)
+        BoneBase.finger_3, BoneFlags.Right | BoneFlags.FingerRing, RIGHT, DOWN)
     rightLittleProximal = (
-        BoneBase.finger_1, BoneFlags.Right | BoneFlags.FingerLittle, RIGHT)
+        BoneBase.finger_1, BoneFlags.Right | BoneFlags.FingerLittle, RIGHT, DOWN)
     rightLittleIntermediate = (
-        BoneBase.finger_2, BoneFlags.Right | BoneFlags.FingerLittle, RIGHT)
+        BoneBase.finger_2, BoneFlags.Right | BoneFlags.FingerLittle, RIGHT, DOWN)
     rightLittleDistal = (
-        BoneBase.finger_3, BoneFlags.Right | BoneFlags.FingerLittle, RIGHT)
+        BoneBase.finger_3, BoneFlags.Right | BoneFlags.FingerLittle, RIGHT, DOWN)
     # bvh
-    endSite = (BoneBase.endSite, BoneFlags.Center, ZERO)
+    endSite = (BoneBase.endSite, BoneFlags.Center, ZERO, ZERO)
 
-    def __init__(self, base: BoneBase, flags: BoneFlags, world_dir: glm.vec3):
+    def __init__(self, base: BoneBase, flags: BoneFlags, world_dir: glm.vec3, world_up: glm.vec3):
         self.base = base
         self.flags = flags
         self.world_dir = world_dir
+        self.world_up = world_up
 
     def is_enable(self) -> bool:
         if self in (HumanoidBone.unknown, HumanoidBone.endSite):

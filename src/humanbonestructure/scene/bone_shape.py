@@ -1,4 +1,4 @@
-from typing import Iterable, Dict, Tuple, TypedDict, Callable, Optional
+from typing import Iterable, Dict, Tuple, TypedDict, Callable, Optional, TypeAlias, Union
 from enum import Enum, auto
 import glm
 from pydear.gizmo.shapes.shape import Shape
@@ -14,6 +14,9 @@ class Coordinate(TypedDict):
     yaw: glm.vec3
     pitch: glm.vec3
     roll: glm.vec3
+
+
+GetCoords: TypeAlias = Callable[[HumanoidBone], Coordinate]
 
 
 BLENDER_COORDS = Coordinate(
@@ -32,7 +35,7 @@ class BoneShape(Shape):
     1    2X
     '''
 
-    def __init__(self, width: float, height: float, depth: float, *, matrix: glm.mat4, color: glm.vec3, coordinate=BLENDER_COORDS, line_size=0.1) -> None:
+    def __init__(self, width: float, height: float, depth: Union[float, Tuple[glm.vec3, glm.vec3]], *, matrix: glm.mat4, color: glm.vec3, coordinate=None, up_dir=None, line_size=0.1) -> None:
         super().__init__(matrix)
         if isinstance(color, glm.vec4):
             self.color = color
@@ -46,23 +49,46 @@ class BoneShape(Shape):
         x = self.width
         y = self.depth
         z = self.height
-        yaw = coordinate['yaw']
-        pitch = coordinate['pitch']
-        roll = coordinate['roll']
-        v0 = -pitch*x+yaw*z
-        v1 = -pitch*x-yaw*z
-        v2 = pitch*x-yaw*z
-        v3 = pitch*x+yaw*z
-        v4 = -pitch*x+roll*y+yaw*z
-        v5 = -pitch*x+roll*y-yaw*z
-        v6 = pitch*x+roll*y-yaw*z
-        v7 = pitch*x+roll*y+yaw*z
+
+        match depth:
+            case float():
+                assert coordinate
+                yaw = coordinate['yaw']
+                pitch = coordinate['pitch']
+                roll = coordinate['roll']
+                v0 = -pitch*x+yaw*z
+                v1 = -pitch*x-yaw*z
+                v2 = pitch*x-yaw*z
+                v3 = pitch*x+yaw*z
+                v4 = -pitch*x+roll*y+yaw*z
+                v5 = -pitch*x+roll*y-yaw*z
+                v6 = pitch*x+roll*y-yaw*z
+                v7 = pitch*x+roll*y+yaw*z
+            case (head, tail):
+                assert up_dir
+                head_tail = tail - head
+                z_axis = glm.normalize(head_tail)
+                x_axis = glm.normalize(glm.cross(up_dir, z_axis))
+                y_axis = glm.normalize(glm.cross(z_axis, x_axis))
+                # y_axis = up_dir
+                height = glm.vec3()
+
+                v0 = x_axis*x+y_axis*z
+                v1 = x_axis*x-y_axis*z
+                v2 = -x_axis*x-y_axis*z
+                v3 = -x_axis*x+y_axis*z
+                v4 = head_tail + x_axis*x+y_axis*z
+                v5 = head_tail + x_axis*x-y_axis*z
+                v6 = head_tail - x_axis*x-y_axis*z
+                v7 = head_tail - x_axis*x+y_axis*z
+            case _:
+                raise RuntimeError()
         self.quads = [
             Quad.from_points(v0, v1, v2, v3),  # back
             Quad.from_points(v3, v2, v6, v7),  # right
             Quad.from_points(v7, v6, v5, v4),  # forward
             Quad.from_points(v4, v5, v1, v0),  # left
-            Quad.from_points(v4, v0, v3, v7),  # top
+            Quad.from_points(v4, v0, v3, v7),  # top(red)
             Quad.from_points(v1, v5, v6, v2),  # bottom
         ]
         self.lines = [
@@ -72,12 +98,9 @@ class BoneShape(Shape):
         ]
 
     @staticmethod
-    def from_node(node: Node, *, coordinate: Optional[Coordinate]) -> 'BoneShape':
+    def from_node(node: Node, *, get_coordinate: Optional[GetCoords] = None) -> 'BoneShape':
         assert node.humanoid_bone
         assert node.humanoid_tail
-
-        if not coordinate:
-            coordinate = BLENDER_COORDS
 
         color = glm.vec3(1, 1, 1)
         width = float('nan')
@@ -151,20 +174,26 @@ class BoneShape(Shape):
         length = glm.length(
             node.world_matrix[3].xyz - node.humanoid_tail.world_matrix[3].xyz)
 
-        return BoneShape(width, height, length, color=color, matrix=matrix, coordinate=coordinate, line_size=line_size)
+        if get_coordinate:
+            coordinate = get_coordinate(node.humanoid_bone)
+            return BoneShape(width, height, length, color=color, matrix=matrix, coordinate=coordinate, line_size=line_size)
+        else:
+            # head tail
+            assert node.humanoid_tail
+            head = node.world_matrix[3].xyz
+            tail = node.humanoid_tail.world_matrix[3].xyz
+            return BoneShape(width, height, (head, tail), color=color, matrix=matrix, line_size=line_size, up_dir=node.humanoid_bone.world_up)
 
     @staticmethod
     def from_root(root: Node, gizmo: Gizmo, *,
-                  get_coordinate: Optional[Callable[[HumanoidBone], Coordinate]] = None) -> Dict[Node, Shape]:
+                  get_coordinate: Optional[GetCoords] = None) -> Dict[Node, Shape]:
         node_shape_map: Dict[Node, Shape] = {}
         for bone in HumanoidBone:
             if bone.is_enable():
                 node = root.find_humanoid_bone(bone)
                 if node:
-                    coordinate = None
-                    if get_coordinate:
-                        coordinate = get_coordinate(node.humanoid_bone)
-                    shape = BoneShape.from_node(node, coordinate=coordinate)
+                    shape = BoneShape.from_node(
+                        node, get_coordinate=get_coordinate)
                     gizmo.add_shape(shape)
                     node_shape_map[node] = shape
         return node_shape_map
