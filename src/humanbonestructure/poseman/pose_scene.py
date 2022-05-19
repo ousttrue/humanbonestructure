@@ -38,6 +38,18 @@ class PoseScene:
         self.drag_handler.bind_mouse_event_with_gizmo(
             self.mouse_event, self.gizmo)
 
+        # camera gaze when selected
+        def on_selected(selected: Optional[Shape]):
+            if selected:
+                position = selected.matrix.value[3].xyz
+                self.camera.view.set_gaze(position)
+                for node, shape in self.node_shape_map.items():
+                    if shape == selected:
+
+                        self.set_selected(node)
+                        break
+        self.drag_handler.selected += on_selected
+
         self.nvg = NanoVgRenderer(font)
 
         self.pose_changed = EventProperty[Pose](Pose('empty'))
@@ -84,6 +96,13 @@ class PoseScene:
 
     def set_selected(self, selected: Optional[Node]):
         self.selected = selected
+
+        if selected:
+            # select from ImGui list
+            shape = self.node_shape_map.get(selected)
+            if shape and self.drag_handler.selected.value != shape:
+                self.drag_handler.select(shape)
+                self.camera.middle_drag.reset()
 
     def show_option(self):
         pass
