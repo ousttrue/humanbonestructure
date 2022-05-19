@@ -77,74 +77,47 @@ class Node:
 
     def find_tail(self) -> Optional['Node']:
         assert self.humanoid_bone.is_enable()
-        if not len(self.children):
-            # add dummy tail
-            LOGGER.warn(f'no tail: {self}')
-            tail = Node(self.name+'先', Transform(glm.vec3(0,
-                        0, 0.05), glm.quat(), glm.vec3(1)))
-            self.add_child(tail)
-            self.humanoid_tail = tail
-            return tail
 
-        human_bones = []
-        for child in self.children:
-            for x, _ in child.traverse_node_and_parent():
-                if x.humanoid_bone != HumanoidBone.unknown:
-                    # is_enable or endsite
-                    human_bones.append(x)
-                    break
+        if self.humanoid_bone==HumanoidBone.hips:
+            pass
 
-        if len(human_bones) == 1:
-            return human_bones[0]
+        tail_bone = self.humanoid_bone.get_tail()
+        if tail_bone != HumanoidBone.unknown:
+            tail = self.find_humanoid_bone(tail_bone)
+            if tail:
+                self.humanoid_tail = tail
+                return tail
 
-        if self.humanoid_bone == HumanoidBone.head:
-            # add dummy tail
-            LOGGER.warn(f'no tail: {self}')
-            tail = Node(self.name+'先', Transform(glm.vec3(0,
-                        0.2, 0), glm.quat(), glm.vec3(1)))
-            self.add_child(tail)
-            self.humanoid_tail = tail
-            return tail
+        match self.humanoid_bone:
+            case HumanoidBone.leftFoot | HumanoidBone.rightFoot:
+                LOGGER.warn(f'no tail: {self}')
+                height = self.world_matrix[3].y
+                tail = Node('heal', Transform(glm.vec3(0,
+                            -height, 0), glm.quat(), glm.vec3(1)), HumanoidBone.endSite)
+                self.add_child(tail)
+                self.humanoid_tail = tail
+                return tail
+            case HumanoidBone.head:
+                # add dummy tail
+                LOGGER.warn(f'no tail: {self}')
+                tail = Node(self.name+'先', Transform(glm.vec3(0,
+                            0.2, 0), glm.quat(), glm.vec3(1)), HumanoidBone.endSite)
+                self.add_child(tail)
+                self.humanoid_tail = tail
+                return tail
 
-        if not human_bones:
-            return self.children[0]
-
-        # mmd
+       # mmd
         match self.name:
             case '下半身' | '頭':
                 return next(iter(node for node, _ in self.traverse_node_and_parent() if node.name == self.name + '先'))
 
-        match self.humanoid_bone:
-            case HumanoidBone.chest:
-                for x, _ in self.traverse_node_and_parent():
-                    if x.humanoid_bone == HumanoidBone.neck:
-                        return x
-            case HumanoidBone.rightHand:
-                for x, _ in self.traverse_node_and_parent():
-                    if x.humanoid_bone == HumanoidBone.rightMiddleProximal:
-                        return x
-            case HumanoidBone.leftHand:
-                for x, _ in self.traverse_node_and_parent():
-                    if x.humanoid_bone == HumanoidBone.leftMiddleProximal:
-                        return x
-            case _:
-                pass
-
-        if self.humanoid_bone == HumanoidBone.head:
-            # leftEye, rightEye, jaw is not expected
-            LOGGER.warn(f'no tail: {self}')
-            tail = Node('head tail', Transform(glm.vec3(0,
-                        0.18, 0), glm.quat(), glm.vec3(1)))
-            self.add_child(tail)
-            self.humanoid_tail = tail
-            return tail
-        else:
-            for child in self.children:
-                for node, _ in child.traverse_node_and_parent():
-                    if node.humanoid_bone.is_enable():
-                        return node
-
-        return human_bones[0]
+        # add dummy tail
+        LOGGER.warn(f'no tail: {self}')
+        tail = Node(self.name+'先', Transform(glm.vec3(0,
+                    0, 0.05), glm.quat(), glm.vec3(1)), HumanoidBone.endSite)
+        self.add_child(tail)
+        self.humanoid_tail = tail
+        return tail
 
     def clear_pose(self):
         for node, _ in self.traverse_node_and_parent():

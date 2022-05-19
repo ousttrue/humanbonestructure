@@ -56,6 +56,7 @@ class TSkeletonScene:
 
     def _setup_model(self):
         assert self.root
+        self.root.calc_world_matrix(glm.mat4())
         self.root.init_human_bones()
         for bone, _ in self.root.traverse_node_and_parent():
             if bone.humanoid_bone.is_enable():

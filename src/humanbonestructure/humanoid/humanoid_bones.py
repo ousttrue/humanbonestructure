@@ -163,3 +163,66 @@ class HumanoidBone(Enum):
             if bone.base == base and bone.flags == flags:
                 return bone
         raise KeyError(f'({base}, {flags}) not found')
+
+    def get_tail(self) -> 'HumanoidBone':
+        if not self.is_enable():
+            raise RuntimeError(f'{self} has no tail')
+        return TAIL_MAP[self]
+
+
+TAIL_MAP = {
+    # trunk
+    HumanoidBone.hips: HumanoidBone.spine,
+    HumanoidBone.spine: HumanoidBone.chest,
+    HumanoidBone.chest: HumanoidBone.neck,
+    HumanoidBone.neck: HumanoidBone.head,
+    HumanoidBone.head: HumanoidBone.endSite,
+    # left
+    HumanoidBone.leftUpperLeg: HumanoidBone.leftLowerLeg,
+    HumanoidBone.leftLowerLeg: HumanoidBone.leftFoot,
+    HumanoidBone.leftFoot: HumanoidBone.endSite,
+    HumanoidBone.leftToes: HumanoidBone.endSite,
+    HumanoidBone.leftShoulder: HumanoidBone.leftUpperArm,
+    HumanoidBone.leftUpperArm: HumanoidBone.leftLowerArm,
+    HumanoidBone.leftLowerArm: HumanoidBone.leftHand,
+    HumanoidBone.leftHand: HumanoidBone.leftMiddleProximal,
+    HumanoidBone.leftMiddleProximal: HumanoidBone.leftMiddleIntermediate,
+    HumanoidBone.leftMiddleIntermediate: HumanoidBone.leftMiddleDistal,
+    HumanoidBone.leftMiddleDistal: HumanoidBone.endSite,
+    HumanoidBone.leftThumbProximal: HumanoidBone.leftThumbIntermediate,
+    HumanoidBone.leftThumbIntermediate: HumanoidBone.leftThumbDistal,
+    HumanoidBone.leftThumbDistal: HumanoidBone.endSite,
+    HumanoidBone.leftIndexProximal: HumanoidBone.leftIndexIntermediate,
+    HumanoidBone.leftIndexIntermediate: HumanoidBone.leftIndexDistal,
+    HumanoidBone.leftIndexDistal: HumanoidBone.endSite,
+    HumanoidBone.leftRingProximal: HumanoidBone.leftRingIntermediate,
+    HumanoidBone.leftRingIntermediate: HumanoidBone.leftRingDistal,
+    HumanoidBone.leftRingDistal: HumanoidBone.endSite,
+    HumanoidBone.leftLittleProximal: HumanoidBone.leftLittleIntermediate,
+    HumanoidBone.leftLittleIntermediate: HumanoidBone.leftLittleDistal,
+    HumanoidBone.leftLittleDistal: HumanoidBone.endSite,
+    # right
+    HumanoidBone.rightUpperLeg: HumanoidBone.rightLowerLeg,
+    HumanoidBone.rightLowerLeg: HumanoidBone.rightFoot,
+    HumanoidBone.rightFoot: HumanoidBone.endSite,
+    HumanoidBone.rightToes: HumanoidBone.endSite,
+    HumanoidBone.rightShoulder: HumanoidBone.rightUpperArm,
+    HumanoidBone.rightUpperArm: HumanoidBone.rightLowerArm,
+    HumanoidBone.rightLowerArm: HumanoidBone.rightHand,
+    HumanoidBone.rightHand: HumanoidBone.rightMiddleProximal,
+    HumanoidBone.rightMiddleProximal: HumanoidBone.rightMiddleIntermediate,
+    HumanoidBone.rightMiddleIntermediate: HumanoidBone.rightMiddleDistal,
+    HumanoidBone.rightMiddleDistal: HumanoidBone.endSite,
+    HumanoidBone.rightThumbProximal: HumanoidBone.rightThumbIntermediate,
+    HumanoidBone.rightThumbIntermediate: HumanoidBone.rightThumbDistal,
+    HumanoidBone.rightThumbDistal: HumanoidBone.endSite,
+    HumanoidBone.rightIndexProximal: HumanoidBone.rightIndexIntermediate,
+    HumanoidBone.rightIndexIntermediate: HumanoidBone.rightIndexDistal,
+    HumanoidBone.rightIndexDistal: HumanoidBone.endSite,
+    HumanoidBone.rightRingProximal: HumanoidBone.rightRingIntermediate,
+    HumanoidBone.rightRingIntermediate: HumanoidBone.rightRingDistal,
+    HumanoidBone.rightRingDistal: HumanoidBone.endSite,
+    HumanoidBone.rightLittleProximal: HumanoidBone.rightLittleIntermediate,
+    HumanoidBone.rightLittleIntermediate: HumanoidBone.rightLittleDistal,
+    HumanoidBone.rightLittleDistal: HumanoidBone.endSite,
+}
