@@ -3,7 +3,7 @@ import glm
 from pydear import imgui as ImGui
 from pydear import imnodes as ImNodes
 from pydear.utils.node_editor.node import Node, InputPin, Serialized, OutputPin
-from ...scene.t_skeleton_scene import TSkeletonScene
+from ...scene.skeleton_scene import SkeletonScene
 from ...humanoid.pose import Pose
 from ...humanoid.humanoid_skeleton import HumanoidSkeleton
 
@@ -46,7 +46,7 @@ class ViewNode(Node):
         # imgui
         from pydear.utils.fbo_view import FboView
         self.fbo = FboView()
-        self.scene = TSkeletonScene(self.fbo.mouse_event)
+        self.scene = SkeletonScene(self.fbo.mouse_event)
 
     @classmethod
     def imgui_menu(cls, graph, click_pos):

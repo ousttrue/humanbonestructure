@@ -8,11 +8,11 @@ from pydear.scene.camera import Camera
 from ..humanoid.humanoid_skeleton import HumanoidSkeleton
 from ..humanoid.pose import Pose
 from ..humanoid import blender_coordinate
-from ..scene.node import Node
-from ..scene.node_drag_handler import NodeDragHandler, sync_gizmo_with_node
+from .node import Node
+from .node_drag_handler import NodeDragHandler, sync_gizmo_with_node
 
 
-class TSkeletonScene:
+class SkeletonScene:
     def __init__(self, mouse_event: MouseEvent) -> None:
         self.mouse_event = mouse_event
         self.camera = Camera(distance=8, y=-0.8)
