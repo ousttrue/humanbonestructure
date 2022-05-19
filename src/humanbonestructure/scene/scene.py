@@ -75,7 +75,7 @@ class Scene:
         # self.root.calc_world_matrix(glm.mat4())
         # # tpose.pose_to_delta(scene.root)
 
-        from ..gui.bone_shape import BoneShape
+        from .bone_shape import BoneShape
         self.node_shape_map.clear()
         for node, shape in BoneShape.from_root(self.root, self.gizmo).items():
             self.node_shape_map[node] = shape

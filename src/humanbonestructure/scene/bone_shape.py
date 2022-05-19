@@ -4,7 +4,7 @@ import glm
 from pydear.gizmo.shapes.shape import Shape
 from pydear.gizmo.primitive import Quad
 from pydear.gizmo.gizmo import Gizmo
-from ..scene.node import Node
+from .node import Node
 from ..humanoid.humanoid_bones import HumanoidBone
 
 UP_COLOR = glm.vec4(0.8, 0.2, 0.2, 1)

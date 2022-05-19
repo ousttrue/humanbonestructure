@@ -66,7 +66,7 @@ class SkeletonScene:
         self.humanoid_node_map = {node.humanoid_bone: node for node,
                                   _ in self.root.traverse_node_and_parent(only_human_bone=True)}
 
-        from ..gui.bone_shape import BoneShape
+        from .bone_shape import BoneShape
         self.node_shape_map.clear()
         for node, shape in BoneShape.from_root(self.root, self.gizmo).items():
             self.node_shape_map[node] = shape
