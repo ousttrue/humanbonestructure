@@ -45,7 +45,6 @@ class PoseScene:
                 self.camera.view.set_gaze(position)
                 for node, shape in self.node_shape_map.items():
                     if shape == selected:
-
                         self.set_selected(node)
                         break
         self.drag_handler.selected += on_selected

@@ -163,7 +163,7 @@ class Scene:
         return bvh
 
     def create_model(self):
-        from .builder import strict_tpose
+        from ..humanoid import strict_tpose
         self.root = strict_tpose.create()
         self._setup_model()
 

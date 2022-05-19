@@ -9,9 +9,9 @@
 '''
 from typing import List
 import glm
-from ..node import Node
-from ...humanoid.humanoid_bones import HumanoidBone
-from ...humanoid.transform import Transform
+from ..scene.node import Node
+from .humanoid_bones import HumanoidBone
+from .transform import Transform
 
 
 BODY = [

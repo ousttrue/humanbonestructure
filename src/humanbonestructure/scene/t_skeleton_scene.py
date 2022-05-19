@@ -6,6 +6,7 @@ from pydear.utils.eventproperty import EventProperty
 from pydear.scene.camera import MouseEvent
 from ..humanoid.humanoid_skeleton import HumanoidSkeleton
 from ..humanoid.pose import Pose
+from ..humanoid import blender_coordinate
 from ..scene.node import Node
 from ..scene.node_drag_handler import NodeDragHandler, sync_gizmo_with_node
 
@@ -26,6 +27,12 @@ class TSkeletonScene:
         self.drag_handler.bind_mouse_event_with_gizmo(
             self.mouse_event, self.gizmo)
         self.pose_changed = EventProperty[Pose](Pose('empty'))
+
+        def on_selected(selected: Optional[Shape]):
+            if selected:
+                position = selected.matrix.value[3].xyz
+                self.camera.view.set_gaze(position)
+        self.drag_handler.selected += on_selected
 
     def raise_pose(self):
         assert self.root
@@ -49,8 +56,8 @@ class TSkeletonScene:
         self.root.init_human_bones()
         for bone, _ in self.root.traverse_node_and_parent():
             if bone.humanoid_bone.is_enable():
-                bone.local_axis = glm.quat(
-                    bone.humanoid_bone.get_classification().get_local_axis())
+                local_axis = blender_coordinate.BONE_COORDS_MAP[bone.humanoid_bone]
+                bone.local_axis = glm.quat(local_axis)
         self.root.calc_world_matrix(glm.mat4())
         self.humanoid_node_map = {node.humanoid_bone: node for node,
                                   _ in self.root.traverse_node_and_parent(only_human_bone=True)}

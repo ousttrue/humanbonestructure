@@ -21,9 +21,7 @@ class TPoseNode(Node):
                          [
                              TPoseSkeletonOutputPin(skeleton_pin_id)
                          ])
-        from ...scene.builder import strict_tpose
-        root = strict_tpose.create()
-        self.skeleton = HumanoidSkeleton.from_node(root)
+        self.skeleton = HumanoidSkeleton.create_default()
 
     @classmethod
     def imgui_menu(cls, graph, click_pos):
