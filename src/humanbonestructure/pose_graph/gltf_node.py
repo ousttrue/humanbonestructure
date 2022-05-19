@@ -93,7 +93,7 @@ class GltfNode(FileNode):
         ImGui.Checkbox('use convert', self.convert)
 
         if self.scene.root:
-            if ImGui.Button('tpose'):
+            if ImGui.Button('strict tpose'):
                 from ..scene.tpose import make_tpose
                 make_tpose(self.scene.root)
                 self.scene.sync_gizmo()

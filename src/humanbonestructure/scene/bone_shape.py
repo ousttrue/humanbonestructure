@@ -35,7 +35,7 @@ class BoneShape(Shape):
     1    2X
     '''
 
-    def __init__(self, width: float, height: float, depth: Union[float, Tuple[glm.vec3, glm.vec3]], *, matrix: glm.mat4, color: glm.vec3, coordinate=None, up_dir=None, line_size=0.1) -> None:
+    def __init__(self, width: float, height: float, depth: Union[float, Tuple[glm.vec3, glm.vec3]], *, matrix: glm.mat4, color: glm.vec3, coordinate=None, up_dir=None, local_axis=None, line_size=0.1) -> None:
         super().__init__(matrix)
         if isinstance(color, glm.vec4):
             self.color = color
@@ -64,6 +64,11 @@ class BoneShape(Shape):
                 v5 = -pitch*x+roll*y-yaw*z
                 v6 = pitch*x+roll*y-yaw*z
                 v7 = pitch*x+roll*y+yaw*z
+                self.lines = [
+                    (glm.vec3(0, 0, 0), glm.vec3(line_size, 0, 0), glm.vec4(1, 0, 0, 1)),
+                    (glm.vec3(0, 0, 0), glm.vec3(0, line_size, 0), glm.vec4(0, 1, 0, 1)),
+                    (glm.vec3(0, 0, 0), glm.vec3(0, 0, line_size), glm.vec4(0, 0, 1, 1)),
+                ]
             case (head, tail):
                 assert up_dir
                 head_tail = tail - head
@@ -81,6 +86,12 @@ class BoneShape(Shape):
                 v5 = head_tail + x_axis*x-y_axis*z
                 v6 = head_tail - x_axis*x-y_axis*z
                 v7 = head_tail - x_axis*x+y_axis*z
+                a = local_axis
+                self.lines = [
+                    (a*glm.vec3(0, 0, 0), a*glm.vec3(line_size, 0, 0), glm.vec4(1, 0, 0, 1)),
+                    (a*glm.vec3(0, 0, 0), a*glm.vec3(0, line_size, 0), glm.vec4(0, 1, 0, 1)),
+                    (a*glm.vec3(0, 0, 0), a*glm.vec3(0, 0, line_size), glm.vec4(0, 0, 1, 1)),
+                ]
             case _:
                 raise RuntimeError()
         self.quads = [
@@ -90,11 +101,6 @@ class BoneShape(Shape):
             Quad.from_points(v4, v5, v1, v0),  # left
             Quad.from_points(v4, v0, v3, v7),  # top(red)
             Quad.from_points(v1, v5, v6, v2),  # bottom
-        ]
-        self.lines = [
-            (glm.vec3(0, 0, 0), glm.vec3(line_size, 0, 0), glm.vec4(1, 0, 0, 1)),
-            (glm.vec3(0, 0, 0), glm.vec3(0, line_size, 0), glm.vec4(0, 1, 0, 1)),
-            (glm.vec3(0, 0, 0), glm.vec3(0, 0, line_size), glm.vec4(0, 0, 1, 1)),
         ]
 
     @staticmethod
@@ -182,7 +188,7 @@ class BoneShape(Shape):
             assert node.humanoid_tail
             head = node.world_matrix[3].xyz
             tail = node.humanoid_tail.world_matrix[3].xyz
-            return BoneShape(width, height, (head, tail), color=color, matrix=matrix, line_size=line_size, up_dir=node.humanoid_bone.world_up)
+            return BoneShape(width, height, (head, tail), color=color, matrix=matrix, line_size=line_size, up_dir=node.humanoid_bone.world_up, local_axis=node.local_axis)
 
     @staticmethod
     def from_root(root: Node, gizmo: Gizmo, *,

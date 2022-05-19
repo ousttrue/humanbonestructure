@@ -43,13 +43,16 @@ class NodeScene:
     def set_root(self, root: Optional[Node]):
         self.root = root
         if self.root:
+            # Clear node rotation and set local_axis
             self.root.calc_world_matrix(glm.mat4())
-            pos_map = {}
+            world_map = {}
             for node, _ in self.root.traverse_node_and_parent():
-                pos_map[node] = node.world_matrix[3].xyz
+                world_map[node] = node.world_matrix
             for node, parent in self.root.traverse_node_and_parent():
-                parent_pos = pos_map[parent] if parent else glm.vec3(0, 0, 0)
-                node.init_trs = Transform.from_translation(pos_map[node]-parent_pos)
+                parent_pos = world_map[parent][3].xyz if parent else glm.vec3(0, 0, 0)
+                node.init_trs = Transform.from_translation(world_map[node][3].xyz-parent_pos)
+                node.local_axis = glm.quat(world_map[node])
+            # setup
             self.root.calc_world_matrix(glm.mat4())
             self.root.init_human_bones()
             # self.root.print_tree()
