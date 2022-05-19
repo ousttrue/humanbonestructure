@@ -87,15 +87,13 @@ class GizmoScene:
         self.root = root
         if self.root:
             self.root.init_human_bones()
-            head = self.root[HumanoidBone.head]
-            head.humanoid_tail = head.children[6]
             self.root.print_tree()
             self.root.calc_bind_matrix(glm.mat4())
             self.root.calc_world_matrix(glm.mat4())
             self.humanoid_node_map = {node.humanoid_bone: node for node,
                                       _ in self.root.traverse_node_and_parent(only_human_bone=True)}
             self.node_shape_map.clear()
-            for node, shape in BoneShape.from_root(self.root, self.gizmo, get_coordinate=lambda x: UNITYCHAN_COORDS_MAP.get(x, UNITYCHAN_COORDS)).items():
+            for node, shape in BoneShape.from_root(self.root, self.gizmo).items():
                 self.node_shape_map[node] = shape
 
     def set_pose(self, pose: Optional[Pose], convert: bool):

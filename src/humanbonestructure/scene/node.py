@@ -88,50 +88,63 @@ class Node:
 
         human_bones = []
         for child in self.children:
-            for x, _ in child.traverse_node_and_parent(only_human_bone=True):
-                human_bones.append(x)
+            for x, _ in child.traverse_node_and_parent():
+                if x.humanoid_bone != HumanoidBone.unknown:
+                    # is_enable or endsite
+                    human_bones.append(x)
+                    break
 
-        if not human_bones:            
+        if len(human_bones) == 1:
+            return human_bones[0]
+
+        if self.humanoid_bone == HumanoidBone.head:
+            # add dummy tail
+            LOGGER.warn(f'no tail: {self}')
+            tail = Node(self.name+'先', Transform(glm.vec3(0,
+                        0.2, 0), glm.quat(), glm.vec3(1)))
+            self.add_child(tail)
+            self.humanoid_tail = tail
+            return tail
+
+        if not human_bones:
             return self.children[0]
-        elif len(human_bones) == 1:
-            return human_bones[0]
+
+        # mmd
+        match self.name:
+            case '下半身' | '頭':
+                return next(iter(node for node, _ in self.traverse_node_and_parent() if node.name == self.name + '先'))
+
+        match self.humanoid_bone:
+            case HumanoidBone.chest:
+                for x, _ in self.traverse_node_and_parent():
+                    if x.humanoid_bone == HumanoidBone.neck:
+                        return x
+            case HumanoidBone.rightHand:
+                for x, _ in self.traverse_node_and_parent():
+                    if x.humanoid_bone == HumanoidBone.rightMiddleProximal:
+                        return x
+            case HumanoidBone.leftHand:
+                for x, _ in self.traverse_node_and_parent():
+                    if x.humanoid_bone == HumanoidBone.leftMiddleProximal:
+                        return x
+            case _:
+                pass
+
+        if self.humanoid_bone == HumanoidBone.head:
+            # leftEye, rightEye, jaw is not expected
+            LOGGER.warn(f'no tail: {self}')
+            tail = Node('head tail', Transform(glm.vec3(0,
+                        0.18, 0), glm.quat(), glm.vec3(1)))
+            self.add_child(tail)
+            self.humanoid_tail = tail
+            return tail
         else:
-            # mmd
-            match self.name:
-                case '下半身' | '頭':
-                    return next(iter(node for node, _ in self.traverse_node_and_parent() if node.name == self.name + '先'))
+            for child in self.children:
+                for node, _ in child.traverse_node_and_parent():
+                    if node.humanoid_bone.is_enable():
+                        return node
 
-            match self.humanoid_bone:
-                case HumanoidBone.chest:
-                    for x, _ in self.traverse_node_and_parent():
-                        if x.humanoid_bone == HumanoidBone.neck:
-                            return x
-                case HumanoidBone.rightHand:
-                    for x, _ in self.traverse_node_and_parent():
-                        if x.humanoid_bone == HumanoidBone.rightMiddleProximal:
-                            return x
-                case HumanoidBone.leftHand:
-                    for x, _ in self.traverse_node_and_parent():
-                        if x.humanoid_bone == HumanoidBone.leftMiddleProximal:
-                            return x
-                case _:
-                    pass
-
-            if self.humanoid_bone == HumanoidBone.head:
-                # leftEye, rightEye, jaw is not expected
-                LOGGER.warn(f'no tail: {self}')
-                tail = Node('head tail', Transform(glm.vec3(0,
-                            0.18, 0), glm.quat(), glm.vec3(1)))
-                self.add_child(tail)
-                self.humanoid_tail = tail
-                return tail
-            else:
-                for child in self.children:
-                    for node, _ in child.traverse_node_and_parent():
-                        if node.humanoid_bone.is_enable():
-                            return node
-
-            return human_bones[0]
+        return human_bones[0]
 
     def clear_pose(self):
         for node, _ in self.traverse_node_and_parent():
