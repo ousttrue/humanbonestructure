@@ -91,7 +91,7 @@ class Node:
             for x, _ in child.traverse_node_and_parent(only_human_bone=True):
                 human_bones.append(x)
 
-        if not human_bones:
+        if not human_bones:            
             return self.children[0]
         elif len(human_bones) == 1:
             return human_bones[0]
@@ -242,3 +242,12 @@ class Node:
                 pose.bones.append(
                     BonePose(node.name, node.humanoid_bone, node.pose))
         return pose
+
+    def print_tree(self, indent=''):
+        tail = 'None'
+        if self.humanoid_tail:
+            tail = f'{self.humanoid_tail.humanoid_bone}({self.humanoid_tail.name})'
+        if self.humanoid_bone.is_enable():
+            print(f'{indent}{self.humanoid_bone}({self.name}) => {tail}')
+        for child in self.children:
+            child.print_tree(indent + '  ')

@@ -1,4 +1,4 @@
-from typing import Iterable, Dict, Tuple, TypedDict
+from typing import Iterable, Dict, Tuple, TypedDict, Callable, Optional
 from enum import Enum, auto
 import glm
 from pydear.gizmo.shapes.shape import Shape
@@ -72,9 +72,12 @@ class BoneShape(Shape):
         ]
 
     @staticmethod
-    def from_node(node: Node, *, coordinate=BLENDER_COORDS) -> 'BoneShape':
+    def from_node(node: Node, *, coordinate: Optional[Coordinate]) -> 'BoneShape':
         assert node.humanoid_bone
         assert node.humanoid_tail
+
+        if not coordinate:
+            coordinate = BLENDER_COORDS
 
         color = glm.vec3(1, 1, 1)
         width = float('nan')
@@ -151,12 +154,16 @@ class BoneShape(Shape):
         return BoneShape(width, height, length, color=color, matrix=matrix, coordinate=coordinate, line_size=line_size)
 
     @staticmethod
-    def from_root(root: Node, gizmo: Gizmo, *, coordinate=BLENDER_COORDS) -> Dict[Node, Shape]:
+    def from_root(root: Node, gizmo: Gizmo, *,
+                  get_coordinate: Optional[Callable[[HumanoidBone], Coordinate]] = None) -> Dict[Node, Shape]:
         node_shape_map: Dict[Node, Shape] = {}
         for bone in HumanoidBone:
             if bone.is_enable():
                 node = root.find_humanoid_bone(bone)
                 if node:
+                    coordinate = None
+                    if get_coordinate:
+                        coordinate = get_coordinate(node.humanoid_bone)
                     shape = BoneShape.from_node(node, coordinate=coordinate)
                     gizmo.add_shape(shape)
                     node_shape_map[node] = shape

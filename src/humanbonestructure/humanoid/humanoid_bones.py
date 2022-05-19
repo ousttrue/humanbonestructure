@@ -150,7 +150,9 @@ class HumanoidBone(Enum):
         self.world_dir = world_dir
 
     def is_enable(self) -> bool:
-        return self != HumanoidBone.unknown and self != HumanoidBone.endSite
+        if self in (HumanoidBone.unknown, HumanoidBone.endSite):
+            return False
+        return True
 
     def is_finger(self):
         return self.base in (BoneBase.finger_1, BoneBase.finger_2, BoneBase.finger_3)

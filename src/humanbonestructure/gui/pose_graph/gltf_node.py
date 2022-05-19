@@ -37,10 +37,23 @@ class GltfSkeletonOutputPin(OutputPin[Optional[HumanoidSkeleton]]):
         return node.skeleton
 
 
-UNITY_CHAN_COORDS = Coordinate(
+UNITYCHAN_COORDS = Coordinate(
     yaw=glm.vec3(0, 1, 0),
+    pitch=glm.vec3(0, 0, -1),
+    roll=glm.vec3(-1, 0, 0))
+
+UNITYCHAN_COORDS_DOWN = Coordinate(
+    yaw=glm.vec3(0, -1, 0),
     pitch=glm.vec3(0, 0, 1),
-    roll=glm.vec3(1, 0, 0))
+    roll=glm.vec3(-1, 0, 0))
+
+
+UNITYCHAN_COORDS_MAP = {
+    HumanoidBone.leftUpperLeg: UNITYCHAN_COORDS_DOWN,
+    HumanoidBone.leftLowerLeg: UNITYCHAN_COORDS_DOWN,
+    HumanoidBone.rightUpperLeg: UNITYCHAN_COORDS_DOWN,
+    HumanoidBone.rightLowerLeg: UNITYCHAN_COORDS_DOWN,
+}
 
 
 class GizmoScene:
@@ -55,7 +68,8 @@ class GizmoScene:
         self.tpose_delta_map = {}
 
         self.drag_handler = GizmoSelectHandler()
-        self.drag_handler.bind_mouse_event_with_gizmo(self.mouse_event, self.gizmo)
+        self.drag_handler.bind_mouse_event_with_gizmo(
+            self.mouse_event, self.gizmo)
 
         def on_selected(selected: Optional[Shape]):
             if selected:
@@ -73,12 +87,15 @@ class GizmoScene:
         self.root = root
         if self.root:
             self.root.init_human_bones()
+            head = self.root[HumanoidBone.head]
+            head.humanoid_tail = head.children[6]
+            self.root.print_tree()
             self.root.calc_bind_matrix(glm.mat4())
             self.root.calc_world_matrix(glm.mat4())
             self.humanoid_node_map = {node.humanoid_bone: node for node,
                                       _ in self.root.traverse_node_and_parent(only_human_bone=True)}
             self.node_shape_map.clear()
-            for node, shape in BoneShape.from_root(self.root, self.gizmo, coordinate=UNITY_CHAN_COORDS).items():
+            for node, shape in BoneShape.from_root(self.root, self.gizmo, get_coordinate=lambda x: UNITYCHAN_COORDS_MAP.get(x, UNITYCHAN_COORDS)).items():
                 self.node_shape_map[node] = shape
 
     def set_pose(self, pose: Optional[Pose], convert: bool):
