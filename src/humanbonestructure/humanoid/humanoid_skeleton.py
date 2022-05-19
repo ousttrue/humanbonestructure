@@ -206,8 +206,18 @@ class HumanoidSkeletonToes(NamedTuple):
         return HumanoidSkeletonToes(left_right, glm.vec3(0, -0.1, 0.08), 0.05)
 
     @staticmethod
-    def from_node_map(node_map: NodeMap) -> Optional['HumanoidSkeletonToes']:
-        pass
+    def from_node_map(node_map: NodeMap, left_right: BoneFlags) -> Optional['HumanoidSkeletonToes']:
+        match left_right:
+            case BoneFlags.Left:
+                toes = node_map[HumanoidBone.leftToes].world_matrix[3].xyz
+                toes_end = node_map[HumanoidBone.leftToes].humanoid_tail
+            case BoneFlags.Right:
+                toes = node_map[HumanoidBone.rightToes].world_matrix[3].xyz
+                toes_end = node_map[HumanoidBone.rightToes].humanoid_tail
+            case _:
+                raise NeitherLeftOrRightError()
+        assert toes_end
+        return HumanoidSkeletonToes(left_right, toes, toes_end.world_matrix[3].xyz-toes)
 
     def to_node(self) -> Node:
         d = glm.vec3(0, 0, 1)
@@ -226,23 +236,24 @@ class HumanoidSkeletonToes(NamedTuple):
 
 
 PARTS_MAP = {
-    'trunk': HumanoidSkeletonTrunk,
-    'left_leg': HumanoidSkeletonLeg,
-    'right_leg': HumanoidSkeletonLeg,
-    'left_toes': HumanoidSkeletonToes,
-    'right_toes': HumanoidSkeletonToes,
-    'left_arm': HumanoidSkeletonArm,
-    'right_arm': HumanoidSkeletonArm,
-
-
+    'left_leg': (HumanoidSkeletonLeg, BoneFlags.Left),
+    'right_leg': (HumanoidSkeletonLeg, BoneFlags.Right),
+    'left_toes': (HumanoidSkeletonToes, BoneFlags.Left),
+    'right_toes': (HumanoidSkeletonToes, BoneFlags.Right),
+    'left_arm': (HumanoidSkeletonArm, BoneFlags.Left),
+    'right_arm': (HumanoidSkeletonArm, BoneFlags.Right),
+    'left_hand': (HumanoidHand, BoneFlags.Left),
+    'right_hand': (HumanoidHand, BoneFlags.Right),
 }
 
 
 def to_dict(node_map: NodeMap) -> dict:
-    parts_map = {}
+    parts_map = {
+        'trunk': HumanoidSkeletonTrunk.from_node_map(node_map)
+    }
 
-    for k, t in PARTS_MAP.items():
-        if value := t.from_node_map(node_map):
+    for k, (t, f) in PARTS_MAP.items():
+        if value := t.from_node_map(node_map, f):
             parts_map[k] = value
 
     return parts_map

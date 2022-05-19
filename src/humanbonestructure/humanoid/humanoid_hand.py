@@ -49,7 +49,69 @@ class HumanoidHand(NamedTuple):
 
     @ staticmethod
     def from_node_map(node_map: NodeMap, left_right: BoneFlags) -> Optional['HumanoidHand']:
-        pass
+        match left_right:
+            case BoneFlags.Left:
+                hand = node_map[HumanoidBone.leftHand].world_matrix[3].xyz
+                thumb1 = node_map[HumanoidBone.leftThumbProximal].world_matrix[3].xyz
+                thumb2 = node_map[HumanoidBone.leftThumbIntermediate].world_matrix[3].xyz
+                thumb3 = node_map[HumanoidBone.leftThumbDistal].world_matrix[3].xyz
+                thumb_end = node_map[HumanoidBone.leftThumbDistal].humanoid_tail
+                index1 = node_map[HumanoidBone.leftIndexProximal].world_matrix[3].xyz
+                index2 = node_map[HumanoidBone.leftIndexIntermediate].world_matrix[3].xyz
+                index3 = node_map[HumanoidBone.leftIndexDistal].world_matrix[3].xyz
+                index_end = node_map[HumanoidBone.leftIndexDistal].humanoid_tail
+                middle1 = node_map[HumanoidBone.leftMiddleProximal].world_matrix[3].xyz
+                middle2 = node_map[HumanoidBone.leftMiddleIntermediate].world_matrix[3].xyz
+                middle3 = node_map[HumanoidBone.leftMiddleDistal].world_matrix[3].xyz
+                middle_end = node_map[HumanoidBone.leftMiddleDistal].humanoid_tail
+                ring1 = node_map[HumanoidBone.leftRingProximal].world_matrix[3].xyz
+                ring2 = node_map[HumanoidBone.leftRingIntermediate].world_matrix[3].xyz
+                ring3 = node_map[HumanoidBone.leftRingDistal].world_matrix[3].xyz
+                ring_end = node_map[HumanoidBone.leftRingDistal].humanoid_tail
+                little1 = node_map[HumanoidBone.leftLittleProximal].world_matrix[3].xyz
+                little2 = node_map[HumanoidBone.leftLittleIntermediate].world_matrix[3].xyz
+                little3 = node_map[HumanoidBone.leftLittleDistal].world_matrix[3].xyz
+                little_end = node_map[HumanoidBone.leftLittleDistal].humanoid_tail
+            case BoneFlags.Right:
+                hand = node_map[HumanoidBone.rightHand].world_matrix[3].xyz
+                thumb1 = node_map[HumanoidBone.rightThumbProximal].world_matrix[3].xyz
+                thumb2 = node_map[HumanoidBone.rightThumbIntermediate].world_matrix[3].xyz
+                thumb3 = node_map[HumanoidBone.rightThumbDistal].world_matrix[3].xyz
+                thumb_end = node_map[HumanoidBone.rightThumbDistal].humanoid_tail
+                index1 = node_map[HumanoidBone.rightIndexProximal].world_matrix[3].xyz
+                index2 = node_map[HumanoidBone.rightIndexIntermediate].world_matrix[3].xyz
+                index3 = node_map[HumanoidBone.rightIndexDistal].world_matrix[3].xyz
+                index_end = node_map[HumanoidBone.rightIndexDistal].humanoid_tail
+                middle1 = node_map[HumanoidBone.rightMiddleProximal].world_matrix[3].xyz
+                middle2 = node_map[HumanoidBone.rightMiddleIntermediate].world_matrix[3].xyz
+                middle3 = node_map[HumanoidBone.rightMiddleDistal].world_matrix[3].xyz
+                middle_end = node_map[HumanoidBone.rightMiddleDistal].humanoid_tail
+                ring1 = node_map[HumanoidBone.rightRingProximal].world_matrix[3].xyz
+                ring2 = node_map[HumanoidBone.rightRingIntermediate].world_matrix[3].xyz
+                ring3 = node_map[HumanoidBone.rightRingDistal].world_matrix[3].xyz
+                ring_end = node_map[HumanoidBone.rightRingDistal].humanoid_tail
+                little1 = node_map[HumanoidBone.rightLittleProximal].world_matrix[3].xyz
+                little2 = node_map[HumanoidBone.rightLittleIntermediate].world_matrix[3].xyz
+                little3 = node_map[HumanoidBone.rightLittleDistal].world_matrix[3].xyz
+                little_end = node_map[HumanoidBone.rightLittleDistal].humanoid_tail
+            case _:
+                raise RuntimeError()
+        assert thumb_end
+        assert index_end
+        assert middle_end
+        assert ring_end
+        assert little_end
+        return HumanoidHand(left_right,
+                            thumbnail=HumanoidFinger(thumb1-hand,
+                                                     glm.length(thumb2-thumb1), glm.length(thumb3-thumb2), glm.length(thumb_end.world_matrix[3].xyz-thumb3)),
+                            index=HumanoidFinger(index1-hand,
+                                                 glm.length(index2-index1), glm.length(index3-index2), glm.length(index_end.world_matrix[3].xyz-index3)),
+                            middle=HumanoidFinger(middle1-hand,
+                                                  glm.length(middle2-middle1), glm.length(middle3-middle2), glm.length(middle_end.world_matrix[3].xyz-middle3)),
+                            ring=HumanoidFinger(ring1-hand,
+                                                glm.length(ring2-ring1), glm.length(ring3-ring2), glm.length(ring_end.world_matrix[3].xyz-ring3)),
+                            little=HumanoidFinger(little1-hand,
+                                                  glm.length(little2-little1), glm.length(little3-little2), glm.length(little_end.world_matrix[3].xyz-little3)))
 
     def to_node(self, hand: Node):
         prefix = self.left_right.name

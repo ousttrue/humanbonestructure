@@ -4,6 +4,7 @@ from pydear.gizmo.gizmo import Gizmo
 from pydear.gizmo.shapes.shape import Shape
 from pydear.utils.eventproperty import EventProperty
 from pydear.scene.camera import MouseEvent
+from pydear.scene.camera import Camera
 from ..humanoid.humanoid_skeleton import HumanoidSkeleton
 from ..humanoid.pose import Pose
 from ..humanoid import blender_coordinate
@@ -13,15 +14,17 @@ from ..scene.node_drag_handler import NodeDragHandler, sync_gizmo_with_node
 
 class TSkeletonScene:
     def __init__(self, mouse_event: MouseEvent) -> None:
-        from pydear.scene.camera import Camera
         self.mouse_event = mouse_event
         self.camera = Camera(distance=8, y=-0.8)
         self.camera.bind_mouse_event(self.mouse_event)
+        self.gizmo = Gizmo()
+
         self.skeleton: Optional[HumanoidSkeleton] = None
         self.pose: Optional[Pose] = None
+
         self.root: Optional[Node] = None
-        self.gizmo = Gizmo()
         self.node_shape_map: Dict[Node, Shape] = {}
+
         self.drag_handler = NodeDragHandler(
             self.gizmo, self.camera, self.node_shape_map, self.raise_pose)
         self.drag_handler.bind_mouse_event_with_gizmo(

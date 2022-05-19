@@ -8,6 +8,8 @@ from pydear.utils.node_editor.node import Node, InputPin, OutputPin, Serialized
 from pydear.utils.mouse_event import MouseEvent
 from pydear.scene.camera import Camera
 from pydear.gizmo.gizmo import Gizmo
+from pydear.gizmo.shapes.shape import Shape
+from pydear.gizmo.gizmo_select_handler import GizmoSelectHandler
 from ...formats.gltf_loader import Gltf
 from ...humanoid.humanoid_skeleton import HumanoidSkeleton
 from ...humanoid.pose import Pose
@@ -47,10 +49,19 @@ class GizmoScene:
         self.camera = Camera(distance=8, y=-0.8)
         self.camera.bind_mouse_event(self.mouse_event)
         self.gizmo = Gizmo()
-        self.node_shape_map = {}
         self.root: Optional[scene.Node] = None
+        self.node_shape_map = {}
         self.pose_conv: Optional[Tuple[Optional[Pose], bool]] = None
         self.tpose_delta_map = {}
+
+        self.drag_handler = GizmoSelectHandler()
+        self.drag_handler.bind_mouse_event_with_gizmo(self.mouse_event, self.gizmo)
+
+        def on_selected(selected: Optional[Shape]):
+            if selected:
+                position = selected.matrix.value[3].xyz
+                self.camera.view.set_gaze(position)
+        self.drag_handler.selected += on_selected
 
     def render(self, w: int, h: int):
         mouse_input = self.mouse_event.last_input
@@ -167,11 +178,6 @@ class GltfNode(FileNode):
         return 360
 
     def show_content(self, graph):
-        super().show_content(graph)
-        if self.gltf:
-            for info in self.gltf.get_info():
-                ImGui.TextUnformatted(info)
-
         w = 400
         h = 400
         x, y = ImNodes.GetNodeScreenSpacePos(self.id)
@@ -182,6 +188,11 @@ class GltfNode(FileNode):
         # render mesh
         assert self.fbo.mouse_event.last_input
         self.scene.render(w, h)
+
+        super().show_content(graph)
+        if self.gltf:
+            for info in self.gltf.get_info():
+                ImGui.TextUnformatted(info)
 
         ImGui.Checkbox('use convert', self.convert)
 
