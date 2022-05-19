@@ -9,7 +9,7 @@ from pydear.gizmo.gizmo import Gizmo
 from pydear import imgui as ImGui
 from ..formats.bvh import bvh_parser
 from ..formats import pmd_loader, gltf_loader, pmx_loader
-from ..humanoid import tpose
+from . import tpose
 from ..humanoid.transform import Transform
 from ..humanoid.pose import Pose, BonePose
 from ..humanoid.humanoid_bones import HumanoidBone

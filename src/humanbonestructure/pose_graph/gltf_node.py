@@ -1,6 +1,7 @@
 from typing import Optional
 import ctypes
 import pathlib
+import glm
 from pydear import imgui as ImGui
 from pydear import imnodes as ImNodes
 from pydear.utils.node_editor.node import Node, InputPin, OutputPin, Serialized
@@ -90,6 +91,16 @@ class GltfNode(FileNode):
                 ImGui.TextUnformatted(info)
 
         ImGui.Checkbox('use convert', self.convert)
+
+        if self.scene.root:
+            if ImGui.Button('tpose'):
+                from ..scene.tpose import make_tpose
+                make_tpose(self.scene.root)
+                self.scene.sync_gizmo()
+            if ImGui.Button('clear'):
+                self.scene.root.clear_pose()
+                self.scene.root.calc_world_matrix(glm.mat4())
+                self.scene.sync_gizmo()
 
     def load(self, path: pathlib.Path):
         self.path = path

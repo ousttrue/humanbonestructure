@@ -69,7 +69,7 @@ class NodeScene:
         if convert:
             if not self.tpose_delta_map:
                 # make tpose for pose conversion
-                from ..humanoid import tpose
+                from . import tpose
                 tpose.make_tpose(self.root)
                 self.tpose_delta_map: Dict[HumanoidBone, glm.quat] = {node.humanoid_bone: node.pose.rotation if node.pose else glm.quat(
                 ) for node, _ in self.root.traverse_node_and_parent(only_human_bone=True)}
@@ -104,3 +104,7 @@ class NodeScene:
         # sync to gizmo
         for node, shape in self.node_shape_map.items():
             shape.matrix.set(node.world_matrix)
+
+    def sync_gizmo(self):
+        for node, shape in self.node_shape_map.items():
+            shape.matrix.set(node.world_matrix * glm.mat4(node.local_axis))

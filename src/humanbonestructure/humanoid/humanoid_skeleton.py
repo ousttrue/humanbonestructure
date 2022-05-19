@@ -2,7 +2,7 @@ from typing import NamedTuple, Dict, TypeAlias, Optional
 import glm
 from ..scene.node import Node
 from .humanoid_bones import HumanoidBone, BoneBase, BoneFlags
-from . import tpose
+from ..scene import tpose
 from .transform import Transform
 from .humanoid_hand import HumanoidHand, HumanoidFinger
 

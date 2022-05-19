@@ -100,8 +100,10 @@ class Node:
             case HumanoidBone.head:
                 # add dummy tail
                 LOGGER.warn(f'no tail: {self}')
-                tail = Node(self.name+'先', Transform(glm.vec3(0,
-                            0.2, 0), glm.quat(), glm.vec3(1)), HumanoidBone.endSite)
+                head_pos = self.world_matrix[3].xyz
+                head_end = head_pos + glm.vec3(0, 0.2, 0)
+                local_end = glm.inverse(self.world_matrix) * head_end
+                tail = Node(self.name+'先', Transform(local_end, glm.quat(), glm.vec3(1)), HumanoidBone.endSite)
                 self.add_child(tail)
                 self.humanoid_tail = tail
                 return tail

@@ -1,10 +1,10 @@
 from typing import Dict, Set
 import math
 import glm
-from ..scene.node import Node
-from .humanoid_bones import HumanoidBone
-from .transform import Transform
-from .pose import Motion, Pose, BonePose
+from .node import Node
+from ..humanoid.humanoid_bones import HumanoidBone
+from ..humanoid.transform import Transform
+from ..humanoid.pose import Motion, Pose, BonePose
 
 
 def force_axis(head: Node, tail: Node, to: glm.vec3):
