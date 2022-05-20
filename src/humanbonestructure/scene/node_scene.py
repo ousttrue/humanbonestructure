@@ -46,7 +46,7 @@ class NodeScene:
             return
 
         self.root.calc_world_matrix(glm.mat4())
-        from ..humanoid.bone import Skeleton, BodyBones, Bone, Joint, TR
+        from ..humanoid.bone import Skeleton, BodyBones, LegBones, Joint, TR
 
         def get_joint(node: Node) -> Joint:
             return Joint(node.name,
@@ -61,15 +61,47 @@ class NodeScene:
         head = get_joint(head_node)
         head_pos = head_node.world_matrix[3].xyz
         head_end = head_pos + glm.vec3(0, 0.2, 0)
-        local_end = glm.inverse(head_node.world_matrix) * head_end
+        head_local_end = glm.inverse(head_node.world_matrix) * head_end
         head_end_node = Node(
-            'head_end', Transform.from_translation(local_end), HumanoidBone.endSite)
+            'head_end', Transform.from_translation(head_local_end), HumanoidBone.endSite)
         head_node.add_child(head_end_node)
         head_end_node.calc_world_matrix(head_node.world_matrix)
         head_end = get_joint(head_end_node)
         body = BodyBones.create(hips, spine, chest, neck, head, head_end)
-        self.skeleton = Skeleton(body)
 
+        left_upper_leg = get_joint(self.root[HumanoidBone.leftUpperLeg])
+        left_lower_leg = get_joint(self.root[HumanoidBone.leftLowerLeg])
+        left_foot_node = self.root[HumanoidBone.leftFoot]
+        left_foot = get_joint(left_foot_node)
+        left_foot_pos = left_foot_node.world_matrix[3].xyz
+        left_foot_end = glm.vec3(left_foot_pos.x, 0, left_foot_pos.z)
+        left_foot_local_end = glm.inverse(
+            left_foot_node.world_matrix) * left_foot_end
+        left_heel_node = Node(
+            'left_heel', Transform.from_translation(left_foot_local_end), HumanoidBone.endSite)
+        left_foot_node.add_child(left_heel_node)
+        left_heel_node.calc_bind_matrix(left_foot_node.world_matrix)
+        left_heel = get_joint(left_heel_node)
+        left_leg = LegBones.create(
+            left_upper_leg, left_lower_leg, left_foot, left_heel)
+
+        right_upper_leg = get_joint(self.root[HumanoidBone.rightUpperLeg])
+        right_lower_leg = get_joint(self.root[HumanoidBone.rightLowerLeg])
+        right_foot_node = self.root[HumanoidBone.rightFoot]
+        right_foot = get_joint(right_foot_node)
+        right_foot_pos = right_foot_node.world_matrix[3].xyz
+        right_foot_end = glm.vec3(right_foot_pos.x, 0, right_foot_pos.z)
+        right_foot_local_end = glm.inverse(
+            right_foot_node.world_matrix) * right_foot_end
+        right_heel_node = Node(
+            'right_heel', Transform.from_translation(right_foot_local_end), HumanoidBone.endSite)
+        right_foot_node.add_child(right_heel_node)
+        right_heel_node.calc_bind_matrix(right_foot_node.world_matrix)
+        right_heel = get_joint(right_heel_node)
+        right_leg = LegBones.create(
+            right_upper_leg, right_lower_leg, right_foot, right_heel)
+
+        self.skeleton = Skeleton(body, left_leg, right_leg)
         BoneShape.from_skeleton(self.skeleton, self.gizmo)
 
         # self.root.init_human_bones()

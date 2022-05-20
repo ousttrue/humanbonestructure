@@ -220,33 +220,47 @@ class BoneShape(Shape):
 
     @staticmethod
     def from_bone(bone: Bone) -> 'BoneShape':
+        setting = BoneShapeSetting.from_humanoid_bone(
+            bone.head.humanoid_bone)
         match bone.head_tail_axis:
             case (HeadTailAxis.XPositive | HeadTailAxis.XNegative |
                   HeadTailAxis.YPositive | HeadTailAxis.YNegative |
                   HeadTailAxis.ZPositive | HeadTailAxis.ZNegative):
-                setting = BoneShapeSetting.from_humanoid_bone(
-                    bone.head.humanoid_bone)
                 return BoneShape(setting.width, setting.height, bone.get_length(),
                                  color=setting.color, matrix=bone.head.world.get_matrix(),
                                  coordinate=bone.get_coordinate(), line_size=setting.line_size)
             case HeadTailAxis.Other:
                 # fallback head tail
-                raise NotImplementedError()
-                # pass
                 # assert node.humanoid_tail
-                # head = node.world_matrix[3].xyz
-                # tail = node.humanoid_tail.world_matrix[3].xyz
-                # return BoneShape(width, height, (head, tail), color=color, matrix=matrix, line_size=line_size, up_dir=node.humanoid_bone.world_second, local_axis=node.local_axis)
+                head = bone.head.world.get_matrix()[3].xyz
+                tail = bone.tail.world.get_matrix()[3].xyz
+                return BoneShape(setting.width, setting.height, (head, tail),
+                                 color=setting.color,
+                                 matrix=glm.translate(
+                                     bone.head.world.translation),
+                                 line_size=setting.line_size,
+                                 up_dir=bone.head.humanoid_bone.world_second, local_axis=bone.head.world.rotation)
             case _:
                 raise RuntimeError()
 
     @staticmethod
     def from_skeleton(skeleton: Skeleton, gizmo: Gizmo):
-        gizmo.add_shape(BoneShape.from_bone(skeleton.body.hips))
-        gizmo.add_shape(BoneShape.from_bone(skeleton.body.spine))
-        gizmo.add_shape(BoneShape.from_bone(skeleton.body.chest))
-        gizmo.add_shape(BoneShape.from_bone(skeleton.body.neck))
-        gizmo.add_shape(BoneShape.from_bone(skeleton.body.head))
+        for shape in (
+            BoneShape.from_bone(skeleton.body.hips),
+            BoneShape.from_bone(skeleton.body.spine),
+            BoneShape.from_bone(skeleton.body.chest),
+            BoneShape.from_bone(skeleton.body.neck),
+            BoneShape.from_bone(skeleton.body.head),
+
+            BoneShape.from_bone(skeleton.left_leg.upper),
+            BoneShape.from_bone(skeleton.left_leg.lower),
+            BoneShape.from_bone(skeleton.left_leg.foot),
+
+            BoneShape.from_bone(skeleton.right_leg.upper),
+            BoneShape.from_bone(skeleton.right_leg.lower),
+            BoneShape.from_bone(skeleton.right_leg.foot),
+        ):
+            gizmo.add_shape(shape)
 
     def get_quads(self) -> Iterable[Tuple[Quad, glm.vec4]]:
         for i, quad in enumerate(self.quads):

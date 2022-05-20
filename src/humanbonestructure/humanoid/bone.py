@@ -104,6 +104,12 @@ class Bone:
                     pitch=glm.vec3(0, 0, 1),
                     roll=glm.vec3(1, 0, 0),
                 )
+            case HeadTailAxis.XPositive, SecondAxis.YNegative:
+                return Coordinate(
+                    yaw=glm.vec3(0, -1, 0),
+                    pitch=glm.vec3(0, 0, -1),
+                    roll=glm.vec3(1, 0, 0),
+                )
             case _:
                 raise NotImplementedError()
 
@@ -125,6 +131,22 @@ class BodyBones(NamedTuple):
             Bone(head, head_end))
 
 
+class LegBones(NamedTuple):
+    upper: Bone
+    lower: Bone
+    foot: Bone
+
+    @staticmethod
+    def create(upper: Joint, lower: Joint, foot: Joint, heel: Joint) -> 'LegBones':
+        return LegBones(
+            Bone(upper, lower),
+            Bone(lower, foot),
+            Bone(foot, heel)
+        )
+
+
 class Skeleton:
-    def __init__(self, body: BodyBones) -> None:
+    def __init__(self, body: BodyBones, left_leg: LegBones, right_leg: LegBones) -> None:
         self.body = body
+        self.left_leg = left_leg
+        self.right_leg = right_leg
