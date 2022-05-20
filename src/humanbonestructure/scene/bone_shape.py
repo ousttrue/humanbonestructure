@@ -1,19 +1,15 @@
-from typing import Iterable, Dict, Tuple, TypedDict, Callable, Optional, TypeAlias, Union
+from typing import Iterable, Dict, Tuple, TypedDict, Callable, Optional, TypeAlias, Union, NamedTuple
 from enum import Enum, auto
 import glm
 from pydear.gizmo.shapes.shape import Shape
 from pydear.gizmo.primitive import Quad
 from pydear.gizmo.gizmo import Gizmo
-from .node import Node
 from ..humanoid.humanoid_bones import HumanoidBone
+from ..humanoid.bone import Skeleton, Bone, HeadTailAxis
+from ..humanoid.coordinate import Coordinate
+from .node import Node
 
 UP_COLOR = glm.vec4(0.8, 0.2, 0.2, 1)
-
-
-class Coordinate(TypedDict):
-    yaw: glm.vec3
-    pitch: glm.vec3
-    roll: glm.vec3
 
 
 GetCoords: TypeAlias = Callable[[HumanoidBone], Coordinate]
@@ -23,6 +19,82 @@ BLENDER_COORDS = Coordinate(
     yaw=glm.vec3(0, 0, 1),
     pitch=glm.vec3(1, 0, 0),
     roll=glm.vec3(0, 1, 0))
+
+
+class BoneShapeSetting(NamedTuple):
+    width: float
+    height: float
+    color: glm.vec3
+    line_size: float
+
+    @staticmethod
+    def from_humanoid_bone(humanoid_bone: HumanoidBone) -> 'BoneShapeSetting':
+        color = glm.vec3(1, 1, 1)
+        width = float('nan')
+        height = float('nan')
+        line_size = 0.1
+        if humanoid_bone.is_finger():
+            width = 0.006
+            height = 0.004
+            line_size = 0.02
+            if 'Index' in humanoid_bone.name or 'Ring' in humanoid_bone.name:
+                if humanoid_bone.name.endswith("Intermediate"):
+                    color = glm.vec3(0.1, 0.4, 0.8)
+                else:
+                    color = glm.vec3(0.2, 0.7, 0.9)
+            else:
+                if humanoid_bone.name.endswith("Intermediate"):
+                    color = glm.vec3(0.8, 0.4, 0.1)
+                else:
+                    color = glm.vec3(0.9, 0.7, 0.2)
+            if 'Thumb' in humanoid_bone.name:
+                pass
+            else:
+                pass
+        else:
+            match humanoid_bone:
+                case (
+                    HumanoidBone.leftShoulder |
+                    HumanoidBone.leftUpperArm | HumanoidBone.leftLowerArm |
+                    HumanoidBone.leftUpperArm | HumanoidBone.leftLowerArm |
+                    HumanoidBone.rightShoulder |
+                    HumanoidBone.rightUpperArm | HumanoidBone.rightLowerArm |
+                    HumanoidBone.rightUpperArm | HumanoidBone.rightLowerArm
+                ):
+                    color = glm.vec3(0.3, 0.6, 0.1) if 'Lower' in humanoid_bone.name else glm.vec3(
+                        0.7, 0.9, 0.2)
+                    width = 0.02
+                    height = 0.01
+                case (HumanoidBone.leftHand | HumanoidBone.leftHand |
+                        HumanoidBone.rightHand | HumanoidBone.rightHand
+                      ):
+                    color = glm.vec3(0.8, 0.8, 0.8)
+                    width = 0.02
+                    height = 0.005
+                case (HumanoidBone.head):
+                    color = glm.vec3(0.8, 0.8, 0.2)
+                    width = 0.06
+                    height = 0.06
+                case (HumanoidBone.neck):
+                    color = glm.vec3(0.4, 0.4, 0.2)
+                    width = 0.02
+                    height = 0.02
+                case (HumanoidBone.chest | HumanoidBone.hips):
+                    color = glm.vec3(0.8, 0.8, 0.2)
+                    width = 0.05
+                    height = 0.04
+                case (HumanoidBone.spine):
+                    color = glm.vec3(0.4, 0.4, 0.2)
+                    width = 0.04
+                    height = 0.03
+                case (HumanoidBone.leftUpperLeg | HumanoidBone.leftLowerLeg | HumanoidBone.leftFoot | HumanoidBone.leftToes |
+                        HumanoidBone.rightUpperLeg | HumanoidBone.rightLowerLeg | HumanoidBone.rightFoot | HumanoidBone.rightToes):
+                    color = glm.vec3(0.3, 0.6, 0.1)
+                    if humanoid_bone in (HumanoidBone.leftUpperLeg, HumanoidBone.leftFoot, HumanoidBone.rightUpperLeg, HumanoidBone.rightFoot):
+                        color = glm.vec3(0.7, 0.9, 0.2)
+                    width = 0.03
+                    height = 0.02
+        return BoneShapeSetting(width, height, color, line_size)
 
 
 class BoneShape(Shape):
@@ -65,9 +137,12 @@ class BoneShape(Shape):
                 v6 = pitch*x+roll*y-yaw*z
                 v7 = pitch*x+roll*y+yaw*z
                 self.lines = [
-                    (glm.vec3(0, 0, 0), glm.vec3(line_size, 0, 0), glm.vec4(1, 0, 0, 1)),
-                    (glm.vec3(0, 0, 0), glm.vec3(0, line_size, 0), glm.vec4(0, 1, 0, 1)),
-                    (glm.vec3(0, 0, 0), glm.vec3(0, 0, line_size), glm.vec4(0, 0, 1, 1)),
+                    (glm.vec3(0, 0, 0), glm.vec3(
+                        line_size, 0, 0), glm.vec4(1, 0, 0, 1)),
+                    (glm.vec3(0, 0, 0), glm.vec3(
+                        0, line_size, 0), glm.vec4(0, 1, 0, 1)),
+                    (glm.vec3(0, 0, 0), glm.vec3(
+                        0, 0, line_size), glm.vec4(0, 0, 1, 1)),
                 ]
             case (head, tail):
                 assert up_dir
@@ -88,9 +163,12 @@ class BoneShape(Shape):
                 v7 = head_tail - x_axis*x+y_axis*z
                 a = local_axis
                 self.lines = [
-                    (a*glm.vec3(0, 0, 0), a*glm.vec3(line_size, 0, 0), glm.vec4(1, 0, 0, 1)),
-                    (a*glm.vec3(0, 0, 0), a*glm.vec3(0, line_size, 0), glm.vec4(0, 1, 0, 1)),
-                    (a*glm.vec3(0, 0, 0), a*glm.vec3(0, 0, line_size), glm.vec4(0, 0, 1, 1)),
+                    (a*glm.vec3(0, 0, 0), a *
+                     glm.vec3(line_size, 0, 0), glm.vec4(1, 0, 0, 1)),
+                    (a*glm.vec3(0, 0, 0), a*glm.vec3(0,
+                     line_size, 0), glm.vec4(0, 1, 0, 1)),
+                    (a*glm.vec3(0, 0, 0), a*glm.vec3(0,
+                     0, line_size), glm.vec4(0, 0, 1, 1)),
                 ]
             case _:
                 raise RuntimeError()
@@ -108,71 +186,7 @@ class BoneShape(Shape):
         assert node.humanoid_bone
         assert node.humanoid_tail
 
-        color = glm.vec3(1, 1, 1)
-        width = float('nan')
-        height = float('nan')
-        line_size = 0.1
-        if node.humanoid_bone.is_finger():
-            width = 0.006
-            height = 0.004
-            line_size = 0.02
-            if 'Index' in node.humanoid_bone.name or 'Ring' in node.humanoid_bone.name:
-                if node.humanoid_bone.name.endswith("Intermediate"):
-                    color = glm.vec3(0.1, 0.4, 0.8)
-                else:
-                    color = glm.vec3(0.2, 0.7, 0.9)
-            else:
-                if node.humanoid_bone.name.endswith("Intermediate"):
-                    color = glm.vec3(0.8, 0.4, 0.1)
-                else:
-                    color = glm.vec3(0.9, 0.7, 0.2)
-            if 'Thumb' in node.humanoid_bone.name:
-                pass
-            else:
-                pass
-        else:
-            match node.humanoid_bone:
-                case (
-                    HumanoidBone.leftShoulder |
-                    HumanoidBone.leftUpperArm | HumanoidBone.leftLowerArm |
-                    HumanoidBone.leftUpperArm | HumanoidBone.leftLowerArm |
-                    HumanoidBone.rightShoulder |
-                    HumanoidBone.rightUpperArm | HumanoidBone.rightLowerArm |
-                    HumanoidBone.rightUpperArm | HumanoidBone.rightLowerArm
-                ):
-                    color = glm.vec3(0.3, 0.6, 0.1) if 'Lower' in node.humanoid_bone.name else glm.vec3(
-                        0.7, 0.9, 0.2)
-                    width = 0.02
-                    height = 0.01
-                case (HumanoidBone.leftHand | HumanoidBone.leftHand |
-                        HumanoidBone.rightHand | HumanoidBone.rightHand
-                      ):
-                    color = glm.vec3(0.8, 0.8, 0.8)
-                    width = 0.02
-                    height = 0.005
-                case (HumanoidBone.head):
-                    color = glm.vec3(0.8, 0.8, 0.2)
-                    width = 0.06
-                    height = 0.06
-                case (HumanoidBone.neck):
-                    color = glm.vec3(0.4, 0.4, 0.2)
-                    width = 0.02
-                    height = 0.02
-                case (HumanoidBone.chest | HumanoidBone.hips):
-                    color = glm.vec3(0.8, 0.8, 0.2)
-                    width = 0.05
-                    height = 0.04
-                case (HumanoidBone.spine):
-                    color = glm.vec3(0.4, 0.4, 0.2)
-                    width = 0.04
-                    height = 0.03
-                case (HumanoidBone.leftUpperLeg | HumanoidBone.leftLowerLeg | HumanoidBone.leftFoot | HumanoidBone.leftToes |
-                        HumanoidBone.rightUpperLeg | HumanoidBone.rightLowerLeg | HumanoidBone.rightFoot | HumanoidBone.rightToes):
-                    color = glm.vec3(0.3, 0.6, 0.1)
-                    if node.humanoid_bone in (HumanoidBone.leftUpperLeg, HumanoidBone.leftFoot, HumanoidBone.rightUpperLeg, HumanoidBone.rightFoot):
-                        color = glm.vec3(0.7, 0.9, 0.2)
-                    width = 0.03
-                    height = 0.02
+        setting = BoneShapeSetting.from_humanoid_bone(node.humanoid_bone)
 
         matrix = node.world_matrix * glm.mat4(node.local_axis)
 
@@ -182,13 +196,13 @@ class BoneShape(Shape):
 
         if get_coordinate:
             coordinate = get_coordinate(node.humanoid_bone)
-            return BoneShape(width, height, length, color=color, matrix=matrix, coordinate=coordinate, line_size=line_size)
+            return BoneShape(setting.width, setting.height, length, color=setting.color, matrix=matrix, coordinate=coordinate, line_size=setting.line_size)
         else:
             # head tail
             assert node.humanoid_tail
             head = node.world_matrix[3].xyz
             tail = node.humanoid_tail.world_matrix[3].xyz
-            return BoneShape(width, height, (head, tail), color=color, matrix=matrix, line_size=line_size, up_dir=node.humanoid_bone.world_up, local_axis=node.local_axis)
+            return BoneShape(setting.width, setting.height, (head, tail), color=setting.color, matrix=matrix, line_size=setting.line_size, up_dir=node.humanoid_bone.world_second, local_axis=node.local_axis)
 
     @staticmethod
     def from_root(root: Node, gizmo: Gizmo, *,
@@ -203,6 +217,36 @@ class BoneShape(Shape):
                     gizmo.add_shape(shape)
                     node_shape_map[node] = shape
         return node_shape_map
+
+    @staticmethod
+    def from_bone(bone: Bone) -> 'BoneShape':
+        match bone.head_tail_axis:
+            case (HeadTailAxis.XPositive | HeadTailAxis.XNegative |
+                  HeadTailAxis.YPositive | HeadTailAxis.YNegative |
+                  HeadTailAxis.ZPositive | HeadTailAxis.ZNegative):
+                setting = BoneShapeSetting.from_humanoid_bone(
+                    bone.head.humanoid_bone)
+                return BoneShape(setting.width, setting.height, bone.get_length(),
+                                 color=setting.color, matrix=bone.head.world.get_matrix(),
+                                 coordinate=bone.get_coordinate(), line_size=setting.line_size)
+            case HeadTailAxis.Other:
+                # fallback head tail
+                raise NotImplementedError()
+                # pass
+                # assert node.humanoid_tail
+                # head = node.world_matrix[3].xyz
+                # tail = node.humanoid_tail.world_matrix[3].xyz
+                # return BoneShape(width, height, (head, tail), color=color, matrix=matrix, line_size=line_size, up_dir=node.humanoid_bone.world_second, local_axis=node.local_axis)
+            case _:
+                raise RuntimeError()
+
+    @staticmethod
+    def from_skeleton(skeleton: Skeleton, gizmo: Gizmo):
+        gizmo.add_shape(BoneShape.from_bone(skeleton.body.hips))
+        gizmo.add_shape(BoneShape.from_bone(skeleton.body.spine))
+        gizmo.add_shape(BoneShape.from_bone(skeleton.body.chest))
+        gizmo.add_shape(BoneShape.from_bone(skeleton.body.neck))
+        gizmo.add_shape(BoneShape.from_bone(skeleton.body.head))
 
     def get_quads(self) -> Iterable[Tuple[Quad, glm.vec4]]:
         for i, quad in enumerate(self.quads):

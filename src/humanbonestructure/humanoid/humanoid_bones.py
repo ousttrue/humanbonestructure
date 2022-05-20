@@ -145,11 +145,11 @@ class HumanoidBone(Enum):
     # bvh
     endSite = (BoneBase.endSite, BoneFlags.Center, ZERO, ZERO)
 
-    def __init__(self, base: BoneBase, flags: BoneFlags, world_dir: glm.vec3, world_up: glm.vec3):
+    def __init__(self, base: BoneBase, flags: BoneFlags, world_dir: glm.vec3, world_second: glm.vec3):
         self.base = base
         self.flags = flags
         self.world_dir = world_dir
-        self.world_up = world_up
+        self.world_second = world_second
 
     def is_enable(self) -> bool:
         if self in (HumanoidBone.unknown, HumanoidBone.endSite):
