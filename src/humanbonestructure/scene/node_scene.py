@@ -253,13 +253,13 @@ class NodeScene:
             little=right_little
         )
 
-        self.skeleton = Skeleton(body,
+
+        skeleton = Skeleton(body,
                                  left_leg, right_leg,
                                  left_arm, right_arm
                                  )
 
-        self.bone_shape_map = BoneShape.from_skeleton(
-            self.skeleton, self.gizmo)
+        self.update(skeleton, None)
 
         # # Clear node rotation and set local_axis
         # self.root.calc_world_matrix(glm.mat4())
@@ -281,9 +281,15 @@ class NodeScene:
         # for node, shape in BoneShape.from_root(self.root, self.gizmo).items():
         #     self.node_shape_map[node] = shape
 
-    def set_pose(self, pose: Optional[Pose], convert: bool):
-        if not self.root:
-            return
+    def update(self, skeleton: Optional[Skeleton], pose: Optional[Pose]):
+        if self.skeleton!=skeleton:
+            self.skeleton = skeleton
+            if self.skeleton:
+                self.bone_shape_map = BoneShape.from_skeleton(
+                    self.skeleton, self.gizmo)
+
+        # if not self.root:
+        #     return
         # if not self.humanoid_node_map:
         #     return
 

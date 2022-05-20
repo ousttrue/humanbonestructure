@@ -13,6 +13,7 @@ from .skeleton_muxer import SkeletonMuxerNode
 from .network_node import TcpClientNode
 from ..humanoid.pose import Pose
 from ..humanoid.humanoid_skeleton import HumanoidSkeleton
+from ..humanoid.bone import Skeleton
 
 TYPES = [
     TimeNode,
@@ -30,5 +31,7 @@ TYPES = [
 PIN_STYLE_MAP: Dict[Type, PinStyle] = {
     HumanoidSkeleton: PinStyle(
         ImNodes.ImNodesPinShape_.QuadFilled, color_int(64, 64, 255)),
+    Skeleton: PinStyle(
+        ImNodes.ImNodesPinShape_.QuadFilled, color_int(255, 64, 255)),
     Pose: PinStyle(ImNodes.ImNodesPinShape_.TriangleFilled, color_int(64, 255, 64)),
 }

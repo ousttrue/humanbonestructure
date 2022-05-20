@@ -3,14 +3,14 @@ from pydear import imgui as ImGui
 from pydear import imnodes as ImNodes
 from pydear.utils.node_editor.node import Node, InputPin, OutputPin, Serialized
 from ..scene import node
-from ..humanoid.humanoid_skeleton import HumanoidSkeleton
+from ..humanoid.bone import Skeleton
 
 
-class TPoseSkeletonOutputPin(OutputPin[HumanoidSkeleton]):
+class TPoseSkeletonOutputPin(OutputPin[Skeleton]):
     def __init__(self, id: int) -> None:
         super().__init__(id, 'skeleton')
 
-    def get_value(self, node: 'TPoseNode') -> HumanoidSkeleton:
+    def get_value(self, node: 'TPoseNode') -> Skeleton:
         return node.skeleton
 
 
@@ -21,7 +21,7 @@ class TPoseNode(Node):
                          [
                              TPoseSkeletonOutputPin(skeleton_pin_id)
                          ])
-        self.skeleton = HumanoidSkeleton.create_default()
+        self.skeleton = Skeleton.create_default()
 
     @classmethod
     def imgui_menu(cls, graph, click_pos):

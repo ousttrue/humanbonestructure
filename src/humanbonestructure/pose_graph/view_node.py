@@ -3,17 +3,16 @@ import glm
 from pydear import imgui as ImGui
 from pydear import imnodes as ImNodes
 from pydear.utils.node_editor.node import Node, InputPin, Serialized, OutputPin
-from ..scene.skeleton_scene import SkeletonScene
 from ..humanoid.pose import Pose
-from ..humanoid.humanoid_skeleton import HumanoidSkeleton
+from ..humanoid.bone import Skeleton
 
 
-class SkeletonInputPin(InputPin[Optional[HumanoidSkeleton]]):
+class SkeletonInputPin(InputPin[Optional[Skeleton]]):
     def __init__(self, id: int) -> None:
         super().__init__(id, 'skeleton')
-        self.skeleton: Optional[HumanoidSkeleton] = None
+        self.skeleton: Optional[Skeleton] = None
 
-    def set_value(self, skeleton: Optional[HumanoidSkeleton]):
+    def set_value(self, skeleton: Optional[Skeleton]):
         self.skeleton = skeleton
 
 
@@ -31,7 +30,8 @@ class PoseOutputPin(OutputPin[Optional[Pose]]):
         super().__init__(id, 'pose')
 
     def get_value(self, node: 'ViewNode') -> Optional[Pose]:
-        return node.scene.pose_changed.value
+        return None
+        # return node.scene.pose_changed.value
 
 
 class ViewNode(Node):
@@ -46,7 +46,8 @@ class ViewNode(Node):
         # imgui
         from pydear.utils.fbo_view import FboView
         self.fbo = FboView()
-        self.scene = SkeletonScene(self.fbo.mouse_event)
+        from ..scene.node_scene import NodeScene
+        self.scene = NodeScene(self.fbo.mouse_event)
 
     @classmethod
     def imgui_menu(cls, graph, click_pos):
@@ -82,13 +83,16 @@ class ViewNode(Node):
         assert self.fbo.mouse_event.last_input
         self.scene.render(w, h)
 
-        if self.scene.root:
-            if ImGui.Button('clear pose'):
-                self.scene.root.clear_pose()
-                self.scene.root.calc_world_matrix(glm.mat4())
-                self.scene.drag_handler.select(None)
+        if self.scene.skeleton:
+            if ImGui.Button('clear'):
+                self.scene.skeleton.clear_pose()
                 self.scene.sync_gizmo()
-                self.scene.raise_pose()
+            # if ImGui.Button('clear pose'):
+            #     self.scene.root.clear_pose()
+            #     self.scene.root.calc_world_matrix(glm.mat4())
+            #     self.scene.drag_handler.select(None)
+            #     self.scene.sync_gizmo()
+            #     self.scene.raise_pose()
 
     def process_self(self):
         self.scene.update(self.in_skeleton.skeleton, self.in_pose.pose)

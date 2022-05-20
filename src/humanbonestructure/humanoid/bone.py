@@ -43,14 +43,16 @@ class TR(NamedTuple):
 
 
 class Joint:
-    def __init__(self, name: str, local: TR, humanoid_bone: HumanoidBone, *, world: Optional[TR] = None) -> None:
+    def __init__(self, name: str, local: TR, humanoid_bone: HumanoidBone, *, world: Optional[TR] = None, parent: Optional['Joint'] = None) -> None:
         self.name = name
         self.local = local
-        self.world = world if world else TR()
+        self.world = world if world else local
         self.humanoid_bone = humanoid_bone
         self.pose = glm.quat()
         self.children: List[Joint] = []
-        self.parent: Optional[Joint] = None
+        self.parent: Optional[Joint] = parent
+        if self.parent:
+            self.parent.add_child(self)
 
     def add_child(self, child: 'Joint'):
         child.parent = self
@@ -135,6 +137,12 @@ class Bone:
                     pitch=glm.vec3(0, -1, 0),
                     roll=glm.vec3(1, 0, 0),
                 )
+            case HeadTailAxis.YPositive, SecondAxis.ZPositive:
+                return Coordinate(
+                    yaw=glm.vec3(0, 0, 1),
+                    pitch=glm.vec3(1, 0, 0),
+                    roll=glm.vec3(0, 1, 0),
+                )
             case HeadTailAxis.XNegative, SecondAxis.YNegative:
                 return Coordinate(
                     yaw=glm.vec3(0, 1, 0),
@@ -150,7 +158,17 @@ class Bone:
         return m
 
     def strict_tpose(self):
-        pass
+        match self.head_tail_axis, self.second_axis:
+            case (HeadTailAxis.XPositive, SecondAxis.YPositive):
+                inv = glm.inverse(self.head.world.get_matrix())
+                self.head.pose = glm.quat(inv * glm.mat4(
+                    glm.vec4(0, 0, 1, 0),
+                    glm.vec4(1, 0, 0, 0),
+                    glm.vec4(0, 1, 0, 0),
+                    glm.vec4(0, 0, 0, 1)
+                ))
+            case _:
+                raise NotImplementedError()
 
 
 class BodyBones(NamedTuple):
@@ -168,6 +186,34 @@ class BodyBones(NamedTuple):
             Bone(chest, neck),
             Bone(neck, head),
             Bone(head, end))
+
+    @staticmethod
+    def create_default() -> 'BodyBones':
+        hips = Joint('hips', TR(glm.vec3(0, 0.85, 0)), HumanoidBone.hips)
+        spine = Joint('spine',
+                      TR(glm.vec3(0, 0.1, 0)), HumanoidBone.spine, parent=hips)
+        chest = Joint('chest',
+                      TR(glm.vec3(0, 0.1, 0)), HumanoidBone.chest, parent=spine)
+        neck = Joint('neck',
+                     TR(glm.vec3(0, 0.2, 0)), HumanoidBone.neck, parent=chest)
+        head = Joint('head',
+                     TR(glm.vec3(0, 0.1, 0)), HumanoidBone.head, parent=neck)
+        head_end = Joint('head_end',
+                         TR(glm.vec3(0, 0.2, 0)), HumanoidBone.endSite, parent=head)
+        return BodyBones.create(hips, spine, chest, neck, head, head_end)
+
+    def strict_tpose(self):
+        m = glm.mat4()
+        self.hips.strict_tpose()
+        m = self.hips.calc_world_matrix(m)
+        # self.spine.strict_tpose()
+        # m = self.spine.calc_world_matrix(m)
+
+    def clear_pose(self):
+        self.hips.head.pose = glm.quat()
+        self.spine.head.pose = glm.quat()
+        m = glm.mat4()
+        m = self.hips.calc_world_matrix(m)
 
 
 class LegBones(NamedTuple):
@@ -250,6 +296,11 @@ class Skeleton:
         self.left_arm = left_arm
         self.right_arm = right_arm
 
+    @staticmethod
+    def create_default():
+        body = BodyBones.create_default()
+        return Skeleton(body)
+
     def calc_world_matrix(self):
         m = glm.mat4()
         m = self.body.hips.calc_world_matrix(m)
@@ -259,7 +310,7 @@ class Skeleton:
         m = self.body.head.calc_world_matrix(m)
 
     def strict_tpose(self):
-        self.body.hips.strict_tpose()
+        self.body.strict_tpose()
 
     def clear_pose(self):
-        pass
+        self.body.clear_pose()
