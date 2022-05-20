@@ -141,13 +141,15 @@ class LegBones(NamedTuple):
     upper: Bone
     lower: Bone
     foot: Bone
+    toes: Bone
 
     @staticmethod
-    def create(upper: Joint, lower: Joint, foot: Joint, heel: Joint) -> 'LegBones':
+    def create(upper: Joint, lower: Joint, foot: Joint, toes: Joint, end: Joint) -> 'LegBones':
         return LegBones(
             Bone(upper, lower),
             Bone(lower, foot),
-            Bone(foot, heel)
+            Bone(foot, toes),
+            Bone(toes, end)
         )
 
 

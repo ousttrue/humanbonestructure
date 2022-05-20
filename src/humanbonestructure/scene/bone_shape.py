@@ -255,10 +255,12 @@ class BoneShape(Shape):
             BoneShape.from_bone(skeleton.left_leg.upper),
             BoneShape.from_bone(skeleton.left_leg.lower),
             BoneShape.from_bone(skeleton.left_leg.foot),
+            BoneShape.from_bone(skeleton.left_leg.toes),
 
             BoneShape.from_bone(skeleton.right_leg.upper),
             BoneShape.from_bone(skeleton.right_leg.lower),
             BoneShape.from_bone(skeleton.right_leg.foot),
+            BoneShape.from_bone(skeleton.right_leg.toes),
 
             BoneShape.from_bone(skeleton.left_arm.shoulder),
             BoneShape.from_bone(skeleton.left_arm.upper),

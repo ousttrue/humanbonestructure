@@ -73,33 +73,49 @@ class NodeScene:
         left_lower_leg = get_joint(self.root[HumanoidBone.leftLowerLeg])
         left_foot_node = self.root[HumanoidBone.leftFoot]
         left_foot = get_joint(left_foot_node)
-        left_foot_pos = left_foot_node.world_matrix[3].xyz
-        left_foot_end = glm.vec3(left_foot_pos.x, 0, left_foot_pos.z)
-        left_foot_local_end = glm.inverse(
-            left_foot_node.world_matrix) * left_foot_end
-        left_heel_node = Node(
-            'left_heel', Transform.from_translation(left_foot_local_end), HumanoidBone.endSite)
-        left_foot_node.add_child(left_heel_node)
-        left_heel_node.calc_bind_matrix(left_foot_node.world_matrix)
-        left_heel = get_joint(left_heel_node)
+        # left_foot_pos = left_foot_node.world_matrix[3].xyz
+        # left_foot_end = glm.vec3(left_foot_pos.x, 0, left_foot_pos.z)
+        # left_foot_local_end = glm.inverse(
+        #     left_foot_node.world_matrix) * left_foot_end
+        # left_heel_node = Node(
+        #     'left_heel', Transform.from_translation(left_foot_local_end), HumanoidBone.endSite)
+        # left_foot_node.add_child(left_heel_node)
+        # left_heel_node.calc_bind_matrix(left_foot_node.world_matrix)
+        # left_heel = get_joint(left_heel_node)
+        left_toes_node = self.root[HumanoidBone.leftToes]
+        left_toes = get_joint(left_toes_node)
+        left_toes_pos = left_toes_node.world_matrix[3].xyz
+        left_toes_end = left_toes_pos + glm.vec3(0, 0, 0.1)
+        left_toes_local_end = glm.inverse(left_toes_node.world_matrix) * left_toes_end
+        left_toes_end_node = Node('left_toes_end', Transform.from_translation(left_toes_local_end), HumanoidBone.endSite)
+        left_toes_node.add_child(left_toes_end_node)
+        left_toes_end_node.calc_bind_matrix(left_toes_node.world_matrix)
         left_leg = LegBones.create(
-            left_upper_leg, left_lower_leg, left_foot, left_heel)
+            left_upper_leg, left_lower_leg, left_foot, left_toes, get_joint(left_toes_end_node))
 
         right_upper_leg = get_joint(self.root[HumanoidBone.rightUpperLeg])
         right_lower_leg = get_joint(self.root[HumanoidBone.rightLowerLeg])
         right_foot_node = self.root[HumanoidBone.rightFoot]
         right_foot = get_joint(right_foot_node)
-        right_foot_pos = right_foot_node.world_matrix[3].xyz
-        right_foot_end = glm.vec3(right_foot_pos.x, 0, right_foot_pos.z)
-        right_foot_local_end = glm.inverse(
-            right_foot_node.world_matrix) * right_foot_end
-        right_heel_node = Node(
-            'right_heel', Transform.from_translation(right_foot_local_end), HumanoidBone.endSite)
-        right_foot_node.add_child(right_heel_node)
-        right_heel_node.calc_bind_matrix(right_foot_node.world_matrix)
-        right_heel = get_joint(right_heel_node)
+        # right_foot_pos = right_foot_node.world_matrix[3].xyz
+        # right_foot_end = glm.vec3(right_foot_pos.x, 0, right_foot_pos.z)
+        # right_foot_local_end = glm.inverse(
+        #     right_foot_node.world_matrix) * right_foot_end
+        # right_heel_node = Node(
+        #     'right_heel', Transform.from_translation(right_foot_local_end), HumanoidBone.endSite)
+        # right_foot_node.add_child(right_heel_node)
+        # right_heel_node.calc_bind_matrix(right_foot_node.world_matrix)
+        # right_heel = get_joint(right_heel_node)
+        right_toes_node = self.root[HumanoidBone.rightToes]
+        right_toes = get_joint(right_toes_node)
+        right_toes_pos = right_toes_node.world_matrix[3].xyz
+        right_toes_end = right_toes_pos + glm.vec3(0, 0, 0.1)
+        right_toes_local_end = glm.inverse(right_toes_node.world_matrix) * right_toes_end
+        right_toes_end_node = Node('right_toes_end', Transform.from_translation(right_toes_local_end), HumanoidBone.endSite)
+        right_toes_node.add_child(right_toes_end_node)
+        right_toes_end_node.calc_bind_matrix(right_toes_node.world_matrix)
         right_leg = LegBones.create(
-            right_upper_leg, right_lower_leg, right_foot, right_heel)
+            right_upper_leg, right_lower_leg, right_foot, right_toes, get_joint(right_toes_end_node))
 
         #
         left_thumb_proximal = get_joint(
@@ -241,6 +257,7 @@ class NodeScene:
         self.skeleton = Skeleton(body,
                                  left_leg, right_leg,
                                  left_arm, right_arm)
+
         BoneShape.from_skeleton(self.skeleton, self.gizmo)
 
         # self.root.init_human_bones()
