@@ -245,7 +245,7 @@ class BoneShape(Shape):
 
     @staticmethod
     def from_skeleton(skeleton: Skeleton, gizmo: Gizmo):
-        for shape in (
+        bones = [
             BoneShape.from_bone(skeleton.body.hips),
             BoneShape.from_bone(skeleton.body.spine),
             BoneShape.from_bone(skeleton.body.chest),
@@ -263,11 +263,75 @@ class BoneShape(Shape):
             BoneShape.from_bone(skeleton.left_arm.shoulder),
             BoneShape.from_bone(skeleton.left_arm.upper),
             BoneShape.from_bone(skeleton.left_arm.lower),
+            BoneShape.from_bone(skeleton.left_arm.hand),
 
             BoneShape.from_bone(skeleton.right_arm.shoulder),
             BoneShape.from_bone(skeleton.right_arm.upper),
             BoneShape.from_bone(skeleton.right_arm.lower),
-        ):
+            BoneShape.from_bone(skeleton.right_arm.hand),
+        ]
+        if skeleton.left_arm.thumb:
+            bones += [
+                BoneShape.from_bone(skeleton.left_arm.thumb.proximal),
+                BoneShape.from_bone(skeleton.left_arm.thumb.intermediate),
+                BoneShape.from_bone(skeleton.left_arm.thumb.distal),
+            ]
+        if skeleton.left_arm.index:
+            bones += [
+                BoneShape.from_bone(skeleton.left_arm.index.proximal),
+                BoneShape.from_bone(skeleton.left_arm.index.intermediate),
+                BoneShape.from_bone(skeleton.left_arm.index.distal),
+            ]
+        if skeleton.left_arm.middle:
+            bones += [
+                BoneShape.from_bone(skeleton.left_arm.middle.proximal),
+                BoneShape.from_bone(skeleton.left_arm.middle.intermediate),
+                BoneShape.from_bone(skeleton.left_arm.middle.distal),
+            ]
+        if skeleton.left_arm.ring:
+            bones += [
+                BoneShape.from_bone(skeleton.left_arm.ring.proximal),
+                BoneShape.from_bone(skeleton.left_arm.ring.intermediate),
+                BoneShape.from_bone(skeleton.left_arm.ring.distal),
+            ]
+        if skeleton.left_arm.little:
+            bones += [
+                BoneShape.from_bone(skeleton.left_arm.little.proximal),
+                BoneShape.from_bone(skeleton.left_arm.little.intermediate),
+                BoneShape.from_bone(skeleton.left_arm.little.distal),
+            ]
+        #
+        if skeleton.right_arm.thumb:
+            bones += [
+                BoneShape.from_bone(skeleton.right_arm.thumb.proximal),
+                BoneShape.from_bone(skeleton.right_arm.thumb.intermediate),
+                BoneShape.from_bone(skeleton.right_arm.thumb.distal),
+            ]
+        if skeleton.right_arm.index:
+            bones += [
+                BoneShape.from_bone(skeleton.right_arm.index.proximal),
+                BoneShape.from_bone(skeleton.right_arm.index.intermediate),
+                BoneShape.from_bone(skeleton.right_arm.index.distal),
+            ]
+        if skeleton.right_arm.middle:
+            bones += [
+                BoneShape.from_bone(skeleton.right_arm.middle.proximal),
+                BoneShape.from_bone(skeleton.right_arm.middle.intermediate),
+                BoneShape.from_bone(skeleton.right_arm.middle.distal),
+            ]
+        if skeleton.right_arm.ring:
+            bones += [
+                BoneShape.from_bone(skeleton.right_arm.ring.proximal),
+                BoneShape.from_bone(skeleton.right_arm.ring.intermediate),
+                BoneShape.from_bone(skeleton.right_arm.ring.distal),
+            ]
+        if skeleton.right_arm.little:
+            bones += [
+                BoneShape.from_bone(skeleton.right_arm.little.proximal),
+                BoneShape.from_bone(skeleton.right_arm.little.intermediate),
+                BoneShape.from_bone(skeleton.right_arm.little.distal),
+            ]
+        for shape in bones:
             gizmo.add_shape(shape)
 
     def get_quads(self) -> Iterable[Tuple[Quad, glm.vec4]]:

@@ -1,4 +1,4 @@
-from typing import NamedTuple, List, Optional
+from typing import NamedTuple, List, Optional, Union
 from enum import Enum, auto
 import glm
 from .humanoid_bones import HumanoidBone
@@ -110,6 +110,12 @@ class Bone:
                     pitch=glm.vec3(0, 0, -1),
                     roll=glm.vec3(1, 0, 0),
                 )
+            case HeadTailAxis.XPositive, SecondAxis.ZPositive:
+                return Coordinate(
+                    yaw=glm.vec3(0, 0, 1),
+                    pitch=glm.vec3(0, -1, 0),
+                    roll=glm.vec3(1, 0, 0),
+                )
             case _:
                 raise NotImplementedError()
 
@@ -122,13 +128,13 @@ class BodyBones(NamedTuple):
     head: Bone
 
     @staticmethod
-    def create(hips: Joint, spine: Joint, chest: Joint, neck: Joint, head: Joint, head_end: Joint) -> 'BodyBones':
+    def create(hips: Joint, spine: Joint, chest: Joint, neck: Joint, head: Joint, end: Joint) -> 'BodyBones':
         return BodyBones(
             Bone(hips, spine),
             Bone(spine, chest),
             Bone(chest, neck),
             Bone(neck, head),
-            Bone(head, head_end))
+            Bone(head, end))
 
 
 class LegBones(NamedTuple):
@@ -145,18 +151,58 @@ class LegBones(NamedTuple):
         )
 
 
+class FingerBones(NamedTuple):
+    proximal: Bone
+    intermediate: Bone
+    distal: Bone
+
+    @staticmethod
+    def create(proximal: Joint, intermediate: Joint, distal: Joint, end: Joint):
+        return FingerBones(
+            Bone(proximal, intermediate),
+            Bone(intermediate, distal),
+            Bone(distal, end))
+
+
 class ArmBones(NamedTuple):
     shoulder: Bone
     upper: Bone
     lower: Bone
+    hand: Bone
+    thumb: Optional[FingerBones] = None
+    index: Optional[FingerBones] = None
+    middle: Optional[FingerBones] = None
+    ring: Optional[FingerBones] = None
+    little: Optional[FingerBones] = None
 
     @staticmethod
-    def create(shoulder: Joint, upper: Joint, lower: Joint, middle_proximal: Joint) -> 'ArmBones':
-        return ArmBones(
-            Bone(shoulder, upper),
-            Bone(upper, lower),
-            Bone(lower, middle_proximal),
-        )
+    def create(shoulder: Joint, upper: Joint, lower: Joint, hand: Joint, *,
+               middle: Union[Joint, FingerBones],
+               thumb: Optional[FingerBones] = None,
+               index: Optional[FingerBones] = None,
+               ring: Optional[FingerBones] = None,
+               little: Optional[FingerBones] = None
+               ) -> 'ArmBones':
+        if isinstance(middle, FingerBones):
+            return ArmBones(
+                Bone(shoulder, upper),
+                Bone(upper, lower),
+                Bone(lower, hand),
+                Bone(hand, middle.proximal.head),
+                thumb=thumb,
+                index=index,
+                middle=middle,
+                ring=ring,
+                little=little
+            )
+        else:
+            return ArmBones(
+                Bone(shoulder, upper),
+                Bone(upper, lower),
+                Bone(lower, hand),
+                Bone(hand, middle),
+                middle=None,
+            )
 
 
 class Skeleton:

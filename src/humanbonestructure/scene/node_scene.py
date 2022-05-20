@@ -46,7 +46,7 @@ class NodeScene:
             return
 
         self.root.calc_world_matrix(glm.mat4())
-        from ..humanoid.bone import Skeleton, BodyBones, LegBones, ArmBones, Joint, TR
+        from ..humanoid.bone import Skeleton, BodyBones, LegBones, FingerBones, ArmBones, Joint, TR
 
         def get_joint(node: Node) -> Joint:
             return Joint(node.name,
@@ -101,21 +101,142 @@ class NodeScene:
         right_leg = LegBones.create(
             right_upper_leg, right_lower_leg, right_foot, right_heel)
 
+        #
+        left_thumb_proximal = get_joint(
+            self.root[HumanoidBone.leftThumbProximal])
+        left_thumb_intermediate = get_joint(
+            self.root[HumanoidBone.leftThumbIntermediate])
+        left_thumb_distal = get_joint(self.root[HumanoidBone.leftThumbDistal])
+        left_thumb_end = get_joint(
+            self.root[HumanoidBone.leftThumbDistal].children[0])
+        left_thumb = FingerBones.create(
+            left_thumb_proximal, left_thumb_intermediate, left_thumb_distal, left_thumb_end)
+
+        left_index_proximal = get_joint(
+            self.root[HumanoidBone.leftIndexProximal])
+        left_index_intermediate = get_joint(
+            self.root[HumanoidBone.leftIndexIntermediate])
+        left_index_distal = get_joint(self.root[HumanoidBone.leftIndexDistal])
+        left_index_end = get_joint(
+            self.root[HumanoidBone.leftIndexDistal].children[0])
+        left_index = FingerBones.create(
+            left_index_proximal, left_index_intermediate, left_index_distal, left_index_end)
+
+        left_middle_proximal = get_joint(
+            self.root[HumanoidBone.leftMiddleProximal])
+        left_middle_intermediate = get_joint(
+            self.root[HumanoidBone.leftMiddleIntermediate])
+        left_middle_distal = get_joint(
+            self.root[HumanoidBone.leftMiddleDistal])
+        left_middle_end = get_joint(
+            self.root[HumanoidBone.leftMiddleDistal].children[0])
+        left_middle = FingerBones.create(
+            left_middle_proximal, left_middle_intermediate, left_middle_distal, left_middle_end)
+
+        left_ring_proximal = get_joint(
+            self.root[HumanoidBone.leftRingProximal])
+        left_ring_intermediate = get_joint(
+            self.root[HumanoidBone.leftRingIntermediate])
+        left_ring_distal = get_joint(self.root[HumanoidBone.leftRingDistal])
+        left_ring_end = get_joint(
+            self.root[HumanoidBone.leftRingDistal].children[0])
+        left_ring = FingerBones.create(
+            left_ring_proximal, left_ring_intermediate, left_ring_distal, left_ring_end)
+
+        left_little_proximal = get_joint(
+            self.root[HumanoidBone.leftLittleProximal])
+        left_little_intermediate = get_joint(
+            self.root[HumanoidBone.leftLittleIntermediate])
+        left_little_distal = get_joint(
+            self.root[HumanoidBone.leftLittleDistal])
+        left_little_end = get_joint(
+            self.root[HumanoidBone.leftLittleDistal].children[0])
+        left_little = FingerBones.create(
+            left_little_proximal, left_little_intermediate, left_little_distal, left_little_end)
+
+        #
+        right_thumb_proximal = get_joint(
+            self.root[HumanoidBone.rightThumbProximal])
+        right_thumb_intermediate = get_joint(
+            self.root[HumanoidBone.rightThumbIntermediate])
+        right_thumb_distal = get_joint(
+            self.root[HumanoidBone.rightThumbDistal])
+        right_thumb_end = get_joint(
+            self.root[HumanoidBone.rightThumbDistal].children[0])
+        right_thumb = FingerBones.create(
+            right_thumb_proximal, right_thumb_intermediate, right_thumb_distal, right_thumb_end)
+
+        right_index_proximal = get_joint(
+            self.root[HumanoidBone.rightIndexProximal])
+        right_index_intermediate = get_joint(
+            self.root[HumanoidBone.rightIndexIntermediate])
+        right_index_distal = get_joint(
+            self.root[HumanoidBone.rightIndexDistal])
+        right_index_end = get_joint(
+            self.root[HumanoidBone.rightIndexDistal].children[0])
+        right_index = FingerBones.create(
+            right_index_proximal, right_index_intermediate, right_index_distal, right_index_end)
+
+        right_middle_proximal = get_joint(
+            self.root[HumanoidBone.rightMiddleProximal])
+        right_middle_intermediate = get_joint(
+            self.root[HumanoidBone.rightMiddleIntermediate])
+        right_middle_distal = get_joint(
+            self.root[HumanoidBone.rightMiddleDistal])
+        right_middle_end = get_joint(
+            self.root[HumanoidBone.rightMiddleDistal].children[0])
+        right_middle = FingerBones.create(
+            right_middle_proximal, right_middle_intermediate, right_middle_distal, right_middle_end)
+
+        right_ring_proximal = get_joint(
+            self.root[HumanoidBone.rightRingProximal])
+        right_ring_intermediate = get_joint(
+            self.root[HumanoidBone.rightRingIntermediate])
+        right_ring_distal = get_joint(self.root[HumanoidBone.rightRingDistal])
+        right_ring_end = get_joint(
+            self.root[HumanoidBone.rightRingDistal].children[0])
+        right_ring = FingerBones.create(
+            right_ring_proximal, right_ring_intermediate, right_ring_distal, right_ring_end)
+
+        right_little_proximal = get_joint(
+            self.root[HumanoidBone.rightLittleProximal])
+        right_little_intermediate = get_joint(
+            self.root[HumanoidBone.rightLittleIntermediate])
+        right_little_distal = get_joint(
+            self.root[HumanoidBone.rightLittleDistal])
+        right_little_end = get_joint(
+            self.root[HumanoidBone.rightLittleDistal].children[0])
+        right_little = FingerBones.create(
+            right_little_proximal, right_little_intermediate, right_little_distal, right_little_end)
+
+        #
         left_shoulder = get_joint(self.root[HumanoidBone.leftShoulder])
         left_upper_arm = get_joint(self.root[HumanoidBone.leftUpperArm])
         left_lower_arm = get_joint(self.root[HumanoidBone.leftLowerArm])
-        left_middle_proximal = get_joint(
-            self.root[HumanoidBone.leftMiddleProximal])
+        left_hand = get_joint(self.root[HumanoidBone.leftHand])
         left_arm = ArmBones.create(
-            left_shoulder, left_upper_arm, left_lower_arm, left_middle_proximal)
+            left_shoulder, left_upper_arm, left_lower_arm, left_hand,
+            thumb=left_thumb,
+            index=left_index,
+            middle=left_middle,
+            ring=left_ring,
+            little=left_little
+        )
 
         right_shoulder = get_joint(self.root[HumanoidBone.rightShoulder])
         right_upper_arm = get_joint(self.root[HumanoidBone.rightUpperArm])
         right_lower_arm = get_joint(self.root[HumanoidBone.rightLowerArm])
+        right_hand = get_joint(self.root[HumanoidBone.rightHand])
         right_middle_proximal = get_joint(
             self.root[HumanoidBone.rightMiddleProximal])
         right_arm = ArmBones.create(
-            right_shoulder, right_upper_arm, right_lower_arm, right_middle_proximal)
+            right_shoulder, right_upper_arm, right_lower_arm, right_hand,
+            thumb=right_thumb,
+            index=right_index,
+            middle=right_middle,
+            ring=right_ring,
+            little=right_little
+        )
 
         self.skeleton = Skeleton(body,
                                  left_leg, right_leg,
