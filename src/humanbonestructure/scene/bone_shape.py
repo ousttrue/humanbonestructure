@@ -232,12 +232,10 @@ class BoneShape(Shape):
             case HeadTailAxis.Other:
                 # fallback head tail
                 # assert node.humanoid_tail
-                head = bone.head.world.get_matrix()[3].xyz
-                tail = bone.tail.world.get_matrix()[3].xyz
-                return BoneShape(setting.width, setting.height, (head, tail),
+                tail = bone.tail.local.translation
+                return BoneShape(setting.width, setting.height, (glm.vec3(0, 0, 0), tail),
                                  color=setting.color,
-                                 matrix=glm.translate(
-                                     bone.head.world.translation),
+                                 matrix=bone.head.world.get_matrix(),
                                  line_size=setting.line_size,
                                  up_dir=bone.head.humanoid_bone.world_second, local_axis=bone.head.world.rotation)
             case _:
