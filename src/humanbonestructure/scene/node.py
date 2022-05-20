@@ -81,9 +81,9 @@ class Node:
         if self.humanoid_bone == HumanoidBone.hips:
             pass
 
-        tail_bone = self.humanoid_bone.get_tail()
-        if tail_bone != HumanoidBone.unknown:
-            tail = self.find_humanoid_bone(tail_bone)
+        tail_humanoid_bone = self.humanoid_bone.get_tail()
+        if tail_humanoid_bone != HumanoidBone.unknown:
+            tail = self.find_humanoid_bone(tail_humanoid_bone)
             if tail:
                 self.humanoid_tail = tail
                 return tail
@@ -115,6 +115,12 @@ class Node:
         match self.name:
             case '下半身' | '頭':
                 return next(iter(node for node, _ in self.traverse_node_and_parent() if node.name == self.name + '先'))
+
+        if tail_humanoid_bone == HumanoidBone.endSite:
+            if self.children:
+                tail = self.children[0]
+                self.humanoid_tail = tail
+                return tail
 
         # add dummy tail
         LOGGER.warn(f'no tail: {self}')
