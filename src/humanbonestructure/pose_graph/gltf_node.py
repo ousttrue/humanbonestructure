@@ -90,16 +90,14 @@ class GltfNode(FileNode):
             for info in self.gltf.get_info():
                 ImGui.TextUnformatted(info)
 
-        ImGui.Checkbox('use convert', self.convert)
+        # ImGui.Checkbox('use convert', self.convert)
 
-        if self.scene.root:
+        if self.scene.skeleton:
             if ImGui.Button('strict tpose'):
-                from ..scene.tpose import make_tpose
-                make_tpose(self.scene.root)
+                self.scene.skeleton.strict_tpose()
                 self.scene.sync_gizmo()
             if ImGui.Button('clear'):
-                self.scene.root.clear_pose()
-                self.scene.root.calc_world_matrix(glm.mat4())
+                self.scene.skeleton.clear_pose()
                 self.scene.sync_gizmo()
 
     def load(self, path: pathlib.Path):

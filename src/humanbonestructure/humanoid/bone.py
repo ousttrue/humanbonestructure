@@ -35,6 +35,12 @@ class TR(NamedTuple):
     def get_matrix(self) -> glm.mat4:
         return glm.translate(self.translation) * glm.mat4(self.rotation)
 
+    def __mul__(self, rhs: 'TR') -> 'TR':
+        '''
+        R1R2|
+        '''
+        return TR((self.rotation * glm.vec4(rhs.translation, 1)).xyz + self.translation, self.rotation * rhs.rotation)
+
 
 class Joint:
     def __init__(self, name: str, local: TR, humanoid_bone: HumanoidBone, *, world: Optional[TR] = None) -> None:
@@ -42,9 +48,22 @@ class Joint:
         self.local = local
         self.world = world if world else TR()
         self.humanoid_bone = humanoid_bone
+        self.pose = glm.quat()
+        self.children: List[Joint] = []
+        self.parent: Optional[Joint] = None
+
+    def add_child(self, child: 'Joint'):
+        child.parent = self
+        self.children.append(child)
+        child.calc_world(self.world)
+
+    def calc_world(self, parent: TR):
+        self.world = parent * self.local
+        for child in self.children:
+            child.calc_world(self.world)
 
 
-EPSILON = 1e-2
+EPSILON = 2e-2
 
 
 class Bone:
@@ -116,8 +135,22 @@ class Bone:
                     pitch=glm.vec3(0, -1, 0),
                     roll=glm.vec3(1, 0, 0),
                 )
+            case HeadTailAxis.XNegative, SecondAxis.YNegative:
+                return Coordinate(
+                    yaw=glm.vec3(0, 1, 0),
+                    pitch=glm.vec3(0, 0, 1),
+                    roll=glm.vec3(1, 0, 0),
+                )
             case _:
                 raise NotImplementedError()
+
+    def calc_world_matrix(self, parent: glm.mat4) -> glm.mat4:
+        m = parent * self.head.local.get_matrix() * glm.mat4(self.head.pose)
+        self.head.world = TR.from_matrix(m)
+        return m
+
+    def strict_tpose(self):
+        pass
 
 
 class BodyBones(NamedTuple):
@@ -209,10 +242,24 @@ class ArmBones(NamedTuple):
 
 class Skeleton:
     def __init__(self, body: BodyBones,
-                 left_leg: LegBones, right_leg: LegBones,
-                 left_arm: ArmBones, right_arm: ArmBones) -> None:
+                 left_leg: Optional[LegBones] = None, right_leg: Optional[LegBones] = None,
+                 left_arm: Optional[ArmBones] = None, right_arm: Optional[ArmBones] = None) -> None:
         self.body = body
         self.left_leg = left_leg
         self.right_leg = right_leg
         self.left_arm = left_arm
         self.right_arm = right_arm
+
+    def calc_world_matrix(self):
+        m = glm.mat4()
+        m = self.body.hips.calc_world_matrix(m)
+        m = self.body.spine.calc_world_matrix(m)
+        m = self.body.chest.calc_world_matrix(m)
+        m = self.body.neck.calc_world_matrix(m)
+        m = self.body.head.calc_world_matrix(m)
+
+    def strict_tpose(self):
+        self.body.hips.strict_tpose()
+
+    def clear_pose(self):
+        pass
