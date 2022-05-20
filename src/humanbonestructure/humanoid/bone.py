@@ -143,11 +143,29 @@ class Bone:
                     pitch=glm.vec3(1, 0, 0),
                     roll=glm.vec3(0, 1, 0),
                 )
+            case HeadTailAxis.YPositive, SecondAxis.ZNegative:
+                return Coordinate(
+                    yaw=glm.vec3(0, 0, -1),
+                    pitch=glm.vec3(-1, 0, 0),
+                    roll=glm.vec3(0, 1, 0),
+                )
+            case HeadTailAxis.YNegative, SecondAxis.ZNegative:
+                return Coordinate(
+                    yaw=glm.vec3(0, 0, -1),
+                    pitch=glm.vec3(1, 0, 0),
+                    roll=glm.vec3(0, -1, 0),
+                )
             case HeadTailAxis.XNegative, SecondAxis.YNegative:
                 return Coordinate(
                     yaw=glm.vec3(0, 1, 0),
                     pitch=glm.vec3(0, 0, 1),
                     roll=glm.vec3(1, 0, 0),
+                )
+            case HeadTailAxis.ZPositive, SecondAxis.YNegative:
+                return Coordinate(
+                    yaw=glm.vec3(0, -1, 0),
+                    pitch=glm.vec3(1, 0, 0),
+                    roll=glm.vec3(0, 0, 1),
                 )
             case _:
                 raise NotImplementedError()
@@ -231,6 +249,34 @@ class LegBones(NamedTuple):
             Bone(toes, end)
         )
 
+    @staticmethod
+    def create_default_left(hips: Joint) -> 'LegBones':
+        upper = Joint('left_upper_leg', TR(glm.vec3(0.1, 0, 0)),
+                      HumanoidBone.leftUpperLeg, parent=hips)
+        lower = Joint('left_lower_leg', TR(glm.vec3(0, -0.4, 0)),
+                      HumanoidBone.leftLowerLeg, parent=upper)
+        foot = Joint('left_foot', TR(glm.vec3(0, -0.35, 0)),
+                     HumanoidBone.leftFoot, parent=lower)
+        toes = Joint('left_toes', TR(glm.vec3(0, -0.1, 0.08)),
+                     HumanoidBone.leftToes, parent=foot)
+        end = Joint('left_toes_end', TR(glm.vec3(0, 0, 0.05)),
+                    HumanoidBone.endSite, parent=toes)
+        return LegBones.create(upper, lower, foot, toes, end)
+
+    @staticmethod
+    def create_default_right(hips: Joint) -> 'LegBones':
+        upper = Joint('right_upper_leg', TR(glm.vec3(-0.1, 0, 0)),
+                      HumanoidBone.rightUpperLeg, parent=hips)
+        lower = Joint('right_lower_leg', TR(glm.vec3(0, -0.4, 0)),
+                      HumanoidBone.rightLowerLeg, parent=upper)
+        foot = Joint('right_foot', TR(glm.vec3(0, -0.35, 0)),
+                     HumanoidBone.rightFoot, parent=lower)
+        toes = Joint('right_toes', TR(glm.vec3(0, -0.1, 0.08)),
+                     HumanoidBone.rightToes, parent=foot)
+        end = Joint('right_toes_end', TR(glm.vec3(0, 0, 0.05)),
+                    HumanoidBone.endSite, parent=toes)
+        return LegBones.create(upper, lower, foot, toes, end)
+
 
 class FingerBones(NamedTuple):
     proximal: Bone
@@ -299,7 +345,9 @@ class Skeleton:
     @staticmethod
     def create_default():
         body = BodyBones.create_default()
-        return Skeleton(body)
+        left_leg = LegBones.create_default_left(body.hips.head)
+        right_leg = LegBones.create_default_right(body.hips.head)
+        return Skeleton(body, left_leg=left_leg, right_leg=right_leg)
 
     def calc_world_matrix(self):
         m = glm.mat4()
