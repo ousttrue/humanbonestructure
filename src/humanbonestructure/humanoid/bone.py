@@ -145,8 +145,26 @@ class LegBones(NamedTuple):
         )
 
 
+class ArmBones(NamedTuple):
+    shoulder: Bone
+    upper: Bone
+    lower: Bone
+
+    @staticmethod
+    def create(shoulder: Joint, upper: Joint, lower: Joint, middle_proximal: Joint) -> 'ArmBones':
+        return ArmBones(
+            Bone(shoulder, upper),
+            Bone(upper, lower),
+            Bone(lower, middle_proximal),
+        )
+
+
 class Skeleton:
-    def __init__(self, body: BodyBones, left_leg: LegBones, right_leg: LegBones) -> None:
+    def __init__(self, body: BodyBones,
+                 left_leg: LegBones, right_leg: LegBones,
+                 left_arm: ArmBones, right_arm: ArmBones) -> None:
         self.body = body
         self.left_leg = left_leg
         self.right_leg = right_leg
+        self.left_arm = left_arm
+        self.right_arm = right_arm

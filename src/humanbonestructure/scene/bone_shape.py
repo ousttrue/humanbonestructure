@@ -259,6 +259,14 @@ class BoneShape(Shape):
             BoneShape.from_bone(skeleton.right_leg.upper),
             BoneShape.from_bone(skeleton.right_leg.lower),
             BoneShape.from_bone(skeleton.right_leg.foot),
+
+            BoneShape.from_bone(skeleton.left_arm.shoulder),
+            BoneShape.from_bone(skeleton.left_arm.upper),
+            BoneShape.from_bone(skeleton.left_arm.lower),
+
+            BoneShape.from_bone(skeleton.right_arm.shoulder),
+            BoneShape.from_bone(skeleton.right_arm.upper),
+            BoneShape.from_bone(skeleton.right_arm.lower),
         ):
             gizmo.add_shape(shape)
 

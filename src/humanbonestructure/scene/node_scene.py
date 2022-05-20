@@ -46,7 +46,7 @@ class NodeScene:
             return
 
         self.root.calc_world_matrix(glm.mat4())
-        from ..humanoid.bone import Skeleton, BodyBones, LegBones, Joint, TR
+        from ..humanoid.bone import Skeleton, BodyBones, LegBones, ArmBones, Joint, TR
 
         def get_joint(node: Node) -> Joint:
             return Joint(node.name,
@@ -101,7 +101,25 @@ class NodeScene:
         right_leg = LegBones.create(
             right_upper_leg, right_lower_leg, right_foot, right_heel)
 
-        self.skeleton = Skeleton(body, left_leg, right_leg)
+        left_shoulder = get_joint(self.root[HumanoidBone.leftShoulder])
+        left_upper_arm = get_joint(self.root[HumanoidBone.leftUpperArm])
+        left_lower_arm = get_joint(self.root[HumanoidBone.leftLowerArm])
+        left_middle_proximal = get_joint(
+            self.root[HumanoidBone.leftMiddleProximal])
+        left_arm = ArmBones.create(
+            left_shoulder, left_upper_arm, left_lower_arm, left_middle_proximal)
+
+        right_shoulder = get_joint(self.root[HumanoidBone.rightShoulder])
+        right_upper_arm = get_joint(self.root[HumanoidBone.rightUpperArm])
+        right_lower_arm = get_joint(self.root[HumanoidBone.rightLowerArm])
+        right_middle_proximal = get_joint(
+            self.root[HumanoidBone.rightMiddleProximal])
+        right_arm = ArmBones.create(
+            right_shoulder, right_upper_arm, right_lower_arm, right_middle_proximal)
+
+        self.skeleton = Skeleton(body,
+                                 left_leg, right_leg,
+                                 left_arm, right_arm)
         BoneShape.from_skeleton(self.skeleton, self.gizmo)
 
         # self.root.init_human_bones()
