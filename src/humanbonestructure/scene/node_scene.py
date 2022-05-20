@@ -43,6 +43,9 @@ class NodeScene:
     def set_root(self, root: Optional[Node]):
         self.root = root
         if self.root:
+            self.root.calc_world_matrix(glm.mat4())
+            self.root.init_human_bones()
+            self.root.print_tree()
             # Clear node rotation and set local_axis
             self.root.calc_world_matrix(glm.mat4())
             world_map = {}
@@ -55,7 +58,6 @@ class NodeScene:
             # setup
             self.root.calc_world_matrix(glm.mat4())
             self.root.init_human_bones()
-            # self.root.print_tree()
             self.root.calc_bind_matrix(glm.mat4())
             self.root.calc_world_matrix(glm.mat4())
             self.humanoid_node_map = {node.humanoid_bone: node for node,

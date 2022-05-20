@@ -92,7 +92,7 @@ class Node:
             case HumanoidBone.leftFoot | HumanoidBone.rightFoot:
                 LOGGER.warn(f'no tail: {self}')
                 pos = self.world_matrix[3].xyz
-                end = glm.vec3(pos.x, 0, pos.y)
+                end = glm.vec3(pos.x, 0, pos.z)
                 local_end = glm.inverse(self.world_matrix) * end
                 tail = Node('heal', Transform(local_end, glm.quat(),
                             glm.vec3(1)), HumanoidBone.endSite)
@@ -243,7 +243,9 @@ class Node:
     def print_tree(self, indent=''):
         tail = 'None'
         if self.humanoid_tail:
-            tail = f'{self.humanoid_tail.humanoid_bone}({self.humanoid_tail.name})'
+            def f3(p: glm.vec3):
+                return f'[{p.x:.3f}, {p.y:.3f}, {p.z:.3f}]'
+            tail = f'{self.humanoid_tail.humanoid_bone}({self.humanoid_tail.name}): {f3(glm.normalize(self.humanoid_tail.init_trs.translation))}'
         if self.humanoid_bone.is_enable():
             print(f'{indent}{self.humanoid_bone}({self.name}) => {tail}')
         for child in self.children:
