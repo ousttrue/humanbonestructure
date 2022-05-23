@@ -201,11 +201,14 @@ class Bone:
         self.head.world = TR.from_matrix(m)
         return m
 
-    def strict_tpose(self):
-        world_target = glm.mat4()
+    def strict_tpose(self, parent: glm.mat4):
+        world = parent * self.head.local.get_matrix()
+        world_axis = glm.quat(world) * self.local_axis
+        # world_target = glm.mat4()
         # world * delta * local_axis = world_target
-        delta = glm.inverse(self.head.world.get_matrix()) * world_target * glm.mat4(glm.inverse(self.local_axis))
-        self.head.pose = glm.quat(delta)
+        delta = self.local_axis * glm.inverse(world_axis) * glm.inverse(self.local_axis)
+        self.head.pose = delta
+        return self.calc_world_matrix(parent)
 
     def get_target_matrix(self, flag: BoneFlags) -> glm.mat4:
         match self.head.humanoid_bone.base:
@@ -308,17 +311,18 @@ class BodyBones(NamedTuple):
         return BodyBones.create(hips, spine, chest, neck, head, head_end)
 
     def strict_tpose(self):
-        m = glm.mat4()
-        self.hips.strict_tpose()
-        m = self.hips.calc_world_matrix(m)
-        self.spine.strict_tpose()
-        m = self.spine.calc_world_matrix(m)
+        m = self.hips.strict_tpose(glm.mat4())
+        m = self.spine.strict_tpose(m)
+        m = self.chest.strict_tpose(m)
+        m = self.neck.strict_tpose(m)
+        m = self.head.strict_tpose(m)
 
     def clear_pose(self):
         self.hips.head.pose = glm.quat()
         self.spine.head.pose = glm.quat()
-        m = glm.mat4()
-        m = self.hips.calc_world_matrix(m)
+        self.chest.head.pose = glm.quat()
+        self.neck.head.pose = glm.quat()
+        self.head.head.pose = glm.quat()
 
     def cancel_axis(self):
         self.hips.cancel_axis()
@@ -593,6 +597,7 @@ class Skeleton:
 
     def clear_pose(self):
         self.body.clear_pose()
+        self.calc_world_matrix()
 
     def cancel_axis(self):
         self.calc_world_matrix()
