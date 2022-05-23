@@ -46,9 +46,14 @@ class Joint:
         if self.parent:
             self.parent.add_child(self)
 
+    def get_parent_world_matrix(self) -> glm.mat4:
+        return self.parent.world.get_matrix() if self.parent else glm.mat4()
+
     def traverse(self) -> Iterable['Joint']:
         yield self
-        yield from self.children
+        for child in self.children:
+            for x in child.traverse():
+                yield x
 
     def add_child(self, child: 'Joint'):
         child.parent = self
@@ -56,7 +61,7 @@ class Joint:
         child.calc_world(self.world)
 
     def calc_world(self, parent: TR):
-        self.world = parent * self.local
+        self.world = parent * self.local * TR(glm.vec3(0, 0, 0), self.pose)
         for child in self.children:
             child.calc_world(self.world)
 
@@ -71,7 +76,7 @@ class Bone:
         self.calc_axis()
 
     @property
-    def local_axis(self)->glm.quat:
+    def local_axis(self) -> glm.quat:
         return self.head.local_axis
 
     @property
@@ -208,9 +213,6 @@ class Bone:
                 )
             case _:
                 raise NotImplementedError()
-
-    def get_parent_world_matrix(self) -> glm.mat4:
-        return self.head.parent.world.get_matrix() if self.head.parent else glm.mat4()
 
     def calc_world_matrix(self, parent: glm.mat4) -> glm.mat4:
         m = parent * self.head.local.get_matrix() * glm.mat4(self.head.pose)

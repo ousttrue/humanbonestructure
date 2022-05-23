@@ -4,7 +4,7 @@ from pydear.utils.mouse_event import MouseEvent
 from pydear.scene.camera import Camera, ArcBall, ScreenShift
 from pydear.gizmo.gizmo import Gizmo
 from pydear.gizmo.gizmo_select_handler import GizmoSelectHandler
-from .node_drag_handler import NodeDragHandler
+from .bone_drag_handler import BoneDragHandler
 from pydear.gizmo.shapes.shape import Shape
 from ..humanoid.pose import Pose
 from ..humanoid.bone import Bone, Skeleton
@@ -54,9 +54,10 @@ class NodeScene:
                 self.gizmo = Gizmo()
                 self.bone_shape_map = BoneShape.from_skeleton(
                     self.skeleton, self.gizmo)
+                self.joint_shape_map = {bone.head: shape for bone, shape in self.bone_shape_map.items()}
 
                 # shape select
-                if True:
+                if False:
                     self.drag_handler = GizmoSelectHandler(self.gizmo)
                     self.mouse_event.bind_left_drag(self.drag_handler)
 
@@ -71,8 +72,8 @@ class NodeScene:
                         pose = self.skeleton.to_pose()
                         self.pose_changed.set(pose)
 
-                    self.drag_handler = NodeDragHandler(
-                        self.gizmo, self.camera, self.bone_shape_map, raise_pose)
+                    self.drag_handler = BoneDragHandler(
+                        self.gizmo, self.camera, self.joint_shape_map, raise_pose)
                     self.mouse_event.bind_left_drag(self.drag_handler)
                     self.pose_changed = EventProperty[Pose](Pose('empty'))
 

@@ -9,6 +9,17 @@ from ..humanoid.transform import Transform
 from ..humanoid.humanoid_bones import BoneBase
 
 
+HAND_SCALE = glm.scale(glm.vec3(0.25, 0.25, 0.25))
+
+
+def get_scale(selected: Shape, node_shape_map: Dict[Node, Shape]) -> glm.mat4:
+    for node, shape in node_shape_map.items():
+        if shape == selected:
+            if node.humanoid_bone.base == BoneBase.hand or node.humanoid_bone.is_finger():
+                return HAND_SCALE
+    return glm.mat4()
+
+
 def find_node(node_shape_map, target) -> Node:
     for node, shape in node_shape_map.items():
         if shape == target:
@@ -23,17 +34,6 @@ def sync_gizmo_with_node(root, parent: glm.mat4, node_shape_map):
         if shape:
             shape.matrix.set(node.world_matrix *
                              glm.mat4(node.local_axis))
-
-
-SCALE = glm.scale(glm.vec3(0.25, 0.25, 0.25))
-
-
-def get_scale(selected: Shape, node_shape_map: Dict[Node, Shape]) -> glm.mat4:
-    for node, shape in node_shape_map.items():
-        if shape == selected:
-            if node.humanoid_bone.base == BoneBase.hand or node.humanoid_bone.is_finger():
-                return SCALE
-    return glm.mat4()
 
 
 class NodeRingDragContext(RingDragContext):
