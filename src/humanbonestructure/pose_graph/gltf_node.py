@@ -48,6 +48,8 @@ class GltfNode(FileNode):
         self.fbo = FboView()
         from ..scene.node_scene import NodeScene
         self.scene = NodeScene(self.fbo.mouse_event)
+        self.cancel_axis = (ctypes.c_bool * 1)()
+        self.strict_delta = (ctypes.c_bool * 1)()
 
     @classmethod
     def imgui_menu(cls, graph, click_pos):
@@ -83,17 +85,13 @@ class GltfNode(FileNode):
         self.scene.render(w, h)
 
         super().show_content(graph)
-        if self.gltf:
-            for info in self.gltf.get_info():
-                ImGui.TextUnformatted(info)
+        # if self.gltf:
+        #     for info in self.gltf.get_info():
+        #         ImGui.TextUnformatted(info)
 
-        # if self.scene.skeleton:
-        #     if ImGui.Button('strict tpose'):
-        #         self.scene.skeleton.strict_tpose()
-        #         self.scene.sync_gizmo()
-        #     if ImGui.Button('clear'):
-        #         self.scene.skeleton.clear_pose()
-        #         self.scene.sync_gizmo()
+        if self.scene.skeleton:
+            ImGui.Checkbox('cancel axis', self.cancel_axis)
+            ImGui.Checkbox('strict delta', self.strict_delta)
 
     def load(self, path: pathlib.Path):
         self.path = path
@@ -114,4 +112,6 @@ class GltfNode(FileNode):
 
         self.scene.update(
             self.skeleton,
-            self.in_pin.pose)
+            self.in_pin.pose,
+            cancel_axis=self.cancel_axis[0],
+            strict_delta=self.strict_delta[0])

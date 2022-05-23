@@ -41,75 +41,10 @@ class NodeScene:
         self.camera.projection.resize(w, h)
         self.gizmo.process(self.camera, mouse_input.x, mouse_input.y)
 
-    def update(self, skeleton: Optional[Skeleton], pose: Optional[Pose], cancel_axis: bool = False):
-        if cancel_axis != self.cancel_axis:
-            self.cancel_axis = cancel_axis
-            # clear
-            self.skeleton = None
-
-        if self.skeleton != skeleton:
-            self.skeleton = skeleton
-            if self.skeleton:
-                if self.cancel_axis:
-                    self.skeleton.cancel_axis()
-                else:
-                    self.skeleton.clear_axis()
-                self.gizmo = Gizmo()
-                self.bone_shape_map = BoneShape.from_skeleton(
-                    self.skeleton, self.gizmo)
-                self.joint_shape_map = {
-                    bone.head: shape for bone, shape in self.bone_shape_map.items()}
-                self.humanoid_joint_map = {
-                    bone.head.humanoid_bone: bone.head for bone, shape in self.bone_shape_map.items()}
-
-                # shape select
-                if False:
-                    self.drag_handler = GizmoSelectHandler(self.gizmo)
-                    self.mouse_event.bind_left_drag(self.drag_handler)
-
-                    def on_selected(selected: Optional[Shape]):
-                        if selected:
-                            position = selected.matrix.value[3].xyz
-                            self.camera.view.set_gaze(position)
-                    self.drag_handler.selected += on_selected
-                else:
-                    def raise_pose():
-                        assert self.skeleton
-                        pose = self.skeleton.to_pose()
-                        self.pose_changed.set(pose)
-
-                    self.drag_handler = BoneDragHandler(
-                        self.gizmo, self.camera, self.joint_shape_map, raise_pose)
-                    self.mouse_event.bind_left_drag(self.drag_handler)
-                    self.pose_changed = EventProperty[Pose](Pose('empty'))
-
-                    def on_selected(selected: Optional[Shape]):
-                        if selected:
-                            position = selected.matrix.value[3].xyz
-                            self.camera.view.set_gaze(position)
-                    self.drag_handler.selected += on_selected
-
+    def update(self, skeleton: Optional[Skeleton], pose: Optional[Pose], cancel_axis: bool = False, strict_delta: bool = False):
+        self._update_skeleton(skeleton)
         if not self.skeleton:
             return
-        # if not self.humanoid_joint_map:
-        #     return
-
-        # if self.pose_conv == (pose, convert):
-        #     return
-        # self.pose_conv = (pose, convert)
-
-        # if convert:
-        #     if not self.tpose_delta_map:
-        #         # make tpose for pose conversion
-        #         from . import tpose
-        #         tpose.make_tpose(self.root)
-        #         self.tpose_delta_map: Dict[HumanoidBone, glm.quat] = {node.humanoid_bone: node.pose.rotation if node.pose else glm.quat(
-        #         ) for node, _ in self.root.traverse_node_and_parent(only_human_bone=True)}
-        #         tpose.local_axis_fit_world(self.root)
-        #         self.root.clear_pose()
-        # else:
-        #     self.tpose_delta_map.clear()
-        #     self.root.clear_local_axis()
 
         # assign pose to node hierarchy
         if pose and pose.bones:
@@ -118,14 +53,21 @@ class NodeScene:
                 if bone.humanoid_bone:
                     joint = self.humanoid_joint_map.get(bone.humanoid_bone)
                     if joint:
-                        # if convert:
-                        #     d = self.tpose_delta_map.get(
-                        #         node.humanoid_bone, glm.quat())
-                        #     a = node.local_axis
-                        #     node.pose = Transform.from_rotation(
-                        #         glm.inverse(d) * a * bone.transform.rotation * glm.inverse(a))
-                        # else:
-                        joint.pose = bone.transform.rotation
+                        if cancel_axis and strict_delta:
+                            a = self._get_cancel_axis(bone.humanoid_bone)
+                            d = self._get_strict_delta(bone.humanoid_bone)
+                            joint.pose = d * a * \
+                                bone.transform.rotation * glm.inverse(a)
+                        elif cancel_axis:
+                            a = self._get_cancel_axis(bone.humanoid_bone)
+                            d = self._get_strict_delta(bone.humanoid_bone)
+                            joint.pose = a * \
+                                bone.transform.rotation * glm.inverse(a)
+                        elif strict_delta:
+                            d = self._get_strict_delta(bone.humanoid_bone)
+                            joint.pose = d * bone.transform.rotation
+                        else:
+                            joint.pose = bone.transform.rotation
                     else:
                         pass
                         # raise RuntimeError()
@@ -133,6 +75,53 @@ class NodeScene:
                     raise RuntimeError()
 
         self.sync_gizmo()
+
+    def _get_cancel_axis(self, humanoid_bone: HumanoidBone) -> glm.quat:
+        return glm.quat()
+
+    def _get_strict_delta(self, humanoid_bone: HumanoidBone) -> glm.quat:
+        return glm.quat()
+
+    def _update_skeleton(self, skeleton):
+        if self.skeleton == skeleton:
+            return
+        self.skeleton = skeleton
+        if not self.skeleton:
+            return
+        self.gizmo = Gizmo()
+        self.bone_shape_map = BoneShape.from_skeleton(
+            self.skeleton, self.gizmo)
+        self.joint_shape_map = {
+            bone.head: shape for bone, shape in self.bone_shape_map.items()}
+        self.humanoid_joint_map = {
+            bone.head.humanoid_bone: bone.head for bone, shape in self.bone_shape_map.items()}
+
+        # shape select
+        if False:
+            self.drag_handler = GizmoSelectHandler(self.gizmo)
+            self.mouse_event.bind_left_drag(self.drag_handler)
+
+            def on_selected(selected: Optional[Shape]):
+                if selected:
+                    position = selected.matrix.value[3].xyz
+                    self.camera.view.set_gaze(position)
+            self.drag_handler.selected += on_selected
+        else:
+            def raise_pose():
+                assert self.skeleton
+                pose = self.skeleton.to_pose()
+                self.pose_changed.set(pose)
+
+            self.drag_handler = BoneDragHandler(
+                self.gizmo, self.camera, self.joint_shape_map, raise_pose)
+            self.mouse_event.bind_left_drag(self.drag_handler)
+            self.pose_changed = EventProperty[Pose](Pose('empty'))
+
+            def on_selected(selected: Optional[Shape]):
+                if selected:
+                    position = selected.matrix.value[3].xyz
+                    self.camera.view.set_gaze(position)
+            self.drag_handler.selected += on_selected
 
     def sync_gizmo(self):
         if not self.skeleton:
