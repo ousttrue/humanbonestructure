@@ -70,6 +70,10 @@ class Bone:
         m = self.head.world.get_matrix() * glm.mat4(self.local_axis)
         return glm.inverse(m) * self.tail.world.translation
 
+    def get_up_dir(self) -> glm.vec3:
+        m = self.head.world.get_matrix() * glm.mat4(self.local_axis)
+        return glm.inverse(m) * self.head.humanoid_bone.world_second
+
     def calc_axis(self):
 
         local_tail_dir = glm.normalize(self.get_local_tail())

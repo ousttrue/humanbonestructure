@@ -107,7 +107,8 @@ class BoneShape(Shape):
     1    2X
     '''
 
-    def __init__(self, width: float, height: float, depth: Union[float, Tuple[glm.vec3, glm.vec3]], *, matrix: glm.mat4, color: glm.vec3, coordinate=None, up_dir=None, local_axis=None, line_size=0.1) -> None:
+    def __init__(self, matrix: glm.mat4, width: float, height: float, tail: glm.vec3, up_dir: glm.vec3,
+                 color: glm.vec3, line_size=0.1) -> None:
         super().__init__(matrix)
         if isinstance(color, glm.vec4):
             self.color = color
@@ -117,61 +118,37 @@ class BoneShape(Shape):
             self.color = glm.vec4(1, 1, 1, 1)
         self.width = width
         self.height = height
-        self.depth = depth
+        # self.depth = depth
         x = self.width
-        y = self.depth
+        # y = self.depth
         z = self.height
 
-        match depth:
-            case float():
-                assert coordinate
-                yaw = coordinate['yaw']
-                pitch = coordinate['pitch']
-                roll = coordinate['roll']
-                v0 = -pitch*x+yaw*z
-                v1 = -pitch*x-yaw*z
-                v2 = pitch*x-yaw*z
-                v3 = pitch*x+yaw*z
-                v4 = -pitch*x+roll*y+yaw*z
-                v5 = -pitch*x+roll*y-yaw*z
-                v6 = pitch*x+roll*y-yaw*z
-                v7 = pitch*x+roll*y+yaw*z
-                self.lines = [
-                    (glm.vec3(0, 0, 0), glm.vec3(
-                        line_size, 0, 0), glm.vec4(1, 0, 0, 1)),
-                    (glm.vec3(0, 0, 0), glm.vec3(
-                        0, line_size, 0), glm.vec4(0, 1, 0, 1)),
-                    (glm.vec3(0, 0, 0), glm.vec3(
-                        0, 0, line_size), glm.vec4(0, 0, 1, 1)),
-                ]
-            case (head, tail):
-                assert up_dir
-                head_tail = tail - head
-                z_axis = glm.normalize(head_tail)
-                x_axis = glm.normalize(glm.cross(up_dir, z_axis))
-                y_axis = glm.normalize(glm.cross(z_axis, x_axis))
-                # y_axis = up_dir
-                height = glm.vec3()
+        assert up_dir
+        head_tail = tail
+        z_axis = glm.normalize(head_tail)
+        x_axis = glm.normalize(glm.cross(up_dir, z_axis))
+        y_axis = glm.normalize(glm.cross(z_axis, x_axis))
+        # y_axis = up_dir
+        height = glm.vec3()
 
-                v0 = x_axis*x+y_axis*z
-                v1 = x_axis*x-y_axis*z
-                v2 = -x_axis*x-y_axis*z
-                v3 = -x_axis*x+y_axis*z
-                v4 = head_tail + x_axis*x+y_axis*z
-                v5 = head_tail + x_axis*x-y_axis*z
-                v6 = head_tail - x_axis*x-y_axis*z
-                v7 = head_tail - x_axis*x+y_axis*z
-                a = local_axis
-                self.lines = [
-                    (a*glm.vec3(0, 0, 0), a *
-                     glm.vec3(line_size, 0, 0), glm.vec4(1, 0, 0, 1)),
-                    (a*glm.vec3(0, 0, 0), a*glm.vec3(0,
-                     line_size, 0), glm.vec4(0, 1, 0, 1)),
-                    (a*glm.vec3(0, 0, 0), a*glm.vec3(0,
-                     0, line_size), glm.vec4(0, 0, 1, 1)),
-                ]
-            case _:
-                raise RuntimeError()
+        v0 = x_axis*x+y_axis*z
+        v1 = x_axis*x-y_axis*z
+        v2 = -x_axis*x-y_axis*z
+        v3 = -x_axis*x+y_axis*z
+        v4 = head_tail + x_axis*x+y_axis*z
+        v5 = head_tail + x_axis*x-y_axis*z
+        v6 = head_tail - x_axis*x-y_axis*z
+        v7 = head_tail - x_axis*x+y_axis*z
+        a = glm.quat()
+        self.lines = [
+            (a*glm.vec3(0, 0, 0), a *
+                glm.vec3(line_size, 0, 0), glm.vec4(1, 0, 0, 1)),
+            (a*glm.vec3(0, 0, 0), a*glm.vec3(0,
+                                             line_size, 0), glm.vec4(0, 1, 0, 1)),
+            (a*glm.vec3(0, 0, 0), a*glm.vec3(0,
+                                             0, line_size), glm.vec4(0, 0, 1, 1)),
+        ]
+
         self.quads = [
             Quad.from_points(v0, v1, v2, v3),  # back
             Quad.from_points(v3, v2, v6, v7),  # right
@@ -181,66 +158,65 @@ class BoneShape(Shape):
             Quad.from_points(v1, v5, v6, v2),  # bottom
         ]
 
-    @staticmethod
-    def from_node(node: Node, *, get_coordinate: Optional[GetCoords] = None) -> 'BoneShape':
-        assert node.humanoid_bone
-        assert node.humanoid_tail
+    # @staticmethod
+    # def from_node(node: Node, *, get_coordinate: Optional[GetCoords] = None) -> 'BoneShape':
+    #     assert node.humanoid_bone
+    #     assert node.humanoid_tail
 
-        setting = BoneShapeSetting.from_humanoid_bone(node.humanoid_bone)
+    #     setting = BoneShapeSetting.from_humanoid_bone(node.humanoid_bone)
 
-        matrix = node.world_matrix * glm.mat4(node.local_axis)
+    #     matrix = node.world_matrix * glm.mat4(node.local_axis)
 
-        # bone
-        length = glm.length(
-            node.world_matrix[3].xyz - node.humanoid_tail.world_matrix[3].xyz)
+    #     # bone
+    #     length = glm.length(
+    #         node.world_matrix[3].xyz - node.humanoid_tail.world_matrix[3].xyz)
 
-        if get_coordinate:
-            coordinate = get_coordinate(node.humanoid_bone)
-            return BoneShape(setting.width, setting.height, length, color=setting.color, matrix=matrix, coordinate=coordinate, line_size=setting.line_size)
-        else:
-            # head tail
-            assert node.humanoid_tail
-            head = node.world_matrix[3].xyz
-            tail = node.humanoid_tail.world_matrix[3].xyz
-            return BoneShape(setting.width, setting.height, (head, tail), color=setting.color, matrix=matrix, line_size=setting.line_size, up_dir=node.humanoid_bone.world_second, local_axis=node.local_axis)
+    #     if get_coordinate:
+    #         coordinate = get_coordinate(node.humanoid_bone)
+    #         return BoneShape(setting.width, setting.height, length, color=setting.color, matrix=matrix, coordinate=coordinate, line_size=setting.line_size)
+    #     else:
+    #         # head tail
+    #         assert node.humanoid_tail
+    #         head = node.world_matrix[3].xyz
+    #         tail = node.humanoid_tail.world_matrix[3].xyz
+    #         return BoneShape(setting.width, setting.height, (head, tail), color=setting.color, matrix=matrix, line_size=setting.line_size, up_dir=node.humanoid_bone.world_second, local_axis=node.local_axis)
 
-    @staticmethod
-    def from_root(root: Node, gizmo: Gizmo, *,
-                  get_coordinate: Optional[GetCoords] = None) -> Dict[Node, Shape]:
-        node_shape_map: Dict[Node, Shape] = {}
-        for bone in HumanoidBone:
-            if bone.is_enable():
-                node = root.find_humanoid_bone(bone)
-                if node:
-                    shape = BoneShape.from_node(
-                        node, get_coordinate=get_coordinate)
-                    gizmo.add_shape(shape)
-                    node_shape_map[node] = shape
-        return node_shape_map
+    # @staticmethod
+    # def from_root(root: Node, gizmo: Gizmo, *,
+    #               get_coordinate: Optional[GetCoords] = None) -> Dict[Node, Shape]:
+    #     node_shape_map: Dict[Node, Shape] = {}
+    #     for bone in HumanoidBone:
+    #         if bone.is_enable():
+    #             node = root.find_humanoid_bone(bone)
+    #             if node:
+    #                 shape = BoneShape.from_node(
+    #                     node, get_coordinate=get_coordinate)
+    #                 gizmo.add_shape(shape)
+    #                 node_shape_map[node] = shape
+    #     return node_shape_map
 
     @staticmethod
     def from_bone(bone: Bone) -> 'BoneShape':
         setting = BoneShapeSetting.from_humanoid_bone(
             bone.head.humanoid_bone)
-        match bone.head_tail_axis:
-            case (AxisPositiveNegative.XPositive | AxisPositiveNegative.XNegative |
-                  AxisPositiveNegative.YPositive | AxisPositiveNegative.YNegative |
-                  AxisPositiveNegative.ZPositive | AxisPositiveNegative.ZNegative):
-                return BoneShape(setting.width, setting.height, bone.get_length(),
-                                 color=setting.color, matrix=bone.head.world.get_matrix() *
-                                 glm.mat4(bone.local_axis),
-                                 coordinate=bone.get_coordinate(), line_size=setting.line_size)
-            case None:
-                # fallback head tail
-                # assert node.humanoid_tail
-                tail = bone.get_local_tail()
-                return BoneShape(setting.width, setting.height, (glm.vec3(0, 0, 0), tail),
-                                 color=setting.color,
-                                 matrix=bone.head.world.get_matrix() * glm.mat4(bone.local_axis),
-                                 line_size=setting.line_size,
-                                 up_dir=bone.head.humanoid_bone.world_second, local_axis=bone.head.world.rotation * bone.local_axis)
-            case _:
-                raise RuntimeError()
+        # match bone.head_tail_axis:
+        #     case (AxisPositiveNegative.XPositive | AxisPositiveNegative.XNegative |
+        #           AxisPositiveNegative.YPositive | AxisPositiveNegative.YNegative |
+        #           AxisPositiveNegative.ZPositive | AxisPositiveNegative.ZNegative):
+        #         return BoneShape(setting.width, setting.height, bone.get_length(),
+        #                          color=setting.color, matrix=bone.head.world.get_matrix() *
+        #                          glm.mat4(bone.local_axis),
+        #                          coordinate=bone.get_coordinate(), line_size=setting.line_size)
+        #     case None:
+        # fallback head tail
+        # assert node.humanoid_tail
+        tail = bone.get_local_tail()
+        return BoneShape(bone.head.world.get_matrix() * glm.mat4(bone.local_axis), setting.width, setting.height, tail,
+                            color=setting.color,
+                            line_size=setting.line_size,
+                            up_dir=bone.get_up_dir())
+            # case _:
+            #     raise RuntimeError()
 
     @staticmethod
     def from_skeleton(skeleton: Skeleton, gizmo: Gizmo) -> Dict[Bone, Shape]:
