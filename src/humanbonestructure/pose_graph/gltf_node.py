@@ -33,23 +33,21 @@ class GltfNode(FileNode):
     * out: skeleton
     '''
 
-    def __init__(self, id: int, pose_in_pin_id: int, skeleton_out_pin_id: int,
-                 path: Optional[pathlib.Path] = None,
-                 convert: bool = False) -> None:
-        self.in_pin = GltfPoseInputPin(pose_in_pin_id)
+    def __init__(self, id: int, in_pose_id: int, out_skeleton_id: int,
+                 path: Optional[pathlib.Path] = None) -> None:
+        self.in_pin = GltfPoseInputPin(in_pose_id)
         super().__init__(id, 'gltf/glb/vrm', path,
                          [self.in_pin],
-                         [GltfSkeletonOutputPin(skeleton_out_pin_id)],
+                         [GltfSkeletonOutputPin(out_skeleton_id)],
                          '.gltf', '.glb', '.vrm')
         self.gltf = None
-        self.skeleton = None
+        self.skeleton: Optional[Skeleton] = None
 
         # imgui
         from pydear.utils.fbo_view import FboView
         self.fbo = FboView()
         from ..scene.node_scene import NodeScene
         self.scene = NodeScene(self.fbo.mouse_event)
-        self.convert = (ctypes.c_bool * 1)(convert)
 
     @classmethod
     def imgui_menu(cls, graph, click_pos):
@@ -65,9 +63,8 @@ class GltfNode(FileNode):
         return Serialized(self.__class__.__name__, {
             'id': self.id,
             'path': str(self.path) if self.path else None,
-            'pose_in_pin_id': self.in_pin.id,
-            'skeleton_out_pin_id': self.outputs[0].id,
-            'convert': self.convert[0],
+            'in_pose_id': self.in_pin.id,
+            'out_skeleton_id': self.outputs[0].id,
         })
 
     def get_right_indent(self) -> int:
@@ -90,15 +87,13 @@ class GltfNode(FileNode):
             for info in self.gltf.get_info():
                 ImGui.TextUnformatted(info)
 
-        # ImGui.Checkbox('use convert', self.convert)
-
-        if self.scene.skeleton:
-            if ImGui.Button('strict tpose'):
-                self.scene.skeleton.strict_tpose()
-                self.scene.sync_gizmo()
-            if ImGui.Button('clear'):
-                self.scene.skeleton.clear_pose()
-                self.scene.sync_gizmo()
+        # if self.scene.skeleton:
+        #     if ImGui.Button('strict tpose'):
+        #         self.scene.skeleton.strict_tpose()
+        #         self.scene.sync_gizmo()
+        #     if ImGui.Button('clear'):
+        #         self.scene.skeleton.clear_pose()
+        #         self.scene.sync_gizmo()
 
     def load(self, path: pathlib.Path):
         self.path = path
@@ -111,9 +106,12 @@ class GltfNode(FileNode):
                 from ..scene.builder import gltf_builder
                 root = gltf_builder.build(self.gltf)
                 self.skeleton = root.to_skeleton()
+                self.cancel_skeleton = root.to_skeleton()
 
     def process_self(self):
         if not self.gltf and self.path:
             self.load(self.path)
 
-        self.scene.update(self.skeleton, self.in_pin.pose)
+        self.scene.update(
+            self.skeleton,
+            self.in_pin.pose)

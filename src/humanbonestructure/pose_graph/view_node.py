@@ -1,4 +1,5 @@
 from typing import Optional
+import ctypes
 import glm
 from pydear import imgui as ImGui
 from pydear import imnodes as ImNodes
@@ -35,10 +36,10 @@ class PoseOutputPin(OutputPin[Optional[Pose]]):
 
 
 class ViewNode(Node):
-    def __init__(self, id: int, skeleton_pin_id: int, pose_in_pin_id: int, pose_out_pin_id) -> None:
-        self.in_skeleton = SkeletonInputPin(skeleton_pin_id)
-        self.in_pose = PoseInputPin(pose_in_pin_id)
-        self.out_pose = PoseOutputPin(pose_out_pin_id)
+    def __init__(self, id: int, in_skeleton_id: int, in_pose_id: int, out_pose_id) -> None:
+        self.in_skeleton = SkeletonInputPin(in_skeleton_id)
+        self.in_pose = PoseInputPin(in_pose_id)
+        self.out_pose = PoseOutputPin(out_pose_id)
         super().__init__(id, 'view',
                          [self.in_skeleton, self.in_pose],
                          [self.out_pose])
@@ -48,6 +49,7 @@ class ViewNode(Node):
         self.fbo = FboView()
         from ..scene.node_scene import NodeScene
         self.scene = NodeScene(self.fbo.mouse_event)
+        self.cancel_axis = (ctypes.c_bool * 1)()
 
     @classmethod
     def imgui_menu(cls, graph, click_pos):
@@ -63,9 +65,9 @@ class ViewNode(Node):
     def to_json(self) -> Serialized:
         return Serialized('ViewNode', {
             'id': self.id,
-            'skeleton_pin_id': self.inputs[0].id,
-            'pose_in_pin_id': self.inputs[1].id,
-            'pose_out_pin_id': self.outputs[0].id,
+            'in_skeleton_id': self.inputs[0].id,
+            'in_pose_id': self.inputs[1].id,
+            'out_pose_id': self.outputs[0].id,
         })
 
     def get_right_indent(self) -> int:
@@ -84,6 +86,7 @@ class ViewNode(Node):
         self.scene.render(w, h)
 
         if self.scene.skeleton:
+            ImGui.Checkbox('cancel axis', self.cancel_axis)
             if ImGui.Button('clear'):
                 self.scene.skeleton.clear_pose()
                 self.scene.sync_gizmo()
@@ -95,4 +98,4 @@ class ViewNode(Node):
             #     self.scene.raise_pose()
 
     def process_self(self):
-        self.scene.update(self.in_skeleton.skeleton, self.in_pose.pose)
+        self.scene.update(self.in_skeleton.skeleton, self.in_pose.pose, self.cancel_axis[0])

@@ -39,7 +39,7 @@ class NodeScene:
         self.camera.projection.resize(w, h)
         self.gizmo.process(self.camera, mouse_input.x, mouse_input.y)
 
-    def update(self, skeleton: Optional[Skeleton], pose: Optional[Pose]):
+    def update(self, skeleton: Optional[Skeleton], pose: Optional[Pose], cancel_axis: bool = False):
         if self.skeleton != skeleton:
             self.skeleton = skeleton
             if self.skeleton:
