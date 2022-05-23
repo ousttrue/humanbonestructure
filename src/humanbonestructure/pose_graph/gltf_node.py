@@ -6,7 +6,7 @@ from pydear import imgui as ImGui
 from pydear import imnodes as ImNodes
 from pydear.utils.node_editor.node import Node, InputPin, OutputPin, Serialized
 from ..formats.gltf_loader import Gltf
-from ..humanoid.humanoid_skeleton import HumanoidSkeleton
+from ..humanoid.bone import Skeleton
 from ..humanoid.pose import Pose
 from .file_node import FileNode
 
@@ -20,11 +20,11 @@ class GltfPoseInputPin(InputPin[Optional[Pose]]):
         self.pose = pose
 
 
-class GltfSkeletonOutputPin(OutputPin[Optional[HumanoidSkeleton]]):
+class GltfSkeletonOutputPin(OutputPin[Optional[Skeleton]]):
     def __init__(self, id: int) -> None:
         super().__init__(id, 'skeleton')
 
-    def get_value(self, node: 'GltfNode') -> Optional[HumanoidSkeleton]:
+    def get_value(self, node: 'GltfNode') -> Optional[Skeleton]:
         return node.skeleton
 
 
@@ -110,11 +110,10 @@ class GltfNode(FileNode):
                 self.gltf = Gltf.load_glb(path.read_bytes())
                 from ..scene.builder import gltf_builder
                 root = gltf_builder.build(self.gltf)
-                self.skeleton = HumanoidSkeleton.from_node(root)
-                self.scene.set_root(root)
+                self.skeleton = root.to_skeleton()
 
     def process_self(self):
         if not self.gltf and self.path:
             self.load(self.path)
 
-        self.scene.set_pose(self.in_pin.pose, self.convert[0])
+        self.scene.update(self.skeleton, self.in_pin.pose)
