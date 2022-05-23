@@ -62,14 +62,12 @@ class Bone:
     def __init__(self, head: Joint, tail: Joint) -> None:
         self.head = head
         self.tail = tail
-        self.local_axis = glm.mat4()
+        self.local_axis = glm.quat()
         self.calc_axis()
 
     def get_local_tail(self) -> glm.vec3:
         # tail.local.translation
-        m = glm.mat4(self.head.world.get_matrix()) * \
-            self.local_axis
-
+        m = self.head.world.get_matrix() * glm.mat4(self.local_axis)
         return glm.inverse(m) * self.tail.world.translation
 
     def calc_axis(self):
@@ -93,8 +91,7 @@ class Bone:
         self.second_axis = None
         if self.head_tail_axis:
             world_second = self.head.humanoid_bone.world_second
-            m = glm.mat4(self.head.world.get_matrix()) * \
-                self.local_axis
+            m = glm.mat4(self.head.world.rotation * self.local_axis)
             d0 = glm.dot(m[0].xyz, world_second)
             d1 = glm.dot(m[1].xyz, world_second)
             d2 = glm.dot(m[2].xyz, world_second)
@@ -214,13 +211,22 @@ class Bone:
                 raise NotImplementedError()
 
     def cancel_axis(self):
-        target = glm.mat4()
-        self.local_axis = glm.mat4(glm.inverse(
-            self.head.world.rotation)) * target
+        world_x = glm.vec3(1, 0, 0)
+        world_y = glm.normalize(
+            self.tail.world.translation - self.head.world.translation)
+        world_z = glm.normalize(glm.cross(world_x, world_y))
+        target = glm.mat4(
+            glm.vec4(1, 0, 0, 0),
+            glm.vec4(world_y, 0),
+            glm.vec4(world_z, 0),
+            glm.vec4(0, 0, 0, 1),
+        )
+        self.local_axis = glm.inverse(
+            self.head.world.rotation) * glm.quat(target)
         self.calc_axis()
 
     def clear_axis(self):
-        self.local_axis = glm.mat4()
+        self.local_axis = glm.quat()
         self.calc_axis()
 
 

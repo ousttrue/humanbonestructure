@@ -227,7 +227,8 @@ class BoneShape(Shape):
                   AxisPositiveNegative.YPositive | AxisPositiveNegative.YNegative |
                   AxisPositiveNegative.ZPositive | AxisPositiveNegative.ZNegative):
                 return BoneShape(setting.width, setting.height, bone.get_length(),
-                                 color=setting.color, matrix=bone.head.world.get_matrix() * bone.local_axis,
+                                 color=setting.color, matrix=bone.head.world.get_matrix() *
+                                 glm.mat4(bone.local_axis),
                                  coordinate=bone.get_coordinate(), line_size=setting.line_size)
             case None:
                 # fallback head tail
@@ -235,9 +236,9 @@ class BoneShape(Shape):
                 tail = bone.get_local_tail()
                 return BoneShape(setting.width, setting.height, (glm.vec3(0, 0, 0), tail),
                                  color=setting.color,
-                                 matrix=bone.head.world.get_matrix() * bone.local_axis,
+                                 matrix=bone.head.world.get_matrix() * glm.mat4(bone.local_axis),
                                  line_size=setting.line_size,
-                                 up_dir=bone.head.humanoid_bone.world_second, local_axis=bone.head.world.rotation * glm.quat(bone.local_axis))
+                                 up_dir=bone.head.humanoid_bone.world_second, local_axis=bone.head.world.rotation * bone.local_axis)
             case _:
                 raise RuntimeError()
 
