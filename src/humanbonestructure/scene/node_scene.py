@@ -4,9 +4,11 @@ from pydear.utils.mouse_event import MouseEvent
 from pydear.scene.camera import Camera, ArcBall, ScreenShift
 from pydear.gizmo.gizmo import Gizmo
 from pydear.gizmo.gizmo_select_handler import GizmoSelectHandler
+from .node_drag_handler import NodeDragHandler
 from pydear.gizmo.shapes.shape import Shape
 from ..humanoid.pose import Pose
 from ..humanoid.bone import Bone, Skeleton
+from ..eventproperty import EventProperty
 from .unitychan_coords import get_unitychan_coords
 from .node import Node
 from .bone_shape import BoneShape
@@ -17,7 +19,7 @@ class NodeScene:
         self.skeleton: Optional[Skeleton] = None
 
         self.mouse_event = mouse_event
-        self.camera = Camera(distance=8, y=-0.8)
+        self.camera = Camera(distance=4, y=-0.8)
         self.arc = ArcBall(self.camera.view, self.camera.projection)
         self.mouse_event.bind_right_drag(self.arc)
         self.shift = ScreenShift(self.camera.view, self.camera.projection)
@@ -26,16 +28,6 @@ class NodeScene:
 
         self.gizmo = None
         self.bone_shape_map: Dict[Bone, Shape] = {}
-
-        # shape select
-        # self.drag_handler = GizmoSelectHandler(self.gizmo)
-        # self.mouse_event.bind_left_drag(self.drag_handler)
-
-        # def on_selected(selected: Optional[Shape]):
-        #     if selected:
-        #         position = selected.matrix.value[3].xyz
-        #         self.camera.view.set_gaze(position)
-        # self.drag_handler.selected += on_selected
         self.cancel_axis = False
 
     def render(self, w: int, h: int):
@@ -62,6 +54,33 @@ class NodeScene:
                 self.gizmo = Gizmo()
                 self.bone_shape_map = BoneShape.from_skeleton(
                     self.skeleton, self.gizmo)
+
+                # shape select
+                if True:
+                    self.drag_handler = GizmoSelectHandler(self.gizmo)
+                    self.mouse_event.bind_left_drag(self.drag_handler)
+
+                    def on_selected(selected: Optional[Shape]):
+                        if selected:
+                            position = selected.matrix.value[3].xyz
+                            self.camera.view.set_gaze(position)
+                    self.drag_handler.selected += on_selected
+                else:
+                    def raise_pose():
+                        assert self.skeleton
+                        pose = self.skeleton.to_pose()
+                        self.pose_changed.set(pose)
+
+                    self.drag_handler = NodeDragHandler(
+                        self.gizmo, self.camera, self.bone_shape_map, raise_pose)
+                    self.mouse_event.bind_left_drag(self.drag_handler)
+                    self.pose_changed = EventProperty[Pose](Pose('empty'))
+
+                    def on_selected(selected: Optional[Shape]):
+                        if selected:
+                            position = selected.matrix.value[3].xyz
+                            self.camera.view.set_gaze(position)
+                    self.drag_handler.selected += on_selected
 
         # if not self.root:
         #     return

@@ -3,6 +3,7 @@ from enum import Enum, auto
 import glm
 from .humanoid_bones import HumanoidBone, BoneBase, BoneFlags
 from .coordinate import Coordinate
+from .pose import Pose
 
 
 class AxisPositiveNegative(Enum):
@@ -41,8 +42,13 @@ class Joint:
         self.pose = glm.quat()
         self.children: List[Joint] = []
         self.parent: Optional[Joint] = parent
+        self.local_axis = glm.quat()
         if self.parent:
             self.parent.add_child(self)
+
+    def traverse(self) -> Iterable['Joint']:
+        yield self
+        yield from self.children
 
     def add_child(self, child: 'Joint'):
         child.parent = self
@@ -62,8 +68,15 @@ class Bone:
     def __init__(self, head: Joint, tail: Joint) -> None:
         self.head = head
         self.tail = tail
-        self.local_axis = glm.quat()
         self.calc_axis()
+
+    @property
+    def local_axis(self)->glm.quat:
+        return self.head.local_axis
+
+    @property
+    def humanoid_bone(self) -> HumanoidBone:
+        return self.head.humanoid_bone
 
     def get_local_tail(self) -> glm.vec3:
         # tail.local.translation
@@ -196,6 +209,9 @@ class Bone:
             case _:
                 raise NotImplementedError()
 
+    def get_parent_world_matrix(self) -> glm.mat4:
+        return self.head.parent.world.get_matrix() if self.head.parent else glm.mat4()
+
     def calc_world_matrix(self, parent: glm.mat4) -> glm.mat4:
         m = parent * self.head.local.get_matrix() * glm.mat4(self.head.pose)
         self.head.world = TR.from_matrix(m)
@@ -271,12 +287,12 @@ class Bone:
 
     def cancel_axis(self):
         target = self.get_target_matrix(self.head.humanoid_bone.flags)
-        self.local_axis = glm.inverse(
+        self.head.local_axis = glm.inverse(
             self.head.world.rotation) * glm.quat(target)
         self.calc_axis()
 
     def clear_axis(self):
-        self.local_axis = glm.quat()
+        self.head.local_axis = glm.quat()
         self.calc_axis()
 
 
@@ -478,11 +494,11 @@ class ArmBones(NamedTuple):
     def create_default_left(chest: Joint):
         shoulder = Joint('left_shoulder', TR(glm.vec3(0.1, 0.2, 0)),
                          HumanoidBone.leftShoulder, parent=chest)
-        upper = Joint('left_upper_arm', TR(glm.vec3(0.1, 0, 0)),
+        upper = Joint('left_upper_arm', TR(glm.vec3(0.05, 0, 0)),
                       HumanoidBone.leftUpperArm, parent=shoulder)
-        lower = Joint('left_lower_arm', TR(glm.vec3(0.3, 0, 0)),
+        lower = Joint('left_lower_arm', TR(glm.vec3(0.2, 0, 0)),
                       HumanoidBone.leftLowerArm, parent=upper)
-        hand = Joint('left_hand', TR(glm.vec3(0.3, 0, 0)),
+        hand = Joint('left_hand', TR(glm.vec3(0.2, 0, 0)),
                      HumanoidBone.leftHand, parent=lower)
         left = glm.vec3(1, 0, 0)
         thumb = FingerBones.create_default('left', BoneFlags.Left | BoneFlags.FingerThumbnail, hand,
@@ -508,11 +524,11 @@ class ArmBones(NamedTuple):
     def create_default_right(chest: Joint):
         shoulder = Joint('right_shoulder', TR(glm.vec3(-0.1, 0.2, 0)),
                          HumanoidBone.rightShoulder, parent=chest)
-        upper = Joint('right_upper_arm', TR(glm.vec3(-0.1, 0, 0)),
+        upper = Joint('right_upper_arm', TR(glm.vec3(-0.05, 0, 0)),
                       HumanoidBone.rightUpperArm, parent=shoulder)
-        lower = Joint('right_lower_arm', TR(glm.vec3(-0.3, 0, 0)),
+        lower = Joint('right_lower_arm', TR(glm.vec3(-0.2, 0, 0)),
                       HumanoidBone.rightLowerArm, parent=upper)
-        hand = Joint('right_hand', TR(glm.vec3(-0.3, 0, 0)),
+        hand = Joint('right_hand', TR(glm.vec3(-0.2, 0, 0)),
                      HumanoidBone.rightHand, parent=lower)
         right = glm.vec3(-1, 0, 0)
         thumb = FingerBones.create_default('right', BoneFlags.Right | BoneFlags.FingerThumbnail, hand,
@@ -667,3 +683,7 @@ class Skeleton:
         for bone in self.enumerate():
             bone.clear_axis()
         self.calc_world_matrix()
+
+    def to_pose(self) -> Pose:
+        pose = Pose('pose')
+        return pose
