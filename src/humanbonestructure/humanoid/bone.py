@@ -3,7 +3,8 @@ from enum import Enum, auto
 import glm
 from .humanoid_bones import HumanoidBone, BoneBase, BoneFlags
 from .coordinate import Coordinate
-from .pose import Pose
+from .pose import Pose, BonePose
+from .transform import Transform
 
 
 class AxisPositiveNegative(Enum):
@@ -135,10 +136,10 @@ class Bone:
             else:
                 raise RuntimeError()
 
-        if self.head_tail_axis:
-            assert self.head_tail_axis != self.second_axis
-        else:
-            assert self.second_axis is None
+        # if self.head_tail_axis:
+        #     assert self.head_tail_axis != self.second_axis
+        # else:
+        #     assert self.second_axis is None
 
     def get_length(self) -> float:
         return glm.length(self.tail.world.translation - self.head.world.translation)
@@ -688,4 +689,7 @@ class Skeleton:
 
     def to_pose(self) -> Pose:
         pose = Pose('pose')
+        for bone in self.enumerate():
+            pose.bones.append(BonePose(bone.head.name, bone.head.humanoid_bone,
+                                       Transform.from_rotation(bone.head.pose)))
         return pose

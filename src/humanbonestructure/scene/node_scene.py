@@ -7,8 +7,9 @@ from pydear.gizmo.gizmo_select_handler import GizmoSelectHandler
 from .bone_drag_handler import BoneDragHandler
 from pydear.gizmo.shapes.shape import Shape
 from ..humanoid.pose import Pose
-from ..humanoid.bone import Bone, Skeleton
+from ..humanoid.bone import Bone, Skeleton, Joint
 from ..eventproperty import EventProperty
+from ..humanoid.humanoid_bones import HumanoidBone
 from .unitychan_coords import get_unitychan_coords
 from .node import Node
 from .bone_shape import BoneShape
@@ -29,6 +30,8 @@ class NodeScene:
         self.gizmo = None
         self.bone_shape_map: Dict[Bone, Shape] = {}
         self.cancel_axis = False
+
+        self.humanoid_joint_map: Dict[HumanoidBone, Joint] = {}
 
     def render(self, w: int, h: int):
         if not self.gizmo:
@@ -54,7 +57,10 @@ class NodeScene:
                 self.gizmo = Gizmo()
                 self.bone_shape_map = BoneShape.from_skeleton(
                     self.skeleton, self.gizmo)
-                self.joint_shape_map = {bone.head: shape for bone, shape in self.bone_shape_map.items()}
+                self.joint_shape_map = {
+                    bone.head: shape for bone, shape in self.bone_shape_map.items()}
+                self.humanoid_joint_map = {
+                    bone.head.humanoid_bone: bone.head for bone, shape in self.bone_shape_map.items()}
 
                 # shape select
                 if False:
@@ -83,16 +89,14 @@ class NodeScene:
                             self.camera.view.set_gaze(position)
                     self.drag_handler.selected += on_selected
 
-        # if not self.root:
-        #     return
-        # if not self.humanoid_node_map:
+        if not self.skeleton:
+            return
+        # if not self.humanoid_joint_map:
         #     return
 
         # if self.pose_conv == (pose, convert):
         #     return
         # self.pose_conv = (pose, convert)
-
-        # self.root.clear_pose()
 
         # if convert:
         #     if not self.tpose_delta_map:
@@ -107,31 +111,28 @@ class NodeScene:
         #     self.tpose_delta_map.clear()
         #     self.root.clear_local_axis()
 
-        # # assign pose to node hierarchy
-        # if pose and pose.bones:
-        #     for bone in pose.bones:
-        #         if bone.humanoid_bone:
-        #             node = self.humanoid_node_map.get(bone.humanoid_bone)
-        #             if node:
-        #                 if convert:
-        #                     d = self.tpose_delta_map.get(
-        #                         node.humanoid_bone, glm.quat())
-        #                     a = node.local_axis
-        #                     node.pose = Transform.from_rotation(
-        #                         glm.inverse(d) * a * bone.transform.rotation * glm.inverse(a))
-        #                 else:
-        #                     node.pose = bone.transform
-        #             else:
-        #                 pass
-        #                 # raise RuntimeError()
-        #         else:
-        #             raise RuntimeError()
+        # assign pose to node hierarchy
+        if pose and pose.bones:
+            self.skeleton.clear_pose()
+            for bone in pose.bones:
+                if bone.humanoid_bone:
+                    joint = self.humanoid_joint_map.get(bone.humanoid_bone)
+                    if joint:
+                        # if convert:
+                        #     d = self.tpose_delta_map.get(
+                        #         node.humanoid_bone, glm.quat())
+                        #     a = node.local_axis
+                        #     node.pose = Transform.from_rotation(
+                        #         glm.inverse(d) * a * bone.transform.rotation * glm.inverse(a))
+                        # else:
+                        joint.pose = bone.transform.rotation
+                    else:
+                        pass
+                        # raise RuntimeError()
+                else:
+                    raise RuntimeError()
 
-        # self.root.calc_world_matrix(glm.mat4())
-
-        # # sync to gizmo
-        # for node, shape in self.node_shape_map.items():
-        #     shape.matrix.set(node.world_matrix)
+        self.sync_gizmo()
 
     def sync_gizmo(self):
         if not self.skeleton:

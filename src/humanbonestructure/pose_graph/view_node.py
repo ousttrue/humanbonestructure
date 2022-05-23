@@ -31,8 +31,7 @@ class PoseOutputPin(OutputPin[Optional[Pose]]):
         super().__init__(id, 'pose')
 
     def get_value(self, node: 'ViewNode') -> Optional[Pose]:
-        return None
-        # return node.scene.pose_changed.value
+        return node.scene.pose_changed.value
 
 
 class ViewNode(Node):
@@ -103,4 +102,5 @@ class ViewNode(Node):
                 #     self.scene.raise_pose()
 
     def process_self(self):
-        self.scene.update(self.in_skeleton.skeleton, self.in_pose.pose, self.cancel_axis[0])
+        self.scene.update(self.in_skeleton.skeleton,
+                          self.in_pose.pose, self.cancel_axis[0])
