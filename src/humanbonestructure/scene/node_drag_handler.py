@@ -3,7 +3,7 @@ import glm
 from pydear.gizmo.gizmo import Gizmo, RayHit
 from pydear.gizmo.gizmo_drag_handler import RingDragContext, RollDragContext, GizmoDragHandler, Axis
 from pydear.gizmo.shapes.shape import Shape
-from pydear.scene.camera import Camera
+from pydear.scene.camera import Camera, MouseInput
 from .node import Node
 from ..humanoid.transform import Transform
 from ..humanoid.humanoid_bones import BoneBase
@@ -30,7 +30,7 @@ SCALE = glm.scale(glm.vec3(0.25, 0.25, 0.25))
 
 def get_scale(selected: Shape, node_shape_map: Dict[Node, Shape]) -> glm.mat4:
     for node, shape in node_shape_map.items():
-        if shape==selected:
+        if shape == selected:
             if node.humanoid_bone.base == BoneBase.hand or node.humanoid_bone.is_finger():
                 return SCALE
     return glm.mat4()
@@ -99,12 +99,12 @@ class NodeDragHandler(GizmoDragHandler):
             ZRollShape(inner=inner, outer=outer, depth=depth, color=glm.vec4(0.3, 0.3, 1, 1)): (NodeRollDragContext, {'axis': Axis.Z, 'node_shape_map': self.node_shape_map}),
         }
 
-    def drag(self, x, y, dx, dy):
+    def drag(self, mouse_input: MouseInput, dx, dy):
         if self.context:
-            m = self.context.drag(glm.vec2(x, y))
+            m = self.context.drag(glm.vec2(mouse_input.x, mouse_input.y))
             for drag_shape in self.drag_shapes.keys():
                 drag_shape.matrix.set(m)
 
-    def drag_end(self, x, y):
-        super().drag_end(x, y)
+    def end(self, mouse_input):
+        super().end(mouse_input)
         self.on_drag_end()

@@ -39,8 +39,7 @@ class PoseScene:
         self.gizmo = Gizmo()
         self.drag_handler = NodeDragHandler(
             self.gizmo, self.camera, self.node_shape_map, self.on_drag_end)
-        self.drag_handler.bind_mouse_event_with_gizmo(
-            self.mouse_event, self.gizmo)
+        self.mouse_event.bind_left_drag(self.drag_handler)
 
         # camera gaze when selected
         def on_selected(selected: Optional[Shape]):

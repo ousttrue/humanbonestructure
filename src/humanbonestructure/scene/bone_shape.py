@@ -158,42 +158,28 @@ class BoneShape(Shape):
             Quad.from_points(v1, v5, v6, v2),  # bottom
         ]
 
-    # @staticmethod
-    # def from_node(node: Node, *, get_coordinate: Optional[GetCoords] = None) -> 'BoneShape':
-    #     assert node.humanoid_bone
-    #     assert node.humanoid_tail
+    @staticmethod
+    def from_node(node: Node) -> 'BoneShape':
+        assert node.humanoid_bone
+        assert node.humanoid_tail
+        setting = BoneShapeSetting.from_humanoid_bone(node.humanoid_bone)
+        m = node.world_matrix * glm.mat4(node.local_axis)
+        tail = glm.inverse(m) * node.humanoid_tail.world_matrix[3].xyz
+        up_dir = glm.inverse(m) * node.humanoid_bone.world_second
+        return BoneShape(m, setting.width, setting.height, tail, up_dir, color=setting.color, line_size=setting.line_size)
 
-    #     setting = BoneShapeSetting.from_humanoid_bone(node.humanoid_bone)
-
-    #     matrix = node.world_matrix * glm.mat4(node.local_axis)
-
-    #     # bone
-    #     length = glm.length(
-    #         node.world_matrix[3].xyz - node.humanoid_tail.world_matrix[3].xyz)
-
-    #     if get_coordinate:
-    #         coordinate = get_coordinate(node.humanoid_bone)
-    #         return BoneShape(setting.width, setting.height, length, color=setting.color, matrix=matrix, coordinate=coordinate, line_size=setting.line_size)
-    #     else:
-    #         # head tail
-    #         assert node.humanoid_tail
-    #         head = node.world_matrix[3].xyz
-    #         tail = node.humanoid_tail.world_matrix[3].xyz
-    #         return BoneShape(setting.width, setting.height, (head, tail), color=setting.color, matrix=matrix, line_size=setting.line_size, up_dir=node.humanoid_bone.world_second, local_axis=node.local_axis)
-
-    # @staticmethod
-    # def from_root(root: Node, gizmo: Gizmo, *,
-    #               get_coordinate: Optional[GetCoords] = None) -> Dict[Node, Shape]:
-    #     node_shape_map: Dict[Node, Shape] = {}
-    #     for bone in HumanoidBone:
-    #         if bone.is_enable():
-    #             node = root.find_humanoid_bone(bone)
-    #             if node:
-    #                 shape = BoneShape.from_node(
-    #                     node, get_coordinate=get_coordinate)
-    #                 gizmo.add_shape(shape)
-    #                 node_shape_map[node] = shape
-    #     return node_shape_map
+    @staticmethod
+    def from_root(root: Node, gizmo: Gizmo, *,
+                  get_coordinate: Optional[GetCoords] = None) -> Dict[Node, Shape]:
+        node_shape_map: Dict[Node, Shape] = {}
+        for bone in HumanoidBone:
+            if bone.is_enable():
+                node = root.find_humanoid_bone(bone)
+                if node:
+                    shape = BoneShape.from_node(node)
+                    gizmo.add_shape(shape)
+                    node_shape_map[node] = shape
+        return node_shape_map
 
     @staticmethod
     def from_bone(bone: Bone) -> 'BoneShape':
