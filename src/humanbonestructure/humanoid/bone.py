@@ -1,7 +1,7 @@
 from typing import NamedTuple, List, Optional, Union
 from enum import Enum, auto
 import glm
-from .humanoid_bones import HumanoidBone
+from .humanoid_bones import HumanoidBone, BoneBase, BoneFlags
 from .coordinate import Coordinate
 
 
@@ -137,6 +137,12 @@ class Bone:
                     pitch=glm.vec3(0, -1, 0),
                     roll=glm.vec3(1, 0, 0),
                 )
+            case HeadTailAxis.XPositive, SecondAxis.ZNegative:
+                return Coordinate(
+                    yaw=glm.vec3(0, 0, -1),
+                    pitch=glm.vec3(0, 1, 0),
+                    roll=glm.vec3(1, 0, 0),
+                )
             case HeadTailAxis.YPositive, SecondAxis.ZPositive:
                 return Coordinate(
                     yaw=glm.vec3(0, 0, 1),
@@ -157,9 +163,21 @@ class Bone:
                 )
             case HeadTailAxis.XNegative, SecondAxis.YNegative:
                 return Coordinate(
-                    yaw=glm.vec3(0, 1, 0),
+                    yaw=glm.vec3(0, -1, 0),
                     pitch=glm.vec3(0, 0, 1),
-                    roll=glm.vec3(1, 0, 0),
+                    roll=glm.vec3(-1, 0, 0),
+                )
+            case HeadTailAxis.XNegative, SecondAxis.ZPositive:
+                return Coordinate(
+                    yaw=glm.vec3(0, 0, 1),
+                    pitch=glm.vec3(0, 1, 0),
+                    roll=glm.vec3(-1, 0, 0),
+                )
+            case HeadTailAxis.XNegative, SecondAxis.ZNegative:
+                return Coordinate(
+                    yaw=glm.vec3(0, 0, -1),
+                    pitch=glm.vec3(0, -1, 0),
+                    roll=glm.vec3(-1, 0, 0),
                 )
             case HeadTailAxis.ZPositive, SecondAxis.YNegative:
                 return Coordinate(
@@ -290,6 +308,18 @@ class FingerBones(NamedTuple):
             Bone(intermediate, distal),
             Bone(distal, end))
 
+    @staticmethod
+    def create_default(prefix: str, flag: BoneFlags, hand: Joint, start: glm.vec3, dir: glm.vec3, length: float) -> 'FingerBones':
+        prox = Joint(f'{prefix}_proximal',
+                     TR(start), HumanoidBone.baseflag(BoneBase.finger_1, flag), parent=hand)
+        inter = Joint(f'{prefix}_intermediate',
+                      TR(dir*length), HumanoidBone.baseflag(BoneBase.finger_2, flag), parent=prox)
+        distal = Joint(f'{prefix}_distal',
+                       TR(dir*length*0.8), HumanoidBone.baseflag(BoneBase.finger_3, flag), parent=inter)
+        end = Joint(f'{prefix}_end',
+                    TR(dir*length*0.8*0.8), HumanoidBone.endSite, parent=distal)
+        return FingerBones.create(prox, inter, distal, end)
+
 
 class ArmBones(NamedTuple):
     shoulder: Bone
@@ -331,6 +361,66 @@ class ArmBones(NamedTuple):
                 middle=None,
             )
 
+    @staticmethod
+    def create_default_left(chest: Joint):
+        shoulder = Joint('left_shoulder', TR(glm.vec3(0.1, 0.2, 0)),
+                         HumanoidBone.leftShoulder, parent=chest)
+        upper = Joint('left_upper_arm', TR(glm.vec3(0.1, 0, 0)),
+                      HumanoidBone.leftUpperArm, parent=shoulder)
+        lower = Joint('left_lower_arm', TR(glm.vec3(0.3, 0, 0)),
+                      HumanoidBone.leftLowerArm, parent=upper)
+        hand = Joint('left_hand', TR(glm.vec3(0.3, 0, 0)),
+                     HumanoidBone.leftHand, parent=lower)
+        left = glm.vec3(1, 0, 0)
+        thumb = FingerBones.create_default('left', BoneFlags.Left | BoneFlags.FingerThumbnail, hand,
+                                           glm.vec3(0.03, -0.01, 0.02), left, 0.03)
+        index = FingerBones.create_default('left', BoneFlags.Left | BoneFlags.FingerIndex, hand,
+                                           glm.vec3(0.075, 0, 0.015), left, 0.03)
+        middle = FingerBones.create_default('left', BoneFlags.Left | BoneFlags.FingerMiddle, hand,
+                                            glm.vec3(0.08, 0, 0), left, 0.03)
+        ring = FingerBones.create_default('left', BoneFlags.Left | BoneFlags.FingerRing, hand,
+                                          glm.vec3(0.075, 0, -0.015), left, 0.03)
+        little = FingerBones.create_default('left', BoneFlags.Left | BoneFlags.FingerLittle, hand,
+                                            glm.vec3(0.07, 0, -0.03), left, 0.03)
+
+        return ArmBones.create(shoulder, upper, lower, hand,
+                               thumb=thumb,
+                               index=index,
+                               middle=middle,
+                               ring=ring,
+                               little=little
+                               )
+
+    @staticmethod
+    def create_default_right(chest: Joint):
+        shoulder = Joint('right_shoulder', TR(glm.vec3(-0.1, 0.2, 0)),
+                         HumanoidBone.rightShoulder, parent=chest)
+        upper = Joint('right_upper_arm', TR(glm.vec3(-0.1, 0, 0)),
+                      HumanoidBone.rightUpperArm, parent=shoulder)
+        lower = Joint('right_lower_arm', TR(glm.vec3(-0.3, 0, 0)),
+                      HumanoidBone.rightLowerArm, parent=upper)
+        hand = Joint('right_hand', TR(glm.vec3(-0.3, 0, 0)),
+                     HumanoidBone.rightHand, parent=lower)
+        right = glm.vec3(-1, 0, 0)
+        thumb = FingerBones.create_default('right', BoneFlags.Right | BoneFlags.FingerThumbnail, hand,
+                                           glm.vec3(-0.03, -0.01, 0.02), right, 0.03)
+        index = FingerBones.create_default('right', BoneFlags.Right | BoneFlags.FingerIndex, hand,
+                                           glm.vec3(-0.075, 0, 0.015), right, 0.03)
+        middle = FingerBones.create_default('right', BoneFlags.Right | BoneFlags.FingerMiddle, hand,
+                                            glm.vec3(-0.08, 0, 0), right, 0.03)
+        ring = FingerBones.create_default('right', BoneFlags.Right | BoneFlags.FingerRing, hand,
+                                          glm.vec3(-0.075, 0, -0.015), right, 0.03)
+        little = FingerBones.create_default('right', BoneFlags.Right | BoneFlags.FingerLittle, hand,
+                                            glm.vec3(-0.07, 0, -0.03), right, 0.03)
+
+        return ArmBones.create(shoulder, upper, lower, hand,
+                               thumb=thumb,
+                               index=index,
+                               middle=middle,
+                               ring=ring,
+                               little=little
+                               )
+
 
 class Skeleton:
     def __init__(self, body: BodyBones,
@@ -347,7 +437,11 @@ class Skeleton:
         body = BodyBones.create_default()
         left_leg = LegBones.create_default_left(body.hips.head)
         right_leg = LegBones.create_default_right(body.hips.head)
-        return Skeleton(body, left_leg=left_leg, right_leg=right_leg)
+        left_arm = ArmBones.create_default_left(body.chest.head)
+        right_arm = ArmBones.create_default_right(body.chest.head)
+        return Skeleton(body,
+                        left_leg=left_leg, right_leg=right_leg,
+                        left_arm=left_arm, right_arm=right_arm)
 
     def calc_world_matrix(self):
         m = glm.mat4()
