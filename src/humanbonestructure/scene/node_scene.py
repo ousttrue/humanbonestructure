@@ -1,7 +1,7 @@
 from typing import Optional, Tuple, Dict
 import glm
 from pydear.utils.mouse_event import MouseEvent
-from pydear.scene.camera import Camera
+from pydear.scene.camera import Camera, ArcBall, ScreenShift
 from pydear.gizmo.gizmo import Gizmo
 from pydear.gizmo.gizmo_select_handler import GizmoSelectHandler
 from pydear.gizmo.shapes.shape import Shape
@@ -18,14 +18,18 @@ class NodeScene:
 
         self.mouse_event = mouse_event
         self.camera = Camera(distance=8, y=-0.8)
-        self.camera.bind_mouse_event(self.mouse_event)
+        self.arc = ArcBall(self.camera.view, self.camera.projection)
+        self.mouse_event.bind_right_drag(self.arc)
+        self.shift = ScreenShift(self.camera.view, self.camera.projection)
+        self.mouse_event.bind_middle_drag(self.shift)
+        self.mouse_event.wheel += [self.shift.wheel]
+
         self.gizmo = Gizmo()
         self.bone_shape_map: Dict[Bone, Shape] = {}
 
         # shape select
-        self.drag_handler = GizmoSelectHandler()
-        self.drag_handler.bind_mouse_event_with_gizmo(
-            self.mouse_event, self.gizmo)
+        self.drag_handler = GizmoSelectHandler(self.gizmo)
+        self.mouse_event.bind_left_drag(self.drag_handler)
 
         def on_selected(selected: Optional[Shape]):
             if selected:

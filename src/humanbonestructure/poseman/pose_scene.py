@@ -2,7 +2,7 @@ from typing import Optional, Dict
 import pathlib
 import logging
 import glm
-from pydear.scene.camera import Camera
+from pydear.scene.camera import Camera, ArcBall, ScreenShift
 from pydear.utils.mouse_event import MouseEvent
 from pydear.utils.nanovg_renderer import NanoVgRenderer, nvg_line_from_to
 from pydear.utils.eventproperty import EventProperty
@@ -25,7 +25,11 @@ class PoseScene:
     def __init__(self, mouse_event: MouseEvent, font: pathlib.Path) -> None:
         self.camera = Camera(distance=6, y=-0.8)
         self.mouse_event = mouse_event
-        self.camera.bind_mouse_event(self.mouse_event)
+        self.arc = ArcBall(self.camera.view, self.camera.projection)
+        self.mouse_event.bind_right_drag(self.arc)
+        self.shift = ScreenShift(self.camera.view, self.camera.projection)
+        self.mouse_event.bind_middle_drag(self.shift)
+        self.mouse_event.wheel += [self.shift.wheel]
 
         self.skeleton: Optional[HumanoidSkeleton] = None
         self.root: Optional[Node] = None
