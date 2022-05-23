@@ -5,7 +5,7 @@ from pydear.gizmo.shapes.shape import Shape
 from pydear.gizmo.primitive import Quad
 from pydear.gizmo.gizmo import Gizmo
 from ..humanoid.humanoid_bones import HumanoidBone
-from ..humanoid.bone import Skeleton, Bone, HeadTailAxis
+from ..humanoid.bone import Skeleton, Bone, AxisPositiveNegative
 from ..humanoid.coordinate import Coordinate
 from .node import Node
 
@@ -223,21 +223,21 @@ class BoneShape(Shape):
         setting = BoneShapeSetting.from_humanoid_bone(
             bone.head.humanoid_bone)
         match bone.head_tail_axis:
-            case (HeadTailAxis.XPositive | HeadTailAxis.XNegative |
-                  HeadTailAxis.YPositive | HeadTailAxis.YNegative |
-                  HeadTailAxis.ZPositive | HeadTailAxis.ZNegative):
+            case (AxisPositiveNegative.XPositive | AxisPositiveNegative.XNegative |
+                  AxisPositiveNegative.YPositive | AxisPositiveNegative.YNegative |
+                  AxisPositiveNegative.ZPositive | AxisPositiveNegative.ZNegative):
                 return BoneShape(setting.width, setting.height, bone.get_length(),
-                                 color=setting.color, matrix=bone.head.world.get_matrix(),
+                                 color=setting.color, matrix=bone.head.world.get_matrix() * bone.local_axis,
                                  coordinate=bone.get_coordinate(), line_size=setting.line_size)
-            case HeadTailAxis.Other:
+            case None:
                 # fallback head tail
                 # assert node.humanoid_tail
-                tail = bone.tail.local.translation
+                tail = bone.get_local_tail()
                 return BoneShape(setting.width, setting.height, (glm.vec3(0, 0, 0), tail),
                                  color=setting.color,
-                                 matrix=bone.head.world.get_matrix(),
+                                 matrix=bone.head.world.get_matrix() * bone.local_axis,
                                  line_size=setting.line_size,
-                                 up_dir=bone.head.humanoid_bone.world_second, local_axis=bone.head.world.rotation)
+                                 up_dir=bone.head.humanoid_bone.world_second, local_axis=bone.head.world.rotation * glm.quat(bone.local_axis))
             case _:
                 raise RuntimeError()
 

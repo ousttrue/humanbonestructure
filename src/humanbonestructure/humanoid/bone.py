@@ -5,17 +5,7 @@ from .humanoid_bones import HumanoidBone, BoneBase, BoneFlags
 from .coordinate import Coordinate
 
 
-class HeadTailAxis(Enum):
-    XPositive = auto()
-    XNegative = auto()
-    YPositive = auto()
-    YNegative = auto()
-    ZPositive = auto()
-    ZNegative = auto()
-    Other = auto()
-
-
-class SecondAxis(Enum):
+class AxisPositiveNegative(Enum):
     XPositive = auto()
     XNegative = auto()
     YPositive = auto()
@@ -72,114 +62,131 @@ class Bone:
     def __init__(self, head: Joint, tail: Joint) -> None:
         self.head = head
         self.tail = tail
+        self.local_axis = glm.mat4()
+        self.calc_axis()
 
-        local_tail_dir = glm.normalize(tail.local.translation)
+    def get_local_tail(self) -> glm.vec3:
+        # tail.local.translation
+        m = glm.mat4(self.head.world.get_matrix()) * \
+            self.local_axis
+
+        return glm.inverse(m) * self.tail.world.translation
+
+    def calc_axis(self):
+
+        local_tail_dir = glm.normalize(self.get_local_tail())
         if abs(local_tail_dir.x - 1) < EPSILON:
-            self.head_tail_axis = HeadTailAxis.XPositive
+            self.head_tail_axis = AxisPositiveNegative.XPositive
         elif abs(local_tail_dir.x + 1) < EPSILON:
-            self.head_tail_axis = HeadTailAxis.XNegative
+            self.head_tail_axis = AxisPositiveNegative.XNegative
         elif abs(local_tail_dir.y - 1) < EPSILON:
-            self.head_tail_axis = HeadTailAxis.YPositive
+            self.head_tail_axis = AxisPositiveNegative.YPositive
         elif abs(local_tail_dir.y + 1) < EPSILON:
-            self.head_tail_axis = HeadTailAxis.YNegative
+            self.head_tail_axis = AxisPositiveNegative.YNegative
         elif abs(local_tail_dir.z - 1) < EPSILON:
-            self.head_tail_axis = HeadTailAxis.ZPositive
+            self.head_tail_axis = AxisPositiveNegative.ZPositive
         elif abs(local_tail_dir.z + 1) < EPSILON:
-            self.head_tail_axis = HeadTailAxis.ZNegative
+            self.head_tail_axis = AxisPositiveNegative.ZNegative
         else:
-            self.head_tail_axis = HeadTailAxis.Other
+            self.head_tail_axis = None
 
         self.second_axis = None
-        if self.head_tail_axis != HeadTailAxis.Other:
+        if self.head_tail_axis:
             world_second = self.head.humanoid_bone.world_second
-            m = glm.mat4(self.head.world.get_matrix())
+            m = glm.mat4(self.head.world.get_matrix()) * \
+                self.local_axis
             d0 = glm.dot(m[0].xyz, world_second)
             d1 = glm.dot(m[1].xyz, world_second)
             d2 = glm.dot(m[2].xyz, world_second)
             if abs(d0) > abs(d1) and abs(d0) > abs(d2):
                 if d0 > 0:
-                    self.second_axis = SecondAxis.XPositive
+                    self.second_axis = AxisPositiveNegative.XPositive
                 else:
-                    self.second_axis = SecondAxis.XNegative
+                    self.second_axis = AxisPositiveNegative.XNegative
             elif abs(d1) > abs(d0) and abs(d1) > abs(d2):
                 if d1 > 0:
-                    self.second_axis = SecondAxis.YPositive
+                    self.second_axis = AxisPositiveNegative.YPositive
                 else:
-                    self.second_axis = SecondAxis.YNegative
+                    self.second_axis = AxisPositiveNegative.YNegative
             elif abs(d2) > abs(d0) and abs(d2) > abs(d1):
                 if d2 > 0:
-                    self.second_axis = SecondAxis.ZPositive
+                    self.second_axis = AxisPositiveNegative.ZPositive
                 else:
-                    self.second_axis = SecondAxis.ZNegative
+                    self.second_axis = AxisPositiveNegative.ZNegative
             else:
                 raise RuntimeError()
+
+        if self.head_tail_axis:
+            assert self.head_tail_axis != self.second_axis
+        else:
+            assert self.second_axis is None
 
     def get_length(self) -> float:
         return glm.length(self.tail.world.translation - self.head.world.translation)
 
     def get_coordinate(self) -> Coordinate:
         match self.head_tail_axis, self.second_axis:
-            case HeadTailAxis.XPositive, SecondAxis.YPositive:
+            case AxisPositiveNegative.XPositive, AxisPositiveNegative.YPositive:
                 return Coordinate(
                     yaw=glm.vec3(0, 1, 0),
                     pitch=glm.vec3(0, 0, 1),
                     roll=glm.vec3(1, 0, 0),
                 )
-            case HeadTailAxis.XPositive, SecondAxis.YNegative:
+            case AxisPositiveNegative.XPositive, AxisPositiveNegative.YNegative:
                 return Coordinate(
                     yaw=glm.vec3(0, -1, 0),
                     pitch=glm.vec3(0, 0, -1),
                     roll=glm.vec3(1, 0, 0),
                 )
-            case HeadTailAxis.XPositive, SecondAxis.ZPositive:
+            case AxisPositiveNegative.XPositive, AxisPositiveNegative.ZPositive:
                 return Coordinate(
                     yaw=glm.vec3(0, 0, 1),
                     pitch=glm.vec3(0, -1, 0),
                     roll=glm.vec3(1, 0, 0),
                 )
-            case HeadTailAxis.XPositive, SecondAxis.ZNegative:
+            case AxisPositiveNegative.XPositive, AxisPositiveNegative.ZNegative:
                 return Coordinate(
                     yaw=glm.vec3(0, 0, -1),
                     pitch=glm.vec3(0, 1, 0),
                     roll=glm.vec3(1, 0, 0),
                 )
-            case HeadTailAxis.YPositive, SecondAxis.ZPositive:
+            case AxisPositiveNegative.YPositive, AxisPositiveNegative.ZPositive:
                 return Coordinate(
                     yaw=glm.vec3(0, 0, 1),
                     pitch=glm.vec3(1, 0, 0),
                     roll=glm.vec3(0, 1, 0),
                 )
-            case HeadTailAxis.YPositive, SecondAxis.ZNegative:
+            case AxisPositiveNegative.YPositive, AxisPositiveNegative.ZNegative:
                 return Coordinate(
                     yaw=glm.vec3(0, 0, -1),
                     pitch=glm.vec3(-1, 0, 0),
                     roll=glm.vec3(0, 1, 0),
                 )
-            case HeadTailAxis.YNegative, SecondAxis.ZNegative:
+            case AxisPositiveNegative.YNegative, AxisPositiveNegative.ZNegative:
                 return Coordinate(
                     yaw=glm.vec3(0, 0, -1),
                     pitch=glm.vec3(1, 0, 0),
                     roll=glm.vec3(0, -1, 0),
                 )
-            case HeadTailAxis.XNegative, SecondAxis.YNegative:
+            case AxisPositiveNegative.XNegative, AxisPositiveNegative.YNegative:
                 return Coordinate(
                     yaw=glm.vec3(0, -1, 0),
                     pitch=glm.vec3(0, 0, 1),
                     roll=glm.vec3(-1, 0, 0),
                 )
-            case HeadTailAxis.XNegative, SecondAxis.ZPositive:
+            case AxisPositiveNegative.XNegative, AxisPositiveNegative.ZPositive:
                 return Coordinate(
                     yaw=glm.vec3(0, 0, 1),
                     pitch=glm.vec3(0, 1, 0),
                     roll=glm.vec3(-1, 0, 0),
                 )
-            case HeadTailAxis.XNegative, SecondAxis.ZNegative:
+            case AxisPositiveNegative.XNegative, AxisPositiveNegative.ZNegative:
                 return Coordinate(
                     yaw=glm.vec3(0, 0, -1),
                     pitch=glm.vec3(0, -1, 0),
                     roll=glm.vec3(-1, 0, 0),
                 )
-            case HeadTailAxis.ZPositive, SecondAxis.YNegative:
+            case AxisPositiveNegative.ZPositive, AxisPositiveNegative.YNegative:
                 return Coordinate(
                     yaw=glm.vec3(0, -1, 0),
                     pitch=glm.vec3(1, 0, 0),
@@ -195,7 +202,7 @@ class Bone:
 
     def strict_tpose(self):
         match self.head_tail_axis, self.second_axis:
-            case (HeadTailAxis.XPositive, SecondAxis.YPositive):
+            case (AxisPositiveNegative.XPositive, AxisPositiveNegative.YPositive):
                 inv = glm.inverse(self.head.world.get_matrix())
                 self.head.pose = glm.quat(inv * glm.mat4(
                     glm.vec4(0, 0, 1, 0),
@@ -205,6 +212,16 @@ class Bone:
                 ))
             case _:
                 raise NotImplementedError()
+
+    def cancel_axis(self):
+        target = glm.mat4()
+        self.local_axis = glm.mat4(glm.inverse(
+            self.head.world.rotation)) * target
+        self.calc_axis()
+
+    def clear_axis(self):
+        self.local_axis = glm.mat4()
+        self.calc_axis()
 
 
 class BodyBones(NamedTuple):
@@ -250,6 +267,20 @@ class BodyBones(NamedTuple):
         self.spine.head.pose = glm.quat()
         m = glm.mat4()
         m = self.hips.calc_world_matrix(m)
+
+    def cancel_axis(self):
+        self.hips.cancel_axis()
+        self.spine.cancel_axis()
+        self.chest.cancel_axis()
+        self.neck.cancel_axis()
+        self.head.cancel_axis()
+
+    def clear_axis(self):
+        self.hips.clear_axis()
+        self.spine.clear_axis()
+        self.chest.clear_axis()
+        self.neck.clear_axis()
+        self.head.clear_axis()
 
 
 class LegBones(NamedTuple):
@@ -456,3 +487,10 @@ class Skeleton:
 
     def clear_pose(self):
         self.body.clear_pose()
+
+    def cancel_axis(self):
+        self.calc_world_matrix()
+        self.body.cancel_axis()
+
+    def clear_axis(self):
+        self.body.clear_axis()

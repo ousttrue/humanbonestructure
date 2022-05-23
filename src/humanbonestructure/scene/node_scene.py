@@ -24,29 +24,43 @@ class NodeScene:
         self.mouse_event.bind_middle_drag(self.shift)
         self.mouse_event.wheel += [self.shift.wheel]
 
-        self.gizmo = Gizmo()
+        self.gizmo = None
         self.bone_shape_map: Dict[Bone, Shape] = {}
 
         # shape select
-        self.drag_handler = GizmoSelectHandler(self.gizmo)
-        self.mouse_event.bind_left_drag(self.drag_handler)
+        # self.drag_handler = GizmoSelectHandler(self.gizmo)
+        # self.mouse_event.bind_left_drag(self.drag_handler)
 
-        def on_selected(selected: Optional[Shape]):
-            if selected:
-                position = selected.matrix.value[3].xyz
-                self.camera.view.set_gaze(position)
-        self.drag_handler.selected += on_selected
+        # def on_selected(selected: Optional[Shape]):
+        #     if selected:
+        #         position = selected.matrix.value[3].xyz
+        #         self.camera.view.set_gaze(position)
+        # self.drag_handler.selected += on_selected
+        self.cancel_axis = False
 
     def render(self, w: int, h: int):
+        if not self.gizmo:
+            return
         mouse_input = self.mouse_event.last_input
         assert(mouse_input)
         self.camera.projection.resize(w, h)
         self.gizmo.process(self.camera, mouse_input.x, mouse_input.y)
 
     def update(self, skeleton: Optional[Skeleton], pose: Optional[Pose], cancel_axis: bool = False):
+        if cancel_axis != self.cancel_axis:
+            self.cancel_axis = cancel_axis
+            # clear
+            self.skeleton = None
+
+
         if self.skeleton != skeleton:
             self.skeleton = skeleton
             if self.skeleton:
+                if self.cancel_axis:
+                    self.skeleton.cancel_axis()
+                else:
+                    self.skeleton.clear_axis()
+                self.gizmo = Gizmo()
                 self.bone_shape_map = BoneShape.from_skeleton(
                     self.skeleton, self.gizmo)
 
