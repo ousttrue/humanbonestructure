@@ -214,17 +214,66 @@ class Bone:
             case _:
                 raise NotImplementedError()
 
+    def get_target_matrix(self, flag: BoneFlags) -> glm.mat4:
+        match self.head.humanoid_bone.base:
+            case (BoneBase.hips | BoneBase.spine | BoneBase.chest | BoneBase.neck | BoneBase.head):
+                world_x = glm.vec3(1, 0, 0)
+                world_y = glm.normalize(
+                    self.tail.world.translation - self.head.world.translation)
+                world_z = glm.normalize(glm.cross(world_x, world_y))
+                return glm.mat4(
+                    glm.vec4(world_x, 0),
+                    glm.vec4(world_y, 0),
+                    glm.vec4(world_z, 0),
+                    glm.vec4(0, 0, 0, 1),
+                )
+            case (BoneBase.upperLeg | BoneBase.lowerLeg):
+                world_x = glm.vec3(1, 0, 0)
+                world_y = glm.normalize(
+                    self.head.world.translation-self.tail.world.translation)
+                world_z = glm.normalize(glm.cross(world_x, world_y))
+                return glm.mat4(
+                    glm.vec4(world_x, 0),
+                    glm.vec4(world_y, 0),
+                    glm.vec4(world_z, 0),
+                    glm.vec4(0, 0, 0, 1),
+                )
+            case BoneBase.foot | BoneBase.toes | BoneBase.shoulder:
+                # 元の姿勢を残す(head-tail無視)
+                return glm.mat4(
+                    glm.vec4(1, 0, 0, 0),
+                    glm.vec4(0, 1, 0, 0),
+                    glm.vec4(0, 0, 1, 0),
+                    glm.vec4(0, 0, 0, 1),
+                )
+            case BoneBase.upperArm | BoneBase.lowerArm | BoneBase.hand | BoneBase.finger_1 | BoneBase.finger_2 | BoneBase.finger_3:
+                world_y = glm.vec3(0, 1, 0)
+                if flag & BoneFlags.Left:
+                    world_x = glm.normalize(
+                        self.tail.world.translation-self.head.world.translation)
+                    world_z = glm.normalize(glm.cross(world_x, world_y))
+                    world_y = glm.normalize(glm.cross(world_z, world_x))
+
+                elif flag & BoneFlags.Right:
+                    world_x = -glm.normalize(
+                        self.tail.world.translation-self.head.world.translation)
+                    world_z = glm.normalize(glm.cross(world_x, world_y))
+                    world_y = glm.normalize(glm.cross(world_z, world_x))
+
+                else:
+                    raise RuntimeError()
+
+                return glm.mat4(
+                    glm.vec4(world_x, 0),
+                    glm.vec4(world_y, 0),
+                    glm.vec4(world_z, 0),
+                    glm.vec4(0, 0, 0, 1),
+                )
+            case _:
+                raise NotImplementedError()
+
     def cancel_axis(self):
-        world_x = glm.vec3(1, 0, 0)
-        world_y = glm.normalize(
-            self.tail.world.translation - self.head.world.translation)
-        world_z = glm.normalize(glm.cross(world_x, world_y))
-        target = glm.mat4(
-            glm.vec4(1, 0, 0, 0),
-            glm.vec4(world_y, 0),
-            glm.vec4(world_z, 0),
-            glm.vec4(0, 0, 0, 1),
-        )
+        target = self.get_target_matrix(self.head.humanoid_bone.flags)
         self.local_axis = glm.inverse(
             self.head.world.rotation) * glm.quat(target)
         self.calc_axis()
@@ -336,6 +385,18 @@ class LegBones(NamedTuple):
                     HumanoidBone.endSite, parent=toes)
         return LegBones.create(upper, lower, foot, toes, end)
 
+    def cancel_axis(self):
+        self.upper.cancel_axis()
+        self.lower.cancel_axis()
+        self.foot.cancel_axis()
+        self.toes.cancel_axis()
+
+    def clear_axis(self):
+        self.upper.clear_axis()
+        self.lower.clear_axis()
+        self.foot.clear_axis()
+        self.toes.clear_axis()
+
 
 class FingerBones(NamedTuple):
     proximal: Bone
@@ -360,6 +421,16 @@ class FingerBones(NamedTuple):
         end = Joint(f'{prefix}_end',
                     TR(dir*length*0.8*0.8), HumanoidBone.endSite, parent=distal)
         return FingerBones.create(prox, inter, distal, end)
+
+    def cancel_axis(self):
+        self.proximal.cancel_axis()
+        self.intermediate.cancel_axis()
+        self.distal.cancel_axis()
+
+    def clear_axis(self):
+        self.proximal.clear_axis()
+        self.intermediate.clear_axis()
+        self.distal.clear_axis()
 
 
 class ArmBones(NamedTuple):
@@ -462,6 +533,38 @@ class ArmBones(NamedTuple):
                                little=little
                                )
 
+    def cancel_axis(self):
+        self.shoulder.cancel_axis()
+        self.upper.cancel_axis()
+        self.lower.cancel_axis()
+        self.hand.cancel_axis()
+        if self.thumb:
+            self.thumb.cancel_axis()
+        if self.index:
+            self.index.cancel_axis()
+        if self.middle:
+            self.middle.cancel_axis()
+        if self.ring:
+            self.ring.cancel_axis()
+        if self.little:
+            self.little.cancel_axis()
+
+    def clear_axis(self):
+        self.shoulder.clear_axis()
+        self.upper.clear_axis()
+        self.lower.clear_axis()
+        self.hand.clear_axis()
+        if self.thumb:
+            self.thumb.clear_axis()
+        if self.index:
+            self.index.clear_axis()
+        if self.middle:
+            self.middle.clear_axis()
+        if self.ring:
+            self.ring.clear_axis()
+        if self.little:
+            self.little.clear_axis()
+
 
 class Skeleton:
     def __init__(self, body: BodyBones,
@@ -501,6 +604,22 @@ class Skeleton:
     def cancel_axis(self):
         self.calc_world_matrix()
         self.body.cancel_axis()
+        if self.left_leg:
+            self.left_leg.cancel_axis()
+        if self.right_leg:
+            self.right_leg.cancel_axis()
+        if self.left_arm:
+            self.left_arm.cancel_axis()
+        if self.right_arm:
+            self.right_arm.cancel_axis()
 
     def clear_axis(self):
         self.body.clear_axis()
+        if self.left_leg:
+            self.left_leg.clear_axis()
+        if self.right_leg:
+            self.right_leg.clear_axis()
+        if self.left_arm:
+            self.left_arm.clear_axis()
+        if self.right_arm:
+            self.right_arm.clear_axis()

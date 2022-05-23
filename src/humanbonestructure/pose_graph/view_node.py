@@ -87,9 +87,9 @@ class ViewNode(Node):
 
         if self.scene.skeleton:
             ImGui.Checkbox('cancel axis', self.cancel_axis)
-            if ImGui.Button('clear'):
-                self.scene.skeleton.clear_pose()
-                self.scene.sync_gizmo()
+            # if ImGui.Button('clear'):
+            #     self.scene.skeleton.clear_pose()
+            #     self.scene.sync_gizmo()
             # if ImGui.Button('clear pose'):
             #     self.scene.root.clear_pose()
             #     self.scene.root.calc_world_matrix(glm.mat4())

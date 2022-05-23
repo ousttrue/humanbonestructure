@@ -199,24 +199,11 @@ class BoneShape(Shape):
     def from_bone(bone: Bone) -> 'BoneShape':
         setting = BoneShapeSetting.from_humanoid_bone(
             bone.head.humanoid_bone)
-        # match bone.head_tail_axis:
-        #     case (AxisPositiveNegative.XPositive | AxisPositiveNegative.XNegative |
-        #           AxisPositiveNegative.YPositive | AxisPositiveNegative.YNegative |
-        #           AxisPositiveNegative.ZPositive | AxisPositiveNegative.ZNegative):
-        #         return BoneShape(setting.width, setting.height, bone.get_length(),
-        #                          color=setting.color, matrix=bone.head.world.get_matrix() *
-        #                          glm.mat4(bone.local_axis),
-        #                          coordinate=bone.get_coordinate(), line_size=setting.line_size)
-        #     case None:
-        # fallback head tail
-        # assert node.humanoid_tail
         tail = bone.get_local_tail()
         return BoneShape(bone.head.world.get_matrix() * glm.mat4(bone.local_axis), setting.width, setting.height, tail,
-                            color=setting.color,
-                            line_size=setting.line_size,
-                            up_dir=bone.get_up_dir())
-            # case _:
-            #     raise RuntimeError()
+                         color=setting.color,
+                         line_size=setting.line_size,
+                         up_dir=bone.get_up_dir())
 
     @staticmethod
     def from_skeleton(skeleton: Skeleton, gizmo: Gizmo) -> Dict[Bone, Shape]:
