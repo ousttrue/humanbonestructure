@@ -87,15 +87,20 @@ class ViewNode(Node):
 
         if self.scene.skeleton:
             ImGui.Checkbox('cancel axis', self.cancel_axis)
-            # if ImGui.Button('clear'):
-            #     self.scene.skeleton.clear_pose()
-            #     self.scene.sync_gizmo()
-            # if ImGui.Button('clear pose'):
-            #     self.scene.root.clear_pose()
-            #     self.scene.root.calc_world_matrix(glm.mat4())
-            #     self.scene.drag_handler.select(None)
-            #     self.scene.sync_gizmo()
-            #     self.scene.raise_pose()
+
+            if self.cancel_axis[0]:
+                if ImGui.Button("strict tpose"):
+                    self.scene.skeleton.strict_tpose()
+                    self.scene.sync_gizmo()
+                if ImGui.Button('clear'):
+                    self.scene.skeleton.clear_pose()
+                    self.scene.sync_gizmo()
+                # if ImGui.Button('clear pose'):
+                #     self.scene.root.clear_pose()
+                #     self.scene.root.calc_world_matrix(glm.mat4())
+                #     self.scene.drag_handler.select(None)
+                #     self.scene.sync_gizmo()
+                #     self.scene.raise_pose()
 
     def process_self(self):
         self.scene.update(self.in_skeleton.skeleton, self.in_pose.pose, self.cancel_axis[0])

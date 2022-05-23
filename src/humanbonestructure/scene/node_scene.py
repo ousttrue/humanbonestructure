@@ -52,7 +52,6 @@ class NodeScene:
             # clear
             self.skeleton = None
 
-
         if self.skeleton != skeleton:
             self.skeleton = skeleton
             if self.skeleton:
@@ -120,4 +119,5 @@ class NodeScene:
 
         self.skeleton.calc_world_matrix()
         for bone, shape in self.bone_shape_map.items():
-            shape.matrix.set(bone.head.world.get_matrix())
+            shape.matrix.set(bone.head.world.get_matrix()
+                             * glm.mat4(bone.local_axis))
