@@ -1,4 +1,4 @@
-from typing import NamedTuple, List, Optional, Union
+from typing import NamedTuple, List, Optional, Union, Iterable
 from enum import Enum, auto
 import glm
 from .humanoid_bones import HumanoidBone, BoneBase, BoneFlags
@@ -206,7 +206,8 @@ class Bone:
         world_axis = glm.quat(world) * self.local_axis
         # world_target = glm.mat4()
         # world * delta * local_axis = world_target
-        delta = self.local_axis * glm.inverse(world_axis) * glm.inverse(self.local_axis)
+        delta = self.local_axis * \
+            glm.inverse(world_axis) * glm.inverse(self.local_axis)
         self.head.pose = delta
         return self.calc_world_matrix(parent)
 
@@ -286,6 +287,13 @@ class BodyBones(NamedTuple):
     neck: Bone
     head: Bone
 
+    def enumerate(self) -> Iterable[Bone]:
+        yield self.hips
+        yield self.spine
+        yield self.chest
+        yield self.neck
+        yield self.head
+
     @staticmethod
     def create(hips: Joint, spine: Joint, chest: Joint, neck: Joint, head: Joint, end: Joint) -> 'BodyBones':
         return BodyBones(
@@ -310,33 +318,13 @@ class BodyBones(NamedTuple):
                          TR(glm.vec3(0, 0.2, 0)), HumanoidBone.endSite, parent=head)
         return BodyBones.create(hips, spine, chest, neck, head, head_end)
 
-    def strict_tpose(self):
-        m = self.hips.strict_tpose(glm.mat4())
-        m = self.spine.strict_tpose(m)
-        m = self.chest.strict_tpose(m)
-        m = self.neck.strict_tpose(m)
-        m = self.head.strict_tpose(m)
-
-    def clear_pose(self):
-        self.hips.head.pose = glm.quat()
-        self.spine.head.pose = glm.quat()
-        self.chest.head.pose = glm.quat()
-        self.neck.head.pose = glm.quat()
-        self.head.head.pose = glm.quat()
-
-    def cancel_axis(self):
-        self.hips.cancel_axis()
-        self.spine.cancel_axis()
-        self.chest.cancel_axis()
-        self.neck.cancel_axis()
-        self.head.cancel_axis()
-
-    def clear_axis(self):
-        self.hips.clear_axis()
-        self.spine.clear_axis()
-        self.chest.clear_axis()
-        self.neck.clear_axis()
-        self.head.clear_axis()
+    def calc_world_matrix(self):
+        m = glm.mat4()
+        m = self.hips.calc_world_matrix(m)
+        m = self.spine.calc_world_matrix(m)
+        m = self.chest.calc_world_matrix(m)
+        m = self.neck.calc_world_matrix(m)
+        m = self.head.calc_world_matrix(m)
 
 
 class LegBones(NamedTuple):
@@ -344,6 +332,12 @@ class LegBones(NamedTuple):
     lower: Bone
     foot: Bone
     toes: Bone
+
+    def enumerate(self) -> Iterable[Bone]:
+        yield self.upper
+        yield self.lower
+        yield self.foot
+        yield self.toes
 
     @staticmethod
     def create(upper: Joint, lower: Joint, foot: Joint, toes: Joint, end: Joint) -> 'LegBones':
@@ -382,23 +376,22 @@ class LegBones(NamedTuple):
                     HumanoidBone.endSite, parent=toes)
         return LegBones.create(upper, lower, foot, toes, end)
 
-    def cancel_axis(self):
-        self.upper.cancel_axis()
-        self.lower.cancel_axis()
-        self.foot.cancel_axis()
-        self.toes.cancel_axis()
-
-    def clear_axis(self):
-        self.upper.clear_axis()
-        self.lower.clear_axis()
-        self.foot.clear_axis()
-        self.toes.clear_axis()
+    def calc_world_matrix(self, m: glm.mat4):
+        m = self.upper.calc_world_matrix(m)
+        m = self.lower.calc_world_matrix(m)
+        m = self.foot.calc_world_matrix(m)
+        m = self.toes.calc_world_matrix(m)
 
 
 class FingerBones(NamedTuple):
     proximal: Bone
     intermediate: Bone
     distal: Bone
+
+    def enumerate(self) -> Iterable[Bone]:
+        yield self.proximal
+        yield self.intermediate
+        yield self.distal
 
     @staticmethod
     def create(proximal: Joint, intermediate: Joint, distal: Joint, end: Joint):
@@ -419,15 +412,10 @@ class FingerBones(NamedTuple):
                     TR(dir*length*0.8*0.8), HumanoidBone.endSite, parent=distal)
         return FingerBones.create(prox, inter, distal, end)
 
-    def cancel_axis(self):
-        self.proximal.cancel_axis()
-        self.intermediate.cancel_axis()
-        self.distal.cancel_axis()
-
-    def clear_axis(self):
-        self.proximal.clear_axis()
-        self.intermediate.clear_axis()
-        self.distal.clear_axis()
+    def calc_world_matrix(self, m: glm.mat4):
+        m = self.proximal.calc_world_matrix(m)
+        m = self.intermediate.calc_world_matrix(m)
+        m = self.distal.calc_world_matrix(m)
 
 
 class ArmBones(NamedTuple):
@@ -440,6 +428,22 @@ class ArmBones(NamedTuple):
     middle: Optional[FingerBones] = None
     ring: Optional[FingerBones] = None
     little: Optional[FingerBones] = None
+
+    def enumerate(self) -> Iterable[Bone]:
+        yield self.shoulder
+        yield self.upper
+        yield self.lower
+        yield self.hand
+        if self.thumb:
+            yield from self.thumb.enumerate()
+        if self.index:
+            yield from self.index.enumerate()
+        if self.middle:
+            yield from self.middle.enumerate()
+        if self.ring:
+            yield from self.ring.enumerate()
+        if self.little:
+            yield from self.little.enumerate()
 
     @staticmethod
     def create(shoulder: Joint, upper: Joint, lower: Joint, hand: Joint, *,
@@ -530,37 +534,57 @@ class ArmBones(NamedTuple):
                                little=little
                                )
 
-    def cancel_axis(self):
-        self.shoulder.cancel_axis()
-        self.upper.cancel_axis()
-        self.lower.cancel_axis()
-        self.hand.cancel_axis()
+    def calc_world_matrix(self, m: glm.mat4):
+        m = self.shoulder.calc_world_matrix(m)
+        m = self.upper.calc_world_matrix(m)
+        m = self.lower.calc_world_matrix(m)
+        m = self.hand.calc_world_matrix(m)
         if self.thumb:
-            self.thumb.cancel_axis()
+            f = m
+            for bone in self.thumb.enumerate():
+                f = bone.calc_world_matrix(f)
         if self.index:
-            self.index.cancel_axis()
+            f = m
+            for bone in self.index.enumerate():
+                f = bone.calc_world_matrix(f)
         if self.middle:
-            self.middle.cancel_axis()
+            f = m
+            for bone in self.middle.enumerate():
+                f = bone.calc_world_matrix(f)
         if self.ring:
-            self.ring.cancel_axis()
+            f = m
+            for bone in self.ring.enumerate():
+                f = bone.calc_world_matrix(f)
         if self.little:
-            self.little.cancel_axis()
+            f = m
+            for bone in self.little.enumerate():
+                f = bone.calc_world_matrix(f)
 
-    def clear_axis(self):
-        self.shoulder.clear_axis()
-        self.upper.clear_axis()
-        self.lower.clear_axis()
-        self.hand.clear_axis()
+    def strict_tpose(self, m: glm.mat4):
+        m = self.shoulder.strict_tpose(m)
+        m = self.upper.strict_tpose(m)
+        m = self.lower.strict_tpose(m)
+        m = self.hand.strict_tpose(m)
         if self.thumb:
-            self.thumb.clear_axis()
+            f = m
+            for bone in self.thumb.enumerate():
+                f = bone.strict_tpose(f)
         if self.index:
-            self.index.clear_axis()
+            f = m
+            for bone in self.index.enumerate():
+                f = bone.strict_tpose(f)
         if self.middle:
-            self.middle.clear_axis()
+            f = m
+            for bone in self.middle.enumerate():
+                f = bone.strict_tpose(f)
         if self.ring:
-            self.ring.clear_axis()
+            f = m
+            for bone in self.ring.enumerate():
+                f = bone.strict_tpose(f)
         if self.little:
-            self.little.clear_axis()
+            f = m
+            for bone in self.little.enumerate():
+                f = bone.strict_tpose(f)
 
 
 class Skeleton:
@@ -585,39 +609,61 @@ class Skeleton:
                         left_arm=left_arm, right_arm=right_arm)
 
     def calc_world_matrix(self):
-        m = glm.mat4()
-        m = self.body.hips.calc_world_matrix(m)
-        m = self.body.spine.calc_world_matrix(m)
-        m = self.body.chest.calc_world_matrix(m)
-        m = self.body.neck.calc_world_matrix(m)
-        m = self.body.head.calc_world_matrix(m)
+        self.body.calc_world_matrix()
+        if self.left_arm:
+            self.left_arm.calc_world_matrix(
+                self.body.chest.head.world.get_matrix())
+        if self.right_arm:
+            self.right_arm.calc_world_matrix(
+                self.body.chest.head.world.get_matrix())
+        if self.left_leg:
+            self.left_leg.calc_world_matrix(
+                self.body.hips.head.world.get_matrix())
+        if self.right_leg:
+            self.right_leg.calc_world_matrix(
+                self.body.hips.head.world.get_matrix())
 
     def strict_tpose(self):
-        self.body.strict_tpose()
+        m = glm.mat4()
+        for bone in self.body.enumerate():
+            m = bone.strict_tpose(m)
+        if self.left_leg:
+            m = self.body.hips.head.world.get_matrix()
+            for bone in self.left_leg.enumerate():
+                m = bone.strict_tpose(m)
+        if self.right_leg:
+            m = self.body.hips.head.world.get_matrix()
+            for bone in self.right_leg.enumerate():
+                m = bone.strict_tpose(m)
+        if self.left_arm:
+            m = self.body.chest.head.world.get_matrix()
+            self.left_arm.strict_tpose(m)
+        if self.right_arm:
+            m = self.body.chest.head.world.get_matrix()
+            self.right_arm.strict_tpose(m)
+
+    def enumerate(self) -> Iterable[Bone]:
+        yield from self.body.enumerate()
+        if self.left_arm:
+            yield from self.left_arm.enumerate()
+        if self.right_arm:
+            yield from self.right_arm.enumerate()
+        if self.left_leg:
+            yield from self.left_leg.enumerate()
+        if self.right_leg:
+            yield from self.right_leg.enumerate()
 
     def clear_pose(self):
-        self.body.clear_pose()
+        for bone in self.enumerate():
+            bone.head.pose = glm.quat()
         self.calc_world_matrix()
 
     def cancel_axis(self):
         self.calc_world_matrix()
-        self.body.cancel_axis()
-        if self.left_leg:
-            self.left_leg.cancel_axis()
-        if self.right_leg:
-            self.right_leg.cancel_axis()
-        if self.left_arm:
-            self.left_arm.cancel_axis()
-        if self.right_arm:
-            self.right_arm.cancel_axis()
+        for bone in self.enumerate():
+            bone.cancel_axis()
 
     def clear_axis(self):
-        self.body.clear_axis()
-        if self.left_leg:
-            self.left_leg.clear_axis()
-        if self.right_leg:
-            self.right_leg.clear_axis()
-        if self.left_arm:
-            self.left_arm.clear_axis()
-        if self.right_arm:
-            self.right_arm.clear_axis()
+        for bone in self.enumerate():
+            bone.clear_axis()
+        self.calc_world_matrix()
