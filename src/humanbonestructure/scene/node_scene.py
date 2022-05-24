@@ -18,20 +18,20 @@ from .bone_shape import BoneShape
 class NodeScene:
     def __init__(self, mouse_event: MouseEvent) -> None:
         self.skeleton: Optional[Skeleton] = None
-
-        self.mouse_event = mouse_event
         self.camera = Camera(distance=4, y=-0.8)
+        # mouse event
+        self.mouse_event = mouse_event
         self.arc = ArcBall(self.camera.view, self.camera.projection)
         self.mouse_event.bind_right_drag(self.arc)
         self.shift = ScreenShift(self.camera.view, self.camera.projection)
         self.mouse_event.bind_middle_drag(self.shift)
         self.mouse_event.wheel += [self.shift.wheel]
-
         self.gizmo = None
         self.bone_shape_map: Dict[Bone, Shape] = {}
-        self.cancel_axis = False
-
         self.humanoid_joint_map: Dict[HumanoidBone, Joint] = {}
+        # axis, delta
+        self.bone_axis_map: Dict[HumanoidBone, glm.quat] = {}
+        self.bone_delta_map: Dict[HumanoidBone, glm.quat] = {}
 
     def render(self, w: int, h: int):
         if not self.gizmo:
@@ -47,47 +47,55 @@ class NodeScene:
             return
 
         # assign pose to node hierarchy
-        if pose and pose.bones:
+        # if pose and pose.bones:
+        if pose:
             self.skeleton.clear_pose()
-            for bone in pose.bones:
-                if bone.humanoid_bone:
-                    joint = self.humanoid_joint_map.get(bone.humanoid_bone)
-                    if joint:
-                        if cancel_axis and strict_delta:
-                            a = self._get_cancel_axis(bone.humanoid_bone)
-                            d = self._get_strict_delta(bone.humanoid_bone)
-                            joint.pose = d * a * \
-                                bone.transform.rotation * glm.inverse(a)
-                        elif cancel_axis:
-                            a = self._get_cancel_axis(bone.humanoid_bone)
-                            d = self._get_strict_delta(bone.humanoid_bone)
-                            joint.pose = a * \
-                                bone.transform.rotation * glm.inverse(a)
-                        elif strict_delta:
-                            d = self._get_strict_delta(bone.humanoid_bone)
-                            joint.pose = d * bone.transform.rotation
-                        else:
-                            joint.pose = bone.transform.rotation
+            for humanoid_bone in HumanoidBone:
+                if not humanoid_bone.is_enable():
+                    continue
+                joint = self.humanoid_joint_map.get(humanoid_bone)
+                if joint:
+                    pose_rotation = pose.get_rotation(humanoid_bone) if pose else glm.quat()
+                    if cancel_axis and strict_delta:
+                        a = self._get_cancel_axis(humanoid_bone)
+                        d = self._get_strict_delta(humanoid_bone)
+                        joint.pose = d * a * \
+                            pose_rotation * glm.inverse(a)
+                    elif cancel_axis:
+                        a = self._get_cancel_axis(humanoid_bone)
+                        joint.pose = a * \
+                            pose_rotation * glm.inverse(a)
+                    elif strict_delta:
+                        d = self._get_strict_delta(humanoid_bone)
+                        joint.pose = d * pose_rotation
                     else:
-                        pass
-                        # raise RuntimeError()
+                        joint.pose = pose_rotation
                 else:
-                    raise RuntimeError()
+                    pass
+                    # raise RuntimeError()
 
-        self.sync_gizmo()
+            self.sync_gizmo()
 
     def _get_cancel_axis(self, humanoid_bone: HumanoidBone) -> glm.quat:
-        return glm.quat()
+        return self.bone_axis_map.get(humanoid_bone, glm.quat())
 
     def _get_strict_delta(self, humanoid_bone: HumanoidBone) -> glm.quat:
-        return glm.quat()
+        return self.bone_delta_map.get(humanoid_bone, glm.quat())
 
-    def _update_skeleton(self, skeleton):
+    def _update_skeleton(self, skeleton: Optional[Skeleton]):
         if self.skeleton == skeleton:
             return
         self.skeleton = skeleton
         if not self.skeleton:
             return
+
+        self.bone_axis_map.clear()
+        self.bone_delta_map.clear()
+        self.skeleton.cancel_axis()
+        for bone in self.skeleton.enumerate():
+            self.bone_axis_map[bone.head.humanoid_bone] = bone.local_axis
+        self.skeleton.clear_axis()
+
         self.gizmo = Gizmo()
         self.bone_shape_map = BoneShape.from_skeleton(
             self.skeleton, self.gizmo)
