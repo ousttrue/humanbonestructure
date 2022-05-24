@@ -55,7 +55,8 @@ class NodeScene:
                     continue
                 joint = self.humanoid_joint_map.get(humanoid_bone)
                 if joint:
-                    pose_rotation = pose.get_rotation(humanoid_bone) if pose else glm.quat()
+                    pose_rotation = pose.get_rotation(
+                        humanoid_bone) if pose else glm.quat()
                     if cancel_axis and strict_delta:
                         a = self._get_cancel_axis(humanoid_bone)
                         d = self._get_strict_delta(humanoid_bone)
@@ -89,12 +90,20 @@ class NodeScene:
         if not self.skeleton:
             return
 
+        # get axis
         self.bone_axis_map.clear()
-        self.bone_delta_map.clear()
         self.skeleton.cancel_axis()
         for bone in self.skeleton.enumerate():
             self.bone_axis_map[bone.head.humanoid_bone] = bone.local_axis
+
+        # get delta
+        self.bone_delta_map.clear()
+        self.skeleton.strict_tpose()
+        for bone in self.skeleton.enumerate():
+            self.bone_delta_map[bone.head.humanoid_bone] = bone.head.pose
+
         self.skeleton.clear_axis()
+        self.skeleton.clear_pose()
 
         self.gizmo = Gizmo()
         self.bone_shape_map = BoneShape.from_skeleton(
