@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="検索" href="../search.html" /><link rel="next" title="実装" href="../implements/index.html" /><link rel="prev" title="指" href="../human/fingers.html" />
+<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="検索" href="../search.html" /><link rel="next" title="Retarget" href="../retarget/index.html" /><link rel="prev" title="ボーン" href="../bone/index.html" />
 
     <meta name="generator" content="sphinx-4.5.0, furo 2022.04.07"/>
-        <title>ポーズ - HumanBoneStructure ドキュメント</title>
+        <title>姿勢 - HumanBoneStructure ドキュメント</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
@@ -156,21 +156,23 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../retarget/index.html">Retarget</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../human/index.html">Humanoid</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../human/index.html">ヒューマノイド</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../human/body.html">体幹</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../human/arm.html">上肢</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../human/leg.html">下肢</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../human/fingers.html">指</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">ポーズ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bone/index.html">ボーン</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">姿勢</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../retarget/index.html">厳格TPose</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tpose_nise/index.html">任意のモデルを厳格TPose化する</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../implements/index.html">実装</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../implements/node.html">Node操作</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../implements/armature_unity.html">Armature to Unity</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../appendix/index.html">参考</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../appendix/index.html">関連</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../appendix/vrm1.html">vrm1形式</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../appendix/vrm0.html">vrm0形式</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../appendix/bvh.html">BVH形式</a></li>
@@ -181,7 +183,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../appendix/openxr.html">OpenXR</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../glossary.html">用語集</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">用語</a></li>
 </ul>
 
 </div>
@@ -215,18 +217,25 @@
         </div>
         <article role="main">
           <section id="id1">
-<h1>ポーズ<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">#</a></h1>
+<h1>姿勢<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">#</a></h1>
 <section id="id2">
-<h2>ポーズとは<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">#</a></h2>
+<h2>姿勢<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">#</a></h2>
+<p>各 Joint の <code class="docutils literal notranslate"><span class="pre">ワールド回転</span> <span class="pre">+</span> <span class="pre">位置</span></code>。</p>
+</section>
+<section id="id3">
+<h2>初期姿勢とポーズ<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">#</a></h2>
+<section id="id4">
+<h3>初期姿勢とは<a class="headerlink" href="#id4" title="このヘッドラインへのパーマリンク">#</a></h3>
+<p>VRM では TPose を採用しているが、各モデルの TPose は同一ではない。</p>
+</section>
+<section id="id5">
+<h3>ポーズとは<a class="headerlink" href="#id5" title="このヘッドラインへのパーマリンク">#</a></h3>
 <p>3D CG における <code class="docutils literal notranslate"><span class="pre">Pose</span></code> とは、各 Joint の初期姿勢からの回転の差分である。</p>
 <p><code class="docutils literal notranslate"><span class="pre">Pose</span> <span class="pre">=</span> <span class="pre">DeltaFromInitial</span></code></p>
 </section>
-<section id="id3">
-<h2>初期姿勢とは<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">#</a></h2>
-<p>VRM では TPose を採用しているが、各モデルの TPose は同一ではない。</p>
 </section>
 <section id="tpose">
-<h2>完全に共通の初期姿勢として、厳格TPose を提案したい<a class="headerlink" href="#tpose" title="このヘッドラインへのパーマリンク">#</a></h2>
+<h2>厳格TPose を初期姿勢にする<a class="headerlink" href="#tpose" title="このヘッドラインへのパーマリンク">#</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">Initial</span> <span class="pre">=</span> <span class="pre">InitialFromStrictT</span></code></p>
 <p>となるので</p>
 <p><code class="docutils literal notranslate"><span class="pre">StrictTPose</span> <span class="pre">=</span> <span class="pre">InitialFromStrictT</span> <span class="pre">+</span> <span class="pre">DeltaFromInitial</span></code></p>
@@ -235,27 +244,6 @@
 初期姿勢の差分を加味できる。</p>
 <p><code class="docutils literal notranslate"><span class="pre">InitialFromStrictT</span></code> に親指のロールのずれなどを含ませることを想定</p>
 </section>
-<section id="initialfromstrictt">
-<h2>InitialFromStrictT をどうやって得るか<a class="headerlink" href="#initialfromstrictt" title="このヘッドラインへのパーマリンク">#</a></h2>
-<p>シンプル</p>
-<ul class="simple">
-<li><p>厳格TPose になるように各ボーンをまっすぐに伸ばす</p>
-<ul>
-<li><p>ロールがずれる可能性がある</p></li>
-</ul>
-</li>
-</ul>
-<p>オプション</p>
-<ul class="simple">
-<li><p>まっすぐに伸ばす前のモデルのローカル軸が (head-tail) + (up vector) を表しているとみなし、この座標系を利用して厳格TPose にする</p>
-<ul>
-<li><p>ロールは正確になる</p></li>
-<li><p>ローカル軸が正しく設定されているかどうかをコンピューターは判断できないので、正しいと信じて実行することになる</p></li>
-<li><p>自明、一意のローカル軸設定は無いので類推するようなファジーな動作になるであろう</p></li>
-</ul>
-</li>
-</ul>
-</section>
 </section>
 
         </article>
@@ -263,23 +251,23 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="../implements/index.html">
+          <a class="next-page" href="../retarget/index.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">実装</div>
+                <div class="title">Retarget</div>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="../human/fingers.html">
+          <a class="prev-page" href="../bone/index.html">
               <svg><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">指</div>
+                <div class="title">ボーン</div>
                 
               </div>
             </a>
@@ -315,11 +303,14 @@
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">ポーズ</a><ul>
-<li><a class="reference internal" href="#id2">ポーズとは</a></li>
-<li><a class="reference internal" href="#id3">初期姿勢とは</a></li>
-<li><a class="reference internal" href="#tpose">完全に共通の初期姿勢として、厳格TPose を提案したい</a></li>
-<li><a class="reference internal" href="#initialfromstrictt">InitialFromStrictT をどうやって得るか</a></li>
+<li><a class="reference internal" href="#">姿勢</a><ul>
+<li><a class="reference internal" href="#id2">姿勢</a></li>
+<li><a class="reference internal" href="#id3">初期姿勢とポーズ</a><ul>
+<li><a class="reference internal" href="#id4">初期姿勢とは</a></li>
+<li><a class="reference internal" href="#id5">ポーズとは</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#tpose">厳格TPose を初期姿勢にする</a></li>
 </ul>
 </li>
 </ul>

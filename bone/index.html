@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="検索" href="../search.html" /><link rel="next" title="上肢" href="arm.html" /><link rel="prev" title="Humanoid" href="index.html" />
+<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="検索" href="../search.html" /><link rel="next" title="姿勢" href="../pose/index.html" /><link rel="prev" title="指" href="../human/fingers.html" />
 
     <meta name="generator" content="sphinx-4.5.0, furo 2022.04.07"/>
-        <title>体幹 - HumanBoneStructure ドキュメント</title>
+        <title>ボーン - HumanBoneStructure ドキュメント</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
@@ -156,14 +156,14 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
-<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">ヒューマノイド</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">体幹</a></li>
-<li class="toctree-l2"><a class="reference internal" href="arm.html">上肢</a></li>
-<li class="toctree-l2"><a class="reference internal" href="leg.html">下肢</a></li>
-<li class="toctree-l2"><a class="reference internal" href="fingers.html">指</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../human/index.html">ヒューマノイド</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../human/body.html">体幹</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../human/arm.html">上肢</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../human/leg.html">下肢</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../human/fingers.html">指</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../bone/index.html">ボーン</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">ボーン</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../pose/index.html">姿勢</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../retarget/index.html">厳格TPose</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tpose_nise/index.html">任意のモデルを厳格TPose化する</a></li>
@@ -217,25 +217,18 @@
         </div>
         <article role="main">
           <section id="id1">
-<h1>体幹<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">#</a></h1>
-<p><code class="docutils literal notranslate"><span class="pre">hips,</span> <span class="pre">spine,</span> <span class="pre">chest,</span> <span class="pre">neck,</span> <span class="pre">head</span></code></p>
-<figure class="align-default">
-<img alt="../_images/body.jpg" src="../_images/body.jpg"/>
-</figure>
-<section id="hips">
-<h2>hips<a class="headerlink" href="#hips" title="このヘッドラインへのパーマリンク">#</a></h2>
-<p>Humanoid の root で 唯一移動する。</p>
-<ul class="simple">
-<li><p>上向き</p></li>
-<li><p>UPは前方</p></li>
-</ul>
+<h1>ボーン<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">#</a></h1>
+<section id="joint">
+<h2>Joint<a class="headerlink" href="#joint" title="このヘッドラインへのパーマリンク">#</a></h2>
 </section>
-<section id="spine-chest-neck-head">
-<h2>spine, chest, neck, head<a class="headerlink" href="#spine-chest-neck-head" title="このヘッドラインへのパーマリンク">#</a></h2>
-<ul class="simple">
-<li><p>上向き</p></li>
-<li><p>UPは前方</p></li>
-</ul>
+<section id="head-joint-tail-joint">
+<h2>Head Joint + Tail Joint<a class="headerlink" href="#head-joint-tail-joint" title="このヘッドラインへのパーマリンク">#</a></h2>
+</section>
+<section id="yaw-pitch-roll">
+<h2>Yaw, Pitch, Roll<a class="headerlink" href="#yaw-pitch-roll" title="このヘッドラインへのパーマリンク">#</a></h2>
+</section>
+<section id="humanoidbone">
+<h2>HumanoidBone<a class="headerlink" href="#humanoidbone" title="このヘッドラインへのパーマリンク">#</a></h2>
 </section>
 </section>
 
@@ -244,23 +237,23 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="arm.html">
+          <a class="next-page" href="../pose/index.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">上肢</div>
+                <div class="title">姿勢</div>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="index.html">
+          <a class="prev-page" href="../human/fingers.html">
               <svg><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Humanoid</div>
+                <div class="title">指</div>
                 
               </div>
             </a>
@@ -296,9 +289,11 @@
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">体幹</a><ul>
-<li><a class="reference internal" href="#hips">hips</a></li>
-<li><a class="reference internal" href="#spine-chest-neck-head">spine, chest, neck, head</a></li>
+<li><a class="reference internal" href="#">ボーン</a><ul>
+<li><a class="reference internal" href="#joint">Joint</a></li>
+<li><a class="reference internal" href="#head-joint-tail-joint">Head Joint + Tail Joint</a></li>
+<li><a class="reference internal" href="#yaw-pitch-roll">Yaw, Pitch, Roll</a></li>
+<li><a class="reference internal" href="#humanoidbone">HumanoidBone</a></li>
 </ul>
 </li>
 </ul>

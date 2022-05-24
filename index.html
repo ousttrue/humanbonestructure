@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="索引" href="genindex.html" /><link rel="search" title="検索" href="search.html" /><link rel="next" title="Retarget" href="retarget/index.html" />
+<link rel="index" title="索引" href="genindex.html" /><link rel="search" title="検索" href="search.html" /><link rel="next" title="Humanoid" href="human/index.html" />
 
     <meta name="generator" content="sphinx-4.5.0, furo 2022.04.07"/>
         <title>HumanBoneStructure ドキュメント</title>
@@ -156,21 +156,23 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul>
-<li class="toctree-l1"><a class="reference internal" href="retarget/index.html">Retarget</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="human/index.html">Humanoid</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="human/index.html">ヒューマノイド</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="human/body.html">体幹</a></li>
 <li class="toctree-l2"><a class="reference internal" href="human/arm.html">上肢</a></li>
 <li class="toctree-l2"><a class="reference internal" href="human/leg.html">下肢</a></li>
 <li class="toctree-l2"><a class="reference internal" href="human/fingers.html">指</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="pose/index.html">ポーズ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bone/index.html">ボーン</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pose/index.html">姿勢</a></li>
+<li class="toctree-l1"><a class="reference internal" href="retarget/index.html">厳格TPose</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpose_nise/index.html">任意のモデルを厳格TPose化する</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="implements/index.html">実装</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="implements/node.html">Node操作</a></li>
 <li class="toctree-l2"><a class="reference internal" href="implements/armature_unity.html">Armature to Unity</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="appendix/index.html">参考</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="appendix/index.html">関連</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="appendix/vrm1.html">vrm1形式</a></li>
 <li class="toctree-l2"><a class="reference internal" href="appendix/vrm0.html">vrm0形式</a></li>
 <li class="toctree-l2"><a class="reference internal" href="appendix/bvh.html">BVH形式</a></li>
@@ -181,7 +183,7 @@
 <li class="toctree-l2"><a class="reference internal" href="appendix/openxr.html">OpenXR</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="glossary.html">用語集</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">用語</a></li>
 </ul>
 
 </div>
@@ -217,66 +219,30 @@
           <section id="humanbonestructure">
 <h1>HumanBoneStructure<a class="headerlink" href="#humanbonestructure" title="このヘッドラインへのパーマリンク">#</a></h1>
 <p><a class="reference external" href="https://github.com/ousttrue/humanbonestructure">https://github.com/ousttrue/humanbonestructure</a></p>
-<p><a class="reference internal" href="glossary.html#term-7"><span class="xref std std-term">ヒューマノイド</span></a> 向け <a class="reference internal" href="glossary.html#term-8"><span class="xref std std-term">ポーズ</span></a> の標準化の調査と python 実装。</p>
-<p>厳格なTPoseを介したポーズ転送 (retarget) について。</p>
-<div class="graphviz"><object class="graphviz" data="_images/graphviz-baf58b87339b897ad2b830e74e10b6fd61783687.svg" type="image/svg+xml">
-<p class="warning">digraph tpose {
-  "vpd/vmd(A stance + world coord)" -&gt; "strict tpose";
-  "motion capture / bvh (T stance + world coord)" -&gt; "strict tpose";
-  "mediapipe / kinect (position based)" -&gt; "strict tpose";
-  "strict tpose" -&gt; "vrm-0.x (T stance world coord)";
-  "strict tpose" -&gt; "vrm-1.0 (T stance local coord)";
-}</p></object></div>
-<section id="id1">
-<h2>作業予定<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">#</a></h2>
-<section id="tpose">
-<h3>1. 厳格TPose + ワールド軸 によるポーズの相互変換<a class="headerlink" href="#tpose" title="このヘッドラインへのパーマリンク">#</a></h3>
-<ul class="simple">
-<li><p>正規化前後での変化</p>
-<ul>
-<li><p>それに伴うポーズ、コンストレイント、スプリングのパラメーター変化の追随</p></li>
-</ul>
-</li>
-</ul>
-<p>主に、同一モデルでの初期ポーズ、ローカル軸変化への対応を扱う。</p>
-</section>
-<section id="id2">
-<h3>2. 厳格TPose + ローカル軸 によるポーズの操作<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">#</a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">厳格TPose</span> <span class="pre">+</span> <span class="pre">ローカル軸</span></code> に対する <code class="docutils literal notranslate"><span class="pre">ポーズ</span></code> の運用テスト。</p>
-<ul class="simple">
-<li><p>ポーズの手付け</p></li>
-<li><p>ポーズの生成(手など)</p></li>
-<li><p>ポーズの合成(部位別のポーズを統合する)、ブレンド、スイッチング</p></li>
-<li><p>他モデルへのリターゲット実験</p></li>
-<li><p>ポーズ単体でのアセット化、フォーマット</p></li>
-</ul>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="nt">"BONE0"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"xzy"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span><span class="w"> </span><span class="mi">30</span><span class="p">],</span><span class="w"></span>
-<span class="w">  </span><span class="p">},</span><span class="w"></span>
-<span class="w">  </span><span class="nt">"BONE2"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"x"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">10</span><span class="p">],</span><span class="w"></span>
-<span class="w">  </span><span class="p">},</span><span class="w"></span>
-<span class="w">  </span><span class="nt">"BONE1"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"quat"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">],</span><span class="w"></span>
-<span class="w">  </span><span class="p">},</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
-</pre></div>
-</div>
-</section>
-</section>
-<section id="id3">
-<h2>メモ<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">#</a></h2>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">D</span> <span class="o">=</span> <span class="n">TPOSE_DELTA</span>
-<span class="n">A</span> <span class="o">=</span> <span class="n">LOCAL_AXIS_DELTA</span>
-<span class="n">P</span> <span class="o">=</span> <span class="n">POSE</span>
-</pre></div>
-</div>
-<div class="math-wrapper"><div class="math notranslate nohighlight">
-\[P' = D^{-1} \cdot A^{-1} \cdot P \cdot A\]</div></div>
+<p>異なる <a class="reference internal" href="glossary.html#term-1"><span class="xref std std-term">骨格</span></a> 間で <a class="reference internal" href="glossary.html#term-9"><span class="xref std std-term">姿勢</span></a> を転送する方法について。</p>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="retarget/index.html">Retarget</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="human/index.html">ヒューマノイド</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="human/index.html#id1">ボーン構成</a></li>
+<li class="toctree-l2"><a class="reference internal" href="human/index.html#id2">親子関係</a></li>
+<li class="toctree-l2"><a class="reference internal" href="human/index.html#tpose-humanbone">厳格TPose 向けの HumanBone 定義</a></li>
+<li class="toctree-l2"><a class="reference internal" href="human/index.html#id3">データ表現</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bone/index.html">ボーン</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bone/index.html#joint">Joint</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bone/index.html#head-joint-tail-joint">Head Joint + Tail Joint</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bone/index.html#yaw-pitch-roll">Yaw, Pitch, Roll</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bone/index.html#humanoidbone">HumanoidBone</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pose/index.html">姿勢</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pose/index.html#id2">姿勢</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pose/index.html#id3">初期姿勢とポーズ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pose/index.html#tpose">厳格TPose を初期姿勢にする</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="retarget/index.html">厳格TPose</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="retarget/index.html#id1">骨格とは</a></li>
 <li class="toctree-l2"><a class="reference internal" href="retarget/index.html#id2">ポーズとは</a></li>
 <li class="toctree-l2"><a class="reference internal" href="retarget/index.html#id3">Retarget とは</a></li>
@@ -291,16 +257,10 @@
 <li class="toctree-l2"><a class="reference internal" href="retarget/index.html#id9">後で</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="human/index.html">Humanoid</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="human/index.html#tpose-humanbone">厳格TPose 向けの HumanBone 定義</a></li>
-<li class="toctree-l2"><a class="reference internal" href="human/index.html#id1">データ表現</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="pose/index.html">ポーズ</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pose/index.html#id2">ポーズとは</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pose/index.html#id3">初期姿勢とは</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pose/index.html#tpose">完全に共通の初期姿勢として、厳格TPose を提案したい</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pose/index.html#initialfromstrictt">InitialFromStrictT をどうやって得るか</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpose_nise/index.html">任意のモデルを厳格TPose化する</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tpose_nise/index.html#id1">ローカル軸キャンセル</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tpose_nise/index.html#id2">初期姿勢キャンセル</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tpose_nise/index.html#id3">厳格TPose差分ポーズを任意のモデルに適用する</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="implements/index.html">実装</a><ul>
@@ -309,7 +269,7 @@
 <li class="toctree-l2"><a class="reference internal" href="implements/index.html#todo">ToDo</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="appendix/index.html">参考</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="appendix/index.html">関連</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="appendix/vrm1.html">vrm1形式</a></li>
 <li class="toctree-l2"><a class="reference internal" href="appendix/vrm0.html">vrm0形式</a></li>
 <li class="toctree-l2"><a class="reference internal" href="appendix/bvh.html">BVH形式</a></li>
@@ -320,17 +280,17 @@
 <li class="toctree-l2"><a class="reference internal" href="appendix/openxr.html">OpenXR</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="glossary.html">用語集</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">用語</a></li>
 </ul>
 </div>
-</section>
 </section>
 <section id="indices-and-tables">
 <h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="このヘッドラインへのパーマリンク">#</a></h1>
 <ul class="simple">
 <li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">索引</span></a></p></li>
 <li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">モジュール索引</span></a></p></li>
-<li><p><a class="reference internal" href="search.html"><span class="std std-ref">検索ページ</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">検索ページ</span></a>
+s</p></li>
 </ul>
 </section>
 
@@ -339,12 +299,12 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="retarget/index.html">
+          <a class="next-page" href="human/index.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Retarget</div>
+                <div class="title">Humanoid</div>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -381,15 +341,7 @@
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">HumanBoneStructure</a><ul>
-<li><a class="reference internal" href="#id1">作業予定</a><ul>
-<li><a class="reference internal" href="#tpose">1. 厳格TPose + ワールド軸 によるポーズの相互変換</a></li>
-<li><a class="reference internal" href="#id2">2. 厳格TPose + ローカル軸 によるポーズの操作</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#id3">メモ</a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#">HumanBoneStructure</a></li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
 </ul>
 
@@ -406,6 +358,5 @@
     <script src="_static/doctools.js"></script>
     <script src="_static/scripts/furo.js"></script>
     <script src="_static/translations.js"></script>
-    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     </body>
 </html>
