@@ -47,7 +47,10 @@ class Vpd(Motion):
     def get_humanbones(self) -> List[HumanoidBone]:
         return self._humanbones
 
-    def set_frame(self, frame: int):
+    def get_end_time(self) -> float:
+        return 0
+
+    def set_time(self, time_sec: float):
         pass
 
     def get_current_pose(self) -> Pose:
