@@ -4,7 +4,7 @@ import glm
 from .humanoid_bones import HumanoidBone, BoneBase, BoneFlags
 from .coordinate import Coordinate
 from .pose import Pose, BonePose
-from .transform import Transform
+from ..scene.transform import Transform
 
 
 class AxisPositiveNegative(Enum):

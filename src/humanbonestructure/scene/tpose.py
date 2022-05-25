@@ -3,7 +3,7 @@ import math
 import glm
 from .node import Node
 from ..humanoid.humanoid_bones import HumanoidBone
-from ..humanoid.transform import Transform
+from .transform import Transform
 from ..humanoid.pose import Motion, Pose, BonePose
 
 

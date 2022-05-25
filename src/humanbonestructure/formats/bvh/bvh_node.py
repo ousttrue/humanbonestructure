@@ -3,7 +3,7 @@ import math
 from enum import Enum, auto
 import glm
 from ...humanoid.humanoid_bones import HumanoidBone
-from ...humanoid.transform import Transform
+from ...scene.transform import Transform
 
 
 def to_radian(degree):

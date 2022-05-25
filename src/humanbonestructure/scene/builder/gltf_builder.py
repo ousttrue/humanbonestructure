@@ -1,9 +1,9 @@
-from typing import List, Dict
+from typing import List, Dict, Tuple
 import ctypes
 import glm
 from ...formats import gltf_loader, buffer_types
 from ...humanoid.humanoid_bones import HumanoidBone
-from ...humanoid.transform import Transform
+from ..transform import Transform
 from ..node import Node
 from ..mesh_renderer import MeshRenderer
 
@@ -31,8 +31,9 @@ CESIUMMAN_HUMANOID_MAP = {
 }
 
 
-def build(gltf: gltf_loader.Gltf) -> Node:
+def build(gltf: gltf_loader.Gltf) -> Tuple[Node, Dict[Node, HumanoidBone]]:
 
+    node_humanoid_map: Dict[Node, HumanoidBone] = {}
     vrm = None
 
     if human_bone_map := gltf.get_vrm0_human_bone_map():
@@ -45,11 +46,11 @@ def build(gltf: gltf_loader.Gltf) -> Node:
     def set_human_bone(i: int, node: Node):
         human_bone = human_bone_map.get(i, HumanoidBone.unknown)
         if human_bone:
-            node.humanoid_bone = human_bone
+            node_humanoid_map[node] = human_bone
             return
 
         # cesium man !
-        node.humanoid_bone = CESIUMMAN_HUMANOID_MAP.get(
+        node_humanoid_map[node] = CESIUMMAN_HUMANOID_MAP.get(
             node.name, HumanoidBone.unknown)
 
     meshes = []
@@ -162,4 +163,5 @@ def build(gltf: gltf_loader.Gltf) -> Node:
     for node in nodes:
         if not node.parent:
             root.add_child(node)
-    return root
+
+    return root, node_humanoid_map

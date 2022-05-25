@@ -11,7 +11,7 @@ from typing import List
 import glm
 from ..scene.node import Node
 from .humanoid_bones import HumanoidBone
-from .transform import Transform
+from ..scene.transform import Transform
 
 
 BODY = [

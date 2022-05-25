@@ -1,7 +1,7 @@
 from typing import List, Dict
 import glm
 from ...formats import pmx_loader, pmd_loader
-from ...humanoid.transform import Transform
+from ..transform import Transform
 from ...humanoid.humanoid_bones import HumanoidBone
 from ..node import Node
 from ..mesh_renderer import MeshRenderer

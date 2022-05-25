@@ -5,7 +5,7 @@ from pydear.gizmo.gizmo_drag_handler import RingDragContext, RollDragContext, Gi
 from pydear.gizmo.shapes.shape import Shape
 from pydear.scene.camera import Camera, MouseInput
 from .node import Node
-from ..humanoid.transform import Transform
+from .transform import Transform
 from ..humanoid.humanoid_bones import BoneBase
 
 

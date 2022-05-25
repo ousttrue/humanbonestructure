@@ -3,7 +3,7 @@ import logging
 import glm
 from ..node import Node
 from ...formats.bvh import bvh_parser
-from ...humanoid.transform import Transform
+from ..transform import Transform
 from ...humanoid.humanoid_bones import HumanoidBone
 
 LOGGER = logging.getLogger(__name__)

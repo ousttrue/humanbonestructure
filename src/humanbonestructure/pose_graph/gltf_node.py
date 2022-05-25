@@ -102,9 +102,11 @@ class GltfNode(FileNode):
             case '.glb' | '.vrm':
                 self.gltf = Gltf.load_glb(path.read_bytes())
                 from ..scene.builder import gltf_builder
-                root = gltf_builder.build(self.gltf)
-                self.skeleton = root.to_skeleton()
-                self.cancel_skeleton = root.to_skeleton()
+                root, node_humanoid_map = gltf_builder.build(self.gltf)
+                from ..scene.skeleton_node import skeleton_from_node
+                self.skeleton = skeleton_from_node(root, node_humanoid_map)
+                self.cancel_skeleton = skeleton_from_node(
+                    root, node_humanoid_map)
 
     def process_self(self):
         if not self.gltf and self.path:

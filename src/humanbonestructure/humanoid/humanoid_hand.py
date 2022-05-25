@@ -2,7 +2,7 @@ from typing import NamedTuple, List, Optional, TypeAlias, Dict, Union
 import glm
 from ..scene.node import Node
 from .humanoid_bones import HumanoidBone, BoneBase, BoneFlags
-from .transform import Transform
+from ..scene.transform import Transform
 
 
 NodeMap: TypeAlias = Dict[HumanoidBone, Node]
