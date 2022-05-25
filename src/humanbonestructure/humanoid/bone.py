@@ -87,11 +87,11 @@ class Bone:
     def get_local_tail(self) -> glm.vec3:
         # tail.local.translation
         m = self.head.world.get_matrix() * glm.mat4(self.local_axis)
-        return glm.inverse(m) * self.tail.world.translation
+        return (glm.inverse(m) * glm.vec4(self.tail.world.translation, 1)).xyz
 
     def get_up_dir(self) -> glm.vec3:
         m = self.head.world.get_matrix() * glm.mat4(self.local_axis)
-        return glm.inverse(m) * self.head.humanoid_bone.world_second
+        return (glm.inverse(m) * glm.vec4(self.head.humanoid_bone.world_second, 0)).xyz
 
     def calc_axis(self):
 

@@ -98,47 +98,50 @@ class BoneShapeSetting(NamedTuple):
 
 
 class BoneShape(Shape):
-    '''
-    Z
-    0    3
-    +----+
-    |    |
-    +----+
-    1    2X
-    '''
-
-    def __init__(self, matrix: glm.mat4, width: float, height: float, tail: glm.vec3, up_dir: glm.vec3,
+    def __init__(self, matrix: glm.mat4,
+                 width: float, height: float, local_tail: glm.vec3,
+                 local_up: glm.vec3,
                  color: glm.vec3, line_size=0.1) -> None:
         super().__init__(matrix)
+        assert local_up
         if isinstance(color, glm.vec4):
             self.color = color
         elif isinstance(color, glm.vec3):
             self.color = glm.vec4(color, 1)
         else:
             self.color = glm.vec4(1, 1, 1, 1)
-        self.width = width
-        self.height = height
-        # self.depth = depth
-        x = self.width
-        # y = self.depth
-        z = self.height
-
-        assert up_dir
-        head_tail = tail
-        z_axis = glm.normalize(head_tail)
-        x_axis = glm.normalize(glm.cross(up_dir, z_axis))
+        z_axis = glm.normalize(local_tail)
+        x_axis = glm.normalize(glm.cross(local_up, z_axis))
         y_axis = glm.normalize(glm.cross(z_axis, x_axis))
-        # y_axis = up_dir
-        height = glm.vec3()
 
-        v0 = x_axis*x+y_axis*z
-        v1 = x_axis*x-y_axis*z
-        v2 = -x_axis*x-y_axis*z
-        v3 = -x_axis*x+y_axis*z
-        v4 = head_tail + x_axis*x+y_axis*z
-        v5 = head_tail + x_axis*x-y_axis*z
-        v6 = head_tail - x_axis*x-y_axis*z
-        v7 = head_tail - x_axis*x+y_axis*z
+        #    Y Z
+        #    A/
+        # <-x+
+
+        #     7 6
+        # 3 2 +-+
+        # +-+ | |
+        # | | +-+
+        # +-+ 4 5
+        # 0 1
+        v0 = x_axis*width-y_axis*height
+        v1 = -x_axis*width-y_axis*height
+        v2 = -x_axis*width+y_axis*height
+        v3 = x_axis*width+y_axis*height
+        v4 = local_tail + x_axis*width-y_axis*height
+        v5 = local_tail - x_axis*width-y_axis*height
+        v6 = local_tail - x_axis*width+y_axis*height
+        v7 = local_tail + x_axis*width+y_axis*height
+
+        self.quads = [
+            Quad.from_points(v0, v1, v2, v3),  # back
+            Quad.from_points(v1, v5, v6, v2),  # right
+            Quad.from_points(v5, v4, v7, v6),  # forward
+            Quad.from_points(v4, v0, v3, v7),  # left
+            Quad.from_points(v3, v2, v6, v7),  # top(red)
+            Quad.from_points(v0, v4, v5, v1),  # bottom
+        ]
+
         a = glm.quat()
         self.lines = [
             (a*glm.vec3(0, 0, 0), a *
@@ -147,15 +150,6 @@ class BoneShape(Shape):
                                              line_size, 0), glm.vec4(0, 1, 0, 1)),
             (a*glm.vec3(0, 0, 0), a*glm.vec3(0,
                                              0, line_size), glm.vec4(0, 0, 1, 1)),
-        ]
-
-        self.quads = [
-            Quad.from_points(v0, v1, v2, v3),  # back
-            Quad.from_points(v3, v2, v6, v7),  # right
-            Quad.from_points(v7, v6, v5, v4),  # forward
-            Quad.from_points(v4, v5, v1, v0),  # left
-            Quad.from_points(v4, v0, v3, v7),  # top(red)
-            Quad.from_points(v1, v5, v6, v2),  # bottom
         ]
 
     @staticmethod
@@ -186,10 +180,10 @@ class BoneShape(Shape):
         setting = BoneShapeSetting.from_humanoid_bone(
             bone.head.humanoid_bone)
         tail = bone.get_local_tail()
-        return BoneShape(bone.head.world.get_matrix() * glm.mat4(bone.local_axis), setting.width, setting.height, tail,
+        up = bone.get_up_dir()
+        return BoneShape(bone.head.world.get_matrix() * glm.mat4(bone.local_axis), setting.width, setting.height, tail, up,
                          color=setting.color,
-                         line_size=setting.line_size,
-                         up_dir=bone.get_up_dir())
+                         line_size=setting.line_size)
 
     @staticmethod
     def from_skeleton(skeleton: Skeleton, gizmo: Gizmo) -> Dict[Bone, Shape]:
