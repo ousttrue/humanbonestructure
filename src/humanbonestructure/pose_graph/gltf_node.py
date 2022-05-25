@@ -8,7 +8,7 @@ from pydear.utils.node_editor.node import InputPin, OutputPin, Serialized
 from ..formats.gltf_loader import Gltf
 from ..humanoid.bone import Skeleton
 from ..humanoid.pose import Pose
-from ..scene.mesh_renderer import MeshRenderer
+from ..builder.hierarchy import Hierarchy
 from .file_node import FileNode
 
 
@@ -43,7 +43,7 @@ class GltfNode(FileNode):
                          '.gltf', '.glb', '.vrm')
         self.gltf = None
         self.skeleton: Optional[Skeleton] = None
-        self.renderers: List[MeshRenderer] = []
+        self.hierarchy: Optional[Hierarchy] = None
 
         # imgui
         from pydear.utils.fbo_view import FboView
@@ -103,8 +103,7 @@ class GltfNode(FileNode):
                 from ..builder import gltf_builder
                 hierarchy = gltf_builder.build(self.gltf)
                 self.skeleton = hierarchy.to_skeleton()
-                self.renderers = [
-                    node.renderer for node, _ in hierarchy.root.traverse_node_and_parent() if node.renderer]
+                self.hierarchy = hierarchy
 
     def process_self(self):
         if not self.gltf and self.path:
@@ -113,6 +112,6 @@ class GltfNode(FileNode):
         self.scene.update(
             self.skeleton,
             self.in_pin.pose,
-            self.renderers,
+            self.hierarchy,
             cancel_axis=self.cancel_axis[0],
             strict_delta=self.strict_delta[0])

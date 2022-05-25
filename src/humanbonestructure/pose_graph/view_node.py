@@ -102,4 +102,5 @@ class ViewNode(Node):
 
     def process_self(self):
         self.scene.update(self.in_skeleton.skeleton,
-                          self.in_pose.pose, self.cancel_axis[0])
+                          self.in_pose.pose, None,
+                          cancel_axis=self.cancel_axis[0])

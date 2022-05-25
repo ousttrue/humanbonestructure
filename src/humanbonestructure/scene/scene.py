@@ -9,7 +9,8 @@ from ..humanoid.pose import Pose
 from ..humanoid.bone import Bone, Skeleton, Joint
 from ..eventproperty import EventProperty
 from ..humanoid.humanoid_bones import HumanoidBone
-from .mesh_renderer import MeshRenderer
+from ..builder.hierarchy import Hierarchy
+from ..formats.transform import Transform
 from .bone_drag_handler import BoneDragHandler
 from .bone_shape import BoneShape
 
@@ -25,52 +26,68 @@ class Scene:
         # axis, delta
         self.bone_axis_map: Dict[HumanoidBone, glm.quat] = {}
         self.bone_delta_map: Dict[HumanoidBone, glm.quat] = {}
+        self.hierarchy: Optional[Hierarchy] = None
 
     def render(self, mouse_input: MouseInput):
-        if not self.gizmo:
-            return
-
         camera = self.mouse_camera.camera
         camera.projection.resize(mouse_input.width, mouse_input.height)
-        self.gizmo.process(camera, mouse_input.x, mouse_input.y)
 
-    def update(self, skeleton: Optional[Skeleton], pose: Optional[Pose], renderers: List[MeshRenderer],
+        if self.gizmo:
+            self.gizmo.process(camera, mouse_input.x, mouse_input.y)
+
+        if self.hierarchy:
+            self.hierarchy.render(camera)
+
+    def update(self, skeleton: Optional[Skeleton], pose: Optional[Pose], hierarchy: Optional[Hierarchy],
                *,
                cancel_axis: bool = False, strict_delta: bool = False):
         self._update_skeleton(skeleton)
-        if not self.skeleton:
-            return
+        self.hierarchy = hierarchy
 
         # assign pose to node hierarchy
         # if pose and pose.bones:
         if pose:
-            self.skeleton.clear_pose()
-            for humanoid_bone in HumanoidBone:
-                if not humanoid_bone.is_enable():
-                    continue
-                joint = self.humanoid_joint_map.get(humanoid_bone)
-                if joint:
-                    pose_rotation = pose.get_rotation(
-                        humanoid_bone) if pose else glm.quat()
-                    if cancel_axis and strict_delta:
-                        a = self._get_cancel_axis(humanoid_bone)
-                        d = self._get_strict_delta(humanoid_bone)
-                        joint.pose = d * a * \
-                            pose_rotation * glm.inverse(a)
-                    elif cancel_axis:
-                        a = self._get_cancel_axis(humanoid_bone)
-                        joint.pose = a * \
-                            pose_rotation * glm.inverse(a)
-                    elif strict_delta:
-                        d = self._get_strict_delta(humanoid_bone)
-                        joint.pose = d * pose_rotation
+            if self.skeleton:
+                self.skeleton.clear_pose()
+                for humanoid_bone in HumanoidBone:
+                    if not humanoid_bone.is_enable():
+                        continue
+                    joint = self.humanoid_joint_map.get(humanoid_bone)
+                    if joint:
+                        pose_rotation = pose.get_rotation(
+                            humanoid_bone) if pose else glm.quat()
+                        if cancel_axis and strict_delta:
+                            a = self._get_cancel_axis(humanoid_bone)
+                            d = self._get_strict_delta(humanoid_bone)
+                            joint.pose = d * a * \
+                                pose_rotation * glm.inverse(a)
+                        elif cancel_axis:
+                            a = self._get_cancel_axis(humanoid_bone)
+                            joint.pose = a * \
+                                pose_rotation * glm.inverse(a)
+                        elif strict_delta:
+                            d = self._get_strict_delta(humanoid_bone)
+                            joint.pose = d * pose_rotation
+                        else:
+                            joint.pose = pose_rotation
                     else:
-                        joint.pose = pose_rotation
-                else:
-                    pass
-                    # raise RuntimeError()
+                        pass
+                        # raise RuntimeError()
 
-            self.sync_gizmo()
+                self.sync_gizmo()
+
+            if self.hierarchy:
+                # for pose_bone in pose.bones:
+                #     self.hierarchy[pose_bone.humanoid_bone].pose = pose_bone.transform
+                for humanoid_bone in HumanoidBone:
+                    if not humanoid_bone.is_enable():
+                        continue
+                    joint = self.humanoid_joint_map.get(humanoid_bone)
+                    if joint:
+                        self.hierarchy[humanoid_bone].pose = Transform.from_rotation(
+                            joint.pose)
+
+                self.hierarchy.root.calc_world_matrix(glm.mat4())
 
     def _get_cancel_axis(self, humanoid_bone: HumanoidBone) -> glm.quat:
         return self.bone_axis_map.get(humanoid_bone, glm.quat())
