@@ -148,3 +148,9 @@ class NodeScene:
         for bone, shape in self.bone_shape_map.items():
             shape.matrix.set(bone.head.world.get_matrix()
                              * glm.mat4(bone.local_axis))
+
+    def clear_pose(self):
+        if not self.skeleton:
+            return
+        self.skeleton.clear_pose()
+        self.sync_gizmo()
