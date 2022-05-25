@@ -20,6 +20,9 @@ class Hierarchy:
     def __getitem__(self, key: HumanoidBone) -> Node:
         return self.humanoid_node_map[key]
 
+    def get(self, key: HumanoidBone) -> Optional[Node]:
+        return self.humanoid_node_map.get(key)
+
     def render(self, camera: Camera):
         for node, renderer in self.renders:
             renderer.render(camera, node)

@@ -19,7 +19,7 @@ def build(pmd: pmd_loader.Pmd) -> Hierarchy:
     # build node hierarchy
     nodes: List[Node] = []
     for i, b in enumerate(pmd.bones):
-        name = bytesreader.bytes_to_str(b.name)
+        name = bytesreader.bytes_to_str(memoryview(b.name).tobytes())
         node = Node(name, Transform.identity())
         node_humanoid_map[node] = pmd_loader.BONE_HUMANOID_MAP.get(
             name, HumanoidBone.unknown)

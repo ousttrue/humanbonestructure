@@ -103,19 +103,18 @@ class ModelNode(FileNode):
             case '.glb' | '.vrm':
                 self.model = Gltf.load_glb(path.read_bytes())
                 from ..builder import gltf_builder
-                hierarchy = gltf_builder.build(self.model)
-                self.skeleton = hierarchy.to_skeleton()
-                self.hierarchy = hierarchy
+                self.hierarchy = gltf_builder.build(self.model)
+                self.skeleton = self.hierarchy.to_skeleton()
             case '.pmd':
                 self.model = Pmd(path.read_bytes())
                 from ..builder import pmd_builder
-                hierarchy = pmd_builder.build(self.model)
-                self.skeleton = hierarchy.to_skeleton()
+                self.hierarchy = pmd_builder.build(self.model)
+                self.skeleton = self.hierarchy.to_skeleton()
             case '.pmx':
                 self.model = Pmx(path.read_bytes())
                 from ..builder import pmx_builder
-                hierarchy = pmx_builder.build(self.model)
-                self.skeleton = hierarchy.to_skeleton()
+                self.hierarchy = pmx_builder.build(self.model)
+                self.skeleton = self.hierarchy.to_skeleton()
 
     def process_self(self):
         if not self.model and self.path:

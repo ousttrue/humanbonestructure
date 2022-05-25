@@ -86,8 +86,8 @@ class Scene:
                         continue
                     joint = self.humanoid_joint_map.get(humanoid_bone)
                     if joint:
-                        self.hierarchy[humanoid_bone].pose = Transform.from_rotation(
-                            joint.pose)
+                        if node := self.hierarchy.get(humanoid_bone):
+                            node.pose = Transform.from_rotation(joint.pose)
 
                 self.hierarchy.root.calc_world_matrix(glm.mat4())
 
