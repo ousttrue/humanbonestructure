@@ -6,7 +6,7 @@ from ..humanoid.humanoid_bones import HumanoidBone
 
 
 class Hierarchy:
-    def __init__(self, root, node_humanoid_map) -> None:
+    def __init__(self, root: Node, node_humanoid_map: Dict[Node, HumanoidBone]) -> None:
         self.root = root
         self.node_humanoid_map = node_humanoid_map
 

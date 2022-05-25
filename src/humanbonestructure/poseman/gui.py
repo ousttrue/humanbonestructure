@@ -19,8 +19,8 @@ class GUI(dockspace.DockingGui):
         self.fbo = FboView()
 
         # scene
-        from ..scene.node_scene import NodeScene
-        self.scene = NodeScene(self.fbo.mouse_event)
+        from ..scene.scene import Scene
+        self.scene = Scene(self.fbo.mouse_event)
         from ..humanoid.bone import Skeleton
         self.scene.update(Skeleton.create_default(), None)
         self.fbo.render = self.scene.render

@@ -46,8 +46,8 @@ class ViewNode(Node):
         # imgui
         from pydear.utils.fbo_view import FboView
         self.fbo = FboView()
-        from ..scene.node_scene import NodeScene
-        self.scene = NodeScene(self.fbo.mouse_event)
+        from ..scene.scene import Scene
+        self.scene = Scene(self.fbo.mouse_event)
         # render mesh
         self.fbo.render = self.scene.render
 

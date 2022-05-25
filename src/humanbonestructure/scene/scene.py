@@ -1,19 +1,20 @@
-from typing import Optional, Tuple, Dict
+from typing import Optional, Tuple, Dict, List
 import glm
 from pydear.utils.mouse_event import MouseEvent, MouseInput
 from pydear.utils.mouse_camera import MouseCamera
 from pydear.gizmo.gizmo import Gizmo
 from pydear.gizmo.gizmo_select_handler import GizmoSelectHandler
-from .bone_drag_handler import BoneDragHandler
 from pydear.gizmo.shapes.shape import Shape
 from ..humanoid.pose import Pose
 from ..humanoid.bone import Bone, Skeleton, Joint
 from ..eventproperty import EventProperty
 from ..humanoid.humanoid_bones import HumanoidBone
+from .mesh_renderer import MeshRenderer
+from .bone_drag_handler import BoneDragHandler
 from .bone_shape import BoneShape
 
 
-class NodeScene:
+class Scene:
     def __init__(self, mouse_event: MouseEvent) -> None:
         self.skeleton: Optional[Skeleton] = None
         self.mouse_camera = MouseCamera(mouse_event, distance=4, y=-0.8)
@@ -33,7 +34,9 @@ class NodeScene:
         camera.projection.resize(mouse_input.width, mouse_input.height)
         self.gizmo.process(camera, mouse_input.x, mouse_input.y)
 
-    def update(self, skeleton: Optional[Skeleton], pose: Optional[Pose], cancel_axis: bool = False, strict_delta: bool = False):
+    def update(self, skeleton: Optional[Skeleton], pose: Optional[Pose], renderers: List[MeshRenderer],
+               *,
+               cancel_axis: bool = False, strict_delta: bool = False):
         self._update_skeleton(skeleton)
         if not self.skeleton:
             return
