@@ -1,7 +1,7 @@
 from typing import NamedTuple, Callable, Optional
 from pydear import imgui as ImGui
 from ..scene.scene import Scene
-from ..scene.node import Node
+from ..formats.node import Node
 from ..humanoid.humanoid_bones import HumanoidBone
 
 

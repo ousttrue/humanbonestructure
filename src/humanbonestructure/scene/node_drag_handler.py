@@ -4,8 +4,8 @@ from pydear.gizmo.gizmo import Gizmo, RayHit
 from pydear.gizmo.gizmo_drag_handler import RingDragContext, RollDragContext, GizmoDragHandler, Axis
 from pydear.gizmo.shapes.shape import Shape
 from pydear.scene.camera import Camera, MouseInput
-from .node import Node
-from .transform import Transform
+from ..formats.node import Node
+from ..formats.transform import Transform
 from ..humanoid.humanoid_bones import BoneBase
 
 

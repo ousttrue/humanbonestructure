@@ -1,9 +1,9 @@
 from typing import Dict, Set
 import math
 import glm
-from .node import Node
+from ..formats.node import Node
 from ..humanoid.humanoid_bones import HumanoidBone
-from .transform import Transform
+from ..formats.transform import Transform
 from ..humanoid.pose import Motion, Pose, BonePose
 
 

@@ -85,9 +85,6 @@ class GltfNode(FileNode):
         self.fbo.show_fbo(x, y, w, h)
 
         super().show_content(graph)
-        # if self.gltf:
-        #     for info in self.gltf.get_info():
-        #         ImGui.TextUnformatted(info)
 
         if self.scene.skeleton:
             ImGui.Checkbox('cancel axis', self.cancel_axis)
@@ -101,12 +98,9 @@ class GltfNode(FileNode):
                 raise NotImplementedError()
             case '.glb' | '.vrm':
                 self.gltf = Gltf.load_glb(path.read_bytes())
-                from ..scene.builder import gltf_builder
-                root, node_humanoid_map = gltf_builder.build(self.gltf)
-                from ..scene.skeleton_node import skeleton_from_node
-                self.skeleton = skeleton_from_node(root, node_humanoid_map)
-                self.cancel_skeleton = skeleton_from_node(
-                    root, node_humanoid_map)
+                from ..builder import gltf_builder
+                hierarchy = gltf_builder.build(self.gltf)
+                self.skeleton = hierarchy.to_skeleton()
 
     def process_self(self):
         if not self.gltf and self.path:

@@ -3,7 +3,7 @@ import math
 import glm
 from ..humanoid.pose import Motion, Pose, BonePose
 from .humanoid_bones import HumanoidBone
-from ..scene.transform import Transform
+from .transform import Transform
 
 
 class HandPose(Motion):

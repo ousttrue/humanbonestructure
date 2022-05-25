@@ -1,11 +1,12 @@
 from typing import List, Dict, Tuple
 import ctypes
 import glm
-from ...formats import gltf_loader, buffer_types
-from ...humanoid.humanoid_bones import HumanoidBone
-from ..transform import Transform
-from ..node import Node
-from ..mesh_renderer import MeshRenderer
+from ..formats import gltf_loader, buffer_types
+from ..formats.transform import Transform
+from ..formats.node import Node
+from ..humanoid.humanoid_bones import HumanoidBone
+from ..scene.mesh_renderer import MeshRenderer
+from .hierarchy import Hierarchy
 
 
 CESIUMMAN_HUMANOID_MAP = {
@@ -31,7 +32,7 @@ CESIUMMAN_HUMANOID_MAP = {
 }
 
 
-def build(gltf: gltf_loader.Gltf) -> Tuple[Node, Dict[Node, HumanoidBone]]:
+def build(gltf: gltf_loader.Gltf) -> Hierarchy:
 
     node_humanoid_map: Dict[Node, HumanoidBone] = {}
     vrm = None
@@ -164,4 +165,4 @@ def build(gltf: gltf_loader.Gltf) -> Tuple[Node, Dict[Node, HumanoidBone]]:
         if not node.parent:
             root.add_child(node)
 
-    return root, node_humanoid_map
+    return Hierarchy(root, node_humanoid_map)

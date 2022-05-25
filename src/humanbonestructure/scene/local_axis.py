@@ -2,7 +2,7 @@ from OpenGL import GL
 import glm
 from pydear.scene.camera import Camera
 from pydear import glo
-from .node import Node
+from ..formats.node import Node
 from .axis import Vertex
 from ..formats.buffer_types import Float3, Float4
 

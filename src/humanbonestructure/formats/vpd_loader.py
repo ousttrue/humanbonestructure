@@ -1,7 +1,7 @@
 from typing import List, Iterable
 import re
 import glm
-from ..scene.transform import Transform
+from .transform import Transform
 from .pmd_loader import SCALING_FACTOR, BONE_HUMANOID_MAP
 from ..humanoid.pose import BonePose, Pose, Motion
 from ..humanoid.humanoid_bones import HumanoidBone

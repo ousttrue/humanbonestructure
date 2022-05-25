@@ -7,7 +7,7 @@ from pydear.gizmo.gizmo import Gizmo
 from ..humanoid.humanoid_bones import HumanoidBone
 from ..humanoid.bone import Skeleton, Bone, AxisPositiveNegative
 from ..humanoid.coordinate import Coordinate
-from .node import Node
+from ..formats.node import Node
 
 UP_COLOR = glm.vec4(0.8, 0.2, 0.2, 1)
 

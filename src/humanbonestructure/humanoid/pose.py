@@ -1,7 +1,7 @@
 from typing import NamedTuple, Optional, List, Dict, Set, Tuple
 import abc
 import glm
-from ..scene.transform import Transform
+from ..formats.transform import Transform
 from .humanoid_bones import HumanoidBone
 
 

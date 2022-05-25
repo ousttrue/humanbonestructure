@@ -32,7 +32,7 @@ class Node:
         self.bind_matrix = glm.mat4()
 
         # renderer
-        from .mesh_renderer import MeshRenderer
+        from ..scene.mesh_renderer import MeshRenderer
         self.renderer: Optional[MeshRenderer] = None
         # UI
         self.has_weighted_vertices = False

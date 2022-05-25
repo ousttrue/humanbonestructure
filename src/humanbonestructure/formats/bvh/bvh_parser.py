@@ -5,7 +5,7 @@ import ctypes
 import glm
 from ...humanoid.humanoid_bones import HumanoidBone
 from ...humanoid.pose import Motion, Pose, BonePose
-from ...scene.transform import Transform
+from ..transform import Transform
 from .bvh_node import Node, Channels
 
 LOGGER = logging.getLogger(__name__)
