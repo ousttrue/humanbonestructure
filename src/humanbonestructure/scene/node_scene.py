@@ -1,7 +1,7 @@
 from typing import Optional, Tuple, Dict
 import glm
-from pydear.utils.mouse_event import MouseEvent
-from pydear.scene.camera import Camera, ArcBall, ScreenShift
+from pydear.utils.mouse_event import MouseEvent, MouseInput
+from pydear.utils.mouse_camera import MouseCamera
 from pydear.gizmo.gizmo import Gizmo
 from pydear.gizmo.gizmo_select_handler import GizmoSelectHandler
 from .bone_drag_handler import BoneDragHandler
@@ -10,22 +10,14 @@ from ..humanoid.pose import Pose
 from ..humanoid.bone import Bone, Skeleton, Joint
 from ..eventproperty import EventProperty
 from ..humanoid.humanoid_bones import HumanoidBone
-from .unitychan_coords import get_unitychan_coords
-from .node import Node
 from .bone_shape import BoneShape
 
 
 class NodeScene:
     def __init__(self, mouse_event: MouseEvent) -> None:
         self.skeleton: Optional[Skeleton] = None
-        self.camera = Camera(distance=4, y=-0.8)
-        # mouse event
-        self.mouse_event = mouse_event
-        self.arc = ArcBall(self.camera.view, self.camera.projection)
-        self.mouse_event.bind_right_drag(self.arc)
-        self.shift = ScreenShift(self.camera.view, self.camera.projection)
-        self.mouse_event.bind_middle_drag(self.shift)
-        self.mouse_event.wheel += [self.shift.wheel]
+        self.mouse_camera = MouseCamera(mouse_event, distance=4, y=-0.8)
+        # gizmo
         self.gizmo = None
         self.bone_shape_map: Dict[Bone, Shape] = {}
         self.humanoid_joint_map: Dict[HumanoidBone, Joint] = {}
@@ -33,13 +25,13 @@ class NodeScene:
         self.bone_axis_map: Dict[HumanoidBone, glm.quat] = {}
         self.bone_delta_map: Dict[HumanoidBone, glm.quat] = {}
 
-    def render(self, w: int, h: int):
+    def render(self, mouse_input: MouseInput):
         if not self.gizmo:
             return
-        mouse_input = self.mouse_event.last_input
-        assert(mouse_input)
-        self.camera.projection.resize(w, h)
-        self.gizmo.process(self.camera, mouse_input.x, mouse_input.y)
+
+        camera = self.mouse_camera.camera
+        camera.projection.resize(mouse_input.width, mouse_input.height)
+        self.gizmo.process(camera, mouse_input.x, mouse_input.y)
 
     def update(self, skeleton: Optional[Skeleton], pose: Optional[Pose], cancel_axis: bool = False, strict_delta: bool = False):
         self._update_skeleton(skeleton)
@@ -121,7 +113,7 @@ class NodeScene:
             def on_selected(selected: Optional[Shape]):
                 if selected:
                     position = selected.matrix.value[3].xyz
-                    self.camera.view.set_gaze(position)
+                    self.mouse_camera.view.set_gaze(position)
             self.drag_handler.selected += on_selected
         else:
             def raise_pose():
@@ -129,15 +121,16 @@ class NodeScene:
                 pose = self.skeleton.to_pose()
                 self.pose_changed.set(pose)
 
+            camera = self.mouse_camera.camera
             self.drag_handler = BoneDragHandler(
-                self.gizmo, self.camera, self.joint_shape_map, raise_pose)
-            self.mouse_event.bind_left_drag(self.drag_handler)
+                self.gizmo, camera, self.joint_shape_map, raise_pose)
+            self.mouse_camera.mouse_event.bind_left_drag(self.drag_handler)
             self.pose_changed = EventProperty[Pose](Pose('empty'))
 
             def on_selected(selected: Optional[Shape]):
                 if selected:
                     position = selected.matrix.value[3].xyz
-                    self.camera.view.set_gaze(position)
+                    camera.view.set_gaze(position)
             self.drag_handler.selected += on_selected
 
     def sync_gizmo(self):

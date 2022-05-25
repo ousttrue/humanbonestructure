@@ -48,6 +48,10 @@ class GltfNode(FileNode):
         self.fbo = FboView()
         from ..scene.node_scene import NodeScene
         self.scene = NodeScene(self.fbo.mouse_event)
+
+        # render mesh
+        self.fbo.render = self.scene.render
+
         self.cancel_axis = (ctypes.c_bool * 1)()
         self.strict_delta = (ctypes.c_bool * 1)()
 
@@ -79,10 +83,6 @@ class GltfNode(FileNode):
         y += 43
         x += 8
         self.fbo.show_fbo(x, y, w, h)
-
-        # render mesh
-        assert self.fbo.mouse_event.last_input
-        self.scene.render(w, h)
 
         super().show_content(graph)
         # if self.gltf:

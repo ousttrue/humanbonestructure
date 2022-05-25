@@ -48,6 +48,9 @@ class ViewNode(Node):
         self.fbo = FboView()
         from ..scene.node_scene import NodeScene
         self.scene = NodeScene(self.fbo.mouse_event)
+        # render mesh
+        self.fbo.render = self.scene.render
+
         self.cancel_axis = (ctypes.c_bool * 1)()
 
     @classmethod
@@ -79,10 +82,6 @@ class ViewNode(Node):
         y += 43
         x += 8
         self.fbo.show_fbo(x, y, w, h)
-
-        # render mesh
-        assert self.fbo.mouse_event.last_input
-        self.scene.render(w, h)
 
         if self.scene.skeleton:
             ImGui.Checkbox('cancel axis', self.cancel_axis)
