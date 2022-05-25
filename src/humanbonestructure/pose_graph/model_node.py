@@ -6,13 +6,15 @@ from pydear import imgui as ImGui
 from pydear import imnodes as ImNodes
 from pydear.utils.node_editor.node import InputPin, OutputPin, Serialized
 from ..formats.gltf_loader import Gltf
+from ..formats.pmd_loader import Pmd
+from ..formats.pmx_loader import Pmx
 from ..humanoid.bone import Skeleton
 from ..humanoid.pose import Pose
 from ..builder.hierarchy import Hierarchy
 from .file_node import FileNode
 
 
-class GltfPoseInputPin(InputPin[Optional[Pose]]):
+class ModelPoseInputPin(InputPin[Optional[Pose]]):
     def __init__(self, id: int) -> None:
         super().__init__(id, 'pose')
         self.pose: Optional[Pose] = None
@@ -21,27 +23,27 @@ class GltfPoseInputPin(InputPin[Optional[Pose]]):
         self.pose = pose
 
 
-class GltfSkeletonOutputPin(OutputPin[Optional[Skeleton]]):
+class ModelSkeletonOutputPin(OutputPin[Optional[Skeleton]]):
     def __init__(self, id: int) -> None:
         super().__init__(id, 'skeleton')
 
-    def get_value(self, node: 'GltfNode') -> Optional[Skeleton]:
+    def get_value(self, node: 'ModelNode') -> Optional[Skeleton]:
         return node.skeleton
 
 
-class GltfNode(FileNode):
+class ModelNode(FileNode):
     '''
     * out: skeleton
     '''
 
     def __init__(self, id: int, in_pose_id: int, out_skeleton_id: int,
                  path: Optional[pathlib.Path] = None) -> None:
-        self.in_pin = GltfPoseInputPin(in_pose_id)
-        super().__init__(id, 'gltf/glb/vrm', path,
+        self.in_pin = ModelPoseInputPin(in_pose_id)
+        super().__init__(id, 'gltf/glb/vrm/pmd/pmx', path,
                          [self.in_pin],
-                         [GltfSkeletonOutputPin(out_skeleton_id)],
-                         '.gltf', '.glb', '.vrm')
-        self.gltf = None
+                         [ModelSkeletonOutputPin(out_skeleton_id)],
+                         '.gltf', '.glb', '.vrm', '.pmd', '.pmx')
+        self.model = None
         self.skeleton: Optional[Skeleton] = None
         self.hierarchy: Optional[Hierarchy] = None
 
@@ -59,8 +61,8 @@ class GltfNode(FileNode):
 
     @classmethod
     def imgui_menu(cls, graph, click_pos):
-        if ImGui.MenuItem("gltf/glb/vrm"):
-            node = GltfNode(
+        if ImGui.MenuItem("gltf/glb/vrm/pmd/pmx"):
+            node = ModelNode(
                 graph.get_next_id(),
                 graph.get_next_id(),
                 graph.get_next_id())
@@ -99,14 +101,24 @@ class GltfNode(FileNode):
             case '.gltf':
                 raise NotImplementedError()
             case '.glb' | '.vrm':
-                self.gltf = Gltf.load_glb(path.read_bytes())
+                self.model = Gltf.load_glb(path.read_bytes())
                 from ..builder import gltf_builder
-                hierarchy = gltf_builder.build(self.gltf)
+                hierarchy = gltf_builder.build(self.model)
                 self.skeleton = hierarchy.to_skeleton()
                 self.hierarchy = hierarchy
+            case '.pmd':
+                self.model = Pmd(path.read_bytes())
+                from ..builder import pmd_builder
+                hierarchy = pmd_builder.build(self.model)
+                self.skeleton = hierarchy.to_skeleton()
+            case '.pmx':
+                self.model = Pmx(path.read_bytes())
+                from ..builder import pmx_builder
+                hierarchy = pmx_builder.build(self.model)
+                self.skeleton = hierarchy.to_skeleton()
 
     def process_self(self):
-        if not self.gltf and self.path:
+        if not self.model and self.path:
             self.load(self.path)
 
         self.scene.update(

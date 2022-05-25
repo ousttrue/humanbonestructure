@@ -28,6 +28,8 @@ class Scene:
         self.bone_delta_map: Dict[HumanoidBone, glm.quat] = {}
         self.hierarchy: Optional[Hierarchy] = None
 
+        self.pose_changed = EventProperty[Pose](Pose('empty'))
+
     def render(self, mouse_input: MouseInput):
         camera = self.mouse_camera.camera
         camera.projection.resize(mouse_input.width, mouse_input.height)
@@ -145,7 +147,6 @@ class Scene:
             self.drag_handler = BoneDragHandler(
                 self.gizmo, camera, self.joint_shape_map, raise_pose)
             self.mouse_camera.mouse_event.bind_left_drag(self.drag_handler)
-            self.pose_changed = EventProperty[Pose](Pose('empty'))
 
             def on_selected(selected: Optional[Shape]):
                 if selected:

@@ -5,8 +5,7 @@ from .time_node import TimeNode
 from .bvh_node import BvhNode
 from .view_node import ViewNode
 from .mmd_pose_node import MmdPoseNode
-# from .mmd_model_node import MmdModelNode
-from .gltf_node import GltfNode
+from .model_node import ModelNode
 from .tpose_node import TPoseNode
 from .pose_muxer import PoseMuxerNode
 from .skeleton_muxer import SkeletonMuxerNode
@@ -18,8 +17,7 @@ TYPES = [
     TimeNode,
     BvhNode,
     MmdPoseNode,
-    # MmdModelNode,
-    GltfNode,
+    ModelNode,
     TPoseNode,
     ViewNode,
     TcpClientNode,

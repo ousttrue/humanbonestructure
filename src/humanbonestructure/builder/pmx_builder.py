@@ -1,32 +1,34 @@
 from typing import List, Dict
 import glm
-from ...formats import pmx_loader, pmd_loader
-from ..transform import Transform
-from ...humanoid.humanoid_bones import HumanoidBone
-from ..node import Node
-from ..mesh_renderer import MeshRenderer
+from ..formats import pmx_loader, pmd_loader
+from ..formats.transform import Transform
+from ..formats.node import Node
+from ..humanoid.humanoid_bones import HumanoidBone
+from ..scene.mesh_renderer import MeshRenderer
 from .pmd_builder import reverse_z
+from .hierarchy import Hierarchy
 
 
-def build(pmx: pmx_loader.Pmx) -> Node:
+def build(pmx: pmx_loader.Pmx) -> Hierarchy:
     root = Node('__root__',  Transform.identity())
+    node_humanoid_map: Dict[Node, HumanoidBone] = {}
+    bone_map: Dict[HumanoidBone, Node] = {}
 
     # build node hierarchy
     nodes: List[Node] = []
     for i, b in enumerate(pmx.bones):
-        node = Node(b.name_ja, Transform.identity(), pmd_loader.BONE_HUMANOID_MAP.get(
-            b.name_ja, HumanoidBone.unknown))
+        node = Node(b.name_ja, Transform.identity())
+        humanoid_bone = pmd_loader.BONE_HUMANOID_MAP.get(
+            b.name_ja, HumanoidBone.unknown)
+        node_humanoid_map[node] = humanoid_bone
+        if humanoid_bone.is_enable():
+            bone_map[humanoid_bone] = node
+
         node.has_weighted_vertices = i in pmx.deform_bones
         nodes.append(node)
 
-    bone_map: Dict[HumanoidBone, Node] = {}
     for i, (node, bone) in enumerate(zip(nodes, pmx.bones)):
         assert isinstance(bone, pmx_loader.Bone)
-        node.humanoid_bone = pmd_loader.BONE_HUMANOID_MAP.get(
-            node.name, HumanoidBone.unknown)
-        if node.humanoid_bone.is_enable():
-            bone_map[node.humanoid_bone] = node
-
         t = glm.vec3(*bone.position)
         if bone.parent_index == -1:
             node.init_trs = node.init_trs._replace(translation=reverse_z(t))
@@ -51,20 +53,20 @@ def build(pmx: pmx_loader.Pmx) -> Node:
     rightFootD = root.find(lambda x: x.name == '右足首D')
     rightToesD = root.find(lambda x: x.name == '右足先EX')
     rightTip = root.find(lambda x: x.name == '右足先EX先')
-    if leftUpperLegD and leftLowerLegD and leftFootD and rightUpperLegD and rightLowerLegD and rightFootD:
-        def replace(humanoid_bone: HumanoidBone, node: Node, tail: Node):
-            bone_map[humanoid_bone].humanoid_bone = HumanoidBone.unknown
-            bone_map[humanoid_bone].humanoid_tail = None
-            node.humanoid_bone = humanoid_bone
-            node.humanoid_tail = tail
-        replace(HumanoidBone.leftUpperLeg, leftUpperLegD, leftLowerLegD)
-        replace(HumanoidBone.leftLowerLeg, leftLowerLegD, leftFootD)
-        replace(HumanoidBone.leftFoot, leftFootD, leftToesD)
-        replace(HumanoidBone.leftToes, leftToesD, leftTip)
-        replace(HumanoidBone.rightUpperLeg, rightUpperLegD, rightLowerLegD)
-        replace(HumanoidBone.rightLowerLeg, rightLowerLegD, rightFootD)
-        replace(HumanoidBone.rightFoot, rightFootD, rightToesD)
-        replace(HumanoidBone.rightToes, rightToesD, rightTip)
+    # if leftUpperLegD and leftLowerLegD and leftFootD and rightUpperLegD and rightLowerLegD and rightFootD:
+    #     def replace(humanoid_bone: HumanoidBone, node: Node, tail: Node):
+    #         bone_map[humanoid_bone].humanoid_bone = HumanoidBone.unknown
+    #         bone_map[humanoid_bone].humanoid_tail = None
+    #         node.humanoid_bone = humanoid_bone
+
+    #     replace(HumanoidBone.leftUpperLeg, leftUpperLegD, leftLowerLegD)
+    #     replace(HumanoidBone.leftLowerLeg, leftLowerLegD, leftFootD)
+    #     replace(HumanoidBone.leftFoot, leftFootD, leftToesD)
+    #     replace(HumanoidBone.leftToes, leftToesD, leftTip)
+    #     replace(HumanoidBone.rightUpperLeg, rightUpperLegD, rightLowerLegD)
+    #     replace(HumanoidBone.rightLowerLeg, rightLowerLegD, rightFootD)
+    #     replace(HumanoidBone.rightFoot, rightFootD, rightToesD)
+    #     replace(HumanoidBone.rightToes, rightToesD, rightTip)
 
     # reverse z
     for i, v in enumerate(pmx.vertices):
@@ -81,4 +83,4 @@ def build(pmx: pmx_loader.Pmx) -> Node:
     root.renderer = MeshRenderer("assets/shader",
                                  pmx.vertices, pmx.indices, joints=nodes)
 
-    return root
+    return Hierarchy(root, node_humanoid_map)

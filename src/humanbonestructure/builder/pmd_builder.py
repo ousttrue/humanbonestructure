@@ -1,32 +1,32 @@
-from typing import List
+from typing import List, Dict
 import glm
-from ...formats import pmd_loader, bytesreader, buffer_types
-from ..transform import Transform
-from ...humanoid.humanoid_bones import HumanoidBone
-from ..node import Node
-from ..mesh_renderer import MeshRenderer
+from ..formats import pmd_loader, bytesreader, buffer_types
+from ..formats.transform import Transform
+from ..formats.node import Node
+from ..humanoid.humanoid_bones import HumanoidBone
+from ..scene.mesh_renderer import MeshRenderer
+from .hierarchy import Hierarchy
 
 
 def reverse_z(v: glm.vec3) -> glm.vec3:
     return glm.vec3(v.x, v.y, -v.z)
 
 
-def build(pmd: pmd_loader.Pmd) -> Node:
+def build(pmd: pmd_loader.Pmd) -> Hierarchy:
     root = Node('__root__', Transform.identity())
+    node_humanoid_map: Dict[Node, HumanoidBone] = {}
 
     # build node hierarchy
     nodes: List[Node] = []
     for i, b in enumerate(pmd.bones):
         name = bytesreader.bytes_to_str(b.name)
-        node = Node(name, Transform.identity(), pmd_loader.BONE_HUMANOID_MAP.get(
-            name, HumanoidBone.unknown))
+        node = Node(name, Transform.identity())
+        node_humanoid_map[node] = pmd_loader.BONE_HUMANOID_MAP.get(
+            name, HumanoidBone.unknown)
         node.has_weighted_vertices = i in pmd.deform_bones
         nodes.append(node)
 
     for i, (node, bone) in enumerate(zip(nodes, pmd.bones)):
-        node.humanoid_bone = pmd_loader.BONE_HUMANOID_MAP.get(
-            node.name, HumanoidBone.unknown)
-
         t = glm.vec3(*bone.position)
         if bone.parent_index == 65535:
             node.init_trs = node.init_trs._replace(translation=reverse_z(t))
@@ -65,4 +65,4 @@ def build(pmd: pmd_loader.Pmd) -> Node:
     # set renderer
     root.renderer = MeshRenderer("assets/shader",
                                  vertices, pmd.indices, joints=nodes)
-    return root
+    return Hierarchy(root, node_humanoid_map)
