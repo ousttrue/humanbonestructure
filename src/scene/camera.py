@@ -3,6 +3,7 @@ import math
 import logging
 import glm
 from pydear.utils.mouse_event import DragInterface, MouseInput, MouseEvent
+
 LOGGER = logging.getLogger(__name__)
 
 
@@ -13,10 +14,12 @@ class Ray(NamedTuple):
     origin: glm.vec3
     dir: glm.vec3
 
-    def intersect_triangle(self, v0: glm.vec3, v1: glm.vec3, v2: glm.vec3) -> Optional[float]:
-        '''
+    def intersect_triangle(
+        self, v0: glm.vec3, v1: glm.vec3, v2: glm.vec3
+    ) -> Optional[float]:
+        """
         https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-rendering-a-triangle/ray-triangle-intersection-geometric-solution
-        '''
+        """
         # compute plane's normal
         v0v1 = v1 - v0
         v0v2 = v2 - v0
@@ -82,8 +85,9 @@ class Perspective:
         self.update_matrix()
 
     def update_matrix(self) -> None:
-        self.matrix = glm.perspectiveRH(self.fov_y, self.aspect, self.z_near,
-                                        self.z_far)
+        self.matrix = glm.perspectiveRH(
+            self.fov_y, self.aspect, self.z_near, self.z_far
+        )
 
     def resize(self, w: int, h: int) -> bool:
         if self.width == w and self.height == h:
@@ -96,7 +100,7 @@ class Perspective:
 
 
 class View:
-    def __init__(self, y=0, distance=5) -> None:
+    def __init__(self, y: float = 0, distance: float = 5) -> None:
         self.gaze = glm.vec3(0, 0, 0)
         self.rotation = glm.quat()
         self.shift = glm.vec3(0, y, -distance)
@@ -136,8 +140,7 @@ class ScreenShift(DragInterface):
         pass
 
     def drag(self, mouse_input: MouseInput, dx: int, dy: int):
-        plane_height = math.tan(
-            self.projection.fov_y * 0.5) * self.view.shift.z * 2
+        plane_height = math.tan(self.projection.fov_y * 0.5) * self.view.shift.z * 2
         self.view.shift.x -= dx / self.projection.height * plane_height
         self.view.shift.y += dy / self.projection.height * plane_height
         self.update()
@@ -180,12 +183,14 @@ class TurnTable(DragInterface):
 
 
 def get_arcball_vector(mouse_input: MouseInput):
-    '''
+    """
     https://en.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_Arcball
-    '''
-    P = glm.vec3(mouse_input.x / mouse_input.width * 2 - 1.0,
-                 mouse_input.y / mouse_input.height * 2 - 1.0,
-                 0)
+    """
+    P = glm.vec3(
+        mouse_input.x / mouse_input.width * 2 - 1.0,
+        mouse_input.y / mouse_input.height * 2 - 1.0,
+        0,
+    )
     P.y = -P.y
     OP_squared = P.x * P.x + P.y * P.y
     if OP_squared <= 1:
@@ -209,13 +214,11 @@ class ArcBall(DragInterface):
         self.view.rotation = glm.normalize(self.tmp_rotation * self.rotation)
         self.view.update_matrix()
 
-    def begin(self, mouse_input: MouseInput):
-        x = mouse_input.x
-        y = mouse_input.y
+    def begin(self, x, y):
         self.rotation = self.view.rotation
         self.x = x
         self.y = y
-        self.va = get_arcball_vector(mouse_input)
+        self.va = get_arcball_vector(x, y)
 
     def drag(self, mouse_input: MouseInput, dx: int, dy: int):
         x = mouse_input.x
@@ -244,18 +247,42 @@ class Camera:
         self.view = View(y=y, distance=distance)
 
     def get_mouse_ray(self, x: int, y: int) -> Ray:
-        return get_mouse_ray(x, y, self.projection.width, self.projection.height,
-                             self.view.inverse, self.projection.fov_y, self.projection.aspect)
+        return get_mouse_ray(
+            x,
+            y,
+            self.projection.width,
+            self.projection.height,
+            self.view.inverse,
+            self.projection.fov_y,
+            self.projection.aspect,
+        )
+
+    def yaw_pitch(self, dx, dy):
+        self.view.rotation
+        self.view.update_matrix()
+
+    def shift(self, dx, dy):
+        self.view.shift.x += dx
+        self.view.shift.y += dy
+        self.view.update_matrix()
+
+    def dolly(self, d):
+        if d > 0:
+            self.view.shift.z *= 1.1
+        else:
+            self.view.shift.z *= 0.9
+        self.view.update_matrix()
 
 
-def get_mouse_ray(x: int, y: int, w: int, h: int,
-                  view_inverse: glm.mat4, fov_y: float, aspect: float) -> Ray:
+def get_mouse_ray(
+    x: int, y: int, w: int, h: int, view_inverse: glm.mat4, fov_y: float, aspect: float
+) -> Ray:
     origin = view_inverse[3].xyz
     half_fov = fov_y / 2
     dir = view_inverse * glm.vec4(
-        (x / w * 2 - 1)
-        * math.tan(half_fov) * (aspect),
+        (x / w * 2 - 1) * math.tan(half_fov) * (aspect),
         -(y / h * 2 - 1) * math.tan(half_fov),
         -1,
-        0)
+        0,
+    )
     return Ray(origin, glm.normalize(dir.xyz))
