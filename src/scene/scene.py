@@ -5,12 +5,12 @@ from pydear.utils.mouse_camera import MouseCamera
 from pydear.gizmo.gizmo import Gizmo
 from pydear.gizmo.gizmo_select_handler import GizmoSelectHandler
 from pydear.gizmo.shapes.shape import Shape
-from ..humanoid.pose import Pose
-from ..humanoid.bone import Bone, Skeleton, Joint
-from ..eventproperty import EventProperty
-from ..humanoid.humanoid_bones import HumanoidBone
-from ..builder.hierarchy import Hierarchy
-from ..formats.transform import Transform
+from humanoid.pose import Pose
+from humanoid.bone import Bone, Skeleton, Joint
+from humanoid.humanoid_bones import HumanoidBone
+from .eventproperty import EventProperty
+from builder.hierarchy import Hierarchy
+from formats.transform import Transform
 from .bone_drag_handler import BoneDragHandler
 from .bone_shape import BoneShape
 

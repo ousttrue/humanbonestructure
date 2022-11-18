@@ -4,10 +4,10 @@ import glm
 from pydear.gizmo.shapes.shape import Shape
 from pydear.gizmo.primitive import Quad
 from pydear.gizmo.gizmo import Gizmo
-from ..humanoid.humanoid_bones import HumanoidBone
-from ..humanoid.bone import Skeleton, Bone, AxisPositiveNegative
-from ..humanoid.coordinate import Coordinate
-from ..formats.node import Node
+from humanoid.humanoid_bones import HumanoidBone
+from humanoid.bone import Skeleton, Bone, AxisPositiveNegative
+from humanoid.coordinate import Coordinate
+from formats.node import Node
 
 UP_COLOR = glm.vec4(0.8, 0.2, 0.2, 1)
 

@@ -2,7 +2,7 @@ import logging
 import re
 import json
 from pydear import imgui as ImGui
-from ..eventproperty import EventProperty
+from ...scene.eventproperty import EventProperty
 from ..humanoid.pose import Pose
 
 LOGGER = logging.getLogger(__name__)

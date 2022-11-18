@@ -2,7 +2,7 @@ from typing import Optional, List, TypeVar, Generic, Callable, Iterable, NamedTu
 import logging
 import abc
 from pydear import imgui as ImGui
-from ..eventproperty import EventProperty, OptionalEventProperty
+from ...scene.eventproperty import EventProperty, OptionalEventProperty
 
 
 LOGGER = logging.getLogger(__name__)

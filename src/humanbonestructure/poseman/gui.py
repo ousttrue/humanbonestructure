@@ -6,7 +6,7 @@ import glm
 from pydear import imgui as ImGui
 from pydear.utils import dockspace
 from ..humanoid.pose import Pose
-from ..eventproperty import EventProperty
+from ...scene.eventproperty import EventProperty
 
 LOGGER = logging.getLogger(__name__)
 

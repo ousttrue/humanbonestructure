@@ -4,8 +4,8 @@ from pydear.gizmo.gizmo_drag_handler import RingDragContext, RollDragContext, Gi
 from pydear.gizmo.gizmo import Gizmo
 from pydear.gizmo.shapes.shape import Shape
 from pydear.scene.camera import Camera, MouseInput
-from ..humanoid.humanoid_bones import BoneBase
-from ..humanoid.bone import Joint, TR
+from humanoid.humanoid_bones import BoneBase
+from humanoid.bone import Joint, TR
 
 HAND_SCALE = glm.scale(glm.vec3(0.25, 0.25, 0.25))
 

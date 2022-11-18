@@ -1,7 +1,7 @@
 from typing import Optional
 import ctypes
 from .bone_mask import BoneMask
-from ..eventproperty import EventProperty
+from ...scene.eventproperty import EventProperty
 from ..humanoid.pose import Pose
 from .motion_list import Motion
 from pydear import imgui as ImGui

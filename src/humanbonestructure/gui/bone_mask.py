@@ -1,7 +1,7 @@
 import ctypes
 from pydear import imgui as ImGui
 from ..formats.humanoid_bones import HumanoidBone
-from ..eventproperty import Event
+from ...scene.eventproperty import Event
 import logging
 LOGGER = logging.getLogger(__name__)
 
