@@ -2,6 +2,10 @@ import sys
 import pathlib
 import gi
 from .renderer import Renderer
+import logging
+import traceback
+
+logger = logging.getLogger(__name__)
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Gio", "2.0")
@@ -21,13 +25,18 @@ class Window(Gtk.ApplicationWindow):
 
 
 def on_activate(app: Gtk.Application) -> None:
-    window = Window(app)
-    if len(sys.argv) > 1:
-        window.renderer.load(pathlib.Path(sys.argv[1]))
-    window.present()
+    try:
+        window = Window(app)
+        if len(sys.argv) > 1:
+            window.renderer.load(pathlib.Path(sys.argv[1]))
+        window.present()
+    except Exception:
+        traceback.print_exc()
+        sys.exit()
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.DEBUG)
     app = Gtk.Application.new(
         application_id="com.ousttrue.humanpose",
         flags=Gio.ApplicationFlags.DEFAULT_FLAGS,

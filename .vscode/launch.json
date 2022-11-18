@@ -10,7 +10,7 @@
             "request": "launch",
             "module": "pose_app",
             "args": [
-                "${workspaceFolder}/vrm-specification/samples/Seed-san/vrm/Seed-san.vrm"
+                "${workspaceFolder}/vrm-specification/samples/VRM1_Constraint_Twist_Sample/vrm/VRM1_Constraint_Twist_Sample.vrm"
             ],
             "justMyCode": false,
             "env": {

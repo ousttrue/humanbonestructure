@@ -5,8 +5,8 @@ from OpenGL import GL
 import glm
 from pydear import glo
 from pydear.scene.camera import Camera
-from ..formats.node import Node
-from ..formats.buffer_types import Float4, UShort4, Float3
+from formats.node import Node
+from formats.buffer_types import Float4, UShort4, Float3
 LOGGER = logging.getLogger(__name__)
 
 

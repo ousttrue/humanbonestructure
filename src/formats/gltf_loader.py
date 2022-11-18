@@ -68,7 +68,13 @@ class Gltf:
                 # vrm-1.0
                 if humanoid := vrm1.get('humanoid'):
                     if human_bones := humanoid.get('humanBones'):
-                        return {v['node']: HumanoidBone[k] for k, v in human_bones.items()}
+                        map = {}
+                        for k, v in human_bones.items():
+                            try:
+                                map[v['node']] = HumanoidBone[k]                                
+                            except KeyError:
+                                pass
+                        return map
         return {}
 
     @staticmethod

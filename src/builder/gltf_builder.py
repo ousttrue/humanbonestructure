@@ -1,11 +1,11 @@
 from typing import List, Dict, Tuple
 import ctypes
 import glm
-from ..formats import gltf_loader, buffer_types
-from ..formats.transform import Transform
-from ..formats.node import Node
-from ..humanoid.humanoid_bones import HumanoidBone
-from ..scene.mesh_renderer import MeshRenderer
+from formats import gltf_loader, buffer_types
+from formats.transform import Transform
+from formats.node import Node
+from humanoid.humanoid_bones import HumanoidBone
+from scene.mesh_renderer import MeshRenderer
 from .hierarchy import Hierarchy
 
 
