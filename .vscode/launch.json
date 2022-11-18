@@ -5,6 +5,16 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "HumanPose",
+            "type": "python",
+            "request": "launch",
+            "module": "humanpose",
+            "justMyCode": false,
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/src",
+            },
+        },
+        {
             "name": "humanbonestructure",
             "type": "python",
             "request": "launch",
