@@ -1,0 +1,3 @@
+[submodule "vrm-specification"]
+	path = vrm-specification
+	url = https://github.com/vrm-c/vrm-specification.git
