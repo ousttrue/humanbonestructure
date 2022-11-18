@@ -8,7 +8,10 @@
             "name": "HumanPose",
             "type": "python",
             "request": "launch",
-            "module": "humanpose",
+            "module": "pose_app",
+            "args": [
+                "${workspaceFolder}/vrm-specification/samples/Seed-san/vrm/Seed-san.vrm"
+            ],
             "justMyCode": false,
             "env": {
                 "PYTHONPATH": "${workspaceFolder}/src",

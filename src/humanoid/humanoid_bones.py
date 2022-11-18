@@ -81,9 +81,9 @@ class HumanoidBone(Enum):
     # 中手骨(metacarpal) - 指節骨(proximal, distal),
     # [人指,中,薬,小]
     # 指節骨(proximal, intermediate, distal)
-    leftThumbProximal = (
+    leftThumbMetacarpal = (
         BoneBase.finger_1, BoneFlags.Left | BoneFlags.FingerThumbnail, LEFT, BACK)
-    leftThumbIntermediate = (
+    leftThumbProximal = (
         BoneBase.finger_2, BoneFlags.Left | BoneFlags.FingerThumbnail, LEFT, BACK)
     leftThumbDistal = (
         BoneBase.finger_3, BoneFlags.Left | BoneFlags.FingerThumbnail, LEFT, BACK)
@@ -112,9 +112,9 @@ class HumanoidBone(Enum):
     leftLittleDistal = (
         BoneBase.finger_3, BoneFlags.Left | BoneFlags.FingerLittle, LEFT, DOWN)
     #
-    rightThumbProximal = (
+    rightThumbMetacarpal = (
         BoneBase.finger_1, BoneFlags.Right | BoneFlags.FingerThumbnail, RIGHT, BACK)
-    rightThumbIntermediate = (
+    rightThumbProximal = (
         BoneBase.finger_2, BoneFlags.Right | BoneFlags.FingerThumbnail, RIGHT, BACK)
     rightThumbDistal = (
         BoneBase.finger_3, BoneFlags.Right | BoneFlags.FingerThumbnail, RIGHT, BACK)
@@ -191,8 +191,8 @@ TAIL_MAP = {
     HumanoidBone.leftMiddleProximal: HumanoidBone.leftMiddleIntermediate,
     HumanoidBone.leftMiddleIntermediate: HumanoidBone.leftMiddleDistal,
     HumanoidBone.leftMiddleDistal: HumanoidBone.endSite,
-    HumanoidBone.leftThumbProximal: HumanoidBone.leftThumbIntermediate,
-    HumanoidBone.leftThumbIntermediate: HumanoidBone.leftThumbDistal,
+    HumanoidBone.leftThumbMetacarpal: HumanoidBone.leftThumbProximal,
+    HumanoidBone.leftThumbProximal: HumanoidBone.leftThumbDistal,
     HumanoidBone.leftThumbDistal: HumanoidBone.endSite,
     HumanoidBone.leftIndexProximal: HumanoidBone.leftIndexIntermediate,
     HumanoidBone.leftIndexIntermediate: HumanoidBone.leftIndexDistal,
@@ -215,8 +215,8 @@ TAIL_MAP = {
     HumanoidBone.rightMiddleProximal: HumanoidBone.rightMiddleIntermediate,
     HumanoidBone.rightMiddleIntermediate: HumanoidBone.rightMiddleDistal,
     HumanoidBone.rightMiddleDistal: HumanoidBone.endSite,
-    HumanoidBone.rightThumbProximal: HumanoidBone.rightThumbIntermediate,
-    HumanoidBone.rightThumbIntermediate: HumanoidBone.rightThumbDistal,
+    HumanoidBone.rightThumbMetacarpal: HumanoidBone.rightThumbProximal,
+    HumanoidBone.rightThumbProximal: HumanoidBone.rightThumbDistal,
     HumanoidBone.rightThumbDistal: HumanoidBone.endSite,
     HumanoidBone.rightIndexProximal: HumanoidBone.rightIndexIntermediate,
     HumanoidBone.rightIndexIntermediate: HumanoidBone.rightIndexDistal,

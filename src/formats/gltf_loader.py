@@ -5,7 +5,7 @@ import pathlib
 import json
 import logging
 import glm
-from ..humanoid.humanoid_bones import HumanoidBone
+from humanoid.humanoid_bones import HumanoidBone
 from . import typed_gltf
 from .buffer_types import Float2, Float3, Float4, UShort4, Mat4
 LOGGER = logging.getLogger(__name__)
