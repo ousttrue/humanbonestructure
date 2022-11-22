@@ -3,34 +3,42 @@ import logging
 import ctypes
 from OpenGL import GL
 import glm
-from pydear import glo
-from pydear.scene.camera import Camera
+from glglue import glo
+from glglue.camera import Camera
+from glglue.drawable import Drawable
 from formats.node import Node
 from formats.buffer_types import Float4, UShort4, Float3
+
 LOGGER = logging.getLogger(__name__)
 
 
 class SkinningInfo(ctypes.Structure):
     _fields_ = [
         # original position
-        ('position', Float3),
+        ("position", Float3),
         # target bones
-        ('bone4', UShort4),
+        ("bone4", UShort4),
         # target weights
-        ('weight4',  Float4),
+        ("weight4", Float4),
     ]
 
 
 class MeshRenderer:
-    def __init__(self, shader: str, vertices: ctypes.Array, indices: ctypes.Array, *,
-                 joints: Optional[list] = None) -> None:
+    def __init__(
+        self,
+        shader: str,
+        vertices: ctypes.Array,
+        indices: ctypes.Array,
+        *,
+        joints: Optional[list] = None
+    ) -> None:
         self.shader = ("humanbonestructure", shader)
         self.vertices = vertices
         self.indices = indices
         if not joints:
             joints = []
         self.joints = joints
-        self.drawable: Optional[glo.Drawable] = None
+        self.drawable: Optional[Drawable] = None
         if self.joints:
             self.bone_matrices = glm.array.zeros(len(self.joints), glm.mat4)
         else:
@@ -48,12 +56,12 @@ class MeshRenderer:
             # props
             props = shader.create_props(camera, node)
 
-            bone_matrices = glo.UniformLocation.create(
-                shader.program, "uBoneMatrices")
+            bone_matrices = glo.UniformLocation.create(shader.program, "uBoneMatrices")
 
             def update_bone_matrices():
                 bone_matrices.set_mat4(
-                    self.bone_matrices.ptr, count=len(self.bone_matrices))
+                    self.bone_matrices.ptr, count=len(self.bone_matrices)
+                )
 
             props.append(update_bone_matrices)
 
@@ -64,10 +72,9 @@ class MeshRenderer:
             ibo = glo.Ibo()
             ibo.set_indices(self.indices)
 
-            vao = glo.Vao(
-                vbo, glo.VertexLayout.create_list(shader.program), ibo)
+            vao = glo.Vao(vbo, glo.VertexLayout.create_list(shader.program), ibo)
 
-            self.drawable = glo.Drawable(vao)
+            self.drawable = Drawable(vao)
             self.drawable.push_submesh(shader, len(self.indices), props)
 
         # gpu skinning

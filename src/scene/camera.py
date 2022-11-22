@@ -2,7 +2,8 @@ from typing import NamedTuple, Optional
 import math
 import logging
 import glm
-from pydear.utils.mouse_event import DragInterface, MouseInput, MouseEvent
+from glglue.camera.mouse_event import DragInterface, MouseEvent
+from glglue.frame_input import FrameInput
 
 LOGGER = logging.getLogger(__name__)
 
@@ -136,16 +137,16 @@ class ScreenShift(DragInterface):
     def update(self) -> None:
         self.view.update_matrix()
 
-    def begin(self, mouse_input: MouseInput):
+    def begin(self, mouse_input: FrameInput):
         pass
 
-    def drag(self, mouse_input: MouseInput, dx: int, dy: int):
+    def drag(self, mouse_input: FrameInput, dx: int, dy: int):
         plane_height = math.tan(self.projection.fov_y * 0.5) * self.view.shift.z * 2
         self.view.shift.x -= dx / self.projection.height * plane_height
         self.view.shift.y += dy / self.projection.height * plane_height
         self.update()
 
-    def end(self, mouse_input: MouseInput):
+    def end(self, mouse_input: FrameInput):
         pass
 
     def wheel(self, d: int):
@@ -170,25 +171,25 @@ class TurnTable(DragInterface):
         self.view.rotation = pitch * yaw
         self.view.update_matrix()
 
-    def begin(self, mouse_input: MouseInput):
+    def begin(self, mouse_input: FrameInput):
         pass
 
-    def drag(self, mouse_input: MouseInput, dx: int, dy: int):
+    def drag(self, mouse_input: FrameInput, dx: int, dy: int):
         self.yaw += dx * 0.01
         self.pitch += dy * 0.01
         self.update()
 
-    def end(self, mouse_input: MouseInput):
+    def end(self, mouse_input: FrameInput):
         pass
 
 
-def get_arcball_vector(mouse_input: MouseInput):
+def get_arcball_vector(mouse_input: FrameInput):
     """
     https://en.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_Arcball
     """
     P = glm.vec3(
-        mouse_input.x / mouse_input.width * 2 - 1.0,
-        mouse_input.y / mouse_input.height * 2 - 1.0,
+        mouse_input.mouse_x / mouse_input.width * 2 - 1.0,
+        mouse_input.mouse_y / mouse_input.height * 2 - 1.0,
         0,
     )
     P.y = -P.y
@@ -220,9 +221,9 @@ class ArcBall(DragInterface):
         self.y = y
         self.va = get_arcball_vector(x, y)
 
-    def drag(self, mouse_input: MouseInput, dx: int, dy: int):
-        x = mouse_input.x
-        y = mouse_input.y
+    def drag(self, mouse_input: FrameInput, dx: int, dy: int):
+        x = mouse_input.mouse_x
+        y = mouse_input.mouse_y
         if x == self.x and y == self.y:
             return
         self.x = x
@@ -233,9 +234,7 @@ class ArcBall(DragInterface):
         self.tmp_rotation = glm.angleAxis(angle, axis)
         self.update()
 
-    def end(self, mouse_input: MouseInput):
-        x = mouse_input.x
-        y = mouse_input.y
+    def end(self, mouse_input: FrameInput):
         self.rotation = glm.normalize(self.tmp_rotation * self.rotation)
         self.tmp_rotation = glm.quat()
         self.update()

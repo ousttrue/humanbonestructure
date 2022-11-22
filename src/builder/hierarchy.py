@@ -1,6 +1,6 @@
 from typing import Optional, Dict
 import glm
-from scene.camera import Camera
+from glglue.camera import Camera
 from formats.node import Node
 from humanoid.bone import (
     Skeleton,
